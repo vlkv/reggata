@@ -1,5 +1,5 @@
 CREATE TABLE "user" (
-    "name" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT PRIMARY KEY NOT NULL,
     "password" TEXT NOT NULL, -- может быть пустой пароль, но не NULL
     "notes" TEXT,
     "group" TEXT NOT NULL -- Группа определяет права пользователя. Значения: user, admin
@@ -7,7 +7,7 @@ CREATE TABLE "user" (
 
 -- Объект (или элемент) хранилища данных.
 CREATE TABLE "object" (
-	"id" INTEGER NOT NULL PRIMARY KEY, 
+	"id" INTEGER PRIMARY KEY NOT NULL, 
 	"name" TEXT NOT NULL, 
 	"notes" TEXT, 
 	"user_name" TEXT,
@@ -15,7 +15,7 @@ CREATE TABLE "object" (
 );
 
 CREATE TABLE "data" (
-    "uri" TEXT NOT NULL PRIMARY KEY, -- Это путь к файлу относит. корня хранилища, или URL ресурса Интернет --
+    "uri" TEXT PRIMARY KEY NOT NULL, -- Это путь к файлу относит. корня хранилища, или URL ресурса Интернет --
     "hash" TEXT, -- хеш от содержимого файла, NULL для url-ссылок --
     "date_hashed" INTEGER, -- дата/время вычисления хеша --
     "size" INTEGER NOT NULL DEFAULT 0, -- размер файла в байтах, для url ссылок равно нулю --
