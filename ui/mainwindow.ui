@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>556</width>
+    <height>417</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="pushButton_test">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>83</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Тест</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_test">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>70</y>
+      <width>57</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>556</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_repo">
+    <property name="title">
+     <string>Хранилище</string>
+    </property>
+    <addaction name="action_repo_create"/>
+    <addaction name="action_repo_open"/>
+    <addaction name="action_repo_close"/>
+    <addaction name="action_repo_add_file"/>
+   </widget>
+   <addaction name="menu_repo"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_repo_create">
+   <property name="text">
+    <string>Создать</string>
+   </property>
+  </action>
+  <action name="action_repo_open">
+   <property name="text">
+    <string>Открыть</string>
+   </property>
+  </action>
+  <action name="action_repo_close">
+   <property name="text">
+    <string>Закрыть</string>
+   </property>
+  </action>
+  <action name="action_repo_add_file">
+   <property name="text">
+    <string>Добавить файл</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
