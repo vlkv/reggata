@@ -11,8 +11,10 @@ import sys
 
 
 from PyQt4.QtCore import (Qt, SIGNAL)
-from PyQt4.QtGui import (QApplication, QMainWindow, QLineEdit, QTextBrowser, QVBoxLayout, QPushButton)
+from PyQt4.QtGui import (QApplication, QMainWindow, QLineEdit, QTextBrowser, 
+						QVBoxLayout, QPushButton, QFileDialog, QErrorMessage, QMessageBox)
 import mainwindow
+from repo_mgr.repo_mgr import RepoMgr
 
 class MainWindow(QMainWindow):
 	def __init__(self, parent=None):
@@ -20,10 +22,20 @@ class MainWindow(QMainWindow):
 		self.ui = mainwindow.Ui_MainWindow()
 		self.ui.setupUi(self)
 		self.connect(self.ui.pushButton_test, SIGNAL("pressed()"), self.btn_test_clicked)
-		self.connect(self.ui.action_repo_create, SIGNAL("triggered()"), self.btn_test_clicked)
+		self.connect(self.ui.action_repo_create, SIGNAL("triggered()"), self.action_repo_create)
 		
 	def btn_test_clicked(self):
 		print(self.ui.label_test.text())
+		
+	def action_repo_create(self):
+		try:
+			base_path = QFileDialog.getExistingDirectory(self, 'Выбор базовой директории хранилища')
+			if base_path == '':
+				raise Exception(self.tr('Необходимо выбрать существующую директорию'))
+			RepoMgr.init_new_repo(base_path)
+		except Exception as err:
+			QMessageBox.information(self, 'Отмена операции', str(err))
+		
 		
 
 #class MainWindow(QDialog):
