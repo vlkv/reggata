@@ -22,6 +22,10 @@ class MainWindow(QMainWindow):
 	'''
 	Главное окно приложения reggata.
 	'''
+	
+	#Список открытых хранилищ (объектов RepoMgr)
+	__opened_repos = []
+	
 	def __init__(self, parent=None):
 		super(MainWindow, self).__init__(parent)
 		self.ui = mainwindow.Ui_MainWindow()
@@ -38,9 +42,12 @@ class MainWindow(QMainWindow):
 			base_path = QFileDialog.getExistingDirectory(self, tr("Выбор базовой директории хранилища"))
 			if base_path == "":
 				raise Exception(tr("Необходимо выбрать существующую директорию"))
-			RepoMgr.init_new_repo(base_path)
+			repo = RepoMgr.create_new_repo(base_path)
+			self.__opened_repos.append(repo)
 		except Exception as err:
 			QMessageBox.information(self, tr("Отмена операции"), str(err))
+			
+		
 		
 		
 

@@ -12,14 +12,23 @@ from consts import  *
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
 
-    '''Абсолютный путь к корню хранилища.'''
+    '''Абсолютный путь к корню хранилища '''
     __base_path = None
+    
+    '''Соединение с базой метаданных '''
+    __conn = None
 
-    def __init__(path_to_repo):
+    def __init__(self, path_to_repo):
         '''Открывает хранилище по адресу path_to_repo. 
         Делает некторые проверки того, что хранилище корректно.'''
-        #TODO
-        pass
+        self.__base_path = path_to_repo
+        if not os.path.exists(self.__base_path + os.sep + METADATA_DIR):
+            raise Exception(tr("Директория " + self.__base_path + " не является хранилищем."))
+        
+        __conn = sqlite3.connect(self.__base_path + os.sep + METADATA_DIR + os.sep + DB_FILE)
+        
+    def __del__(self):
+        self.__conn.close()
     
     @staticmethod
     def init_new_repo(base_path):
@@ -49,7 +58,10 @@ class RepoMgr(object):
         finally:
             conn.close()
         
-        #TODO Вернуть объект RepoMgr
+    @staticmethod
+    def create_new_repo(base_path):
+        RepoMgr.init_new_repo(base_path)
+        return RepoMgr(base_path)
         
         
     def check_integrity(self, path):
