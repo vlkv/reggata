@@ -10,11 +10,13 @@ import os.path
 import sys
 
 
-from PyQt4.QtCore import (Qt, SIGNAL)
+from PyQt4.QtCore import (Qt, SIGNAL, QCoreApplication, QTextCodec)
 from PyQt4.QtGui import (QApplication, QMainWindow, QLineEdit, QTextBrowser, 
 						QVBoxLayout, QPushButton, QFileDialog, QErrorMessage, QMessageBox)
 import mainwindow
 from repo_mgr.repo_mgr import RepoMgr
+from translator_helper import tr
+
 
 class MainWindow(QMainWindow):
 	def __init__(self, parent=None):
@@ -25,16 +27,20 @@ class MainWindow(QMainWindow):
 		self.connect(self.ui.action_repo_create, SIGNAL("triggered()"), self.action_repo_create)
 		
 	def btn_test_clicked(self):
-		print(self.ui.label_test.text())
+#		print(self.tr("Русский"))
+#		print(self.trUtf8("Текст"))
+#		print(QCoreApplication.translate("MainWindow", "текст"))
+		print(tr("Сообщение", "context"))
+		print(tr("Сообщение"))
 		
 	def action_repo_create(self):
 		try:
-			base_path = QFileDialog.getExistingDirectory(self, 'Выбор базовой директории хранилища')
-			if base_path == '':
-				raise Exception(self.tr('Необходимо выбрать существующую директорию'))
+			base_path = QFileDialog.getExistingDirectory(self, tr("Выбор базовой директории хранилища"))
+			if base_path == "":
+				raise Exception(tr("Необходимо выбрать существующую директорию"))
 			RepoMgr.init_new_repo(base_path)
 		except Exception as err:
-			QMessageBox.information(self, 'Отмена операции', str(err))
+			QMessageBox.information(self, tr("Отмена операции"), str(err))
 		
 		
 
@@ -74,6 +80,10 @@ if __name__ == '__main__':
 
 	app = QApplication(sys.argv)
 	form = MainWindow()
+	
+	#Задает кодировку, которая будет использоваться функциями Object.tr() и QCoreApplication.translate()
+	QTextCodec.setCodecForTr(QTextCodec.codecForName("Utf8"))
+	
 	form.show()
 	app.exec_()
 
