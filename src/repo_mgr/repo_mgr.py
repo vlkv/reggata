@@ -7,6 +7,7 @@ Created on 30.09.2010
 
 import os.path
 import sqlite3
+from consts import  *
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -17,6 +18,7 @@ class RepoMgr(object):
     def __init__(path_to_repo):
         '''Открывает хранилище по адресу path_to_repo. 
         Делает некторые проверки того, что хранилище корректно.'''
+        #TODO
         pass
     
     @staticmethod
@@ -30,15 +32,15 @@ class RepoMgr(object):
         if (not os.path.exists(base_path)):
             raise Exception('Необходимо сначала создать директорию ' + base_path)
         
-        if (os.path.exists(base_path + os.sep + '.reggata')):
+        if (os.path.exists(base_path + os.sep + METADATA_DIR)):
             raise Exception('Директория ' + base_path + ' уже является хранилищем?')
         
-        os.mkdir(base_path + os.sep + '.reggata')
+        os.mkdir(base_path + os.sep + METADATA_DIR)
         
-        conn = sqlite3.connect(base_path + os.sep + '.reggata' + os.sep + 'metadata.db3')
+        conn = sqlite3.connect(base_path + os.sep + METADATA_DIR + os.sep + DB_FILE)
         try:
             c = conn.cursor()
-            f = open('./init_repo.sql')
+            f = open(INIT_DB_SQL)
             lines = f.read().split(';')
             for line in lines:
                 c.execute(line)
@@ -54,6 +56,7 @@ class RepoMgr(object):
         '''Выполняет проверку целостности хранилища в поддиректории хранилища path.
         Что должен возвращать данный метод?
         '''
+        #TODO
         pass
     
         

@@ -19,6 +19,9 @@ from translator_helper import tr
 
 
 class MainWindow(QMainWindow):
+	'''
+	Главное окно приложения reggata.
+	'''
 	def __init__(self, parent=None):
 		super(MainWindow, self).__init__(parent)
 		self.ui = mainwindow.Ui_MainWindow()
@@ -27,9 +30,6 @@ class MainWindow(QMainWindow):
 		self.connect(self.ui.action_repo_create, SIGNAL("triggered()"), self.action_repo_create)
 		
 	def btn_test_clicked(self):
-#		print(self.tr("Русский"))
-#		print(self.trUtf8("Текст"))
-#		print(QCoreApplication.translate("MainWindow", "текст"))
 		print(tr("Сообщение", "context"))
 		print(tr("Сообщение"))
 		
@@ -80,10 +80,6 @@ if __name__ == '__main__':
 
 	app = QApplication(sys.argv)
 	form = MainWindow()
-	
-	#Задает кодировку, которая будет использоваться функциями Object.tr() и QCoreApplication.translate()
-	QTextCodec.setCodecForTr(QTextCodec.codecForName("Utf8"))
-	
 	form.show()
 	app.exec_()
 
