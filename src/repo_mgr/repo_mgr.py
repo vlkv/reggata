@@ -8,6 +8,7 @@ Created on 30.09.2010
 import os.path
 import sqlite3
 from consts import  *
+from translator_helper import tr
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -28,7 +29,8 @@ class RepoMgr(object):
         __conn = sqlite3.connect(self.__base_path + os.sep + METADATA_DIR + os.sep + DB_FILE)
         
     def __del__(self):
-        self.__conn.close()
+        if self.__conn is not None:
+            self.__conn.close()
     
     @staticmethod
     def init_new_repo(base_path):
@@ -36,13 +38,12 @@ class RepoMgr(object):
         1) Проверяет, что директория base_path существует
         2) Внутри base_path нет служебной поддиректории .reggata
         3) Создает служебную директорию .reggata и пустую sqlite базу внутри нее
-        4) Создает объект RepoMgr, связывает его с созданным хранилищем и возвращает его
         '''
         if (not os.path.exists(base_path)):
-            raise Exception('Необходимо сначала создать директорию ' + base_path)
+            raise Exception(tr('Необходимо сначала создать директорию ') + base_path)
         
         if (os.path.exists(base_path + os.sep + METADATA_DIR)):
-            raise Exception('Директория ' + base_path + ' уже является хранилищем?')
+            raise Exception(tr('Директория ') + base_path + tr(' уже является хранилищем?'))
         
         os.mkdir(base_path + os.sep + METADATA_DIR)
         

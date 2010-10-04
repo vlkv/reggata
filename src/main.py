@@ -23,33 +23,60 @@ class MainWindow(QMainWindow):
 	Главное окно приложения reggata.
 	'''
 	
-	#Список открытых хранилищ (объектов RepoMgr)
-	__opened_repos = []
+	#Текущее активное открытое хранилище (объект RepoMgr)
+	__active_repo = None
+	
+	#Текущий пользователь, который работает с программой
+	__user = None
 	
 	def __init__(self, parent=None):
 		super(MainWindow, self).__init__(parent)
 		self.ui = mainwindow.Ui_MainWindow()
 		self.ui.setupUi(self)
-		self.connect(self.ui.pushButton_test, SIGNAL("pressed()"), self.btn_test_clicked)
 		self.connect(self.ui.action_repo_create, SIGNAL("triggered()"), self.action_repo_create)
+		self.connect(self.ui.action_repo_close, SIGNAL("triggered()"), self.action_repo_close)
+		self.connect(self.ui.action_repo_open, SIGNAL("triggered()"), self.action_repo_open)
+		self.connect(self.ui.action_repo_add_file, SIGNAL("triggered()"), self.action_repo_add_file)
 		
-	def btn_test_clicked(self):
-		print(tr("Сообщение", "context"))
-		print(tr("Сообщение"))
+
 		
 	def action_repo_create(self):
 		try:
 			base_path = QFileDialog.getExistingDirectory(self, tr("Выбор базовой директории хранилища"))
 			if base_path == "":
 				raise Exception(tr("Необходимо выбрать существующую директорию"))
-			repo = RepoMgr.create_new_repo(base_path)
-			self.__opened_repos.append(repo)
-		except Exception as err:
-			QMessageBox.information(self, tr("Отмена операции"), str(err))
+			self.__active_repo = RepoMgr.create_new_repo(base_path)			
+		except Exception as ex:
+			QMessageBox.information(self, tr("Отмена операции"), str(ex))
 			
 		
-		
-		
+	def action_repo_close(self):
+		try:
+			if self.__active_repo is None:
+				raise Exception(tr("Нет открытых хранилищ"))
+			self.__active_repo = None #Сборщик мусора и деструктор сделают свое дело
+		except Exception as ex:
+			QMessageBox.information(self, tr("Ошибка"), str(ex))
+
+	def action_repo_open(self):
+		try:
+			base_path = QFileDialog.getExistingDirectory(self, tr("Выбор базовой директории хранилища"))
+			if base_path == "":
+				raise Exception(tr("Необходимо выбрать базовую директорию существующего хранилища"))
+			self.__active_repo = RepoMgr(base_path)
+		except Exception as ex:
+			QMessageBox.information(self, tr("Ошибка"), str(ex))
+			
+	def action_repo_add_file(self):
+		try:
+			file_path = QFileDialog.getOpenFilename(self, tr("Выберите файл"))
+			if file_path == "":
+				raise Exception(tr("Отмена операции."))
+			
+			#TODO
+			
+		except Exception as ex:
+			QMessageBox.information(self, tr("Ошибка"), str(ex))
 
 #class MainWindow(QDialog):
 #
