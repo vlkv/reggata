@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 11.10.2010
 
@@ -10,14 +11,11 @@ from sqlalchemy import ForeignKey
 
 
 Base = declarative_base()
-#metadata = sqa.MetaData()
-metadata = Base.metadata
-
 
 
 class User(Base):
     '''
-    Пользователь системы reggata
+    Пользователь системы reggata.
     '''
     __tablename__ = "users"
     
@@ -35,17 +33,16 @@ class User(Base):
 
 
 #Таблица связей Tag и Item
-tags_items = sqa.Table('tags_items', metadata,
-                   sqa.Column('item_id', sqa.Integer, ForeignKey('items.id')), 
-                   sqa.Column('tag_name', sqa.String, ForeignKey('tags.name')),
-                   sqa.Column('tag_user_login', sqa.String, ForeignKey('tags.user_login')))
-
+tags_items = sqa.Table('tags_items', Base.metadata,
+                   sqa.Column('item_id', sqa.Integer, ForeignKey('items.id'), primary_key=True), 
+                   sqa.Column('tag_name', sqa.String, ForeignKey('tags.name'), primary_key=True),
+                   sqa.Column('tag_user_login', sqa.String, ForeignKey('tags.user_login'), primary_key=True))
 
 
 
 class Item(Base):
     '''
-    Элемент (запись, объект) хранилища
+    Элемент (запись, объект) хранилища.
     '''
     __tablename__ = "items"
     
@@ -61,9 +58,10 @@ class Item(Base):
     data_refs = relationship("DataRef", order_by="DataRef.order_by_key", backref=backref("item"))
     
     #tags - список связанных тегов
-    tags = relationship("Tag", secondary=tags_items, backref='items')
+    tags = relationship("Tag", secondary=tags_items, backref="items")
     
-    #fvals - список связанных полей
+    #field_vals - список связанных полей
+    field_vals = relationship("FieldVal", backref="item")
 
     def __init__(self):
         '''
@@ -75,7 +73,7 @@ class Item(Base):
         
 class DataRef(Base):
     '''
-    Ссылка на файл или URL
+    Ссылка на файл или URL.
     '''
     __tablename__ = "data_refs"
     
@@ -100,12 +98,14 @@ class DataRef(Base):
         
 class Tag(Base):
     '''
-    Тег, описывающий элементы хранилища
+    Тег (ключевое слово), описывающий элементы хранилища.
     '''
     __tablename__ = "tags"
     
     name = sqa.Column(sqa.String, primary_key=True)
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
+    
+    #TODO Нужно сделать синонимы для тегов
     
     #Пользователь, кто создал данный тег
     user = relationship(User, backref=backref("tags"))
@@ -115,3 +115,35 @@ class Tag(Base):
         Constructor
         '''
         
+class Field(Base):
+    '''
+    Поле вида ключ=значение, описывающее элементы хранилища.
+    '''
+    __tablename__ = "fields"
+    
+    #TODO Нужно сделать синонимы для полей
+    
+    name = sqa.Column(sqa.String, primary_key=True)
+    user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
+    value_type = sqa.Column(sqa.Enum("STRING, NUMBER"), nullable=False, default="STRING")
+    
+
+class FieldVal(Base):
+    '''
+    Значение поля, связанное с элементом хранилища.
+    '''
+    __tablename__ = "fields_items"
+    item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"), primary_key=True)
+    field_name = sqa.Column(sqa.String, ForeignKey("fields.name"), primary_key=True)
+    field_user_login = sqa.Column(sqa.String, ForeignKey("fields.user_login"), primary_key=True)
+    field_value = sqa.Column(sqa.String, nullable=False, default="")
+
+    field = relationship(Field)
+
+
+#TODO сделать классы групп полей и тегов
+
+
+
+
+

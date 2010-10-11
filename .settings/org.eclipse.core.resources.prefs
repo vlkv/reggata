@@ -1,6 +1,7 @@
-#Mon Oct 04 19:45:18 MSD 2010
+#Tue Oct 12 00:10:26 MSD 2010
 eclipse.preferences.version=1
+encoding//src/db_model.py=utf-8
 encoding//src/main.py=utf-8
-encoding//src/repo_mgr/repo_mgr.py=utf-8
+encoding//src/repo_mgr.py=utf-8
 encoding//src/translator_helper.py=utf-8
 encoding//ui/mainwindow.py=utf-8

@@ -1,3 +1,5 @@
+-- Теперь, когда используется SQLAlchemy, данный файл уже не нужен
+
 -- Пользователь программы
 CREATE TABLE "user" (
     "name" TEXT PRIMARY KEY NOT NULL, -- имя (логин) пользователя

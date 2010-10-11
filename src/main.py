@@ -14,12 +14,12 @@ from PyQt4.QtCore import (Qt, SIGNAL, QCoreApplication, QTextCodec)
 from PyQt4.QtGui import (QApplication, QMainWindow, QLineEdit, QTextBrowser, 
 						QVBoxLayout, QPushButton, QFileDialog, QErrorMessage, QMessageBox)
 import mainwindow
-from repo_mgr.repo_mgr import RepoMgr
+from repo_mgr import RepoMgr
 from translator_helper import tr
 
 import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
-from db_model import *
+from db_model import Base, User, Item, DataRef, Tag, Field, FieldVal 
 import consts
 
 
@@ -43,7 +43,6 @@ class MainWindow(QMainWindow):
 		self.connect(self.ui.action_repo_open, SIGNAL("triggered()"), self.action_repo_open)
 		self.connect(self.ui.action_repo_add_file, SIGNAL("triggered()"), self.action_repo_add_file)
 		
-
 		
 	def action_repo_create(self):
 		try:
@@ -116,11 +115,9 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
-
 	
-	
-	engine = sqa.create_engine("sqlite:///" + consts.DB_FILE)
-	Base.metadata.create_all(engine)
+#	engine = sqa.create_engine("sqlite:///" + consts.DB_FILE)
+#	Base.metadata.create_all(engine)
 
 	app = QApplication(sys.argv)
 	form = MainWindow()
