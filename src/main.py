@@ -17,6 +17,11 @@ import mainwindow
 from repo_mgr.repo_mgr import RepoMgr
 from translator_helper import tr
 
+import sqlalchemy as sqa
+from sqlalchemy.ext.declarative import declarative_base
+from db_model import *
+import consts
+
 
 class MainWindow(QMainWindow):
 	'''
@@ -111,6 +116,11 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
+
+	
+	
+	engine = sqa.create_engine("sqlite:///" + consts.DB_FILE)
+	Base.metadata.create_all(engine)
 
 	app = QApplication(sys.argv)
 	form = MainWindow()
