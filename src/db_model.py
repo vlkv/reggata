@@ -36,7 +36,7 @@ class User(Base):
 tags_items = sqa.Table('tags_items', Base.metadata,
                    sqa.Column('item_id', sqa.Integer, ForeignKey('items.id'), primary_key=True), 
                    sqa.Column('tag_name', sqa.String, ForeignKey('tags.name'), primary_key=True),
-                   sqa.Column('tag_user_login', sqa.String, ForeignKey('tags.user_login'), primary_key=True))
+                   sqa.Column('tag_user_login', sqa.String, ForeignKey('users.login'), primary_key=True))
 
 
 
@@ -85,7 +85,6 @@ class DataRef(Base):
     item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"))
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
     
-    item = relationship(Item, backref=backref("data_refs"))
     user = relationship(User)
 
     def __init__(self):
@@ -135,7 +134,7 @@ class FieldVal(Base):
     __tablename__ = "fields_items"
     item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"), primary_key=True)
     field_name = sqa.Column(sqa.String, ForeignKey("fields.name"), primary_key=True)
-    field_user_login = sqa.Column(sqa.String, ForeignKey("fields.user_login"), primary_key=True)
+    field_user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
     field_value = sqa.Column(sqa.String, nullable=False, default="")
 
     field = relationship(Field)
