@@ -73,11 +73,19 @@ class MainWindow(QMainWindow):
 			
 	def action_repo_add_file(self):
 		try:
-			file_path = QFileDialog.getOpenFilename(self, tr("Выберите файл"))
+			if self.__active_repo is None:
+				raise Exception(tr("Необходимо сначала открыть хранилище."))
+			
+			file_path = QFileDialog.getOpenFileName(self, tr("Выберите файл"))
 			if file_path == "":
 				raise Exception(tr("Отмена операции."))
 			
-			#TODO
+			#Это тест
+			im = self.__active_repo.createItemMgr()
+			try:
+				im.addTestItem(file_path)
+			finally:
+				im.close()
 			
 		except Exception as ex:
 			QMessageBox.information(self, tr("Ошибка"), str(ex))

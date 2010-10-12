@@ -6,9 +6,11 @@ Created on 30.09.2010
 '''
 
 import os.path
-import sqlite3
-from consts import  *
 from translator_helper import tr
+import consts
+import sqlalchemy as sqa
+from sqlalchemy.orm import sessionmaker
+from db_model import Base, Item
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -17,20 +19,24 @@ class RepoMgr(object):
     __base_path = None
     
     '''Соединение с базой метаданных '''
-    __conn = None
+    __engine = None
+    
+    '''Класс сессии '''
+    Session = None
 
     def __init__(self, path_to_repo):
         '''Открывает хранилище по адресу path_to_repo. 
         Делает некторые проверки того, что хранилище корректно.'''
         self.__base_path = path_to_repo
-        if not os.path.exists(self.__base_path + os.sep + METADATA_DIR):
+        if not os.path.exists(self.__base_path + os.sep + consts.METADATA_DIR):
             raise Exception(tr("Директория " + self.__base_path + " не является хранилищем."))
         
-        __conn = sqlite3.connect(self.__base_path + os.sep + METADATA_DIR + os.sep + DB_FILE)
+        self.__engine = sqa.create_engine("sqlite:///" + self.__base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE)
+
+        self.Session = sessionmaker(bind=self.__engine)
         
     def __del__(self):
-        if self.__conn is not None:
-            self.__conn.close()
+        pass
     
     @staticmethod
     def init_new_repo(base_path):
@@ -42,22 +48,17 @@ class RepoMgr(object):
         if (not os.path.exists(base_path)):
             raise Exception(tr('Необходимо сначала создать директорию ') + base_path)
         
-        if (os.path.exists(base_path + os.sep + METADATA_DIR)):
+        if (os.path.exists(base_path + os.sep + consts.METADATA_DIR)):
             raise Exception(tr('Директория ') + base_path + tr(' уже является хранилищем?'))
         
-        os.mkdir(base_path + os.sep + METADATA_DIR)
+        os.mkdir(base_path + os.sep + consts.METADATA_DIR)
         
-        conn = sqlite3.connect(base_path + os.sep + METADATA_DIR + os.sep + DB_FILE)
-        try:
-            c = conn.cursor()
-            f = open(INIT_DB_SQL)
-            lines = f.read().split(';')
-            for line in lines:
-                c.execute(line)
-            conn.commit()
-            c.close()
-        finally:
-            conn.close()
+        #Соединение с БД
+        engine = sqa.create_engine("sqlite:///" + base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE)
+         
+        #Создание таблиц в БД
+        Base.metadata.create_all(engine)
+        
         
     @staticmethod
     def create_new_repo(base_path):
@@ -71,5 +72,30 @@ class RepoMgr(object):
         '''
         #TODO
         pass
+
+    def createItemMgr(self):
+        itemMgr = ItemMgr(self)
+        return itemMgr
+
+
+class ItemMgr(object):
     
+    __session = None
+
+    def __init__(self, repoMgr):
+        self.__session = repoMgr.Session()    
         
+    def __del__(self):
+        self.close()
+        
+    def close(self):
+        self.__session.close()
+        
+    def addTestItem(self, title):
+#        self.__session.begin()
+        item = Item()
+        item.title = title
+        item.notes = "bla-bla-bla"
+        self.__session.add(item)
+        self.__session.commit()
+    
