@@ -8,6 +8,8 @@ import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
+from translator_helper import tr
+import string
 
 
 Base = declarative_base()
@@ -68,6 +70,11 @@ class Item(Base):
         Constructor
         '''
         
+    def check_valid(self):
+        '''Проверяет, что состояние объекта допустимое. Связи с другими объектами не учитываются.'''
+        if self.title == "" or self.title is None:
+            raise Exception(tr("Необходимо указать заголовок элемента."))        
+        return True
         
         
         

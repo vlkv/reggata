@@ -11,10 +11,11 @@ import sys
 
 
 from PyQt4.QtCore import (Qt, SIGNAL, QCoreApplication, QTextCodec)
-from PyQt4.QtGui import (QApplication, QMainWindow, QLineEdit, QTextBrowser, 
+from PyQt4.QtGui import (QApplication, QMainWindow, QDialog, QLineEdit, QTextBrowser, 
 						QVBoxLayout, QPushButton, QFileDialog, QErrorMessage, QMessageBox)
-import mainwindow
-from repo_mgr import RepoMgr
+import ui_mainwindow
+from itemdialog import ItemDialog
+from repo_mgr import RepoMgr, UnitOfWork
 from translator_helper import tr
 
 import sqlalchemy as sqa
@@ -36,12 +37,12 @@ class MainWindow(QMainWindow):
 	
 	def __init__(self, parent=None):
 		super(MainWindow, self).__init__(parent)
-		self.ui = mainwindow.Ui_MainWindow()
+		self.ui = ui_mainwindow.Ui_MainWindow()
 		self.ui.setupUi(self)
 		self.connect(self.ui.action_repo_create, SIGNAL("triggered()"), self.action_repo_create)
 		self.connect(self.ui.action_repo_close, SIGNAL("triggered()"), self.action_repo_close)
 		self.connect(self.ui.action_repo_open, SIGNAL("triggered()"), self.action_repo_open)
-		self.connect(self.ui.action_repo_add_file, SIGNAL("triggered()"), self.action_repo_add_file)
+		self.connect(self.ui.action_repo_add_file, SIGNAL("triggered()"), self.action_repo_add_files)
 		
 		
 	def action_repo_create(self):
@@ -71,6 +72,25 @@ class MainWindow(QMainWindow):
 		except Exception as ex:
 			QMessageBox.information(self, tr("Ошибка"), str(ex))
 			
+	def action_repo_add_files(self):
+		try:
+			if self.__active_repo is None:
+				raise Exception(tr("Необходимо сначала открыть хранилище."))
+			
+			item = Item()
+			d = ItemDialog(item, self)
+			if d.exec_():
+				uow = self.__active_repo.createUnitOfWork()
+				try:
+					uow.saveNewItem(item)
+				finally:
+					uow.close()
+				#TODO refresh
+				
+	
+		except Exception as ex:
+			QMessageBox.information(self, tr("Ошибка"), str(ex))
+			
 	def action_repo_add_file(self):
 		try:
 			if self.__active_repo is None:
@@ -81,11 +101,11 @@ class MainWindow(QMainWindow):
 				raise Exception(tr("Отмена операции."))
 			
 			#Это тест
-			im = self.__active_repo.createItemMgr()
+			uow = self.__active_repo.createUnitOfWork()
 			try:
-				im.addTestItem(file_path)
+				uow.addTestItem(file_path)
 			finally:
-				im.close()
+				uow.close()
 			
 		except Exception as ex:
 			QMessageBox.information(self, tr("Ошибка"), str(ex))

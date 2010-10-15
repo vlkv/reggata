@@ -73,12 +73,11 @@ class RepoMgr(object):
         #TODO
         pass
 
-    def createItemMgr(self):
-        itemMgr = ItemMgr(self)
-        return itemMgr
+    def createUnitOfWork(self):
+        return UnitOfWork(self)
 
 
-class ItemMgr(object):
+class UnitOfWork(object):
     
     __session = None
 
@@ -86,16 +85,22 @@ class ItemMgr(object):
         self.__session = repoMgr.Session()    
         
     def __del__(self):
-        self.close()
+        if self.__session is not None:
+            self.__session.close()
         
     def close(self):
         self.__session.close()
         
     def addTestItem(self, title):
-#        self.__session.begin()
         item = Item()
         item.title = title
         item.notes = "bla-bla-bla"
         self.__session.add(item)
         self.__session.commit()
-    
+
+        
+    def saveNewItem(self, item):
+        self.__session.add(item)
+        self.__session.commit()
+
+
