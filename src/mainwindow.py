@@ -25,6 +25,7 @@ import consts
 
 from pyjavaproperties import Properties
 from _pyio import open
+from user_config import UserConfig
 
 
 
@@ -48,10 +49,12 @@ class MainWindow(QMainWindow):
 		self.connect(self.ui.action_repo_open, SIGNAL("triggered()"), self.action_repo_open)
 		self.connect(self.ui.action_repo_add_file, SIGNAL("triggered()"), self.action_repo_add_files)
 		
-		p = Properties()
-		p.load(open(consts.USER_CONFIG_FILE))
-		p["key"] = "value"
-		p.store(open(consts.USER_CONFIG_FILE, 'w'))
+		
+		#Открываем последнее хранилище, с которым работал пользователь 
+		tmp = UserConfig().get("recent_repo.base_path")
+		if tmp:
+			self.__active_repo = RepoMgr(tmp)
+		
 		
 		
 	def action_repo_create(self):
@@ -78,6 +81,7 @@ class MainWindow(QMainWindow):
 			if base_path == "":
 				raise Exception(tr("Необходимо выбрать базовую директорию существующего хранилища"))
 			self.__active_repo = RepoMgr(base_path)
+			UserConfig().store("recent_repo.base_path", base_path)
 		except Exception as ex:
 			QMessageBox.information(self, tr("Ошибка"), str(ex))
 			
