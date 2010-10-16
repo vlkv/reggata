@@ -23,6 +23,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from db_model import Base, User, Item, DataRef, Tag, Field, FieldVal 
 import consts
 
+from pyjavaproperties import Properties
+from _pyio import open
+
+
 
 class MainWindow(QMainWindow):
 	'''
@@ -43,6 +47,11 @@ class MainWindow(QMainWindow):
 		self.connect(self.ui.action_repo_close, SIGNAL("triggered()"), self.action_repo_close)
 		self.connect(self.ui.action_repo_open, SIGNAL("triggered()"), self.action_repo_open)
 		self.connect(self.ui.action_repo_add_file, SIGNAL("triggered()"), self.action_repo_add_files)
+		
+		p = Properties()
+		p.load(open(consts.USER_CONFIG_FILE))
+		p["key"] = "value"
+		p.store(open(consts.USER_CONFIG_FILE, 'w'))
 		
 		
 	def action_repo_create(self):
