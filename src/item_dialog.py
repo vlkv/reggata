@@ -30,6 +30,15 @@ class ItemDialog(qtgui.QDialog):
         self.connect(self.ui.buttonBox, qtcore.SIGNAL("rejected()"), self.button_cancel)
         self.connect(self.ui.pushButton_add_files, qtcore.SIGNAL("clicked()"), self.button_add_files)
         self.connect(self.ui.pushButton_remove, qtcore.SIGNAL("clicked()"), self.button_remove)
+        self.update_ui()
+        
+    
+    def update_ui(self):
+        self.ui.lineEdit_id.setText(self.item.id)
+        self.ui.lineEdit_user_login.setText(self.item.user_login)
+        
+        #TODO остальные поля
+        
     
     def read(self):
         '''Считывает введенную в ui элементы информацию и записывает ее в объект.'''

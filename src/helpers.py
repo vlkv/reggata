@@ -23,3 +23,11 @@ def showExcInfo(parent, ex):
 #    mb.setSizePolicy(qtgui.QSizePolicy.Expanding, qtgui.QSizePolicy.Expanding)
     mb.exec_()
     
+    
+
+class DialogMode(object):
+    CREATE = 0
+    EDIT = 1
+    VIEW = 2
+    LOGIN = 3
+    

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
-    <height>417</height>
+    <width>678</width>
+    <height>432</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>556</width>
+     <width>678</width>
      <height>26</height>
     </rect>
    </property>
@@ -32,7 +32,16 @@
     <addaction name="action_repo_close"/>
     <addaction name="action_repo_add_item"/>
    </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Пользователь</string>
+    </property>
+    <addaction name="action_user_create"/>
+    <addaction name="action_user_login"/>
+    <addaction name="action_user_logout"/>
+   </widget>
    <addaction name="menu_repo"/>
+   <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_repo_create">
@@ -53,6 +62,21 @@
   <action name="action_repo_add_item">
    <property name="text">
     <string>Добавить элемент</string>
+   </property>
+  </action>
+  <action name="action_user_create">
+   <property name="text">
+    <string>Создать</string>
+   </property>
+  </action>
+  <action name="action_user_login">
+   <property name="text">
+    <string>Войти в хранилище</string>
+   </property>
+  </action>
+  <action name="action_user_logout">
+   <property name="text">
+    <string>Выйти из хранилища</string>
    </property>
   </action>
  </widget>

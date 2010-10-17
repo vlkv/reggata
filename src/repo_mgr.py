@@ -10,7 +10,8 @@ from helpers import tr
 import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
-from db_model import Base, Item
+from db_model import Base, Item, User
+from exceptions import LoginError
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -32,7 +33,7 @@ class RepoMgr(object):
         
         self.__engine = sqa.create_engine("sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE)
 
-        self.Session = sessionmaker(bind=self.__engine)
+        self.Session = sessionmaker(bind=self.__engine) #expire_on_commit=False
         
     def __del__(self):
         pass
@@ -98,14 +99,25 @@ class UnitOfWork(object):
             self.__session.close()
         
     def close(self):
+        self.__session.expunge_all()
         self.__session.close()
         
-    def addTestItem(self, title):
-        item = Item()
-        item.title = title
-        item.notes = "bla-bla-bla"
-        self.__session.add(item)
+    def saveNewUser(self, user):
+#        login = user.login
+        self.__session.add(user)
         self.__session.commit()
+#        user = self.__session.query(User).get(login)
+
+    def loginUser(self, login, password):
+        user = self.__session.query(User).get(login)
+        if user is None:
+            raise LoginError(tr("Пользователя ") + login + tr(" не существует."))
+        if user.password != password:
+            raise LoginError(tr("Неверный пароль"))
+        return user
+        
+            
+        
 
         
     def saveNewItem(self, item):

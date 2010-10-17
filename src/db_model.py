@@ -22,15 +22,15 @@ class User(Base):
     __tablename__ = "users"
     
     login = sqa.Column(sqa.String, primary_key=True)
-    name = sqa.Column(sqa.String)
+#    name = sqa.Column(sqa.String)
     password = sqa.Column(sqa.String)
-    notes = sqa.Column(sqa.String)
+#    notes = sqa.Column(sqa.String)
     group = sqa.Enum("USER", "ADMIN", nullable=False, default="USER")
     
-    def __init__(self):
-        '''
-        Constructor
-        '''
+    def check_valid(self):
+        if self.login is None or self.login=="":
+            raise ValueError("Поле login не должно быть пустым.")        
+        return True
 
 
 
@@ -65,10 +65,10 @@ class Item(Base):
     #field_vals - список связанных полей
     field_vals = relationship("FieldVal", backref="item")
 
-    def __init__(self):
-        '''
-        Constructor
-        '''
+    def __init__(self, user_login="", title=""):
+        self.user_login = user_login
+        self.title = title
+        #TODO
         
     def check_valid(self):
         '''Проверяет, что состояние объекта допустимое. Связи с другими объектами не учитываются.'''
