@@ -6,8 +6,12 @@ Created on 15.10.2010
 import PyQt4.QtGui as qtgui
 import PyQt4.QtCore as qtcore
 import ui_itemdialog
-from db_model import Item, DataRef
-from translator_helper import tr
+from db_model import Item, DataRef, Tag
+from helpers import tr, showExcInfo
+import os
+import hashlib
+import sys
+import traceback
 
 class ItemDialog(qtgui.QDialog):
     '''
@@ -31,16 +35,30 @@ class ItemDialog(qtgui.QDialog):
         '''Считывает введенную в ui элементы информацию и записывает ее в объект.'''
         self.item.title = self.ui.lineEdit_title.text()
         self.item.notes = self.ui.plainTextEdit_notes.toPlainText()
-                
-#        file = self.ui.listWidget_data_refs.takeItem(1)
-#        while file != 0:
-#            dr = DataRef()
-#            dr.url = file.text()
-#            self.item.data_refs.append(dr)
-#            file = self.ui.listWidget_data_refs.takeItem(1)
+        
+        self.data_refs = []
+        for i in range(0, self.ui.listWidget_data_refs.count()):
+            it = self.ui.listWidget_data_refs.item(i)
+            dr = DataRef()
+            dr.url = it.text()
+            if it.data_ref_type == "file":
+                dr.size = os.path.getsize(it.text())
+                dr.type = "FILE"
+            else:
+                dr.size = 0
+            #TODO вычислить hash и hash_date
+            dr.order_by_key = i
+            self.item.data_refs.append(dr)
             
+        text = self.ui.plainTextEdit_tags.toPlainText()
+        for t in text.split():
+            tag = Tag()
+            tag.name = t
+            self.item.tags.append(tag)
+        
+        
         #TODO ...
-            
+        
         
     def button_ok(self):
         try:
@@ -48,7 +66,7 @@ class ItemDialog(qtgui.QDialog):
             self.item.check_valid()
             self.accept()
         except Exception as ex:
-            qtgui.QMessageBox.warning(self, tr("Ошибка"), tr(str(ex)))
+            showExcInfo(self, ex)
     
     def button_cancel(self):
         self.reject()
@@ -56,7 +74,9 @@ class ItemDialog(qtgui.QDialog):
     def button_add_files(self):
         files = qtgui.QFileDialog.getOpenFileNames(self, tr("Выберите файлы"))
         for file in files:
-            self.ui.listWidget_data_refs.addItem(file)
+            it = qtgui.QListWidgetItem(file)
+            it.data_ref_type = "file"
+            self.ui.listWidget_data_refs.addItem(it)
             
     def button_remove(self):
         if self.ui.listWidget_data_refs.count() == 0:

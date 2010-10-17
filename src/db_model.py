@@ -8,7 +8,7 @@ import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
-from translator_helper import tr
+from helpers import tr
 import string
 
 
@@ -85,9 +85,10 @@ class DataRef(Base):
     __tablename__ = "data_refs"
     
     url = sqa.Column(sqa.String, primary_key=True)
+    type = sqa.Enum("FILE", "URL", nullable=False)
     hash = sqa.Column(sqa.String)
     hash_date = sqa.Column(sqa.DateTime)
-    size = sqa.Column(sqa.Integer, nullable=False, default=0)
+    size = sqa.Column(sqa.Integer, nullable=False, default=0)    
     order_by_key = sqa.Column(sqa.Integer)
     item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"))
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))

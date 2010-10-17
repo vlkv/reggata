@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemdialog.ui'
 #
-# Created: Fri Oct 15 23:10:40 2010
+# Created: Sun Oct 17 10:44:23 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_ItemDialog(object):
     def setupUi(self, ItemDialog):
         ItemDialog.setObjectName("ItemDialog")
-        ItemDialog.resize(587, 505)
+        ItemDialog.resize(587, 544)
         self.verticalLayout_5 = QtGui.QVBoxLayout(ItemDialog)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
@@ -60,6 +60,7 @@ class Ui_ItemDialog(object):
         self.label_4.setObjectName("label_4")
         self.verticalLayout.addWidget(self.label_4)
         self.listWidget_data_refs = QtGui.QListWidget(ItemDialog)
+        self.listWidget_data_refs.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.listWidget_data_refs.setObjectName("listWidget_data_refs")
         self.verticalLayout.addWidget(self.listWidget_data_refs)
         self.horizontalLayout.addLayout(self.verticalLayout)

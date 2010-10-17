@@ -6,7 +6,7 @@ Created on 30.09.2010
 '''
 
 import os.path
-from translator_helper import tr
+from helpers import tr
 import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
@@ -14,29 +14,38 @@ from db_model import Base, Item
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
-
-    '''Абсолютный путь к корню хранилища '''
-    __base_path = None
     
     '''Соединение с базой метаданных '''
     __engine = None
     
     '''Класс сессии '''
     Session = None
+    
+    _base_path = None
 
     def __init__(self, path_to_repo):
         '''Открывает хранилище по адресу path_to_repo. 
         Делает некторые проверки того, что хранилище корректно.'''
-        self.__base_path = path_to_repo
-        if not os.path.exists(self.__base_path + os.sep + consts.METADATA_DIR):
-            raise Exception(tr("Директория " + self.__base_path + " не является хранилищем."))
+        self.base_path = path_to_repo
+        if not os.path.exists(self.base_path + os.sep + consts.METADATA_DIR):
+            raise Exception(tr("Директория " + self.base_path + " не является хранилищем."))
         
-        self.__engine = sqa.create_engine("sqlite:///" + self.__base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE)
+        self.__engine = sqa.create_engine("sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE)
 
         self.Session = sessionmaker(bind=self.__engine)
         
     def __del__(self):
         pass
+    
+    @property
+    def base_path(self):
+        '''Абсолютный путь к корню хранилища.'''
+        return self._base_path
+    
+    @base_path.setter
+    def base_path(self, value):
+        self._base_path = value
+            
     
     @staticmethod
     def init_new_repo(base_path):
@@ -102,5 +111,7 @@ class UnitOfWork(object):
     def saveNewItem(self, item):
         self.__session.add(item)
         self.__session.commit()
+        
+        
 
 

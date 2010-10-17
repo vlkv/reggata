@@ -9,14 +9,16 @@ import sqlite3
 import os.path
 import sys
 
-
+import PyQt4
+import PyQt4.QtCore as QtCore
+import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import (Qt, SIGNAL, QCoreApplication, QTextCodec)
 from PyQt4.QtGui import (QApplication, QMainWindow, QDialog, QLineEdit, QTextBrowser, 
-						QVBoxLayout, QPushButton, QFileDialog, QErrorMessage, QMessageBox)
+						QVBoxLayout, QPushButton, QFileDialog, QErrorMessage, QMessageBox, QLabel)
 import ui_mainwindow
 from itemdialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork
-from translator_helper import tr
+from helpers import tr, showExcInfo
 
 import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
@@ -47,14 +49,51 @@ class MainWindow(QMainWindow):
 		self.connect(self.ui.action_repo_create, SIGNAL("triggered()"), self.action_repo_create)
 		self.connect(self.ui.action_repo_close, SIGNAL("triggered()"), self.action_repo_close)
 		self.connect(self.ui.action_repo_open, SIGNAL("triggered()"), self.action_repo_open)
-		self.connect(self.ui.action_repo_add_file, SIGNAL("triggered()"), self.action_repo_add_files)
+		self.connect(self.ui.action_repo_add_item, SIGNAL("triggered()"), self.action_repo_add_item)
 		
+		#Добавляем на статус бар поля для отображения текущего хранилища и пользователя
+		self.ui.label_repo = QLabel()
+		self.ui.label_user = QLabel()
+		self.ui.statusbar.addPermanentWidget(QLabel(tr("Хранилище:")))
+		self.ui.statusbar.addPermanentWidget(self.ui.label_repo)
+		self.ui.statusbar.addPermanentWidget(QLabel(tr("Пользователь:")))
+		self.ui.statusbar.addPermanentWidget(self.ui.label_user)
 		
 		#Открываем последнее хранилище, с которым работал пользователь 
 		tmp = UserConfig().get("recent_repo.base_path")
 		if tmp:
-			self.__active_repo = RepoMgr(tmp)
-		
+			self.active_repo = RepoMgr(tmp)
+			
+			
+			
+	
+	def _set_active_repo(self, repo):
+		if not isinstance(repo, RepoMgr) and not repo is None:
+			raise TypeError(tr("Тип repo должен быть RepoMgr"))
+	
+		self.__active_repo = repo
+			
+		if repo is not None:
+			#Запоминаем путь к хранилищу
+			UserConfig().store("recent_repo.base_path", repo.base_path)
+				
+			#Если путь оканчивается на os.sep то os.path.split() возвращает ""
+			(head, tail) = os.path.split(repo.base_path)				
+			while tail == "" and head != "":
+				(head, tail) = os.path.split(head)			
+			self.ui.label_repo.setText(tail)
+			
+			#Выводим сообщение
+			self.ui.statusbar.showMessage(tr("Открыто хранилище по адресу ") + repo.base_path, 3000)
+		else:
+			self.ui.label_repo.setText("")
+			
+	
+	
+	def _get_active_repo(self):
+		return self.__active_repo
+	
+	active_repo = property(_get_active_repo, _set_active_repo, "Текущее открытое хранилище.")
 		
 		
 	def action_repo_create(self):
@@ -62,64 +101,51 @@ class MainWindow(QMainWindow):
 			base_path = QFileDialog.getExistingDirectory(self, tr("Выбор базовой директории хранилища"))
 			if base_path == "":
 				raise Exception(tr("Необходимо выбрать существующую директорию"))
-			self.__active_repo = RepoMgr.create_new_repo(base_path)			
+			self.active_repo = RepoMgr.create_new_repo(base_path)			
 		except Exception as ex:
 			QMessageBox.information(self, tr("Отмена операции"), str(ex))
 			
 		
 	def action_repo_close(self):
 		try:
-			if self.__active_repo is None:
+			if self.active_repo is None:
 				raise Exception(tr("Нет открытых хранилищ"))
-			self.__active_repo = None #Сборщик мусора и деструктор сделают свое дело
+			self.active_repo = None #Сборщик мусора и деструктор сделают свое дело
 		except Exception as ex:
-			QMessageBox.information(self, tr("Ошибка"), str(ex))
+			showExcInfo(self, ex)
 
 	def action_repo_open(self):
 		try:
 			base_path = QFileDialog.getExistingDirectory(self, tr("Выбор базовой директории хранилища"))
 			if base_path == "":
 				raise Exception(tr("Необходимо выбрать базовую директорию существующего хранилища"))
-			self.__active_repo = RepoMgr(base_path)
-			UserConfig().store("recent_repo.base_path", base_path)
+			self.active_repo = RepoMgr(base_path)
+			
 		except Exception as ex:
 			QMessageBox.information(self, tr("Ошибка"), str(ex))
 			
-	def action_repo_add_files(self):
+	def action_repo_add_item(self):
 		try:
-			if self.__active_repo is None:
+			if self.active_repo is None:
 				raise Exception(tr("Необходимо сначала открыть хранилище."))
 			
-			item = Item()
-			d = ItemDialog(item, self)
+			
+			d = ItemDialog(Item(), self)
 			if d.exec_():
-				uow = self.__active_repo.createUnitOfWork()
+				uow = self.active_repo.createUnitOfWork()
 				try:
-					uow.saveNewItem(item)
+					uow.saveNewItem(d.item)
 				finally:
 					uow.close()
 				#TODO refresh
 				
 	
-		except Exception as ex:
+		except Exception as ex:		
 			QMessageBox.information(self, tr("Ошибка"), str(ex))
 			
-	def action_repo_add_file(self):
-		try:
-			if self.__active_repo is None:
-				raise Exception(tr("Необходимо сначала открыть хранилище."))
-			
-			file_path = QFileDialog.getOpenFileName(self, tr("Выберите файл"))
-			if file_path == "":
-				raise Exception(tr("Отмена операции."))
-			
-			#Это тест
-			uow = self.__active_repo.createUnitOfWork()
-			try:
-				uow.addTestItem(file_path)
-			finally:
-				uow.close()
-			
+	def action_template(self):
+		try:			
+			pass
 		except Exception as ex:
 			QMessageBox.information(self, tr("Ошибка"), str(ex))
 

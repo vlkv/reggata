@@ -13,34 +13,7 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton_test">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>83</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Тест</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_test">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>70</y>
-      <width>57</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
-    </property>
-   </widget>
-  </widget>
+  <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -57,7 +30,7 @@
     <addaction name="action_repo_create"/>
     <addaction name="action_repo_open"/>
     <addaction name="action_repo_close"/>
-    <addaction name="action_repo_add_file"/>
+    <addaction name="action_repo_add_item"/>
    </widget>
    <addaction name="menu_repo"/>
   </widget>
@@ -77,9 +50,9 @@
     <string>Закрыть</string>
    </property>
   </action>
-  <action name="action_repo_add_file">
+  <action name="action_repo_add_item">
    <property name="text">
-    <string>Добавить файл</string>
+    <string>Добавить элемент</string>
    </property>
   </action>
  </widget>

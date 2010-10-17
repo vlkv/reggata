@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>587</width>
-    <height>505</height>
+    <height>544</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -88,7 +88,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QListWidget" name="listWidget_data_refs"/>
+          <widget class="QListWidget" name="listWidget_data_refs">
+           <property name="selectionMode">
+            <enum>QAbstractItemView::ExtendedSelection</enum>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
