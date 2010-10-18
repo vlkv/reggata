@@ -8,19 +8,51 @@ Created on 04.10.2010
 А функции Object.tr() рекомендуется в PyQt не использовать вообще.
 '''
 from PyQt4.QtCore import (QCoreApplication)
-import PyQt4.QtGui as qtgui
+import PyQt4.QtGui as QtGui
 import traceback
 
+
 def tr(text, context="default"):
+    '''Переводит текст сообщений GUI на различные языки.'''
     return QCoreApplication.translate(context, str(text), None, QCoreApplication.UnicodeUTF8)
 
 
+
+
+
 def showExcInfo(parent, ex):
-    mb = qtgui.QMessageBox(parent)
+    
+    '''Окно данного класса можно растягивать мышкой, 
+    в отличие от стандартного QMessageBox-а.
+    Решение взято отсюда: http://stackoverflow.com/questions/2655354/how-to-allow-resizing-of-qmessagebox-in-pyqt4'''
+    class MyMessageBox(QtGui.QMessageBox):
+        def __init__(self, parent=None):
+            super(MyMessageBox, self).__init__(parent)    
+            self.setSizeGripEnabled(True)
+    
+        def event(self, e):
+            result = QtGui.QMessageBox.event(self, e)
+    
+            self.setMinimumHeight(0)
+            self.setMaximumHeight(16777215)
+            self.setMinimumWidth(0)
+            self.setMaximumWidth(16777215)
+            self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+    
+            textEdit = self.findChild(QtGui.QTextEdit)
+            if textEdit != None :
+                textEdit.setMinimumHeight(0)
+                textEdit.setMaximumHeight(16777215)
+                textEdit.setMinimumWidth(0)
+                textEdit.setMaximumWidth(16777215)
+                textEdit.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+                
+            return result    
+    
+    mb = MyMessageBox(parent)
     mb.setWindowTitle(tr("Ошибка"))
     mb.setText(str(ex))
     mb.setDetailedText(traceback.format_exc())
-#    mb.setSizePolicy(qtgui.QSizePolicy.Expanding, qtgui.QSizePolicy.Expanding)
     mb.exec_()
     
     
