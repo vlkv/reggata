@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>304</width>
-    <height>138</height>
+    <width>242</width>
+    <height>142</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,58 +15,53 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QSplitter" name="splitter">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Логин:</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="lineEdit_login"/>
-    </widget>
-   </item>
-   <item>
-    <widget class="QSplitter" name="splitter_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Пароль:</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="lineEdit_password">
-      <property name="echoMode">
-       <enum>QLineEdit::Password</enum>
-      </property>
-     </widget>
-    </widget>
-   </item>
-   <item>
-    <widget class="QSplitter" name="splitter_5">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>Группа:</string>
-      </property>
-     </widget>
-     <widget class="QComboBox" name="comboBox_group">
-      <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_login">
        <property name="text">
-        <string>USER</string>
+        <string>Логин:</string>
        </property>
-      </item>
-      <item>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLineEdit" name="lineEdit_login"/>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QLabel" name="label_password">
        <property name="text">
-        <string>ADMIN</string>
+        <string>Пароль:</string>
        </property>
-      </item>
-     </widget>
-    </widget>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLineEdit" name="lineEdit_password">
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QLabel" name="label_group">
+       <property name="text">
+        <string>Группа:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QComboBox" name="comboBox_group">
+       <item>
+        <property name="text">
+         <string>USER</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ADMIN</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">

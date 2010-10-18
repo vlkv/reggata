@@ -32,9 +32,8 @@ class UserDialog(QtGui.QDialog):
             #TODO
             pass
         elif mode == DialogMode.LOGIN:
-            #TODO
-            #        self.ui.comboBox_group.setVisible(False)
-            pass
+            self.ui.label_group.setVisible(False)
+            self.ui.comboBox_group.setVisible(False)                        
         else:
             raise UnsupportedDialogModeError(tr("Режим") + mode + tr("не поддерживается."))
         

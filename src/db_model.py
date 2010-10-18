@@ -73,7 +73,7 @@ class Item(Base):
     def check_valid(self):
         '''Проверяет, что состояние объекта допустимое. Связи с другими объектами не учитываются.'''
         if self.title == "" or self.title is None:
-            raise Exception(tr("Необходимо указать заголовок элемента."))        
+            raise Exception(tr("Необходимо указать название (поле title) элемента."))        
         return True
         
         
