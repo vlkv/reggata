@@ -31,7 +31,34 @@ from user_config import UserConfig
 from user_dialog import UserDialog
 from exceptions import LoginError
 
-
+class TagCloud(QtGui.QTextEdit):
+	'''
+	Облако тегов.
+	'''
+	def __init__(self, parent=None):
+		super(TagCloud, self).__init__(parent)
+		self.setReadOnly(True)
+	
+	def event(self, e):
+            result = QtGui.QTextEdit.event(self, e)
+            
+            print(str(type(e)) + str(e))
+              
+            return result
+	
+	def mouseMoveEvent(self, e):
+#		print(e.pos())
+		cursor = self.cursorForPosition(e.pos())
+		cursor.select(QtGui.QTextCursor.WordUnderCursor)
+		word = cursor.selectedText()
+#		print(word)
+		self.word = word
+		
+	def mouseDoubleClickEvent(self, e):
+		if self.word != "" and self.word is not None:
+			print("click on tag " + self.word)
+			#TODO Выполняем фильтрацию элементов хранилища
+	
 
 class MainWindow(QMainWindow):
 	'''
@@ -74,6 +101,12 @@ class MainWindow(QMainWindow):
 				self._login_recent_user()
 		except:
 			pass
+		
+		self.ui.centralwidget.setLayout(QtGui.QVBoxLayout())
+		self.ui.tag_cloud = TagCloud(self)
+		self.ui.centralwidget.layout().addWidget(self.ui.tag_cloud)
+		self.ui.tag_cloud.setText("<font size='+5'>Tag1</font>  asdf asdfa       adsf asdf <font size='+5'>Tag1</font> <font size='+1'>Tag1</font> <font size='+2'>Tag1</font> <font size='-2'>Tag1</font>")
+		self.ui.tag_cloud.setMouseTracking(True)
 		
 		
 	
