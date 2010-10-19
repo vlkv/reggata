@@ -25,7 +25,7 @@ class User(Base):
 #    name = sqa.Column(sqa.String)
     password = sqa.Column(sqa.String)
 #    notes = sqa.Column(sqa.String)
-    group = sqa.Enum("USER", "ADMIN", nullable=False, default="USER")
+    group = sqa.Column(sqa.Enum("USER", "ADMIN"), nullable=False, default="USER")
     
     def check_valid(self):
         if self.login is None or self.login=="":
@@ -87,7 +87,7 @@ class DataRef(Base):
     __tablename__ = "data_refs"
     
     url = sqa.Column(sqa.String, primary_key=True)
-    type = sqa.Enum("FILE", "URL", nullable=False)
+    type = sqa.Column(sqa.Enum("FILE", "URL"), nullable=False)
     hash = sqa.Column(sqa.String)
     hash_date = sqa.Column(sqa.DateTime)
     size = sqa.Column(sqa.Integer, nullable=False, default=0)    
