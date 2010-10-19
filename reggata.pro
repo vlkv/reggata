@@ -1,0 +1,13 @@
+FORMS += ui/itemdialog.ui
+FORMS += ui/mainwindow.ui
+FORMS += ui/userdialog.ui
+SOURCES += src/consts.py
+SOURCES += src/db_model.py
+SOURCES += src/exceptions.py
+SOURCES += src/helpers.py
+SOURCES += src/item_dialog.py
+SOURCES += src/main_window.py
+SOURCES += src/repo_mgr.py
+SOURCES += src/user_config.py
+SOURCES += src/user_dialog.py
+TRANSLATIONS += reggata_en.ts
