@@ -102,13 +102,17 @@ class UnitOfWork(object):
         self.__session.expunge_all()
         self.__session.close()
         
+    #TODO Надо подумать про rollback()...
+        
     def saveNewUser(self, user):
-#        login = user.login
         self.__session.add(user)
         self.__session.commit()
-#        user = self.__session.query(User).get(login)
+
 
     def loginUser(self, login, password):
+        '''
+    	password - это SHA1 hexdigest() хеш.
+    	'''
         user = self.__session.query(User).get(login)
         if user is None:
             raise LoginError(tr("Пользователя ") + login + tr(" не существует."))

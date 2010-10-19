@@ -241,14 +241,13 @@ class MainWindow(QMainWindow):
 					uow.saveNewUser(u.user)
 					
 					#Выполняем "вход" под новым юзером
-					self.active_user = u.user
+					self.active_user = u.user					
 				finally:
 					uow.close()
-				
-			
 		except Exception as ex:
 			showExcInfo(self, ex)
-	
+		
+
 	def action_user_login(self):
 		try:
 			ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
