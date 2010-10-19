@@ -7,7 +7,7 @@ Created on 11.10.2010
 import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, ForeignKeyConstraint
 from helpers import tr
 import string
 
@@ -36,9 +36,11 @@ class User(Base):
 
 #Таблица связей Tag и Item
 tags_items = sqa.Table('tags_items', Base.metadata,
-                   sqa.Column('item_id', sqa.Integer, ForeignKey('items.id'), primary_key=True), 
-                   sqa.Column('tag_name', sqa.String, ForeignKey('tags.name'), primary_key=True),
-                   sqa.Column('tag_user_login', sqa.String, ForeignKey('users.login'), primary_key=True))
+    sqa.Column('item_id', sqa.Integer, ForeignKey('items.id'), primary_key=True),
+    sqa.Column('tag_name', sqa.String, primary_key=True),
+    sqa.Column('tag_user_login', sqa.String, primary_key=True),
+    ForeignKeyConstraint(['tag_name', 'tag_user_login'], ['tags.name', 'tags.user_login'])
+)
 
 
 
@@ -95,10 +97,8 @@ class DataRef(Base):
     
     user = relationship(User)
 
-    def __init__(self):
-        '''
-        Constructor
-        '''
+    def __init__(self, url=""):
+        self.url = url
         
         
         
@@ -140,12 +140,19 @@ class FieldVal(Base):
     Значение поля, связанное с элементом хранилища.
     '''
     __tablename__ = "fields_items"
+    __table_args__ = (ForeignKeyConstraint(["field_name", "field_user_login"], ["fields.name", "fields.user_login"]),
+        {} #{} обязательно нужны, даже если внутри них - пусто
+        )
     item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"), primary_key=True)
-    field_name = sqa.Column(sqa.String, ForeignKey("fields.name"), primary_key=True)
-    field_user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
+    field_name = sqa.Column(sqa.String, primary_key=True)
+    field_user_login = sqa.Column(sqa.String, primary_key=True)
     field_value = sqa.Column(sqa.String, nullable=False, default="")
 
     field = relationship(Field)
+    
+    
+    
+    
 
 
 #TODO сделать классы групп полей и тегов
