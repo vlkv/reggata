@@ -10,7 +10,7 @@ from helpers import tr
 import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
-from db_model import Base, Item, User
+from db_model import Base, Item, User, Tag
 from exceptions import LoginError
 
 class RepoMgr(object):
@@ -116,14 +116,30 @@ class UnitOfWork(object):
             raise LoginError(tr("Неверный пароль"))
         return user
         
-            
+        
         
 
         
     def saveNewItem(self, item):
+        tags = item.tags[:] #Делаем копию списка
+        new_tags = []
+        for tag in tags:            
+            t = self.__session.query(Tag).get((tag.name, tag.user_login))            
+            if t is not None:
+                item.tags.remove(tag) #Оставляем в item.tags только новые теги
+                new_tags.append(t)
+        
+        #Сохраняем item пока что только с новыми тегами
         self.__session.add(item)
+        self.__session.flush()
+        
+        #Добавляем в item существующие теги
+        for tag in new_tags:
+            item.tags.append(tag)
+                        
         self.__session.commit()
-        
-        
+
+        #TODO Обработать поля и все остальные связанные объекты
+
 
 
