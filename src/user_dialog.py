@@ -38,7 +38,8 @@ class UserDialog(QtGui.QDialog):
             raise UnsupportedDialogModeError(tr("Режим") + mode + tr("не поддерживается."))
         
     
-    def read(self):
+    def write(self):
+        '''Запись введенной в элементы gui информации в поля объекта.'''
         self.user.login = self.ui.lineEdit_login.text()
         self.user.password = self.ui.lineEdit_password.text()
         self.user.group = self.ui.comboBox_group.currentText()
@@ -46,7 +47,7 @@ class UserDialog(QtGui.QDialog):
         
     def button_ok(self):
         try:
-            self.read()
+            self.write()
             self.user.check_valid()
             self.accept()
         except Exception as ex:

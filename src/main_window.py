@@ -5,7 +5,7 @@ Created on 20.08.2010
 @author: vlkv
 '''
 
-import sqlite3
+#import sqlite3
 import os.path
 import sys
 
@@ -19,14 +19,9 @@ import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork
 from helpers import tr, showExcInfo, DialogMode
-
-import sqlalchemy as sqa
-from sqlalchemy.ext.declarative import declarative_base
 from db_model import Base, User, Item, DataRef, Tag, Field, FieldVal
 import consts
-
 from pyjavaproperties import Properties
-from _pyio import open
 from user_config import UserConfig
 from user_dialog import UserDialog
 from exceptions import LoginError
@@ -221,7 +216,7 @@ class MainWindow(QMainWindow):
 			if self.active_user is None:
 				raise Exception(tr("Необходимо выполнить вход в хранилище."))
 						
-			it = Item(user_login=self.active_user.login)			
+			it = Item(user_login=self.active_user.login)
 			d = ItemDialog(it, self)
 			if d.exec_():
 				uow = self.active_repo.createUnitOfWork()
@@ -313,8 +308,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
 	
-#	engine = sqa.create_engine("sqlite:///" + consts.DB_FILE)
-#	Base.metadata.create_all(engine)
 
 	app = QApplication(sys.argv)
 	form = MainWindow()

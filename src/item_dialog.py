@@ -40,29 +40,35 @@ class ItemDialog(qtgui.QDialog):
         #TODO остальные поля
         
     
-    def read(self):
-        '''Считывает введенную в ui элементы информацию и записывает ее в объект.'''
+    def write(self):
+        '''Запись введенной в элементы gui информации в поля объекта.'''
         self.item.title = self.ui.lineEdit_title.text()
         self.item.notes = self.ui.plainTextEdit_notes.toPlainText()
         
-        self.data_refs = []
+        #Создаем объекты DataRef
+#        self.data_refs = []
         for i in range(0, self.ui.listWidget_data_refs.count()):
-            it = self.ui.listWidget_data_refs.item(i)
-            dr = DataRef()
-            dr.url = it.text()
-            if it.data_ref_type == "file":
-                dr.size = os.path.getsize(it.text())
+            list_item = self.ui.listWidget_data_refs.item(i)
+            dr = DataRef(url=list_item.text())            
+            if list_item.data_ref_type == "file":
+                dr.size = os.path.getsize(list_item.text())
                 dr.type = "FILE"
-            else:
+            elif list_item.data_ref_type == "url":
                 dr.size = 0
+                dr.type = "URL"
+            else:
+                raise ValueError(tr("Недопустимое значение переменной ") + list_item.data_ref_type)
             #TODO вычислить hash и hash_date
             dr.order_by_key = i
+            dr.user_login = self.item.user_login
             self.item.data_refs.append(dr)
-            
+        
+        #Создаем объекты Tag    
         text = self.ui.plainTextEdit_tags.toPlainText()
         for t in text.split():
             tag = Tag()
             tag.name = t
+            tag.user_login = self.item.user_login
             self.item.tags.append(tag)
         
         
@@ -71,7 +77,7 @@ class ItemDialog(qtgui.QDialog):
         
     def button_ok(self):
         try:
-            self.read()
+            self.write()
             self.item.check_valid()
             self.accept()
         except Exception as ex:
