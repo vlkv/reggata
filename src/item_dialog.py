@@ -33,6 +33,9 @@ class ItemDialog(qtgui.QDialog):
         self.connect(self.ui.pushButton_remove, qtcore.SIGNAL("clicked()"), self.button_remove)
         self.update_ui()
         
+        #TODO Нужно дать пользователю возможность указать, в какую директорию положить 
+        #файлы данного элемента внутри хранилища?
+        #А можно просто делать директорию по именю первого тега и копировать туда?
     
     def update_ui(self):
         self.ui.lineEdit_id.setText(self.item.id)
@@ -47,10 +50,10 @@ class ItemDialog(qtgui.QDialog):
         self.item.notes = self.ui.plainTextEdit_notes.toPlainText()
         
         #Создаем объекты DataRef
-#        self.data_refs = []
         for i in range(0, self.ui.listWidget_data_refs.count()):
             list_item = self.ui.listWidget_data_refs.item(i)
-            dr = DataRef(url=list_item.text())            
+            dr = DataRef()
+            dr.url = list_item.text()
             if list_item.data_ref_type == "file":
                 dr.size = os.path.getsize(list_item.text())
                 dr.type = "FILE"
@@ -59,7 +62,7 @@ class ItemDialog(qtgui.QDialog):
                 dr.type = "URL"
             else:
                 raise ValueError(tr("Недопустимое значение переменной ") + list_item.data_ref_type)
-            #TODO вычислить hash и hash_date
+            #TODO вычислить hash от содержимого файла и hash_date
             dr.order_by_key = i
             dr.user_login = self.item.user_login
             self.item.data_refs.append(dr)

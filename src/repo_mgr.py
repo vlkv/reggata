@@ -125,6 +125,11 @@ class UnitOfWork(object):
 
         
     def saveNewItem(self, item):
+        
+        #TODO Тут нужно обрезать пути url у DataRef объектов, чтобы они стали относительными
+        #TODO Нужно скопировать файлы внутрь директории хранилища 
+        
+        #Удаляем из item.tags теги, которые уже есть в базе
         tags = item.tags[:] #Делаем копию списка
         new_tags = []
         for tag in tags:            
