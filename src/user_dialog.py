@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 17.10.2010
 
@@ -10,6 +11,7 @@ from db_model import User
 import ui_userdialog
 from helpers import showExcInfo, tr, DialogMode
 from exceptions import UnsupportedDialogModeError
+import hashlib
 
 class UserDialog(QtGui.QDialog):
     
@@ -41,7 +43,10 @@ class UserDialog(QtGui.QDialog):
     def write(self):
         '''Запись введенной в элементы gui информации в поля объекта.'''
         self.user.login = self.ui.lineEdit_login.text()
-        self.user.password = self.ui.lineEdit_password.text()
+        #TODO Нужно сохранять ХЕШ пароля!!!
+        bytes = self.ui.lineEdit_password.text().encode("utf-8")
+        self.user.password = hashlib.sha1(bytes).hexdigest()
+                
         self.user.group = self.ui.comboBox_group.currentText()
         print(self.user.group)
         
