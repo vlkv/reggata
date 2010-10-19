@@ -4,13 +4,14 @@
 A Python replacement for java.util.Properties class
 This is modelled as closely as possible to the Java original.
 
-Created - Anand B Pillai <abpillai@gmail.com>    
+Created - Anand B Pillai <abpillai@gmail.com>
+
+Converted to python 3 by vlkv <vitvlkv@gmail.com> with 2to3 program and little hand coding.
 """
 
-import sys, os, io
+import sys, io
 import re
 import time
-import _pyio
 
 class IllegalArgumentException(Exception):
 
