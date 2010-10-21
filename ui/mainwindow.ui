@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
+<ui version="4.0" >
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
@@ -10,90 +9,109 @@
     <height>373</height>
    </rect>
   </property>
-  <property name="windowTitle">
+  <property name="windowTitle" >
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <widget class="QTextEdit" name="textEdit_cloud">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>10</y>
-      <width>181</width>
-      <height>94</height>
-     </rect>
-    </property>
-    <property name="html">
-     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Tag &lt;span style=&quot; font-size:16pt;&quot;&gt;BigTag &lt;/span&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;Medium&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QVBoxLayout" name="verticalLayout" >
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout" >
+      <item>
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>Запрос:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_query" />
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_query_exec" >
+        <property name="text" >
+         <string>Выполнить</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QFrame" name="frame_tag_cloud" >
+      <property name="frameShape" >
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow" >
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTableView" name="tableView_items" />
+    </item>
+   </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
     <rect>
      <x>0</x>
      <y>0</y>
      <width>471</width>
-     <height>26</height>
+     <height>29</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_repo">
-    <property name="title">
+   <widget class="QMenu" name="menu_repo" >
+    <property name="title" >
      <string>Хранилище</string>
     </property>
-    <addaction name="action_repo_create"/>
-    <addaction name="action_repo_open"/>
-    <addaction name="action_repo_close"/>
-    <addaction name="action_repo_add_item"/>
+    <addaction name="action_repo_create" />
+    <addaction name="action_repo_open" />
+    <addaction name="action_repo_close" />
+    <addaction name="action_repo_add_item" />
    </widget>
-   <widget class="QMenu" name="menu">
-    <property name="title">
+   <widget class="QMenu" name="menu" >
+    <property name="title" >
      <string>Пользователь</string>
     </property>
-    <addaction name="action_user_create"/>
-    <addaction name="action_user_login"/>
-    <addaction name="action_user_logout"/>
+    <addaction name="action_user_create" />
+    <addaction name="action_user_login" />
+    <addaction name="action_user_logout" />
    </widget>
-   <addaction name="menu_repo"/>
-   <addaction name="menu"/>
+   <addaction name="menu_repo" />
+   <addaction name="menu" />
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
-  <action name="action_repo_create">
-   <property name="text">
+  <widget class="QStatusBar" name="statusbar" />
+  <action name="action_repo_create" >
+   <property name="text" >
     <string>Создать</string>
    </property>
   </action>
-  <action name="action_repo_open">
-   <property name="text">
+  <action name="action_repo_open" >
+   <property name="text" >
     <string>Открыть</string>
    </property>
   </action>
-  <action name="action_repo_close">
-   <property name="text">
+  <action name="action_repo_close" >
+   <property name="text" >
     <string>Закрыть</string>
    </property>
   </action>
-  <action name="action_repo_add_item">
-   <property name="text">
+  <action name="action_repo_add_item" >
+   <property name="text" >
     <string>Добавить элемент</string>
    </property>
   </action>
-  <action name="action_user_create">
-   <property name="text">
+  <action name="action_user_create" >
+   <property name="text" >
     <string>Создать</string>
    </property>
   </action>
-  <action name="action_user_login">
-   <property name="text">
+  <action name="action_user_login" >
+   <property name="text" >
     <string>Войти в хранилище</string>
    </property>
   </action>
-  <action name="action_user_logout">
-   <property name="text">
+  <action name="action_user_logout" >
+   <property name="text" >
     <string>Выйти из хранилища</string>
    </property>
   </action>

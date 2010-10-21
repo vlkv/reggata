@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sun Oct 17 21:04:52 2010
+# Created: Thu Oct 21 16:52:32 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,12 +12,34 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(678, 432)
+        MainWindow.resize(471, 373)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtGui.QLabel(self.centralwidget)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        self.lineEdit_query = QtGui.QLineEdit(self.centralwidget)
+        self.lineEdit_query.setObjectName("lineEdit_query")
+        self.horizontalLayout.addWidget(self.lineEdit_query)
+        self.pushButton_query_exec = QtGui.QPushButton(self.centralwidget)
+        self.pushButton_query_exec.setObjectName("pushButton_query_exec")
+        self.horizontalLayout.addWidget(self.pushButton_query_exec)
+        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.frame_tag_cloud = QtGui.QFrame(self.centralwidget)
+        self.frame_tag_cloud.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.frame_tag_cloud.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame_tag_cloud.setObjectName("frame_tag_cloud")
+        self.verticalLayout.addWidget(self.frame_tag_cloud)
+        self.tableView_items = QtGui.QTableView(self.centralwidget)
+        self.tableView_items.setObjectName("tableView_items")
+        self.verticalLayout.addWidget(self.tableView_items)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 678, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 471, 29))
         self.menubar.setObjectName("menubar")
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName("menu_repo")
@@ -56,6 +78,8 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("MainWindow", "Запрос:", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_query_exec.setText(QtGui.QApplication.translate("MainWindow", "Выполнить", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_repo.setTitle(QtGui.QApplication.translate("MainWindow", "Хранилище", None, QtGui.QApplication.UnicodeUTF8))
         self.menu.setTitle(QtGui.QApplication.translate("MainWindow", "Пользователь", None, QtGui.QApplication.UnicodeUTF8))
         self.action_repo_create.setText(QtGui.QApplication.translate("MainWindow", "Создать", None, QtGui.QApplication.UnicodeUTF8))

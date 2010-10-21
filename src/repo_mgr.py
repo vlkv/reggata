@@ -104,6 +104,9 @@ class UnitOfWork(object):
         
     #TODO Надо подумать про rollback()...
         
+    def queryItems(self, and_tags):
+        return self.__session.query(Item).filter(Item.title.in_(and_tags)).all()
+    
     def saveNewUser(self, user):
         self.__session.add(user)
         self.__session.commit()

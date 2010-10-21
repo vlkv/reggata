@@ -5,7 +5,6 @@ Created on 20.08.2010
 @author: vlkv
 '''
 
-#import sqlite3
 import os.path
 import sys
 
@@ -28,25 +27,20 @@ from exceptions import LoginError
 
 class TagCloud(QtGui.QTextEdit):
 	'''
-	Облако тегов.
+	Виджет для отображения облака тегов.
 	'''
 	def __init__(self, parent=None):
 		super(TagCloud, self).__init__(parent)
 		self.setReadOnly(True)
 	
 	def event(self, e):
-            result = QtGui.QTextEdit.event(self, e)
-            
-            print(str(type(e)) + str(e))
-              
-            return result
+		result = QtGui.QTextEdit.event(self, e)
+		return result
 	
 	def mouseMoveEvent(self, e):
-#		print(e.pos())
 		cursor = self.cursorForPosition(e.pos())
 		cursor.select(QtGui.QTextCursor.WordUnderCursor)
 		word = cursor.selectedText()
-#		print(word)
 		self.word = word
 		
 	def mouseDoubleClickEvent(self, e):
@@ -66,6 +60,9 @@ class MainWindow(QMainWindow):
 	#Текущий пользователь, который работает с программой
 	__active_user = None
 	
+	'''Модель таблицы для отображения элементов хранилища.'''
+	model = None
+	
 	def __init__(self, parent=None):
 		super(MainWindow, self).__init__(parent)
 		self.ui = ui_mainwindow.Ui_MainWindow()
@@ -77,6 +74,7 @@ class MainWindow(QMainWindow):
 		self.connect(self.ui.action_user_create, SIGNAL("triggered()"), self.action_user_create)
 		self.connect(self.ui.action_user_login, SIGNAL("triggered()"), self.action_user_login)
 		self.connect(self.ui.action_user_logout, SIGNAL("triggered()"), self.action_user_logout)
+		self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
 		
 		#Добавляем на статус бар поля для отображения текущего хранилища и пользователя
 		self.ui.label_repo = QLabel()
@@ -97,12 +95,17 @@ class MainWindow(QMainWindow):
 		except:
 			pass
 		
-		self.ui.centralwidget.setLayout(QtGui.QVBoxLayout())
 		self.ui.tag_cloud = TagCloud(self)
-		self.ui.centralwidget.layout().addWidget(self.ui.tag_cloud)
+		self.ui.frame_tag_cloud.setLayout(QtGui.QVBoxLayout())
+		self.ui.frame_tag_cloud.layout().addWidget(self.ui.tag_cloud)
 		self.ui.tag_cloud.setText("<font size='+5'>Tag1</font>  asdf asdfa       adsf asdf <font size='+5'>Tag1</font> <font size='+1'>Tag1</font> <font size='+2'>Tag1</font> <font size='-2'>Tag1</font>")
 		self.ui.tag_cloud.setMouseTracking(True)
+				
 		
+		
+	def query_exec(self):
+		tags = self.ui.lineEdit_query.text().split()
+		self.model.query(tags)
 		
 	
 	def _login_recent_user(self):
@@ -154,8 +157,14 @@ class MainWindow(QMainWindow):
 			
 			#Выводим сообщение
 			self.ui.statusbar.showMessage(tr("Открыто хранилище по адресу ") + repo.base_path, 3000)
+			
+			#Строим новую модель для таблицы
+			self.model = RepoItemTableModel(repo)
+			self.ui.tableView_items.setModel(self.model)
 		else:
 			self.ui.label_repo.setText("")
+			self.model = None
+			self.ui.tableView_items.setModel()
 				
 	def _get_active_repo(self):
 		return self.__active_repo
@@ -273,36 +282,55 @@ class MainWindow(QMainWindow):
 		except Exception as ex:
 			showExcInfo(self, ex)
 
-#class MainWindow(QDialog):
-#
-#	def __init__(self, parent=None):
-#		super(MainWindow, self).__init__(parent)
-#		self.setWindowTitle("datorg - главное окно")
-#		self.browser = QTextBrowser()
-#		self.lineedit = QLineEdit("Type an expression and press Enter")
-#		self.lineedit.selectAll()
-#
-#		layout = QVBoxLayout()
-#		layout.addWidget(self.browser)
-#		layout.addWidget(self.lineedit)
-#		self.setLayout(layout)
-#
-#		self.lineedit.setFocus()
-#		self.connect(self.lineedit, SIGNAL("returnPressed()"), self.updateUi)
-#
-#
-#		self.button = QPushButton("Eval")
-#		layout.addWidget(self.button)
-#		self.connect(self.button, SIGNAL("pressed()"), self.updateUi)
-#
-#
-#	def updateUi(self):
-#		try:
-#			text = self.lineedit.text()
-#			self.browser.append("{0} = <b>{1}</b>".format(text, eval(text)))
-#		except:
-#			self.browser.append("<font color=red>{0} is invalid!</font>".format(text))
 
+class RepoItemTableModel(QtCore.QAbstractTableModel):
+	
+	ID = 0
+	TITLE = 1
+	
+	def __init__(self, repo):
+		super(RepoItemTableModel, self).__init__()
+		self.repo = repo
+		self.items = []
+		
+	def query(self, and_tags=[]):
+		uow = self.repo.createUnitOfWork()
+		try:
+			self.items = uow.queryItems(and_tags)
+#			print(self.items)
+			self.reset()
+		finally:
+			uow.close()
+	
+	def rowCount(self, index=QtCore.QModelIndex()):
+		return len(self.items)
+	
+	def columnCount(self, index=QtCore.QModelIndex()):
+		return 2
+	
+	def data(self, index, role=Qt.DisplayRole):
+		if not index.isValid() or \
+			not (0 <= index.row() < len(self.items)):
+			return None
+		
+		item = self.items[index.row()]
+		column = index.column()
+		if role == Qt.DisplayRole:
+			if column == self.ID:
+				return item.id
+			elif column == self.TITLE:
+				return item.title
+			
+		elif role == Qt.TextAlignmentRole:
+			if column == self.ID:
+				return int(Qt.AlignRight | Qt.AlignVCenter)
+			else:
+				return int(Qt.AlignLeft | Qt.AlignVCenter)
+			
+		else:
+			return None
+		
+		
 
 
 if __name__ == '__main__':
