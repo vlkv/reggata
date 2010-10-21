@@ -19,8 +19,6 @@ from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork
 from helpers import tr, showExcInfo, DialogMode
 from db_model import Base, User, Item, DataRef, Tag, Field, FieldVal
-import consts
-from pyjavaproperties import Properties
 from user_config import UserConfig
 from user_dialog import UserDialog
 from exceptions import LoginError
@@ -297,7 +295,6 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		uow = self.repo.createUnitOfWork()
 		try:
 			self.items = uow.queryItems(and_tags)
-#			print(self.items)
 			self.reset()
 		finally:
 			uow.close()

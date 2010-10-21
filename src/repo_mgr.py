@@ -6,7 +6,7 @@ Created on 30.09.2010
 '''
 
 import os.path
-from helpers import tr
+from helpers import tr, to_commalist
 import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
@@ -105,7 +105,12 @@ class UnitOfWork(object):
     #TODO Надо подумать про rollback()...
         
     def queryItems(self, and_tags):
-        return self.__session.query(Item).filter(Item.title.in_(and_tags)).all()
+#        return self.__session.query(Item).filter(Item.tags.any(Tag.name.in_(and_tags))).all()
+        sql = '''SELECT DISTINCT i.id, i.title, i.notes, i.user_login
+                    FROM items i LEFT JOIN tags_items ti on i.id=ti.item_id 
+                    WHERE ti.tag_name IN (''' + to_commalist(and_tags) + ''')'''
+        print(sql)
+        return self.__session.query(Item).from_statement(sql).all()
     
     def saveNewUser(self, user):
         self.__session.add(user)

@@ -17,9 +17,6 @@ def tr(text, context="default"):
     return QCoreApplication.translate(context, str(text), None, QCoreApplication.UnicodeUTF8)
 
 
-
-
-
 def showExcInfo(parent, ex):
     
     '''Окно данного класса можно растягивать мышкой, 
@@ -63,3 +60,19 @@ class DialogMode(object):
     VIEW = 2
     LOGIN = 3
     
+    
+def to_commalist(seq, apply_each=repr):
+    '''
+    Для последовательности seq (например, списка list) возвращает строку, содержащую
+    элементы через запятую. При этому к каждому элементу применяется функция apply_each()
+    для возможно необходимых преобразований формата элементов.
+    '''
+    s = ""
+    for i in range(len(seq)):
+        item = seq[i]
+        s = s + apply_each(item)
+        if i != len(seq) - 1:
+            s = s + ','        
+    return s
+        
+        
