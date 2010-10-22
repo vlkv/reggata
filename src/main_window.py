@@ -27,9 +27,63 @@ class TagCloud(QtGui.QTextEdit):
 	'''
 	Виджет для отображения облака тегов.
 	'''
-	def __init__(self, parent=None):
+	
+	#Пользователи (их логины), теги которых должны отображаться в облаке
+	#Если пустой список, то теги всех пользователей
+	_users = set()
+	
+	_repo = None
+	
+	def add_user(self, user_login):
+		self._users.add(user_login)
+		self.refresh()
+	
+	def clear_users(self):
+		self._users.clear()
+		self.refresh()
+		
+	def remove_user(self, user_login):
+		self._users.remove(user_login)
+		self.refresh()
+	
+	@property
+	def repo(self):
+		return self._repo
+	
+	@repo.setter
+	def repo(self, value):
+		self._repo = value
+		self.refresh()
+		
+	def __init__(self, parent=None, repo=None):
 		super(TagCloud, self).__init__(parent)
+		self.setMouseTracking(True)
 		self.setReadOnly(True)
+		self.repo = repo
+	
+	def refresh(self):
+		
+		user_logins = list(self._users)
+		
+		if self.repo is None:
+			self.setText("")
+		else:
+			uow = self.repo.createUnitOfWork()
+			try:
+				tags = uow.getTags(user_logins)
+				
+				#Нужно оставить в единств. экз. одинаковые имена тегов разных пользователей
+				names = set()
+				for tag in tags:
+					names.add(tag.name)
+				
+				text = ""
+				for name in names:
+					text = text + " " + name
+				self.setText(text)
+			finally:
+				uow.close()
+
 	
 	def event(self, e):
 		result = QtGui.QTextEdit.event(self, e)
@@ -82,6 +136,11 @@ class MainWindow(QMainWindow):
 		self.ui.statusbar.addPermanentWidget(QLabel(tr("Пользователь:")))
 		self.ui.statusbar.addPermanentWidget(self.ui.label_user)
 		
+		#Добавляем облако тегов
+		self.ui.tag_cloud = TagCloud(self)
+		self.ui.frame_tag_cloud.setLayout(QtGui.QVBoxLayout())
+		self.ui.frame_tag_cloud.layout().addWidget(self.ui.tag_cloud)
+		
 		#Открываем последнее хранилище, с которым работал пользователь
 		try:
 			tmp = UserConfig().get("recent_repo.base_path")
@@ -93,11 +152,8 @@ class MainWindow(QMainWindow):
 		except:
 			pass
 		
-		self.ui.tag_cloud = TagCloud(self)
-		self.ui.frame_tag_cloud.setLayout(QtGui.QVBoxLayout())
-		self.ui.frame_tag_cloud.layout().addWidget(self.ui.tag_cloud)
-		self.ui.tag_cloud.setText("<font size='+5'>Tag1</font>  asdf asdfa       adsf asdf <font size='+5'>Tag1</font> <font size='+1'>Tag1</font> <font size='+2'>Tag1</font> <font size='-2'>Tag1</font>")
-		self.ui.tag_cloud.setMouseTracking(True)
+		
+		
 				
 		
 		
@@ -112,7 +168,7 @@ class MainWindow(QMainWindow):
 			login = UserConfig().get("recent_user.login")
 			password = UserConfig().get("recent_user.password")
 			uow = self.active_repo.createUnitOfWork()
-			self.active_user = uow.loginUser(login, password)		
+			self.active_user = uow.loginUser(login, password)
 		finally:
 			uow.close()
 		
@@ -120,7 +176,17 @@ class MainWindow(QMainWindow):
 	def _set_active_user(self, user):
 		if type(user) != User and user is not None:
 			raise TypeError(tr("Параметр user должен иметь тип User."))
+		
+		#Убираем из облака старый логин
+		if self.__active_user is not None:
+			self.ui.tag_cloud.remove_user(self.__active_user.login)			
+		
 		self.__active_user = user
+		
+		#Добавляем в облако новый логин
+		if user is not None:
+			self.ui.tag_cloud.add_user(user.login)
+		
 		
 		if user is not None:
 			self.ui.label_user.setText(user.login)
@@ -142,7 +208,10 @@ class MainWindow(QMainWindow):
 			raise TypeError(tr("Тип repo должен быть RepoMgr"))
 	
 		self.__active_repo = repo
-			
+		
+		#Передаем новое хранилище виджету "облако тегов"
+		self.ui.tag_cloud.repo = repo
+		
 		if repo is not None:
 			#Запоминаем путь к хранилищу
 			UserConfig().store("recent_repo.base_path", repo.base_path)

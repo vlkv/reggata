@@ -108,6 +108,15 @@ class UnitOfWork(object):
         
     #TODO Надо подумать про rollback()...
         
+    def getTags(self, user_logins=[]):
+        '''Возвращает список тегов хранилища.'''
+        if len(user_logins) == 0:
+            return self._session.query(Tag).order_by(Tag.name).all()
+        else:
+            return self._session.query(Tag).filter(Tag.user_login.in_(user_logins)).order_by(Tag.name).all()
+        #TODO нужны критерии по пользователям и по уже выбранным тегам
+        
+    
     def queryItems(self, and_tags):
 #        return self._session.query(Item).filter(Item.tags.any(Tag.name.in_(and_tags))).all()
         sql = '''SELECT DISTINCT i.id, i.title, i.notes, i.user_login
@@ -203,6 +212,7 @@ class UnitOfWork(object):
         for dr in copy_list:
             if dr[0] != self._repo_base_path + dr[1]:
                 shutil.copy(dr[0], self._repo_base_path + dr[1])
+        #TODO надо копировать не просто в корень...
         
         #TODO надо вычислять хеши
 
