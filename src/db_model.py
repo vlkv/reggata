@@ -132,7 +132,7 @@ class Field(Base):
     
     name = sqa.Column(sqa.String, primary_key=True)
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
-    value_type = sqa.Column(sqa.Enum("STRING, NUMBER"), nullable=False, default="STRING")
+    value_type = sqa.Column(sqa.Enum("STRING", "NUMBER"), nullable=False, default="STRING")
     
 
 class FieldVal(Base):
@@ -149,6 +149,15 @@ class FieldVal(Base):
     field_value = sqa.Column(sqa.String, nullable=False, default="")
 
     field = relationship(Field)
+    
+    def __init__(self, field=None, value=""):
+        self.field = field
+        self.field_value = value
+        if field is not None:
+            self.field_name = field.name
+            self.field_user_login = field.user_login
+                    
+        
     
     
     

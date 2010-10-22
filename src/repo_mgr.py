@@ -10,8 +10,9 @@ from helpers import tr, to_commalist
 import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
-from db_model import Base, Item, User, Tag
+from db_model import Base, Item, User, Tag, Field
 from exceptions import LoginError
+import shutil
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -89,74 +90,121 @@ class RepoMgr(object):
 
 class UnitOfWork(object):
     
-    __session = None
-
+    _repo_base_path = None
+    
+    _session = None
+    
     def __init__(self, repoMgr):
-        self.__session = repoMgr.Session()    
+        self._repo_base_path = repoMgr.base_path
+        self._session = repoMgr.Session()
         
     def __del__(self):
-        if self.__session is not None:
-            self.__session.close()
+        if self._session is not None:
+            self._session.close()
         
     def close(self):
-        self.__session.expunge_all()
-        self.__session.close()
+        self._session.expunge_all()
+        self._session.close()
         
     #TODO Надо подумать про rollback()...
         
     def queryItems(self, and_tags):
-#        return self.__session.query(Item).filter(Item.tags.any(Tag.name.in_(and_tags))).all()
+#        return self._session.query(Item).filter(Item.tags.any(Tag.name.in_(and_tags))).all()
         sql = '''SELECT DISTINCT i.id, i.title, i.notes, i.user_login
                     FROM items i LEFT JOIN tags_items ti on i.id=ti.item_id 
                     WHERE ti.tag_name IN (''' + to_commalist(and_tags) + ''')'''
         print(sql)
-        return self.__session.query(Item).from_statement(sql).all()
+        return self._session.query(Item).from_statement(sql).all()
     
     def saveNewUser(self, user):
-        self.__session.add(user)
-        self.__session.commit()
+        self._session.add(user)
+        self._session.commit()
 
 
     def loginUser(self, login, password):
         '''
     	password - это SHA1 hexdigest() хеш.
     	'''
-        user = self.__session.query(User).get(login)
+        user = self._session.query(User).get(login)
         if user is None:
             raise LoginError(tr("Пользователя ") + login + tr(" не существует."))
         if user.password != password:
             raise LoginError(tr("Неверный пароль"))
         return user
-        
-        
-        
 
         
     def saveNewItem(self, item):
+            
+        copy_list = []
         
-        #TODO Тут нужно обрезать пути url у DataRef объектов, чтобы они стали относительными
-        #TODO Нужно скопировать файлы внутрь директории хранилища 
+        #Сначала надо преобразовать пути у объектов DataRef
+        for dr in item.data_refs:
+            
+            #Нормализация пути
+            dr.url = os.path.normpath(dr.url)
+            
+            #Убираем слеш, если есть в конце пути
+            if dr.url.endswith(os.sep):
+                dr.url = dr.url[0:len(dr.url)-1]
+            
+            #Запоминаем на время
+            tmp_url = dr.url
+        
+            #Определяем, находится ли данный файл уже внутри хранилища
+            com_pref = os.path.commonprefix([self._repo_base_path, dr.url])
+            if com_pref == self._repo_base_path:
+                #Файл уже внутри
+                #Нужно сделать путь dr.url относительным и всё
+                dr.url = os.path.relpath(dr.url, self._repo_base_path)
+            else:
+                #Файл снаружи
+                #Такой файл будет скопирован в корень хранилища
+                dr.url = os.path.basename(dr.url)
+            
+            #Запоминаем все пути к файлам из DataRef объектов, чтобы потом копировать
+            copy_list.append((tmp_url, dr.url))
         
         #Удаляем из item.tags теги, которые уже есть в базе
         tags = item.tags[:] #Делаем копию списка
         new_tags = []
-        for tag in tags:            
-            t = self.__session.query(Tag).get((tag.name, tag.user_login))            
-            if t is not None:
-                item.tags.remove(tag) #Оставляем в item.tags только новые теги
+        for tag in tags:
+            t = self._session.query(Tag).get((tag.name, tag.user_login))
+            if t is not None:                
                 new_tags.append(t)
+                item.tags.remove(tag) #Оставляем в item.tags только новые теги            
         
-        #Сохраняем item пока что только с новыми тегами
-        self.__session.add(item)
-        self.__session.flush()
+        #Удаляем поля, которые уже существуют
+        field_vals = item.field_vals[:]
+        new_field_vals = []
+        for field_val in field_vals:
+            field = field_val.field
+            f = self._session.query(Field).get((field.name, field.user_login))
+            if f is not None:
+                field_val.field = f
+                new_field_vals.append(field_val)
+                item.field_vals.remove(field_val)
+                
+
+        #Сохраняем item пока что только с новыми тегами и новыми полями
+        self._session.add(item)
+        self._session.flush()
         
         #Добавляем в item существующие теги
         for tag in new_tags:
             item.tags.append(tag)
+        
+        #Добавляем в item существующие поля
+        for field_val in new_field_vals:
+            item.field_vals.append(field_val)
                         
-        self.__session.commit()
-
-        #TODO Обработать поля и все остальные связанные объекты
+        self._session.commit()
+        
+        #Если все сохранилось в БД, то копируем файлы
+        for dr in copy_list:
+            if dr[0] != self._repo_base_path + dr[1]:
+                shutil.copy(dr[0], self._repo_base_path + dr[1])
+        
+        #TODO надо вычислять хеши
 
 
 

@@ -7,7 +7,7 @@ Created on 15.10.2010
 import PyQt4.QtGui as qtgui
 import PyQt4.QtCore as qtcore
 import ui_itemdialog
-from db_model import Item, DataRef, Tag
+from db_model import Item, DataRef, Tag, Field, FieldVal
 from helpers import tr, showExcInfo
 import os
 import hashlib
@@ -67,14 +67,27 @@ class ItemDialog(qtgui.QDialog):
             dr.user_login = self.item.user_login
             self.item.data_refs.append(dr)
         
-        #Создаем объекты Tag    
+        #Создаем объекты Tag
         text = self.ui.plainTextEdit_tags.toPlainText()
         for t in text.split():
             tag = Tag()
             tag.name = t
             tag.user_login = self.item.user_login
             self.item.tags.append(tag)
+        #TODO сделать поддержку двойных кавычек
         
+        #Создаем объекты Field
+        text = self.ui.plainTextEdit_fields.toPlainText()
+        for pair in text.split():
+            f, v = pair.split('=')
+            field = Field()
+            field.name = f
+            field.user_login = self.item.user_login
+            field.value_type = "STRING" #TODO сделать поддержку NUMBER
+            field_val = FieldVal(field, v)
+            self.item.field_vals.append(field_val)
+            
+                 
         
         #TODO ...
         
