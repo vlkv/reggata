@@ -113,7 +113,9 @@ class UnitOfWork(object):
         if len(user_logins) == 0:
             return self._session.query(Tag).order_by(Tag.name).all()
         else:
-            return self._session.query(Tag).filter(Tag.user_login.in_(user_logins)).order_by(Tag.name).all()
+            return self._session.query(Tag) \
+                    .filter(Tag.user_login.in_(user_logins)) \
+                    .order_by(Tag.name).all()
         #TODO нужны критерии по пользователям и по уже выбранным тегам
         
     
