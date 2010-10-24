@@ -131,9 +131,9 @@ class MainWindow(QtGui.QMainWindow):
 		#Добавляем на статус бар поля для отображения текущего хранилища и пользователя
 		self.ui.label_repo = QtGui.QLabel()
 		self.ui.label_user = QtGui.QLabel()
-		self.ui.statusbar.addPermanentWidget(QtGui.QLabel(tr("Repository:")))
+		self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("Repository:")))
 		self.ui.statusbar.addPermanentWidget(self.ui.label_repo)
-		self.ui.statusbar.addPermanentWidget(QtGui.QLabel(tr("User:")))
+		self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("User:")))
 		self.ui.statusbar.addPermanentWidget(self.ui.label_user)
 		
 		#Добавляем облако тегов
@@ -180,7 +180,7 @@ class MainWindow(QtGui.QMainWindow):
 			
 	def _set_active_user(self, user):
 		if type(user) != User and user is not None:
-			raise TypeError(tr("Argument must be an instance of User class."))
+			raise TypeError(self.tr("Argument must be an instance of User class."))
 		
 		#Убираем из облака старый логин
 		if self.__active_user is not None:
@@ -210,7 +210,7 @@ class MainWindow(QtGui.QMainWindow):
 	
 	def _set_active_repo(self, repo):
 		if not isinstance(repo, RepoMgr) and not repo is None:
-			raise TypeError(tr("Argument must be of RepoMgr class."))
+			raise TypeError(self.tr("Argument must be of RepoMgr class."))
 	
 		self.__active_repo = repo
 		
@@ -228,7 +228,7 @@ class MainWindow(QtGui.QMainWindow):
 			self.ui.label_repo.setText(tail)
 			
 			#Выводим сообщение
-			self.ui.statusbar.showMessage(tr("Opened repository from {}.").format(repo.base_path), 5000)
+			self.ui.statusbar.showMessage(self.tr("Opened repository from {}.").format(repo.base_path), 5000)
 			
 			#Строим новую модель для таблицы
 			self.model = RepoItemTableModel(repo)
@@ -246,9 +246,9 @@ class MainWindow(QtGui.QMainWindow):
 		
 	def action_repo_create(self):
 		try:
-			base_path = QtGui.QFileDialog.getExistingDirectory(self, tr("Choose a base path for new repository"))
+			base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a base path for new repository"))
 			if base_path == "":
-				raise Exception(tr("You haven't chosen existent directory. Operation canceled."))
+				raise Exception(self.tr("You haven't chosen existent directory. Operation canceled."))
 			self.active_repo = RepoMgr.create_new_repo(base_path)
 			self.active_user = None
 		except Exception as ex:
@@ -258,7 +258,7 @@ class MainWindow(QtGui.QMainWindow):
 	def action_repo_close(self):
 		try:
 			if self.active_repo is None:
-				raise Exception(tr("There is no opened repository."))
+				raise Exception(self.tr("There is no opened repository."))
 			self.active_repo = None #Сборщик мусора и деструктор сделают свое дело
 			self.active_user = None
 		except Exception as ex:
@@ -266,9 +266,9 @@ class MainWindow(QtGui.QMainWindow):
 
 	def action_repo_open(self):
 		try:
-			base_path = QtGui.QFileDialog.getExistingDirectory(self, tr("Choose a repository base path"))
+			base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a repository base path"))
 			if base_path == "":
-				raise Exception(tr("You haven't chosen existent directory. Operation canceled."))
+				raise Exception(self.tr("You haven't chosen existent directory. Operation canceled."))
 			self.active_repo = RepoMgr(base_path)			
 			self.active_user = None
 			self._login_recent_user()
@@ -292,10 +292,10 @@ class MainWindow(QtGui.QMainWindow):
 	def action_repo_add_item(self):
 		try:
 			if self.active_repo is None:
-				raise Exception(tr("Open a repository first."))
+				raise Exception(self.tr("Open a repository first."))
 			
 			if self.active_user is None:
-				raise Exception(tr("Login to a repository first."))
+				raise Exception(self.tr("Login to a repository first."))
 						
 			it = Item(user_login=self.active_user.login)
 			d = ItemDialog(it, self)
@@ -313,7 +313,7 @@ class MainWindow(QtGui.QMainWindow):
 	def action_user_create(self):
 		try:
 			if self.active_repo is None:
-				raise Exception(tr("Open a repository first."))
+				raise Exception(self.tr("Open a repository first."))
 			
 			u = UserDialog(User(), self)
 			if u.exec_():
@@ -409,11 +409,11 @@ if __name__ == '__main__':
 	app = QtGui.QApplication(sys.argv)
 	
 	
-	qtr = QtCore.QTranslator()
+	qtr = QtCore.QTranslator()	
 	if qtr.load("reggata_ru", ".."):
 		app.installTranslator(qtr)
 	else:
-		print(2)
+		print("Cannot find translation files.")
 	
 	
 	form = MainWindow()

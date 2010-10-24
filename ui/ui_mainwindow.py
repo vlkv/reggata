@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Thu Oct 21 16:52:32 2010
+# Created: Sun Oct 24 20:04:28 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -77,16 +77,16 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("MainWindow", "Запрос:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_query_exec.setText(QtGui.QApplication.translate("MainWindow", "Выполнить", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu_repo.setTitle(QtGui.QApplication.translate("MainWindow", "Хранилище", None, QtGui.QApplication.UnicodeUTF8))
-        self.menu.setTitle(QtGui.QApplication.translate("MainWindow", "Пользователь", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_repo_create.setText(QtGui.QApplication.translate("MainWindow", "Создать", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_repo_open.setText(QtGui.QApplication.translate("MainWindow", "Открыть", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_repo_close.setText(QtGui.QApplication.translate("MainWindow", "Закрыть", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_repo_add_item.setText(QtGui.QApplication.translate("MainWindow", "Добавить элемент", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_user_create.setText(QtGui.QApplication.translate("MainWindow", "Создать", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_user_login.setText(QtGui.QApplication.translate("MainWindow", "Войти в хранилище", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_user_logout.setText(QtGui.QApplication.translate("MainWindow", "Выйти из хранилища", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Reggata", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("MainWindow", "Query:", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_query_exec.setText(QtGui.QApplication.translate("MainWindow", "Execute", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu_repo.setTitle(QtGui.QApplication.translate("MainWindow", "Repository", None, QtGui.QApplication.UnicodeUTF8))
+        self.menu.setTitle(QtGui.QApplication.translate("MainWindow", "User", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_repo_create.setText(QtGui.QApplication.translate("MainWindow", "New", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_repo_open.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_repo_close.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_repo_add_item.setText(QtGui.QApplication.translate("MainWindow", "Add item", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_user_create.setText(QtGui.QApplication.translate("MainWindow", "Create", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_user_login.setText(QtGui.QApplication.translate("MainWindow", "Login", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_user_logout.setText(QtGui.QApplication.translate("MainWindow", "Logout", None, QtGui.QApplication.UnicodeUTF8))
 

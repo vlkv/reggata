@@ -1,61 +1,63 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
+<ui version="4.0" >
  <class>UserDialog</class>
- <widget class="QDialog" name="UserDialog">
-  <property name="geometry">
+ <widget class="QDialog" name="UserDialog" >
+  <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
     <width>242</width>
-    <height>142</height>
+    <height>146</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Пользователь хранилища</string>
+  <property name="windowTitle" >
+   <string>Repository user</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" >
    <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_login">
-       <property name="text">
-        <string>Логин:</string>
+    <layout class="QGridLayout" name="gridLayout" >
+     <item row="0" column="0" >
+      <widget class="QLabel" name="label_login" >
+       <property name="text" >
+        <string>Login:</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QLineEdit" name="lineEdit_login"/>
+     <item row="0" column="2" >
+      <widget class="QLineEdit" name="lineEdit_login" />
      </item>
-     <item row="1" column="0" colspan="2">
-      <widget class="QLabel" name="label_password">
-       <property name="text">
-        <string>Пароль:</string>
+     <item row="1" column="0" colspan="2" >
+      <widget class="QLabel" name="label_password" >
+       <property name="text" >
+        <string>Password:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QLineEdit" name="lineEdit_password">
-       <property name="echoMode">
+     <item row="1" column="2" >
+      <widget class="QLineEdit" name="lineEdit_password" >
+       <property name="echoMode" >
         <enum>QLineEdit::Password</enum>
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2">
-      <widget class="QLabel" name="label_group">
-       <property name="text">
-        <string>Группа:</string>
+     <item row="2" column="0" colspan="2" >
+      <widget class="QLabel" name="label_group" >
+       <property name="locale" >
+        <locale country="UnitedStates" language="English" />
+       </property>
+       <property name="text" >
+        <string>Group:</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
-      <widget class="QComboBox" name="comboBox_group">
+     <item row="2" column="2" >
+      <widget class="QComboBox" name="comboBox_group" >
        <item>
-        <property name="text">
+        <property name="text" >
          <string>USER</string>
         </property>
        </item>
        <item>
-        <property name="text">
+        <property name="text" >
          <string>ADMIN</string>
         </property>
        </item>
@@ -64,11 +66,11 @@
     </layout>
    </item>
    <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
+    <spacer name="verticalSpacer" >
+     <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" stdset="0">
+     <property name="sizeHint" stdset="0" >
       <size>
        <width>20</width>
        <height>40</height>
@@ -77,11 +79,11 @@
     </spacer>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons">
+     <property name="standardButtons" >
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>

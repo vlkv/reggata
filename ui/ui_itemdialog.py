@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemdialog.ui'
 #
-# Created: Sun Oct 17 10:44:23 2010
+# Created: Sun Oct 24 20:04:37 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,8 @@ from PyQt4 import QtCore, QtGui
 class Ui_ItemDialog(object):
     def setupUi(self, ItemDialog):
         ItemDialog.setObjectName("ItemDialog")
-        ItemDialog.resize(587, 544)
+        ItemDialog.resize(587, 554)
+        ItemDialog.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedStates))
         self.verticalLayout_5 = QtGui.QVBoxLayout(ItemDialog)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
@@ -118,17 +119,17 @@ class Ui_ItemDialog(object):
         QtCore.QMetaObject.connectSlotsByName(ItemDialog)
 
     def retranslateUi(self, ItemDialog):
-        ItemDialog.setWindowTitle(QtGui.QApplication.translate("ItemDialog", "Элемент хранилища", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("ItemDialog", "id:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("ItemDialog", "Пользователь:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("ItemDialog", "Название:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("ItemDialog", "Описание:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("ItemDialog", "Связанные объекты:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_add_files.setText(QtGui.QApplication.translate("ItemDialog", "Добавить файлы", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_add_URL.setText(QtGui.QApplication.translate("ItemDialog", "Добавить URL", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_remove.setText(QtGui.QApplication.translate("ItemDialog", "Убрать", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_move_up.setText(QtGui.QApplication.translate("ItemDialog", "Вверх", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_move_down.setText(QtGui.QApplication.translate("ItemDialog", "Вниз", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_7.setText(QtGui.QApplication.translate("ItemDialog", "Поля:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("ItemDialog", "Теги:", None, QtGui.QApplication.UnicodeUTF8))
+        ItemDialog.setWindowTitle(QtGui.QApplication.translate("ItemDialog", "Repository item", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("ItemDialog", "Id:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("ItemDialog", "User:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("ItemDialog", "Title:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("ItemDialog", "Notes:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("ItemDialog", "Data references:", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_add_files.setText(QtGui.QApplication.translate("ItemDialog", "Add files", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_add_URL.setText(QtGui.QApplication.translate("ItemDialog", "Add URLs", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_remove.setText(QtGui.QApplication.translate("ItemDialog", "Remove", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_move_up.setText(QtGui.QApplication.translate("ItemDialog", "Move up", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButton_move_down.setText(QtGui.QApplication.translate("ItemDialog", "Move down", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(QtGui.QApplication.translate("ItemDialog", "Fields:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(QtGui.QApplication.translate("ItemDialog", "Tags:", None, QtGui.QApplication.UnicodeUTF8))
 

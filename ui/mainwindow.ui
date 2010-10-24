@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>MainWindow</string>
+   <string>Reggata</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QVBoxLayout" name="verticalLayout" >
@@ -19,7 +19,7 @@
       <item>
        <widget class="QLabel" name="label" >
         <property name="text" >
-         <string>Запрос:</string>
+         <string>Query:</string>
         </property>
        </widget>
       </item>
@@ -29,7 +29,7 @@
       <item>
        <widget class="QPushButton" name="pushButton_query_exec" >
         <property name="text" >
-         <string>Выполнить</string>
+         <string>Execute</string>
         </property>
        </widget>
       </item>
@@ -61,7 +61,7 @@
    </property>
    <widget class="QMenu" name="menu_repo" >
     <property name="title" >
-     <string>Хранилище</string>
+     <string>Repository</string>
     </property>
     <addaction name="action_repo_create" />
     <addaction name="action_repo_open" />
@@ -70,7 +70,7 @@
    </widget>
    <widget class="QMenu" name="menu" >
     <property name="title" >
-     <string>Пользователь</string>
+     <string>User</string>
     </property>
     <addaction name="action_user_create" />
     <addaction name="action_user_login" />
@@ -82,37 +82,37 @@
   <widget class="QStatusBar" name="statusbar" />
   <action name="action_repo_create" >
    <property name="text" >
-    <string>Создать</string>
+    <string>New</string>
    </property>
   </action>
   <action name="action_repo_open" >
    <property name="text" >
-    <string>Открыть</string>
+    <string>Open</string>
    </property>
   </action>
   <action name="action_repo_close" >
    <property name="text" >
-    <string>Закрыть</string>
+    <string>Close</string>
    </property>
   </action>
   <action name="action_repo_add_item" >
    <property name="text" >
-    <string>Добавить элемент</string>
+    <string>Add item</string>
    </property>
   </action>
   <action name="action_user_create" >
    <property name="text" >
-    <string>Создать</string>
+    <string>Create</string>
    </property>
   </action>
   <action name="action_user_login" >
    <property name="text" >
-    <string>Войти в хранилище</string>
+    <string>Login</string>
    </property>
   </action>
   <action name="action_user_logout" >
    <property name="text" >
-    <string>Выйти из хранилища</string>
+    <string>Logout</string>
    </property>
   </action>
  </widget>
