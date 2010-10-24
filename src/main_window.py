@@ -11,17 +11,17 @@ import sys
 import PyQt4
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
-from PyQt4.QtCore import (Qt, SIGNAL, QCoreApplication, QTextCodec)
-from PyQt4.QtGui import (QApplication, QMainWindow, QDialog, QLineEdit, QTextBrowser, 
-						QVBoxLayout, QPushButton, QFileDialog, QErrorMessage, QMessageBox, QLabel)
+
+
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork
 from helpers import tr, showExcInfo, DialogMode
-from db_model import Base, User, Item, DataRef, Tag, Field, FieldVal
+from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
 from exceptions import LoginError
+
 
 class TagCloud(QtGui.QTextEdit):
 	'''
@@ -101,7 +101,7 @@ class TagCloud(QtGui.QTextEdit):
 			#TODO Выполняем фильтрацию элементов хранилища
 	
 
-class MainWindow(QMainWindow):
+class MainWindow(QtGui.QMainWindow):
 	'''
 	Главное окно приложения reggata.
 	'''
@@ -119,21 +119,21 @@ class MainWindow(QMainWindow):
 		super(MainWindow, self).__init__(parent)
 		self.ui = ui_mainwindow.Ui_MainWindow()
 		self.ui.setupUi(self)
-		self.connect(self.ui.action_repo_create, SIGNAL("triggered()"), self.action_repo_create)
-		self.connect(self.ui.action_repo_close, SIGNAL("triggered()"), self.action_repo_close)
-		self.connect(self.ui.action_repo_open, SIGNAL("triggered()"), self.action_repo_open)
-		self.connect(self.ui.action_repo_add_item, SIGNAL("triggered()"), self.action_repo_add_item)
-		self.connect(self.ui.action_user_create, SIGNAL("triggered()"), self.action_user_create)
-		self.connect(self.ui.action_user_login, SIGNAL("triggered()"), self.action_user_login)
-		self.connect(self.ui.action_user_logout, SIGNAL("triggered()"), self.action_user_logout)
+		self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
+		self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
+		self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
+		self.connect(self.ui.action_repo_add_item, QtCore.SIGNAL("triggered()"), self.action_repo_add_item)
+		self.connect(self.ui.action_user_create, QtCore.SIGNAL("triggered()"), self.action_user_create)
+		self.connect(self.ui.action_user_login, QtCore.SIGNAL("triggered()"), self.action_user_login)
+		self.connect(self.ui.action_user_logout, QtCore.SIGNAL("triggered()"), self.action_user_logout)
 		self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
 		
 		#Добавляем на статус бар поля для отображения текущего хранилища и пользователя
-		self.ui.label_repo = QLabel()
-		self.ui.label_user = QLabel()
-		self.ui.statusbar.addPermanentWidget(QLabel(tr("Хранилище:")))
+		self.ui.label_repo = QtGui.QLabel()
+		self.ui.label_user = QtGui.QLabel()
+		self.ui.statusbar.addPermanentWidget(QtGui.QLabel(tr("Repository:")))
 		self.ui.statusbar.addPermanentWidget(self.ui.label_repo)
-		self.ui.statusbar.addPermanentWidget(QLabel(tr("Пользователь:")))
+		self.ui.statusbar.addPermanentWidget(QtGui.QLabel(tr("User:")))
 		self.ui.statusbar.addPermanentWidget(self.ui.label_user)
 		
 		#Добавляем облако тегов
@@ -153,8 +153,13 @@ class MainWindow(QMainWindow):
 			pass
 		
 		
+#		tr("English text")
+#		self.trUtf8("Русский текст")		
+#		QtGui.QApplication.translate("default", "text", None, QtGui.QApplication.UnicodeUTF8)
+#		QtGui.QApplication.translate("default", "текст", None, QtGui.QApplication.UnicodeUTF8)
+#		self.tr("tr() text")
+#		self.tr("tr() текст")
 		
-				
 		
 		
 	def query_exec(self):
@@ -175,7 +180,7 @@ class MainWindow(QMainWindow):
 			
 	def _set_active_user(self, user):
 		if type(user) != User and user is not None:
-			raise TypeError(tr("Параметр user должен иметь тип User."))
+			raise TypeError(tr("Argument must be an instance of User class."))
 		
 		#Убираем из облака старый логин
 		if self.__active_user is not None:
@@ -205,7 +210,7 @@ class MainWindow(QMainWindow):
 	
 	def _set_active_repo(self, repo):
 		if not isinstance(repo, RepoMgr) and not repo is None:
-			raise TypeError(tr("Тип repo должен быть RepoMgr"))
+			raise TypeError(tr("Argument must be of RepoMgr class."))
 	
 		self.__active_repo = repo
 		
@@ -223,7 +228,7 @@ class MainWindow(QMainWindow):
 			self.ui.label_repo.setText(tail)
 			
 			#Выводим сообщение
-			self.ui.statusbar.showMessage(tr("Открыто хранилище по адресу ") + repo.base_path, 3000)
+			self.ui.statusbar.showMessage(tr("Opened repository from {}.").format(repo.base_path), 5000)
 			
 			#Строим новую модель для таблицы
 			self.model = RepoItemTableModel(repo)
@@ -231,7 +236,7 @@ class MainWindow(QMainWindow):
 		else:
 			self.ui.label_repo.setText("")
 			self.model = None
-			self.ui.tableView_items.setModel()
+			self.ui.tableView_items.setModel(None)
 				
 	def _get_active_repo(self):
 		return self.__active_repo
@@ -241,9 +246,9 @@ class MainWindow(QMainWindow):
 		
 	def action_repo_create(self):
 		try:
-			base_path = QFileDialog.getExistingDirectory(self, tr("Выбор базовой директории хранилища"))
+			base_path = QtGui.QFileDialog.getExistingDirectory(self, tr("Choose a base path for new repository"))
 			if base_path == "":
-				raise Exception(tr("Необходимо выбрать существующую директорию"))
+				raise Exception(tr("You haven't chosen existent directory. Operation canceled."))
 			self.active_repo = RepoMgr.create_new_repo(base_path)
 			self.active_user = None
 		except Exception as ex:
@@ -253,7 +258,7 @@ class MainWindow(QMainWindow):
 	def action_repo_close(self):
 		try:
 			if self.active_repo is None:
-				raise Exception(tr("Нет открытых хранилищ"))
+				raise Exception(tr("There is no opened repository."))
 			self.active_repo = None #Сборщик мусора и деструктор сделают свое дело
 			self.active_user = None
 		except Exception as ex:
@@ -261,9 +266,9 @@ class MainWindow(QMainWindow):
 
 	def action_repo_open(self):
 		try:
-			base_path = QFileDialog.getExistingDirectory(self, tr("Выбор базовой директории хранилища"))
+			base_path = QtGui.QFileDialog.getExistingDirectory(self, tr("Choose a repository base path"))
 			if base_path == "":
-				raise Exception(tr("Необходимо выбрать базовую директорию существующего хранилища"))
+				raise Exception(tr("You haven't chosen existent directory. Operation canceled."))
 			self.active_repo = RepoMgr(base_path)			
 			self.active_user = None
 			self._login_recent_user()
@@ -287,10 +292,10 @@ class MainWindow(QMainWindow):
 	def action_repo_add_item(self):
 		try:
 			if self.active_repo is None:
-				raise Exception(tr("Необходимо сначала открыть хранилище."))
+				raise Exception(tr("Open a repository first."))
 			
 			if self.active_user is None:
-				raise Exception(tr("Необходимо выполнить вход в хранилище."))
+				raise Exception(tr("Login to a repository first."))
 						
 			it = Item(user_login=self.active_user.login)
 			d = ItemDialog(it, self)
@@ -308,7 +313,7 @@ class MainWindow(QMainWindow):
 	def action_user_create(self):
 		try:
 			if self.active_repo is None:
-				raise Exception(tr("Необходимо сначала открыть хранилище."))
+				raise Exception(tr("Open a repository first."))
 			
 			u = UserDialog(User(), self)
 			if u.exec_():
@@ -374,24 +379,24 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 	def columnCount(self, index=QtCore.QModelIndex()):
 		return 2
 	
-	def data(self, index, role=Qt.DisplayRole):
+	def data(self, index, role=QtCore.Qt.DisplayRole):
 		if not index.isValid() or \
 			not (0 <= index.row() < len(self.items)):
 			return None
 		
 		item = self.items[index.row()]
 		column = index.column()
-		if role == Qt.DisplayRole:
+		if role == QtCore.Qt.DisplayRole:
 			if column == self.ID:
 				return item.id
 			elif column == self.TITLE:
 				return item.title
 			
-		elif role == Qt.TextAlignmentRole:
+		elif role == QtCore.Qt.TextAlignmentRole:
 			if column == self.ID:
-				return int(Qt.AlignRight | Qt.AlignVCenter)
+				return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 			else:
-				return int(Qt.AlignLeft | Qt.AlignVCenter)
+				return int(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 			
 		else:
 			return None
@@ -401,8 +406,16 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 
 if __name__ == '__main__':
 	
-
-	app = QApplication(sys.argv)
+	app = QtGui.QApplication(sys.argv)
+	
+	
+	qtr = QtCore.QTranslator()
+	if qtr.load("reggata_ru", ".."):
+		app.installTranslator(qtr)
+	else:
+		print(2)
+	
+	
 	form = MainWindow()
 	form.show()
 	app.exec_()

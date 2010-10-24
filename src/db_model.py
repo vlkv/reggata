@@ -9,7 +9,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey, ForeignKeyConstraint
 from helpers import tr
-import string
+import datetime
+from pydoc import synopsis
 
 
 Base = declarative_base()
@@ -22,10 +23,9 @@ class User(Base):
     __tablename__ = "users"
     
     login = sqa.Column(sqa.String, primary_key=True)
-#    name = sqa.Column(sqa.String)
     password = sqa.Column(sqa.String)
-#    notes = sqa.Column(sqa.String)
     group = sqa.Column(sqa.Enum("USER", "ADMIN"), nullable=False, default="USER")
+    date_created = sqa.Column(sqa.DateTime)
     
     def check_valid(self):
         if self.login is None or self.login=="":
@@ -35,12 +35,12 @@ class User(Base):
 
 
 #Таблица связей Tag и Item
-tags_items = sqa.Table('tags_items', Base.metadata,
-    sqa.Column('item_id', sqa.Integer, ForeignKey('items.id'), primary_key=True),
-    sqa.Column('tag_name', sqa.String, primary_key=True),
-    sqa.Column('tag_user_login', sqa.String, primary_key=True),
-    ForeignKeyConstraint(['tag_name', 'tag_user_login'], ['tags.name', 'tags.user_login'])
-)
+#tags_items = sqa.Table('tags_items', Base.metadata,
+#    sqa.Column('item_id', sqa.Integer, ForeignKey('items.id'), primary_key=True),
+#    sqa.Column('tag_name', sqa.String, primary_key=True),
+#    sqa.Column('tag_user_login', sqa.String, primary_key=True),
+#    ForeignKeyConstraint(['tag_name', 'tag_user_login'], ['tags.name', 'tags.user_login'])
+#)
 
 
 
@@ -54,31 +54,38 @@ class Item(Base):
     title = sqa.Column(sqa.String, nullable=False)
     notes = sqa.Column(sqa.String)
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
+    date_created = sqa.Column(sqa.DateTime)
     
     #пользователь-владелец данного элемента
-    user = relationship(User, backref=backref("items"))
+    user = relationship(User)
     
-    #список связанных файлов/ссылок URL
-    data_refs = relationship("DataRef", order_by="DataRef.order_by_key", backref=backref("item"))
+    #список связанных файлов/ссылок_URL
+    item_data_refs = relationship("Item_DataRef", order_by="Item_DataRef.order_by_key")
     
     #tags - список связанных тегов
-    tags = relationship("Tag", secondary=tags_items, backref="items")
+    item_tags = relationship("Item_Tag")
     
     #field_vals - список связанных полей
-    field_vals = relationship("FieldVal", backref="item")
+    item_fields = relationship("Item_Field")
 
-    def __init__(self, user_login="", title=""):
+    def __init__(self, user_login=None, title=None, notes=None, date_created=None):
         self.user_login = user_login
         self.title = title
-        #TODO
+        self.notes = notes
+        if date_created is not None:
+            self.date_created = date_created
+        else:
+            self.date_created = datetime.datetime.today()
+        
         
     def check_valid(self):
         '''Проверяет, что состояние объекта допустимое. Связи с другими объектами не учитываются.'''
         if self.title == "" or self.title is None:
-            raise Exception(tr("Необходимо указать название (поле title) элемента."))        
+            raise Exception(tr("Необходимо указать название (поле title) элемента."))
         return True
         
         
+
         
 class DataRef(Base):
     '''
@@ -86,22 +93,49 @@ class DataRef(Base):
     '''
     __tablename__ = "data_refs"
     
-    url = sqa.Column(sqa.String, primary_key=True)
+    id = sqa.Column(sqa.Integer, primary_key=True)
+    url = sqa.Column(sqa.String, nullable=False, unique=True)
     type = sqa.Column(sqa.Enum("FILE", "URL"), nullable=False)
     hash = sqa.Column(sqa.String)
-    hash_date = sqa.Column(sqa.DateTime)
-    size = sqa.Column(sqa.Integer, nullable=False, default=0)    
-    order_by_key = sqa.Column(sqa.Integer)
-    item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"))
+    date_hashed = sqa.Column(sqa.DateTime)
+    size = sqa.Column(sqa.Integer)
+    date_created = sqa.Column(sqa.DateTime)
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
     
     user = relationship(User)
 
-    def __init__(self, url=""):
+
+    def __init__(self, url=None, date_created=None):
         self.url = url
+        if date_created is not None:
+            self.date_created = date_created
+        else:
+            self.date_created = datetime.datetime.today()
         
+
+
+class Item_DataRef(Base):
+    __tablename__ = "items_data_refs"
         
+    item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"), primary_key=True)
+    data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"), primary_key=True)
+    user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
+    order_by_key = sqa.Column(sqa.Integer)
+    
+    item = relationship(Item)
+    data_ref = relationship("DataRef")
+    user = relationship(User)
+    
+    def __init__(self, data_ref=None):
+        self.data_ref = data_ref
+        if data_ref is not None:
+            self.data_ref_id = data_ref.id
+            self.user_login = data_ref.user_login
+        self.item_id = None
+        self.order_by_key = None
+             
         
+    
         
 class Tag(Base):
     '''
@@ -109,62 +143,79 @@ class Tag(Base):
     '''
     __tablename__ = "tags"
     
-    name = sqa.Column(sqa.String, primary_key=True)
+    id = sqa.Column(sqa.Integer, primary_key=True)
+    name = sqa.Column(sqa.String, nullable=False, unique=True)
+    synonym_code = sqa.Column(sqa.Integer)
+
+    def __init__(self, name=None):
+        self.id = None        
+        self.name = name
+        self.synonym_code = None
+        
+class Item_Tag(Base):
+    __tablename__ = "items_tags"
+        
+    item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"), primary_key=True)
+    tag_id = sqa.Column(sqa.Integer, ForeignKey("tags.id"), primary_key=True)
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
     
-    #TODO Нужно сделать синонимы для тегов
+    item = relationship(Item)
+    tag = relationship(Tag)
+    user = relationship(User)
     
-    #Пользователь, кто создал данный тег
-    user = relationship(User, backref=backref("tags"))
-
-    def __init__(self):
-        '''
-        Constructor
-        '''
+    def __init__(self, tag=None):        
+        self.tag = tag
+        if tag is not None:
+            self.tag_id = tag.id            
+            
         
+    
 class Field(Base):
     '''
     Поле вида ключ=значение, описывающее элементы хранилища.
     '''
-    __tablename__ = "fields"
+    __tablename__ = "fields"    
     
-    #TODO Нужно сделать синонимы для полей
-    
-    name = sqa.Column(sqa.String, primary_key=True)
-    user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
-    value_type = sqa.Column(sqa.Enum("STRING", "NUMBER"), nullable=False, default="STRING")
+    id = sqa.Column(sqa.Integer, primary_key=True)
+    name = sqa.Column(sqa.String, nullable=False, unique=True)
+    synonym_code = sqa.Column(sqa.Integer)
+#    value_type = sqa.Column(sqa.Enum("STRING", "NUMBER"), nullable=False, default="STRING")
+
+    def __init__(self, name=None):
+        self.id = None
+        self.name = name
+        self.synonym_code = None
+        
     
 
-class FieldVal(Base):
+class Item_Field(Base):
     '''
     Значение поля, связанное с элементом хранилища.
     '''
-    __tablename__ = "fields_items"
-    __table_args__ = (ForeignKeyConstraint(["field_name", "field_user_login"], ["fields.name", "fields.user_login"]),
-        {} #{} обязательно нужны, даже если внутри них - пусто
-        )
+    __tablename__ = "items_fields"
+#    __table_args__ = (ForeignKeyConstraint(["field_name", "field_user_login"], ["fields.name", "fields.user_login"]),
+#        {} #{} обязательно нужны, даже если внутри них - пусто
+#        )
+    
     item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"), primary_key=True)
-    field_name = sqa.Column(sqa.String, primary_key=True)
-    field_user_login = sqa.Column(sqa.String, primary_key=True)
+    field_id = sqa.Column(sqa.String, ForeignKey("fields.id"), primary_key=True)
+    user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
     field_value = sqa.Column(sqa.String, nullable=False, default="")
 
+    item = relationship(Item)
     field = relationship(Field)
+    user = relationship(User)
     
-    def __init__(self, field=None, value=""):
-        self.field = field
-        self.field_value = value
+    
+    def __init__(self, field=None, value=None, user_login=None):
+        self.field = field        
         if field is not None:
-            self.field_name = field.name
-            self.field_user_login = field.user_login
+            self.field_id = field.id
+        self.field_value = value
+        self.user_login = user_login
                     
         
-    
-    
-    
-    
-
-
-#TODO сделать классы групп полей и тегов
+#TODO сделать классы для групп полей и тегов
 
 
 

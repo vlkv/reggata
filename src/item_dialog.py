@@ -7,8 +7,9 @@ Created on 15.10.2010
 import PyQt4.QtGui as qtgui
 import PyQt4.QtCore as qtcore
 import ui_itemdialog
-from db_model import Item, DataRef, Tag, Field, FieldVal
-from helpers import tr, showExcInfo
+from db_model import Item, DataRef, Tag, Item_Tag, Field, Item_Field,\
+    Item_DataRef
+from helpers import tr, showExcInfo, DialogMode
 import os
 import hashlib
 import sys
@@ -20,7 +21,7 @@ class ItemDialog(qtgui.QDialog):
     '''
 
 
-    def __init__(self, item, parent=None):
+    def __init__(self, item, parent=None): #TODO добавить DialogMode
         super(ItemDialog, self).__init__(parent)
         if type(item) != Item:
             raise TypeError(tr("Параметр item должен быть экземпляром Item."))
@@ -31,13 +32,13 @@ class ItemDialog(qtgui.QDialog):
         self.connect(self.ui.buttonBox, qtcore.SIGNAL("rejected()"), self.button_cancel)
         self.connect(self.ui.pushButton_add_files, qtcore.SIGNAL("clicked()"), self.button_add_files)
         self.connect(self.ui.pushButton_remove, qtcore.SIGNAL("clicked()"), self.button_remove)
-        self.update_ui()
+        self.read()
         
         #TODO Нужно дать пользователю возможность указать, в какую директорию положить 
         #файлы данного элемента внутри хранилища?
         #А можно просто делать директорию по именю первого тега и копировать туда?
     
-    def update_ui(self):
+    def read(self):
         self.ui.lineEdit_id.setText(self.item.id)
         self.ui.lineEdit_user_login.setText(self.item.user_login)
         
@@ -58,36 +59,32 @@ class ItemDialog(qtgui.QDialog):
                 dr.size = os.path.getsize(list_item.text())
                 dr.type = "FILE"
             elif list_item.data_ref_type == "url":
-                dr.size = 0
+                dr.size = None
                 dr.type = "URL"
             else:
                 raise ValueError(tr("Недопустимое значение переменной ") + list_item.data_ref_type)
-            #TODO вычислить hash от содержимого файла и hash_date
-            dr.order_by_key = i
-            dr.user_login = self.item.user_login
-            self.item.data_refs.append(dr)
+            #TODO вычислить hash от содержимого файла и hash_date...            
+            dr.user_login = self.item.user_login            
+            idr = Item_DataRef(dr)
+            self.item.item_data_refs.append(idr)
         
         #Создаем объекты Tag
         text = self.ui.plainTextEdit_tags.toPlainText()
         for t in text.split():
-            tag = Tag()
-            tag.name = t
-            tag.user_login = self.item.user_login
-            self.item.tags.append(tag)
+            tag = Tag(name=t)            
+            item_tag = Item_Tag(tag)
+            item_tag.user_login = self.item.user_login
+            self.item.item_tags.append(item_tag)
         #TODO сделать поддержку двойных кавычек
         
         #Создаем объекты Field
         text = self.ui.plainTextEdit_fields.toPlainText()
         for pair in text.split():
             f, v = pair.split('=')
-            field = Field()
-            field.name = f
-            field.user_login = self.item.user_login
-            field.value_type = "STRING" #TODO сделать поддержку NUMBER
-            field_val = FieldVal(field, v)
-            self.item.field_vals.append(field_val)
-            
-                 
+            field = Field(name=f)
+            item_field = Item_Field(field, v)
+            item_field.user_login = self.item.user_login
+            self.item.item_fields.append(item_field)
         
         #TODO ...
         

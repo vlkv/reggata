@@ -12,9 +12,12 @@ import PyQt4.QtGui as QtGui
 import traceback
 
 
-def tr(text, context="default"):
+def tr(text):
     '''Переводит текст сообщений GUI на различные языки.'''
-    return QCoreApplication.translate(context, str(text), None, QCoreApplication.UnicodeUTF8)
+
+#    print("context={}, text={}".format(context, text))
+    s = QCoreApplication.translate("@default", str(text), None, QCoreApplication.UnicodeUTF8)
+    return s
 
 
 def showExcInfo(parent, ex):
@@ -47,7 +50,7 @@ def showExcInfo(parent, ex):
             return result    
     
     mb = MyMessageBox(parent)
-    mb.setWindowTitle(tr("Ошибка"))
+    mb.setWindowTitle(tr("Error"))
     mb.setText(str(ex))
     mb.setDetailedText(traceback.format_exc())
     mb.exec_()

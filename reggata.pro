@@ -10,4 +10,4 @@ SOURCES += src/main_window.py
 SOURCES += src/repo_mgr.py
 SOURCES += src/user_config.py
 SOURCES += src/user_dialog.py
-TRANSLATIONS += reggata_en.ts
+TRANSLATIONS += reggata_ru.ts

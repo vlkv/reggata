@@ -10,9 +10,11 @@ from helpers import tr, to_commalist
 import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
-from db_model import Base, Item, User, Tag, Field
+from db_model import Base, Item, User, Tag, Field, Item_Tag, DataRef
 from exceptions import LoginError
 import shutil
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -113,8 +115,8 @@ class UnitOfWork(object):
         if len(user_logins) == 0:
             return self._session.query(Tag).order_by(Tag.name).all()
         else:
-            return self._session.query(Tag) \
-                    .filter(Tag.user_login.in_(user_logins)) \
+            return self._session.query(Tag).join(Item_Tag) \
+                    .filter(Item_Tag.user_login.in_(user_logins)) \
                     .order_by(Tag.name).all()
         #TODO нужны критерии по пользователям и по уже выбранным тегам
         
@@ -149,7 +151,8 @@ class UnitOfWork(object):
         copy_list = []
         
         #Сначала надо преобразовать пути у объектов DataRef
-        for dr in item.data_refs:
+        for idr in item.item_data_refs:            
+            dr = idr.data_ref
             
             #Нормализация пути
             dr.url = os.path.normpath(dr.url)
@@ -175,43 +178,68 @@ class UnitOfWork(object):
             #Запоминаем все пути к файлам из DataRef объектов, чтобы потом копировать
             copy_list.append((tmp_url, dr.url))
         
-        #Удаляем из item.tags теги, которые уже есть в базе
-        tags = item.tags[:] #Делаем копию списка
-        new_tags = []
-        for tag in tags:
-            t = self._session.query(Tag).get((tag.name, tag.user_login))
-            if t is not None:                
-                new_tags.append(t)
-                item.tags.remove(tag) #Оставляем в item.tags только новые теги            
-        
-        #Удаляем поля, которые уже существуют
-        field_vals = item.field_vals[:]
-        new_field_vals = []
-        for field_val in field_vals:
-            field = field_val.field
-            f = self._session.query(Field).get((field.name, field.user_login))
-            if f is not None:
-                field_val.field = f
-                new_field_vals.append(field_val)
-                item.field_vals.remove(field_val)
                 
+        item_tags = item.item_tags[:]
+        old_item_tags = []
+        for item_tag in item_tags:
+            tag = item_tag.tag
+            f = self._session.query(Tag).filter(Tag.name==tag.name).first()
+            if f is not None:
+                item_tag.tag = f
+                old_item_tags.append(item_tag)
+                item.item_tags.remove(item_tag)        
+                
+        item_fields = item.item_fields[:]
+        old_item_fields = []
+        for item_field in item_fields:
+            field = item_field.field
+            f = self._session.query(Field).filter(Field.name==field.name).first()
+            if f is not None:
+                item_field.field = f
+                old_item_fields.append(item_field)
+                item.item_fields.remove(item_field)
+                
+#        item_data_refs = item.item_data_refs[:]
+#        old_item_data_refs = []
+#        for item_data_ref in item_data_refs:
+#            data_ref = item_data_ref.data_ref
+#            dr = self._session.query(DataRef).filter(DataRef.url==data_ref.url).first()
+#            if dr is not None:
+#                item_data_ref.data_ref = dr
+#                old_item_data_refs.append(item_data_ref)
+#                item.item_data_refs.remove(item_data_ref)
+
+        
+        
+        for item_data_ref in item.item_data_refs:
+            data_ref = item_data_ref.data_ref
+            dr = self._session.query(DataRef).filter(DataRef.url==data_ref.url).first()
+            if dr is not None:
+                raise Exception(tr("DataRef ссылающийся на url={} "
+                                   "уже существует в БД.").format(data_ref.url))
 
         #Сохраняем item пока что только с новыми тегами и новыми полями
         self._session.add(item)
         self._session.flush()
         
         #Добавляем в item существующие теги
-        for tag in new_tags:
-            item.tags.append(tag)
+        for it in old_item_tags:
+            item.item_tags.append(it)
         
         #Добавляем в item существующие поля
-        for field_val in new_field_vals:
-            item.field_vals.append(field_val)
+        for if_ in old_item_fields:
+            item.item_fields.append(if_)
+            
+#        for dr in old_item_data_refs:
+#            item.item_data_refs.append(dr)
+            
                         
         self._session.commit()
         
         #Если все сохранилось в БД, то копируем файлы
         for dr in copy_list:
+            #Копируем, только если пути src и dst не совпадают
+            #Если файл dst существует, то он перезапишется
             if dr[0] != self._repo_base_path + dr[1]:
                 shutil.copy(dr[0], self._repo_base_path + dr[1])
         #TODO надо копировать не просто в корень...
