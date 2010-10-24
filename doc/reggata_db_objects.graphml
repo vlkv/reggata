@@ -17,14 +17,15 @@
       <data key="d2"><![CDATA[UMLClass]]></data>
       <data key="d3">
         <y:UMLClassNode>
-          <y:Geometry height="94.21452145214522" width="111.44224422442244" x="31.5" y="70.0"/>
+          <y:Geometry height="103.89768976897693" width="199.03986798679864" x="31.5" y="70.0"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="34.44970703125" x="38.49626859658622" y="3.0">User</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="34.44970703125" x="82.29508047777432" y="3.0">User</y:NodeLabel>
           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
             <y:AttributeLabel>login (PK)
 password
-group</y:AttributeLabel>
+group = Enum("USER", "ADMIN")
+date_created</y:AttributeLabel>
             <y:MethodLabel/>
           </y:UML>
         </y:UMLClassNode>
@@ -35,12 +36,16 @@ group</y:AttributeLabel>
       <data key="d2"><![CDATA[UMLClass]]></data>
       <data key="d3">
         <y:UMLClassNode>
-          <y:Geometry height="66.08747194719479" width="119.64496369636959" x="483.650495049505" y="124.62839064977926"/>
+          <y:Geometry height="111.48948382838287" width="138.8018349834981" x="483.650495049505" y="101.9273847091852"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="33.80224609375" x="42.92135880130979" y="3.0">Item</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="33.80224609375" x="52.499794444874055" y="3.0">Item</y:NodeLabel>
           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
-            <y:AttributeLabel>id (PK)</y:AttributeLabel>
+            <y:AttributeLabel>id (PK)
+title
+notes
+user_login
+date_created</y:AttributeLabel>
             <y:MethodLabel/>
           </y:UML>
         </y:UMLClassNode>
@@ -55,8 +60,8 @@ group</y:AttributeLabel>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="29.1875" x="38.14367574257426" y="3.0">Tag</y:NodeLabel>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="4.0" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="4.0" x="50.73742574257426" y="41.87953795379539"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="4.0" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="4.0" x="50.73742574257426" y="41.87953795379539"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="4.0" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="4.0" x="50.73742574257426" y="41.879537953795364"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="4.0" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="4.0" x="50.73742574257426" y="41.879537953795364"/>
           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
             <y:AttributeLabel>id (PK)
 name (UNIQUE)
@@ -71,7 +76,7 @@ synonym_code</y:AttributeLabel>
       <data key="d2"><![CDATA[UMLClass]]></data>
       <data key="d3">
         <y:UMLClassNode>
-          <y:Geometry height="132.70103762376237" width="168.3336290429042" x="436.7816712871287" y="350.18138613861373"/>
+          <y:Geometry height="154.61399016951947" width="168.3336290429042" x="454.118700990099" y="358.39366336633657"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="56.837890625" x="55.747869208952096" y="3.0">DataRef</y:NodeLabel>
@@ -80,8 +85,10 @@ synonym_code</y:AttributeLabel>
 url (UNIQUE)
 type = Enum("FILE", "URL")
 hash
-hash_date
-size</y:AttributeLabel>
+date_hashed
+size
+date_created
+user_login</y:AttributeLabel>
             <y:MethodLabel/>
           </y:UML>
         </y:UMLClassNode>
@@ -99,7 +106,6 @@ size</y:AttributeLabel>
           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
             <y:AttributeLabel>id (PK)
 name (UNIQUE)
-value_type (не нужен?)
 synonym_code</y:AttributeLabel>
             <y:MethodLabel/>
           </y:UML>
@@ -114,7 +120,7 @@ synonym_code</y:AttributeLabel>
           <y:Geometry height="111.48948382838287" width="142.05434191419124" x="645.0338218464703" y="-20.531857721486404"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="87.154296875" x="27.45002251959562" y="3.0">Items_Fields</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="72.453125" x="34.80060845709562" y="3.0">Item_Field</y:NodeLabel>
           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
             <y:AttributeLabel>item_id (PK)
 field_id (PK)
@@ -130,14 +136,14 @@ field_value</y:AttributeLabel>
       <data key="d2"><![CDATA[UMLClass]]></data>
       <data key="d3">
         <y:UMLClassNode>
-          <y:Geometry height="103.89768976897693" width="131.3891485148515" x="305.3925227722772" y="233.09938344370144"/>
+          <y:Geometry height="103.89768976897693" width="131.3891485148515" x="305.3925227722772" y="209.37502700805786"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="107.84130859375" x="11.773919960550757" y="3.0">Items_DataRefs</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="93.14013671875" x="19.124505898050757" y="3.0">Item_DataRef</y:NodeLabel>
           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
             <y:AttributeLabel>item_id (PK)
 data_ref_id (PK)
-user_login
+user_login (PK)
 order_by_key</y:AttributeLabel>
             <y:MethodLabel/>
           </y:UML>
@@ -152,7 +158,7 @@ order_by_key</y:AttributeLabel>
           <y:Geometry height="87.75907590759076" width="131.3891485148515" x="354.5333617718809" y="-72.24092409240924"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="80.19091796875" x="25.599115273050757" y="3.0">Items_Tags</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="65.48974609375" x="32.94970121055076" y="3.0">Item_Tag</y:NodeLabel>
           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
             <y:AttributeLabel>item_id (PK)
 tag_id (PK)
@@ -209,7 +215,7 @@ user_login</y:AttributeLabel>
           <y:Geometry height="74.47053940594043" width="119.64496369636959" x="335.3133435857394" y="-372.8929975762378"/>
           <y:Fill color="#C0C0C0" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="96.11083984375" x="11.767061926309793" y="3.0">Bundles_Tags</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="81.40966796875" x="19.117647863809793" y="3.0">Bundle_Tag</y:NodeLabel>
           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
             <y:AttributeLabel>bundle_id (PK)
 tag_id (PK)</y:AttributeLabel>
@@ -226,7 +232,7 @@ tag_id (PK)</y:AttributeLabel>
           <y:Geometry height="74.47053940594043" width="119.64496369636959" x="616.8269993399338" y="-307.46625924220984"/>
           <y:Fill color="#999999" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="103.07421875" x="8.285372473184793" y="3.0">Bundles_Fields</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="88.373046875" x="15.635958410684793" y="3.0">Bundle_Field</y:NodeLabel>
           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
             <y:AttributeLabel>bundle_id (PK)
 field_id (PK)</y:AttributeLabel>
@@ -241,7 +247,7 @@ field_id (PK)</y:AttributeLabel>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="white_diamond" target="none"/>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.16015625" x="-39.268485282435904" y="7.113968123079452">user</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.16015625" x="-39.288993094935904" y="7.8248315195768186">user</y:EdgeLabel>
         </y:BezierEdge>
       </data>
     </edge>
@@ -250,21 +256,21 @@ field_id (PK)</y:AttributeLabel>
         <y:BezierEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="215.97526349835" y="271.0348629372937"/>
-            <y:Point x="104.50745346534674" y="291.7879477227723"/>
+            <y:Point x="166.55577029702988" y="243.42675960396048"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="white_diamond" target="none"/>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.16015625" x="-39.306268731629075" y="-0.11439206582696215">user</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.16015625" x="-39.2464847960822" y="7.123049357438845">user</y:EdgeLabel>
         </y:BezierEdge>
       </data>
     </edge>
     <edge id="e2" source="n8" target="n0">
       <data key="d7">
         <y:BezierEdge>
-          <y:Path sx="28.02307794349906" sy="-11.732686468646762" tx="5.833135313531443" ty="-14.584092409240924"/>
+          <y:Path sx="28.02307794349906" sy="-11.732686468646762" tx="10.418190075357387" ty="-16.083014437079687"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="white_diamond" target="none"/>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.16015625" x="-0.9384783742410434" y="10.095571368428466">user</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.16015625" x="0.6651165973178479" y="10.111898272725341">user</y:EdgeLabel>
         </y:BezierEdge>
       </data>
     </edge>
@@ -276,7 +282,7 @@ field_id (PK)</y:AttributeLabel>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="white_diamond" target="none"/>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.16015625" x="-39.281304976165984" y="9.023271066874052">user</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.16015625" x="-39.264642378509734" y="8.966463548868681">user</y:EdgeLabel>
         </y:BezierEdge>
       </data>
     </edge>
@@ -284,14 +290,14 @@ field_id (PK)</y:AttributeLabel>
       <data key="d7">
         <y:BezierEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
-            <y:Point x="525.9800000000002" y="272.19916666666666"/>
+            <y:Point x="503.1681188118814" y="248.47481023102313"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="diamond" target="white_diamond"/>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="ttail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.845703125" x="-91.25519394724631" y="90.02400460879869">item</y:EdgeLabel>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="shead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="11.587890625" x="-17.614085954018492" y="10.10621293877091">1</y:EdgeLabel>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="thead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="24.96484375" x="-91.25519394724631" y="65.99016812015537">0..*</y:EdgeLabel>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="95.3828125" x="0.7174749046666875" y="10.10621293877091">items_data_refs</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="ttail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.845703125" x="-72.74146103709006" y="42.561756512914684">item</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="shead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="11.587890625" x="-26.238842143323836" y="10.155607551239939">1</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="thead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="24.96484375" x="-72.74146103709006" y="18.170244331344293">0..*</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="89.265625" x="-0.7828714828565353" y="10.155607551239939">item_data_refs</y:EdgeLabel>
         </y:BezierEdge>
       </data>
     </edge>
@@ -301,10 +307,10 @@ field_id (PK)</y:AttributeLabel>
           <y:Path sx="0.0" sy="0.0" tx="23.977869162630927" ty="11.66458706906442"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="diamond" target="white_diamond"/>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="66.677734375" x="-3.74499558733919" y="-28.054318090455112">items_tags</y:EdgeLabel>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="shead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="11.587890625" x="-29.559050885416923" y="-28.054318090455112">1</y:EdgeLabel>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="thead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="24.96484375" x="-83.29743429529799" y="-98.95166630005286">0..*</y:EdgeLabel>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="ttail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.845703125" x="-44.10642587222026" y="-98.95166630005286">item</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="60.560546875" x="-4.319424188881726" y="-28.086516047650733">item_tags</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="shead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="11.587890625" x="-31.120217181994406" y="-28.086516047650733">1</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="thead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="24.96484375" x="-74.58257758606248" y="-76.28285831665443">0..*</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="ttail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.845703125" x="-34.40483146794986" y="-76.28285831665443">item</y:EdgeLabel>
         </y:BezierEdge>
       </data>
     </edge>
@@ -327,8 +333,8 @@ field_id (PK)</y:AttributeLabel>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="white_diamond" target="diamond"/>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="ttail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="73.66796875" x="-88.64314555730869" y="68.70199570296649">items_fields</y:EdgeLabel>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.845703125" x="0.9373306623613189" y="10.112495186486314">item</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="ttail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="67.55078125" x="-76.09095503093192" y="68.70199570296649">item_fields</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.845703125" x="0.8524917951738189" y="10.112495186486314">item</y:EdgeLabel>
         </y:BezierEdge>
       </data>
     </edge>
@@ -340,8 +346,8 @@ field_id (PK)</y:AttributeLabel>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="diamond" target="white_diamond"/>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="11.587890625" x="-21.703832863261937" y="3.2664491328399095">1</y:EdgeLabel>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="thead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="24.96484375" x="-97.77583527799408" y="-64.50359817404035">0..*</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="11.587890625" x="-21.6792726427135" y="2.0885426515394556">1</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="thead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="24.96484375" x="-114.2728265180047" y="-98.61986134796518">0..*</y:EdgeLabel>
         </y:BezierEdge>
       </data>
     </edge>
@@ -417,6 +423,29 @@ field_id (PK)</y:AttributeLabel>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="white_diamond"/>
+        </y:BezierEdge>
+      </data>
+    </edge>
+    <edge id="e17" source="n0" target="n1">
+      <data key="d7">
+        <y:BezierEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="white_diamond"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="ttail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.16015625" x="213.83932256415346" y="22.568931764017606">user</y:EdgeLabel>
+        </y:BezierEdge>
+      </data>
+    </edge>
+    <edge id="e18" source="n0" target="n3">
+      <data key="d7">
+        <y:BezierEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
+            <y:Point x="149.0037183999978" y="407.78636160000013"/>
+            <y:Point x="321.0357183999978" y="508.13836160000017"/>
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="white_diamond"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="ttail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="29.16015625" x="278.5705595106068" y="304.98458461987036">user</y:EdgeLabel>
         </y:BezierEdge>
       </data>
     </edge>
