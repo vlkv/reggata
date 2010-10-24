@@ -10,7 +10,6 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey, ForeignKeyConstraint
 from helpers import tr
 import datetime
-from pydoc import synopsis
 
 
 Base = declarative_base()
@@ -29,7 +28,7 @@ class User(Base):
     
     def check_valid(self):
         if self.login is None or self.login=="":
-            raise ValueError("Поле login не должно быть пустым.")        
+            raise ValueError(tr("Attribute User.login shouldn't be empty."))        
         return True
 
 
@@ -81,7 +80,7 @@ class Item(Base):
     def check_valid(self):
         '''Проверяет, что состояние объекта допустимое. Связи с другими объектами не учитываются.'''
         if self.title == "" or self.title is None:
-            raise Exception(tr("Необходимо указать название (поле title) элемента."))
+            raise Exception(tr("Attribute Item.title shouldn't be empty."))
         return True
         
         

@@ -50,7 +50,7 @@ def showExcInfo(parent, ex):
             return result    
     
     mb = MyMessageBox(parent)
-    mb.setWindowTitle(tr("Error"))
+    mb.setWindowTitle(tr("Information"))
     mb.setText(str(ex))
     mb.setDetailedText(traceback.format_exc())
     mb.exec_()

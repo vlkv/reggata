@@ -45,7 +45,7 @@ class UserConfig(object):
         
     def storeAll(self, d):
         if type(d) != dict:
-            raise TypeError("Тип аргумента d должен быть dict")
+            raise TypeError("This is not a dict instance.")
         for key in d.keys():
             self._props[key] = d[key]
         self._props.store(open(consts.USER_CONFIG_FILE, 'w'))

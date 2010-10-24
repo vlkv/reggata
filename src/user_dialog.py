@@ -18,7 +18,7 @@ class UserDialog(QtGui.QDialog):
     def __init__(self, user, parent=None, mode=DialogMode.CREATE):
         super(UserDialog, self).__init__(parent)
         if type(user) != User:
-            raise TypeError(tr("Параметр user должен быть экземпляром User."))
+            raise TypeError(self.tr("Argument user must be a User class instance."))
         self.user = user
         self.ui = ui_userdialog.Ui_UserDialog()
         self.ui.setupUi(self)
@@ -37,13 +37,12 @@ class UserDialog(QtGui.QDialog):
             self.ui.label_group.setVisible(False)
             self.ui.comboBox_group.setVisible(False)                        
         else:
-            raise UnsupportedDialogModeError(tr("Режим") + mode + tr("не поддерживается."))
+            raise UnsupportedDialogModeError(self.tr("DialogMode={} is not supported by this dialog.").format(mode))
         
     
     def write(self):
         '''Запись введенной в элементы gui информации в поля объекта.'''
         self.user.login = self.ui.lineEdit_login.text()
-        #TODO Нужно сохранять ХЕШ пароля!!!
         bytes = self.ui.lineEdit_password.text().encode("utf-8")
         self.user.password = hashlib.sha1(bytes).hexdigest()
                 

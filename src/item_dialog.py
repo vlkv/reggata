@@ -24,7 +24,7 @@ class ItemDialog(qtgui.QDialog):
     def __init__(self, item, parent=None): #TODO добавить DialogMode
         super(ItemDialog, self).__init__(parent)
         if type(item) != Item:
-            raise TypeError(tr("Параметр item должен быть экземпляром Item."))
+            raise TypeError(self.tr("Argument item should be an instance of Item class."))
         self.item = item
         self.ui = ui_itemdialog.Ui_ItemDialog()
         self.ui.setupUi(self)
@@ -62,7 +62,7 @@ class ItemDialog(qtgui.QDialog):
                 dr.size = None
                 dr.type = "URL"
             else:
-                raise ValueError(tr("Недопустимое значение переменной ") + list_item.data_ref_type)
+                raise ValueError(self.tr("Unexpected value {}.").format(list_item.data_ref_type))
             #TODO вычислить hash от содержимого файла и hash_date...            
             dr.user_login = self.item.user_login            
             idr = Item_DataRef(dr)
@@ -101,7 +101,7 @@ class ItemDialog(qtgui.QDialog):
         self.reject()
         
     def button_add_files(self):
-        files = qtgui.QFileDialog.getOpenFileNames(self, tr("Выберите файлы"))
+        files = qtgui.QFileDialog.getOpenFileNames(self, self.tr("Select files to add"))
         for file in files:
             it = qtgui.QListWidgetItem(file)
             it.data_ref_type = "file"

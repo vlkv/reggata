@@ -32,7 +32,7 @@ class RepoMgr(object):
         Делает некторые проверки того, что хранилище корректно.'''
         self.base_path = path_to_repo
         if not os.path.exists(self.base_path + os.sep + consts.METADATA_DIR):
-            raise Exception(tr("Директория " + self.base_path + " не является хранилищем."))
+            raise Exception(tr("Directory {} is not a repository base path.").format(self.base_path))
         
         self.__engine = sqa.create_engine("sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE)
 
@@ -59,10 +59,10 @@ class RepoMgr(object):
         3) Создает служебную директорию .reggata и пустую sqlite базу внутри нее
         '''
         if (not os.path.exists(base_path)):
-            raise Exception(tr('Необходимо сначала создать директорию ') + base_path)
+            raise Exception(tr("Directory {} doesn't exists.").format(base_path))
         
         if (os.path.exists(base_path + os.sep + consts.METADATA_DIR)):
-            raise Exception(tr('Директория ') + base_path + tr(' уже является хранилищем?'))
+            raise Exception(tr("It looks like {} is already a repository base path.").format(base_path))
         
         os.mkdir(base_path + os.sep + consts.METADATA_DIR)
         
@@ -140,9 +140,9 @@ class UnitOfWork(object):
     	'''
         user = self._session.query(User).get(login)
         if user is None:
-            raise LoginError(tr("Пользователя ") + login + tr(" не существует."))
+            raise LoginError(tr("User {} doesn't exist.").format(login))
         if user.password != password:
-            raise LoginError(tr("Неверный пароль"))
+            raise LoginError(tr("Password incorrect."))
         return user
 
         
@@ -215,8 +215,9 @@ class UnitOfWork(object):
             data_ref = item_data_ref.data_ref
             dr = self._session.query(DataRef).filter(DataRef.url==data_ref.url).first()
             if dr is not None:
-                raise Exception(tr("DataRef ссылающийся на url={} "
-                                   "уже существует в БД.").format(data_ref.url))
+                raise Exception(tr("DataRef instance with url={}, "
+                                   "already in database. "
+                                   "Operation cancelled.").format(data_ref.url))
 
         #Сохраняем item пока что только с новыми тегами и новыми полями
         self._session.add(item)
