@@ -409,8 +409,8 @@ if __name__ == '__main__':
 	app = QtGui.QApplication(sys.argv)
 	
 	
-	qtr = QtCore.QTranslator()	
-	if qtr.load("reggata_ru", ".."):
+	qtr = QtCore.QTranslator()
+	if qtr.load("reggata_ru.qm", ".."):
 		app.installTranslator(qtr)
 	else:
 		print("Cannot find translation files.")
