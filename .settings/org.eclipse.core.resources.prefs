@@ -1,5 +1,6 @@
-#Tue Oct 19 21:46:18 MSD 2010
+#Sun Oct 24 23:24:07 MSD 2010
 eclipse.preferences.version=1
+encoding//doc/query_grammar.txt=cp1251
 encoding//src/consts.py=utf-8
 encoding//src/db_model.py=utf-8
 encoding//src/exceptions.py=utf-8
