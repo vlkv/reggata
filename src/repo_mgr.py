@@ -151,7 +151,7 @@ class UnitOfWork(object):
         copy_list = []
         
         #Сначала надо преобразовать пути у объектов DataRef
-        for idr in item.item_data_refs:            
+        for idr in item.item_data_refs:
             dr = idr.data_ref
             
             #Нормализация пути
@@ -171,9 +171,13 @@ class UnitOfWork(object):
                 #Нужно сделать путь dr.url относительным и всё
                 dr.url = os.path.relpath(dr.url, self._repo_base_path)
             else:
-                #Файл снаружи
-                #Такой файл будет скопирован в корень хранилища
-                dr.url = os.path.basename(dr.url)
+                #Файл снаружи                
+                if dr.dst_path is not None and dr.dst_path != "":
+                    #Такой файл будет скопирован в хранилище в директорию dr.dst_path
+                    dr.url = dr.dst_path + os.sep + os.path.basename(dr.url)
+                else:
+                    #Если dst_path пустая, тогда копируем в корень хранилища
+                    dr.url = os.path.basename(dr.url)
             
             #Запоминаем все пути к файлам из DataRef объектов, чтобы потом копировать
             copy_list.append((tmp_url, dr.url))

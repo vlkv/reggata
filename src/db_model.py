@@ -103,6 +103,9 @@ class DataRef(Base):
     
     user = relationship(User)
 
+    #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
+    #их необходимо скопировать.
+    dst_path = None
 
     def __init__(self, url=None, date_created=None):
         self.url = url

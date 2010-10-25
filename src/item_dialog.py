@@ -11,9 +11,6 @@ from db_model import Item, DataRef, Tag, Item_Tag, Field, Item_Field,\
     Item_DataRef
 from helpers import tr, showExcInfo, DialogMode
 import os
-import hashlib
-import sys
-import traceback
 
 class ItemDialog(qtgui.QDialog):
     '''
@@ -25,6 +22,10 @@ class ItemDialog(qtgui.QDialog):
         super(ItemDialog, self).__init__(parent)
         if type(item) != Item:
             raise TypeError(self.tr("Argument item should be an instance of Item class."))
+        #if type(parent) != MainWindow: #Не получается сделать import модуля с этим классом!!!
+        #    raise TypeError(self.tr("Parent must be an instance of MainWindow class."))
+            #Это нужно для получения доступа к полю active_repo главного окна, например
+        self.parent = parent
         self.item = item
         self.ui = ui_itemdialog.Ui_ItemDialog()
         self.ui.setupUi(self)
@@ -32,11 +33,8 @@ class ItemDialog(qtgui.QDialog):
         self.connect(self.ui.buttonBox, qtcore.SIGNAL("rejected()"), self.button_cancel)
         self.connect(self.ui.pushButton_add_files, qtcore.SIGNAL("clicked()"), self.button_add_files)
         self.connect(self.ui.pushButton_remove, qtcore.SIGNAL("clicked()"), self.button_remove)
-        self.read()
-        
-        #TODO Нужно дать пользователю возможность указать, в какую директорию положить 
-        #файлы данного элемента внутри хранилища?
-        #А можно просто делать директорию по именю первого тега и копировать туда?
+        self.connect(self.ui.pushButton_select_dst_path, qtcore.SIGNAL("clicked()"), self.button_sel_dst_path)
+        self.read()        
     
     def read(self):
         self.ui.lineEdit_id.setText(self.item.id)
@@ -55,6 +53,12 @@ class ItemDialog(qtgui.QDialog):
             list_item = self.ui.listWidget_data_refs.item(i)
             dr = DataRef()
             dr.url = list_item.text()
+            
+            #Все файлы в одну и ту же директорию
+            dr.dst_path = self.ui.lineEdit_dst_path.text()
+            #TODO Возможно, необходимо иметь возможность указать директорию 
+            #для каждого объекта DataRef
+                        
             if list_item.data_ref_type == "file":
                 dr.size = os.path.getsize(list_item.text())
                 dr.type = "FILE"
@@ -64,7 +68,7 @@ class ItemDialog(qtgui.QDialog):
             else:
                 raise ValueError(self.tr("Unexpected value {}.").format(list_item.data_ref_type))
             #TODO вычислить hash от содержимого файла и hash_date...            
-            dr.user_login = self.item.user_login            
+            dr.user_login = self.item.user_login
             idr = Item_DataRef(dr)
             self.item.item_data_refs.append(idr)
         
@@ -106,7 +110,18 @@ class ItemDialog(qtgui.QDialog):
             it = qtgui.QListWidgetItem(file)
             it.data_ref_type = "file"
             self.ui.listWidget_data_refs.addItem(it)
-            
+    
+    def button_sel_dst_path(self):
+        dir = qtgui.QFileDialog.getExistingDirectory(self, 
+            self.tr("Select destination path in repository"), 
+            self.parent.active_repo.base_path)
+        if dir:
+            commonprefix = os.path.commonprefix([dir, self.parent.active_repo.base_path])
+            if commonprefix != self.parent.active_repo.base_path:
+                qtgui.QMessageBox.warning(self, self.tr("Error"), self.tr("Chosen directory is out of active repository."))
+                return
+            self.ui.lineEdit_dst_path.setText(os.path.relpath(dir, self.parent.active_repo.base_path))        
+    
     def button_remove(self):
         if self.ui.listWidget_data_refs.count() == 0:
             return
