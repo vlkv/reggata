@@ -34,7 +34,8 @@ class ItemDialog(qtgui.QDialog):
         self.connect(self.ui.pushButton_add_files, qtcore.SIGNAL("clicked()"), self.button_add_files)
         self.connect(self.ui.pushButton_remove, qtcore.SIGNAL("clicked()"), self.button_remove)
         self.connect(self.ui.pushButton_select_dst_path, qtcore.SIGNAL("clicked()"), self.button_sel_dst_path)
-        self.read()        
+        self.read()
+        
     
     def read(self):
         self.ui.lineEdit_id.setText(self.item.id)
@@ -56,8 +57,11 @@ class ItemDialog(qtgui.QDialog):
             
             #Все файлы в одну и ту же директорию
             dr.dst_path = self.ui.lineEdit_dst_path.text()
+<<<<<<< HEAD:src/item_dialog.py
             #TODO Возможно, необходимо иметь возможность указать директорию 
             #для каждого объекта DataRef
+=======
+>>>>>>> origin/master:src/item_dialog.py
                         
             if list_item.data_ref_type == "file":
                 dr.size = os.path.getsize(list_item.text())
