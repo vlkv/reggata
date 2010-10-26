@@ -64,7 +64,7 @@ class DialogMode(object):
     LOGIN = 3
     
     
-def to_commalist(seq, apply_each=repr):
+def to_commalist(seq, apply_each=repr, sep=","):
     '''
     Для последовательности seq (например, списка list) возвращает строку, содержащую
     элементы через запятую. При этому к каждому элементу применяется функция apply_each()
@@ -75,7 +75,7 @@ def to_commalist(seq, apply_each=repr):
         item = seq[i]
         s = s + apply_each(item)
         if i != len(seq) - 1:
-            s = s + ','        
+            s = s + sep
     return s
         
         

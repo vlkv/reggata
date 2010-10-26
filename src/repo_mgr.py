@@ -42,7 +42,7 @@ class RepoMgr(object):
         pass
     
     @property
-    def base_path(self):
+    def base_path(self):return 
         '''Абсолютный путь к корню хранилища.'''
         return self._base_path
     
@@ -126,6 +126,40 @@ class UnitOfWork(object):
         sql = '''SELECT DISTINCT i.id, i.title, i.notes, i.user_login
                     FROM items i LEFT JOIN tags_items ti on i.id=ti.item_id 
                     WHERE ti.tag_name IN (''' + to_commalist(and_tags) + ''')'''
+        print(sql)
+        return self._session.query(Item).from_statement(sql).all()
+    
+    def query_items_by_and_exp(self, tags=[], not_tags=[]):
+        '''
+        Возвращает элементы хранилища, которые отмечены тегами
+        tags[0] AND tags[1] AND ... tags[N] AND NOT not_tags[0] AND ... NOT not_tags[M]
+        
+        tags - список имен тегов, которые должны быть (все) у каждого отбираемого элемента.
+        not_tags - список имен тегов, которые элемент не должен иметь.
+        '''
+        #TODO убрать дубликаты из tags и not_tags
+        tags = set(tags)
+        not_tags = set(not_tags)
+        
+        #TODO проверить, что tags и not_tags не пересекаются
+        if not tags.isdisjoint(not_tags):
+            raise Exception(tr("Two sets: 'tags' and 'not_tags' must be disjoint."))
+        
+        #Делаем строку sql из списка tags
+        tags_sql = to_commalist(tags, apply_each=lambda x: " t.name='" + str(x) + "' ", sep=" OR ")
+        not_tags_sql = to_commalist(not_tags, apply_each=lambda x: " t.name='" + str(x) + "' ", sep=" OR ")
+        sql = """select * from items i  
+            left join items_tags it on i.id = it.item_id
+            left join tags t on t.id = it.tag_id
+            where                        
+                (""" + tags_sql + """)
+                and i.id NOT IN (select i.id from items i 
+                    left join items_tags it on i.id = it.item_id 
+                    left join tags t on t.id = it.tag_id
+                    where """ + not_tags_sql + """
+                )
+            group by i.id 
+            having count(*)={0}""".format(len(tags))
         print(sql)
         return self._session.query(Item).from_statement(sql).all()
     
