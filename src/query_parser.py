@@ -7,30 +7,41 @@ Created on 24.10.2010
 import ply.lex as lex
 import helpers
 from helpers import tr
+import re
 
 #Зарезервированные слова и соответствующие им типы токенов
 reserved = {
    'И' : 'AND',
    'ИЛИ' : 'OR',
    'НЕ' : 'NOT',
-   'user:' : 'USER',
-   'path:' : 'PATH',   
+   'user' : 'USER',
+   'path' : 'PATH',   
 }
 
 #Список типов токенов
 tokens = [
-   'NAME', #Имя тега или поля
-   'LPAREN', 
-   'RPAREN',
+   'STRING', #Строка, которая либо отдельное слово, либо в двойных кавычках все что угодно
+   'LPAREN', #Открывающая круглая скобка ) 
+   'RPAREN', #Закрывающая круглая скобка )
+   'COLON', #Двоеточие : (ставится после ключевых слов user и после path)
+   
 ] + list(reserved.values())
 
-def t_NAME(t):
-    r'[\w:]+'
-    t.type = reserved.get(t.value, 'NAME')
+#Строка в двойных кавычках, которая может содержать две escape последовательности:
+# 1) \" для отображения кавычки "
+# 2) \\ для отображения слеша \
+def t_STRING(t):
+    r'"(\\["\\]|[^"\\])*" | [\w]+'
+    t.type = reserved.get(t.value, 'STRING')    
+    if t.type == 'STRING' and t.value.startswith('"') and t.value.endswith('"'):
+        t.value = t.value.replace(r"\\", "\\") #Заменяем \\ на \
+        t.value = t.value.replace(r'\"', r'"') #Заменяем \" на "
+        t.value = t.value[1:-1] #Удаляем кавычки с начала и с конца, "abc" становится abc        
     return t
 
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
+t_COLON = r':'
 
 
 # A string containing ignored characters (spaces and tabs)
@@ -78,7 +89,9 @@ class TagsConjunction(QueryExpression):
     left join tags t on t.id = it.tag_id
     where
         (t.name='Книга' or t.name='Программирование')
-        and i.id NOT IN (select i.id from items i left join items_tags it on i.id = it.item_id left join tags t on t.id = it.tag_id
+        and i.id NOT IN (select i.id from items i 
+        left join items_tags it on i.id = it.item_id 
+        left join tags t on t.id = it.tag_id
         where t.name='Проектирование')
     group by i.id 
     having count(*)=2
@@ -134,7 +147,8 @@ class TagsConjunction(QueryExpression):
             no_tags_str = "" 
         
         
-        s = '''select * from items i 
+        s = '''select distinct i.id, i.title, i.notes, i.user_login 
+        from items i 
         left join items_tags it on i.id = it.item_id 
         left join tags t on t.id = it.tag_id 
             where ''' + yes_tags_str + ''' 
@@ -160,11 +174,7 @@ def p_query_expression(p):
     '''query_expression : simple_expression
                         | compound_expression'''
     p[0] = p[1]
-                     
-def p_empty(p):
-    'empty :'
-    pass
-
+                    
 def p_compound_expression(p):
     '''compound_expression : LPAREN simple_expression RPAREN'''
     p[0] = p[2]
@@ -180,10 +190,10 @@ def p_simple_expression(p):
     p[0] = p[1]
 
 def p_extras_user(p):
-    '''extras : extras USER NAME '''
+    '''extras : extras USER COLON STRING '''
     e = Extras()
     e.type = 'USER'
-    e.value = p[3]
+    e.value = p[4]
     if type(p[1]) == list:
         p[1].append(e)
     else:
@@ -192,10 +202,10 @@ def p_extras_user(p):
 
     
 def p_extras_path(p):
-    '''extras : extras PATH NAME '''
+    '''extras : extras PATH COLON STRING '''
     e = Extras()
     e.type = 'PATH'
-    e.value = p[3]
+    e.value = p[4]
     if type(p[1]) == list:
         p[1].append(e)
     else:
@@ -203,54 +213,68 @@ def p_extras_path(p):
     p[0] = p[1]
     
 def p_extras_one_user(p):
-    '''extras : USER NAME'''
+    '''extras : USER COLON STRING'''
     e = Extras()
     e.type = 'USER'
-    e.value = p[2]
+    e.value = p[3]
     p[0] = [e]
     
 def p_extras_one_path(p):
-    '''extras : PATH NAME'''
+    '''extras : PATH COLON STRING'''
     e = Extras()
     e.type = 'PATH'
-    e.value = p[2]
+    e.value = p[3]
     p[0] = [e]
     
 
 def p_tags_conjunction_1(p):
-    '''tags_conjunction : tags_conjunction AND tag'''
+    '''tags_conjunction : tags_conjunction AND tag_not_tag'''
     p[1].add_tag(p[3])
     p[0] = p[1]
     
-def p_tags_conjunction_2(p): 
-    'tags_conjunction : tag'
+def p_tags_conjunction_2(p):
+    'tags_conjunction : tag_not_tag'
     exp = TagsConjunction()
     exp.add_tag(p[1])
     p[0] =  exp
     
-def p_tag_not(p):
-    'tag : NOT NAME'
-    t = Tag(p[2], is_negative=True)
-    p[0] = t
+def p_tag_not_tag_1(p):
+    'tag_not_tag : NOT tag'
+    p[2].negate()
+    p[0] = p[2]
     
-def p_tag_yes(p):
-    'tag : NAME'
+def p_tag_not_tag_2(p):
+    'tag_not_tag : tag'
+    p[0] = p[1]
+
+def p_tag(p):
+    'tag : STRING'
     p[0] = Tag(p[1])
 
 # Error rule for syntax errors
 def p_error(p):
     print("Syntax error in input! " + str(p))
 
+
+
+
+
+# Build the lexer
+lexer = lex.lex()
+
+# Build the parser
+parser = yacc.yacc()
+
+
+
 if __name__ == '__main__':
-    
 ##############################
     # Test data
-    data = '''
-   ( Tag1 И НЕ Тег2 И Тег3 user: vlkv    user: lena )
+    data = r'''
+   Tag1 И НЕ "Слеш\\ кавычка\" конец" И "Тег 2" user : "asdf"
     '''
-##############################
-    # Build the lexer
-    lexer = lex.lex()
+    
+##############################    
     lexer.input(data)
     
     # Tokenize
@@ -258,15 +282,9 @@ if __name__ == '__main__':
         tok = lexer.token()
         if not tok: break      # No more input
         print(tok)
-##############################
-    # Build the parser
-    parser = yacc.yacc()
+##############################    
     result = parser.parse(data)
     print(result.interpret())
-    
-    
-
-
 
 
 

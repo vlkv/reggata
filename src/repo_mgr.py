@@ -42,7 +42,7 @@ class RepoMgr(object):
         pass
     
     @property
-    def base_path(self):return 
+    def base_path(self):
         '''Абсолютный путь к корню хранилища.'''
         return self._base_path
     
@@ -119,7 +119,10 @@ class UnitOfWork(object):
                     .filter(Item_Tag.user_login.in_(user_logins)) \
                     .order_by(Tag.name).all()
         #TODO нужны критерии по пользователям и по уже выбранным тегам
-        
+    
+    def query_items_by_sql(self, sql):
+        print(sql)
+        return self._session.query(Item).from_statement(sql).all()
     
     def queryItems(self, and_tags):
 #        return self._session.query(Item).filter(Item.tags.any(Tag.name.in_(and_tags))).all()

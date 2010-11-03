@@ -21,6 +21,8 @@ from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
 from exceptions import LoginError
+import query_parser
+import ply.yacc as yacc
 
 
 class TagCloud(QtGui.QTextEdit):
@@ -163,8 +165,8 @@ class MainWindow(QtGui.QMainWindow):
 		
 		
 	def query_exec(self):
-		tags = self.ui.lineEdit_query.text().split()
-		self.model.query(tags)
+		query_text = self.ui.lineEdit_query.text()
+		self.model.query(query_text)
 		
 	
 	def _login_recent_user(self):
@@ -360,15 +362,23 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 	ID = 0
 	TITLE = 1
 	
+	parse_count = 0
+	
 	def __init__(self, repo):
 		super(RepoItemTableModel, self).__init__()
 		self.repo = repo
 		self.items = []
 		
-	def query(self, and_tags=[]):
+	def query(self, query_text):
 		uow = self.repo.createUnitOfWork()
 		try:
-			self.items = uow.queryItems(and_tags)
+			parser = query_parser.parser
+			if self.parse_count > 0:
+				parser.restart()
+			tree = parser.parse(query_text)
+			self.parse_count = self.parse_count + 1 
+			sql = tree.interpret()
+			self.items = uow.query_items_by_sql(sql)
 			self.reset()
 		finally:
 			uow.close()
