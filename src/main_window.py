@@ -372,9 +372,8 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 	def query(self, query_text):
 		uow = self.repo.createUnitOfWork()
 		try:
+
 			parser = query_parser.parser
-			if self.parse_count > 0:
-				parser.restart()
 			tree = parser.parse(query_text)
 			self.parse_count = self.parse_count + 1 
 			sql = tree.interpret()

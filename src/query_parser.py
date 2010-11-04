@@ -95,13 +95,16 @@ class TagsConjunction(QueryExpression):
         where t.name='Проектирование')
     group by i.id 
     having count(*)=2
-    '''
-    yes_tags = []
-    no_tags = []
+    '''    
     
-    #Список дополнительных условий USER и PATH
-    extras_paths = []
-    extras_users = []
+    def __init__(self):
+        #Списки для хранения тегов
+        self.yes_tags = []
+        self.no_tags = []
+        
+        #Список дополнительных условий USER и PATH
+        self.extras_paths = []
+        self.extras_users = []
     
     @property
     def tags(self):
@@ -256,7 +259,8 @@ def p_error(p):
     print("Syntax error in input! " + str(p))
 
 
-
+def create_parser():
+    return yacc.yacc()
 
 
 # Build the lexer
