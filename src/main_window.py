@@ -35,6 +35,16 @@ class TagCloud(QtGui.QTextEdit):
 	_users = set()
 	
 	_repo = None
+		
+	
+	def __init__(self, parent=None, repo=None):
+		super(TagCloud, self).__init__(parent)
+		self.setMouseTracking(True)
+		self.setReadOnly(True)
+		self.tags = set() #Выбранные теги		
+		self.not_tags = set() #Выбранные отрицания тегов
+		self.repo = repo		
+		
 	
 	def add_user(self, user_login):
 		self._users.add(user_login)
@@ -55,13 +65,9 @@ class TagCloud(QtGui.QTextEdit):
 	@repo.setter
 	def repo(self, value):
 		self._repo = value
-		self.refresh()
+		self.reset()
 		
-	def __init__(self, parent=None, repo=None):
-		super(TagCloud, self).__init__(parent)
-		self.setMouseTracking(True)
-		self.setReadOnly(True)
-		self.repo = repo
+	
 	
 	def refresh(self):
 		
@@ -86,10 +92,11 @@ class TagCloud(QtGui.QTextEdit):
 			finally:
 				uow.close()
 
-	
-	def event(self, e):
-		result = QtGui.QTextEdit.event(self, e)
-		return result
+	def reset(self):
+		self.tags.clear()
+		self.not_tags.clear()
+		self.emit(QtCore.SIGNAL("reset"))
+		self.refresh()
 	
 	def mouseMoveEvent(self, e):
 		cursor = self.cursorForPosition(e.pos())
@@ -99,8 +106,9 @@ class TagCloud(QtGui.QTextEdit):
 		
 	def mouseDoubleClickEvent(self, e):
 		if self.word != "" and self.word is not None:
-			print("click on tag " + self.word)
-			#TODO Выполняем фильтрацию элементов хранилища
+			self.tags.add(self.word)
+			#TODO Нужно при нажатом Ctr добавлять word в множество _not_tags			
+			self.emit(QtCore.SIGNAL("selectedTagsChanged"))
 	
 
 class MainWindow(QtGui.QMainWindow):
@@ -142,6 +150,9 @@ class MainWindow(QtGui.QMainWindow):
 		self.ui.tag_cloud = TagCloud(self)
 		self.ui.frame_tag_cloud.setLayout(QtGui.QVBoxLayout())
 		self.ui.frame_tag_cloud.layout().addWidget(self.ui.tag_cloud)
+		self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), self.selected_tags_changed)
+		
+		self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("textEdited(QString)"), self.reset_tag_cloud)
 		
 		#Открываем последнее хранилище, с которым работал пользователь
 		try:
@@ -153,15 +164,19 @@ class MainWindow(QtGui.QMainWindow):
 				self._login_recent_user()
 		except:
 			pass
-		
-		
-#		tr("English text")
-#		self.trUtf8("Русский текст")		
-#		QtGui.QApplication.translate("default", "text", None, QtGui.QApplication.UnicodeUTF8)
-#		QtGui.QApplication.translate("default", "текст", None, QtGui.QApplication.UnicodeUTF8)
-#		self.tr("tr() text")
-#		self.tr("tr() текст")
-		
+
+	def reset_tag_cloud(self):
+		self.ui.tag_cloud.reset()
+	
+	def selected_tags_changed(self):
+		text = ""
+		for tag in self.ui.tag_cloud.tags:
+			text = text + " " + tag
+		for tag in self.ui.tag_cloud.not_tags:
+			text = text + " НЕ " + tag
+		text = self.ui.lineEdit_query.setText(text)
+			
+			
 		
 		
 	def query_exec(self):
@@ -362,8 +377,6 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 	ID = 0
 	TITLE = 1
 	
-	parse_count = 0
-	
 	def __init__(self, repo):
 		super(RepoItemTableModel, self).__init__()
 		self.repo = repo
@@ -372,10 +385,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 	def query(self, query_text):
 		uow = self.repo.createUnitOfWork()
 		try:
-
-			parser = query_parser.parser
-			tree = parser.parse(query_text)
-			self.parse_count = self.parse_count + 1 
+			tree = query_parser.parser.parse(query_text)
 			sql = tree.interpret()
 			self.items = uow.query_items_by_sql(sql)
 			self.reset()
