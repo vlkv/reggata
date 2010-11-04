@@ -116,62 +116,69 @@ class UnitOfWork(object):
         Поиск ведется среди тегов пользователей из списка user_logins.
         Если user_logins пустой, то поиск среди всех тегов в БД.
         '''
-        #Сначала нужно получить список id-шников для всех имен тегов
-        sql = '''select * from tags t
-        where t.name in (''' + to_commalist(tag_names, lambda x: "'" + x + "'") + ''')
-        order by t.id'''
-        tags = self._session.query(Tag).from_statement(sql).all()
-        tag_ids = []
-        for tag in tags:
-            tag_ids.append(tag.id)
         
-        sub_from = "from "
-        for i in range(len(tag_ids)):
-            if i == 0:
-                sub_from = sub_from + "items_tags it{}".format(i+1)
-            else:
-                sub_from = sub_from + \
-                "join items_tags it{1} on it{1}.item_id=it{0}.item_id " + \
-                "AND it{1}.tag_id > it{0}.tag_id ".format(i, i+1)
+        #TODO Пока что не учитывается аргумент user_logins
+        
+        if len(tag_names) == 0:
+            sql = '''select t.name as name, count(*) as c
+                from tags t
+                join items_tags it on it.tag_id = t.id
+            where
+                1
+            group by t.name
+            ORDER BY t.name'''
+            print(sql)
+            return self._session.query("name", "c").from_statement(sql).all()
+        else:                
+            #Сначала нужно получить список id-шников для всех имен тегов
+            sql = '''select * from tags t
+            where t.name in (''' + to_commalist(tag_names, lambda x: "'" + x + "'") + ''')
+            order by t.id'''
+            tags = self._session.query(Tag).from_statement(sql).all()
+            tag_ids = []
+            for tag in tags:
+                tag_ids.append(tag.id)
             
-        sub_where = ""
-        for i in range(len(tag_ids)):
-            if i == 0:
-                sub_where = sub_where + \
-                "it{0}.tag_id = {1}".format(i+1, tag_ids[i])
-            else:
-                sub_where = sub_where + \
-                "AND it{0}.tag_id = {1}".format(i+1, tag_ids[i])
-        
-        where = ""    
-        for i in range(len(tag_ids)):        
-            where = where + \
-            "AND t.id <> {1}".format(tag_ids[i])
-        
-        #TODO надо доделать этот метод        
-        
-        sql = '''
-        select t.name, count(*)
-            from tags t
-            join items_tags it on it.tag_id = t.id
-        where
-            it.item_id IN (
-                select it1.item_id
-                    from items_tags it1
-                    join items_tags it2 on it2.item_id=it1.item_id AND it2.tag_id > it1.tag_id
-                    --join items_tags it3 on it3.item_id=it2.item_id AND it3.tag_id > it2.tag_id
-                where 
-                    it1.tag_id = 11 
-                    AND it2.tag_id = 12
-                    --AND it3.tag_id = 18
-            )
-            AND t.id <> 11
-            AND t.id <> 12
-            --AND t.id <> 18
-            --Важно, чтобы эти id-шники следовали по возрастанию
-        group by t.name
-        ORDER BY count(*) DESC 
-        '''    
+            print("tag_ids=" + str(tag_ids))
+            
+            sub_from = ""
+            for i in range(len(tag_ids)):
+                if i == 0:
+                    sub_from = sub_from + " items_tags it{} ".format(i+1)
+                else:
+                    sub_from = sub_from + \
+                    (" join items_tags it{1} on it{1}.item_id=it{0}.item_id " + \
+                    " AND it{1}.tag_id > it{0}.tag_id ").format(i, i+1)
+                
+            sub_where = ""
+            for i in range(len(tag_ids)):
+                if i == 0:
+                    sub_where = sub_where + \
+                    " it{0}.tag_id = {1} ".format(i+1, tag_ids[i])
+                else:
+                    sub_where = sub_where + \
+                    " AND it{0}.tag_id = {1} ".format(i+1, tag_ids[i])
+            
+            where = ""
+            for i in range(len(tag_ids)):
+                where = where + \
+                " AND t.id <> {0} ".format(tag_ids[i])
+            
+            sql = '''
+            select t.name as name, count(*) as c
+                from tags t
+                join items_tags it on it.tag_id = t.id
+            where
+                it.item_id IN (
+                    select it1.item_id
+                        from ''' + sub_from + '''
+                    where ''' + sub_where + '''                     
+                ) ''' + where + '''            
+                --Важно, чтобы эти id-шники следовали по возрастанию
+            group by t.name
+            ORDER BY t.name'''
+            print(sql)
+            return self._session.query("name", "c").from_statement(sql).all()
         
         
     def getTags(self, user_logins=[]):

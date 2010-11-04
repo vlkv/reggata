@@ -78,4 +78,28 @@ def to_commalist(seq, apply_each=repr, sep=","):
             s = s + sep
     return s
         
+def scale_value(value, src_range, dst_range):
+    ''' Выполняет масштабирование значения value, которое может варьироваться в пределах
+    от src_range[0] до src_range[1], после чего значение попадает в диапазон от dst_range[0] до 
+    dst_range[1].
+        Если value находится вне диапазона src_range, то оно будет сдвинуто на соответствующую
+        границу.
+    '''    
+    if src_range[0] > src_range[1]:
+        raise ValueError(tr("Incorrect range, src_range[0] must be less then src_range[1]."))
+    
+    if dst_range[0] > dst_range[1]:
+        raise ValueError(tr("Incorrect range, dst_range[0] must be less then dst_range[1]."))
+    
+    result = float(value) * (float(dst_range[0]) - dst_range[1]) / (src_range[0] - src_range[1])
+    if result < dst_range[0]:
+        result = dst_range[0]
+    elif result > dst_range[1]:
+        result = dst_range[1]
+    return result
+        
+        
+        
+        
+        
         

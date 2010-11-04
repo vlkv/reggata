@@ -16,7 +16,7 @@ import PyQt4.QtGui as QtGui
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork
-from helpers import tr, showExcInfo, DialogMode
+from helpers import tr, showExcInfo, DialogMode, scale_value
 from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
@@ -78,16 +78,21 @@ class TagCloud(QtGui.QTextEdit):
 		else:
 			uow = self.repo.createUnitOfWork()
 			try:
-				tags = uow.getTags(user_logins)
+				tags = uow.get_related_tags(list(self.tags))
 				
-				#Нужно оставить в единств. экз. одинаковые имена тегов разных пользователей
-				names = set()
+				#Поиск минимального и максимального количества
+				min = max = 0 #Отрицательным кол-во быть не может
 				for tag in tags:
-					names.add(tag.name)
+					if tag.c < min:
+						min = tag.c
+					if tag.c > max:
+						max = tag.c
 				
 				text = ""
-				for name in names:
-					text = text + " " + name
+				for tag in tags:
+					font_size = int(scale_value(tag.c, (min, max), (0, 5)))
+					print(font_size) 
+					text = text + ' <font size="+{}">'.format(font_size) + tag.name + '</font>'
 				self.setText(text)
 			finally:
 				uow.close()
@@ -105,10 +110,12 @@ class TagCloud(QtGui.QTextEdit):
 		self.word = word
 		
 	def mouseDoubleClickEvent(self, e):
+		#TODO Нужно при нажатом Ctr добавлять word в множество _not_tags
+		
 		if self.word != "" and self.word is not None:
 			self.tags.add(self.word)
-			#TODO Нужно при нажатом Ctr добавлять word в множество _not_tags			
 			self.emit(QtCore.SIGNAL("selectedTagsChanged"))
+			self.refresh()
 	
 
 class MainWindow(QtGui.QMainWindow):
@@ -169,12 +176,18 @@ class MainWindow(QtGui.QMainWindow):
 		self.ui.tag_cloud.reset()
 	
 	def selected_tags_changed(self):
+		#TODO Нужно заключать в кавычки имена тегов, содержащие недопустимые символы
 		text = ""
 		for tag in self.ui.tag_cloud.tags:
 			text = text + " " + tag
 		for tag in self.ui.tag_cloud.not_tags:
 			text = text + " НЕ " + tag
-		text = self.ui.lineEdit_query.setText(text)
+		text = self.ui.lineEdit_query.setText(text)		
+		self.query_exec()
+		
+		
+		
+		
 			
 			
 		
