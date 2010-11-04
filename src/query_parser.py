@@ -231,9 +231,14 @@ def p_extras_one_path(p):
     
 
 def p_tags_conjunction_1(p):
-    '''tags_conjunction : tags_conjunction AND tag_not_tag'''
-    p[1].add_tag(p[3])
-    p[0] = p[1]
+    '''tags_conjunction : tags_conjunction AND tag_not_tag
+                        | tags_conjunction tag_not_tag'''
+    if len(p) == 4:
+        p[1].add_tag(p[3])
+        p[0] = p[1]
+    elif len(p) == 3:
+        p[1].add_tag(p[2])
+        p[0] = p[1]
     
 def p_tags_conjunction_2(p):
     'tags_conjunction : tag_not_tag'
@@ -257,11 +262,6 @@ def p_tag(p):
 # Error rule for syntax errors
 def p_error(p):
     print("Syntax error in input! " + str(p))
-
-
-def create_parser():
-    return yacc.yacc()
-
 
 # Build the lexer
 lexer = lex.lex()
