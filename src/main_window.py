@@ -11,6 +11,7 @@ import sys
 import PyQt4
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
+import PyQt4.QtCore.Qt as Qt
 
 
 import ui_mainwindow
@@ -69,8 +70,8 @@ class TagCloud(QtGui.QTextEdit):
 		
 	
 	
-	def refresh(self):
-		
+	def refresh(self):		
+		#TODO Реализовать фильтрацию по пользователям
 		user_logins = list(self._users)
 		
 		if self.repo is None:
@@ -90,8 +91,7 @@ class TagCloud(QtGui.QTextEdit):
 				
 				text = ""
 				for tag in tags:
-					font_size = int(scale_value(tag.c, (min, max), (0, 5)))
-					print(font_size) 
+					font_size = int(scale_value(tag.c, (min, max), (0, 5)))					
 					text = text + ' <font size="+{}">'.format(font_size) + tag.name + '</font>'
 				self.setText(text)
 			finally:
@@ -111,12 +111,14 @@ class TagCloud(QtGui.QTextEdit):
 		
 	def mouseDoubleClickEvent(self, e):
 		#TODO Нужно при нажатом Ctr добавлять word в множество _not_tags
-		
-		if self.word != "" and self.word is not None:
-			self.tags.add(self.word)
+		if self.word != "" and self.word is not None:			
+			self.tags.add(self.word)			
 			self.emit(QtCore.SIGNAL("selectedTagsChanged"))
 			self.refresh()
-	
+			
+#	def event(self, e):		
+#		print(str(e))
+#		return super(TagCloud, self).event(e)
 
 class MainWindow(QtGui.QMainWindow):
 	'''
