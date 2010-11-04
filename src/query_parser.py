@@ -181,16 +181,17 @@ def p_query_expression(p):
 def p_compound_expression(p):
     '''compound_expression : LPAREN simple_expression RPAREN'''
     p[0] = p[2]
-    
-def p_simple_expression_1(p):
-    '''simple_expression : tags_conjunction'''
-    p[0] = p[1]
-    
+
+#Простое выражение, для выполнения которого достаточно одного SQL запроса
 def p_simple_expression(p):
-    '''simple_expression : tags_conjunction extras'''
-    for e in p[2]:
-        p[1].add_extras(e)
-    p[0] = p[1]
+    '''simple_expression : tags_conjunction
+                         | tags_conjunction extras'''
+    if len(p) == 2:        
+        p[0] = p[1]
+    elif len(p) == 3:
+        for e in p[2]:
+            p[1].add_extras(e)
+        p[0] = p[1]    
 
 def p_extras_user(p):
     '''extras : extras USER COLON STRING '''
@@ -229,31 +230,31 @@ def p_extras_one_path(p):
     e.value = p[3]
     p[0] = [e]
     
-
-def p_tags_conjunction_1(p):
+# Конъюнкция имен тегов или их отрицаний
+def p_tags_conjunction(p):
     '''tags_conjunction : tags_conjunction AND tag_not_tag
-                        | tags_conjunction tag_not_tag'''
+                        | tags_conjunction tag_not_tag
+                        | tag_not_tag'''
     if len(p) == 4:
         p[1].add_tag(p[3])
         p[0] = p[1]
     elif len(p) == 3:
         p[1].add_tag(p[2])
         p[0] = p[1]
-    
-def p_tags_conjunction_2(p):
-    'tags_conjunction : tag_not_tag'
-    exp = TagsConjunction()
-    exp.add_tag(p[1])
-    p[0] =  exp
-    
-def p_tag_not_tag_1(p):
-    'tag_not_tag : NOT tag'
-    p[2].negate()
-    p[0] = p[2]
-    
-def p_tag_not_tag_2(p):
-    'tag_not_tag : tag'
-    p[0] = p[1]
+    elif len(p) == 2:
+        tc = TagsConjunction()
+        tc.add_tag(p[1])
+        p[0] =  tc
+
+# Тег или его отрицание
+def p_tag_not_tag(p):
+    '''tag_not_tag : NOT tag
+                   | tag'''
+    if len(p) == 3:
+        p[2].negate()
+        p[0] = p[2]
+    elif len(p) == 2:
+        p[0] = p[1]
 
 def p_tag(p):
     'tag : STRING'
