@@ -11,7 +11,7 @@ import sys
 import PyQt4
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
-import PyQt4.QtCore.Qt as Qt
+
 
 
 import ui_mainwindow
