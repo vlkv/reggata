@@ -5,48 +5,51 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>595</width>
-    <height>444</height>
+    <width>659</width>
+    <height>447</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Reggata</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <layout class="QVBoxLayout" name="verticalLayout" >
+   <layout class="QVBoxLayout" name="verticalLayout_3" >
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" >
-      <item>
-       <widget class="QLabel" name="label" >
-        <property name="text" >
-         <string>Query:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_query" />
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_query_exec" >
-        <property name="text" >
-         <string>Execute</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QFrame" name="frame_tag_cloud" >
-      <property name="frameShape" >
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow" >
-       <enum>QFrame::Raised</enum>
-      </property>
+     <widget class="QFrame" name="frame" >
+      <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout" >
+         <item>
+          <widget class="QLabel" name="label" >
+           <property name="text" >
+            <string>Query:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_query" />
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_query_exec" >
+           <property name="text" >
+            <string>Execute</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_query_reset" >
+           <property name="text" >
+            <string>Reset</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTableView" name="tableView_items" />
+       </item>
+      </layout>
      </widget>
-    </item>
-    <item>
-     <widget class="QTableView" name="tableView_items" />
     </item>
    </layout>
   </widget>
@@ -55,7 +58,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>595</width>
+     <width>659</width>
      <height>29</height>
     </rect>
    </property>
@@ -87,6 +90,21 @@
    <addaction name="menuItem" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
+  <widget class="QDockWidget" name="dockWidget_tag_cloud" >
+   <property name="floating" >
+    <bool>false</bool>
+   </property>
+   <property name="features" >
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle" >
+    <string>Tag cloud</string>
+   </property>
+   <attribute name="dockWidgetArea" >
+    <number>4</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents" />
+  </widget>
   <action name="action_repo_create" >
    <property name="text" >
     <string>New</string>

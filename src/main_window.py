@@ -141,6 +141,9 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.ui.action_user_login, QtCore.SIGNAL("triggered()"), self.action_user_login)
 		self.connect(self.ui.action_user_logout, QtCore.SIGNAL("triggered()"), self.action_user_logout)
 		self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
+		self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
+		self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
+		
 		
 		#Добавляем на статус бар поля для отображения текущего хранилища и пользователя
 		self.ui.label_repo = QtGui.QLabel()
@@ -152,8 +155,7 @@ class MainWindow(QtGui.QMainWindow):
 		
 		#Добавляем облако тегов
 		self.ui.tag_cloud = TagCloud(self)
-		self.ui.frame_tag_cloud.setLayout(QtGui.QVBoxLayout())
-		self.ui.frame_tag_cloud.layout().addWidget(self.ui.tag_cloud)
+		self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
 		self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), self.selected_tags_changed)
 		
 		self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("textEdited(QString)"), self.reset_tag_cloud)
@@ -176,17 +178,21 @@ class MainWindow(QtGui.QMainWindow):
 		#TODO Нужно заключать в кавычки имена тегов, содержащие недопустимые символы
 		text = ""
 		for tag in self.ui.tag_cloud.tags:
-			text = text + " " + tag
+			text = text + tag + " "
 		for tag in self.ui.tag_cloud.not_tags:
-			text = text + " НЕ " + tag
-		text = self.ui.lineEdit_query.setText(text)		
+			text = text + query_parser.NOT_OPERATOR + " " + tag + " "
+		text = self.ui.lineEdit_query.setText(text)
 		self.query_exec()
 		
 		
 		
 		
 			
-			
+		
+	def query_reset(self):
+		self.ui.lineEdit_query.setText("")
+		self.model.query("")
+		self.ui.tag_cloud.reset()
 		
 		
 	def query_exec(self):
@@ -405,6 +411,11 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		self.items = []
 		
 	def query(self, query_text):
+		if query_text is None or query_text.strip()=="":
+			self.items = []
+			self.reset()
+			return
+		
 		uow = self.repo.createUnitOfWork()
 		try:
 			tree = query_parser.parser.parse(query_text)
