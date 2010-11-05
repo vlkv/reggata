@@ -4,6 +4,8 @@ Created on 04.10.2010
 
 @author: vlkv
 
+Модуль, содержащий различные вспомогательные глобальные функции.
+
 Содержит функцию tr() для более удобного вызова QCoreApplication.translate().
 А функции Object.tr() рекомендуется в PyQt не использовать вообще.
 '''
@@ -28,7 +30,17 @@ def showExcInfo(parent, ex):
     class MyMessageBox(QtGui.QMessageBox):
         def __init__(self, parent=None):
             super(MyMessageBox, self).__init__(parent)    
-            self.setSizeGripEnabled(True)
+            self.setSizeGripEnabled(True)            
+            #Пока что кнопок еще нет. Они добавятся конечно, когда будет вызван setText(), но пока что их нет
+            self.addButton(QtGui.QMessageBox.Ok)
+            self.setDefaultButton(QtGui.QMessageBox.Ok)
+            self.setEscapeButton(QtGui.QMessageBox.Ok)
+            
+            sb = self.standardButtons()
+            print(int(sb))
+            print(str(self.standardButtons()))
+            print(str(self.button(QtGui.QMessageBox.Ok)))
+            print(str(self.defaultButton()))
     
         def event(self, e):
             result = QtGui.QMessageBox.event(self, e)
@@ -52,7 +64,7 @@ def showExcInfo(parent, ex):
     mb = MyMessageBox(parent)
     mb.setWindowTitle(tr("Information"))
     mb.setText(str(ex))
-    mb.setDetailedText(traceback.format_exc())
+    mb.setDetailedText(traceback.format_exc())    
     mb.exec_()
     
     
