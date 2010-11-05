@@ -84,7 +84,7 @@
         <translation>Атрибут Item.title не должен быть пустым.</translation>
     </message>
     <message>
-        <location filename="src/helpers.py" line="53"/>
+        <location filename="src/helpers.py" line="59"/>
         <source>Information</source>
         <translation>Информация</translation>
     </message>
@@ -104,108 +104,178 @@
         <translation>Похоже, что директория {} уже содержит хранилище.</translation>
     </message>
     <message>
-        <location filename="src/repo_mgr.py" line="143"/>
+        <location filename="src/repo_mgr.py" line="209"/>
         <source>User {} doesn&apos;t exist.</source>
         <translation>Пользователя {} не существует.</translation>
     </message>
     <message>
-        <location filename="src/repo_mgr.py" line="145"/>
+        <location filename="src/repo_mgr.py" line="211"/>
         <source>Password incorrect.</source>
         <translation>Неверный пароль.</translation>
     </message>
     <message>
-        <location filename="src/repo_mgr.py" line="218"/>
+        <location filename="src/repo_mgr.py" line="288"/>
         <source>DataRef instance with url={}, already in database. Operation cancelled.</source>
         <translation>Экземпляр класса DataRef с атрибутом url={} уже присутствует в базе данных. Операция отменена.</translation>
+    </message>
+    <message>
+        <location filename="src/helpers.py" line="95"/>
+        <source>Incorrect range, src_range[0] must be less then src_range[1].</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/helpers.py" line="98"/>
+        <source>Incorrect range, dst_range[0] must be less then dst_range[1].</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/query_parser.py" line="12"/>
+        <source>and</source>
+        <translation>и</translation>
+    </message>
+    <message>
+        <location filename="src/query_parser.py" line="13"/>
+        <source>or</source>
+        <translation>или</translation>
+    </message>
+    <message>
+        <location filename="src/query_parser.py" line="14"/>
+        <source>not</source>
+        <translation>не</translation>
+    </message>
+    <message>
+        <location filename="src/query_parser.py" line="15"/>
+        <source>user</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/query_parser.py" line="16"/>
+        <source>path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/query_parser.py" line="70"/>
+        <source>This is an abstract method.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/query_parser.py" line="136"/>
+        <source>Unexpected type of extras {}</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ItemDialog</name>
     <message>
-        <location filename="ui/itemdialog.ui" line="13"/>
+        <location filename="ui/itemdialog.ui" line="19"/>
         <source>Repository item</source>
         <translation>Элемент хранилища</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="24"/>
+        <location filename="ui/itemdialog.ui" line="67"/>
         <source>Id:</source>
         <translation>Id:</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="38"/>
+        <location filename="ui/itemdialog.ui" line="74"/>
         <source>User:</source>
         <translation>Пользователь:</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="56"/>
+        <location filename="ui/itemdialog.ui" line="57"/>
         <source>Title:</source>
         <translation>Название:</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="70"/>
+        <location filename="ui/itemdialog.ui" line="85"/>
         <source>Notes:</source>
         <translation>Примечания:</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="88"/>
+        <location filename="ui/itemdialog.ui" line="106"/>
         <source>Data references:</source>
         <translation>Ссылки на данные:</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="109"/>
+        <location filename="ui/itemdialog.ui" line="134"/>
         <source>Add files</source>
         <translation>Добавить файлы</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="116"/>
+        <location filename="ui/itemdialog.ui" line="141"/>
         <source>Add URLs</source>
         <translation>Добавить URL</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="123"/>
+        <location filename="ui/itemdialog.ui" line="148"/>
         <source>Remove</source>
         <translation>Убрать</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="130"/>
+        <location filename="ui/itemdialog.ui" line="168"/>
         <source>Move up</source>
         <translation>Вверх</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="137"/>
+        <location filename="ui/itemdialog.ui" line="175"/>
         <source>Move down</source>
         <translation>Вниз</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="167"/>
+        <location filename="ui/itemdialog.ui" line="215"/>
         <source>Fields:</source>
         <translation>Поля:</translation>
     </message>
     <message>
-        <location filename="ui/itemdialog.ui" line="181"/>
+        <location filename="ui/itemdialog.ui" line="236"/>
         <source>Tags:</source>
         <translation>Теги:</translation>
     </message>
     <message>
-        <location filename="src/item_dialog.py" line="27"/>
+        <location filename="src/item_dialog.py" line="24"/>
         <source>Argument item should be an instance of Item class.</source>
         <translation>Параметр item должен принадлежать классу Item.</translation>
     </message>
     <message>
-        <location filename="src/item_dialog.py" line="65"/>
+        <location filename="src/item_dialog.py" line="70"/>
         <source>Unexpected value {}.</source>
         <translation>Неожиданное значение {}.</translation>
     </message>
     <message>
-        <location filename="src/item_dialog.py" line="104"/>
+        <location filename="src/item_dialog.py" line="109"/>
         <source>Select files to add</source>
         <translation>Выберите файлы для добавления</translation>
+    </message>
+    <message>
+        <location filename="ui/itemdialog.ui" line="188"/>
+        <source>Destination path:</source>
+        <translation>Путь назначения:</translation>
+    </message>
+    <message>
+        <location filename="ui/itemdialog.ui" line="202"/>
+        <source>Select</source>
+        <translation>Выбрать</translation>
+    </message>
+    <message>
+        <location filename="src/item_dialog.py" line="116"/>
+        <source>Select destination path in repository</source>
+        <translation>Выберите директорию назначения внутри хранилища</translation>
+    </message>
+    <message>
+        <location filename="src/item_dialog.py" line="122"/>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <location filename="src/item_dialog.py" line="122"/>
+        <source>Chosen directory is out of active repository.</source>
+        <translation>Выбраная директория находится вне активного хранилища</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="src/main_window.py" line="136"/>
+        <location filename="src/main_window.py" line="153"/>
         <source>User:</source>
         <translation>Пользователь:</translation>
     </message>
@@ -215,109 +285,134 @@
         <translation>Reggata</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="22"/>
+        <location filename="ui/mainwindow.ui" line="25"/>
         <source>Query:</source>
         <translation>Запрос:</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="32"/>
+        <location filename="ui/mainwindow.ui" line="35"/>
         <source>Execute</source>
         <translation>Выполнить</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="64"/>
+        <location filename="ui/mainwindow.ui" line="67"/>
         <source>Repository</source>
         <translation>Хранилище</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="73"/>
+        <location filename="ui/mainwindow.ui" line="75"/>
         <source>User</source>
         <translation>Пользователь</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="85"/>
+        <location filename="ui/mainwindow.ui" line="110"/>
         <source>New</source>
         <translation>Новое</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="90"/>
+        <location filename="ui/mainwindow.ui" line="115"/>
         <source>Open</source>
         <translation>Открыть</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="95"/>
+        <location filename="ui/mainwindow.ui" line="120"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="100"/>
         <source>Add item</source>
-        <translation>Добавить элемент</translation>
+        <translation type="obsolete">Добавить элемент</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="105"/>
+        <location filename="ui/mainwindow.ui" line="130"/>
         <source>Create</source>
         <translation>Создать</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="110"/>
+        <location filename="ui/mainwindow.ui" line="135"/>
         <source>Login</source>
         <translation>Вход</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="115"/>
+        <location filename="ui/mainwindow.ui" line="140"/>
         <source>Logout</source>
         <translation>Выход</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="134"/>
+        <location filename="src/main_window.py" line="151"/>
         <source>Repository:</source>
         <translation>Хранилище:</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="183"/>
+        <location filename="src/main_window.py" line="216"/>
         <source>Argument must be an instance of User class.</source>
         <translation>Аргумент должен иметь тип User.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="213"/>
+        <location filename="src/main_window.py" line="246"/>
         <source>Argument must be of RepoMgr class.</source>
         <translation>Аргумент должен иметь тип RepoMgr.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="231"/>
+        <location filename="src/main_window.py" line="264"/>
         <source>Opened repository from {}.</source>
         <translation>Открыто хранилище по адресу {}.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="249"/>
+        <location filename="src/main_window.py" line="282"/>
         <source>Choose a base path for new repository</source>
         <translation>Выберите базовую директорию хранилища</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="271"/>
+        <location filename="src/main_window.py" line="304"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
         <translation>Вы должны были выбрать существующую директорию. Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="261"/>
+        <location filename="src/main_window.py" line="294"/>
         <source>There is no opened repository.</source>
         <translation>Нет открытых хранилищ.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="269"/>
+        <location filename="src/main_window.py" line="302"/>
         <source>Choose a repository base path</source>
         <translation>Выберите базовую директорию хранилища</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="316"/>
+        <location filename="src/main_window.py" line="349"/>
         <source>Open a repository first.</source>
         <translation>Сначала откройте хранилище.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="298"/>
+        <location filename="src/main_window.py" line="331"/>
         <source>Login to a repository first.</source>
         <translation>Сначала выполните вход в хранилище.</translation>
+    </message>
+    <message>
+        <location filename="ui/mainwindow.ui" line="42"/>
+        <source>Reset</source>
+        <translation>Сброс</translation>
+    </message>
+    <message>
+        <location filename="ui/mainwindow.ui" line="83"/>
+        <source>Item</source>
+        <translation>Элемент</translation>
+    </message>
+    <message>
+        <location filename="ui/mainwindow.ui" line="101"/>
+        <source>Tag cloud</source>
+        <translation>Облако тегов</translation>
+    </message>
+    <message>
+        <location filename="ui/mainwindow.ui" line="125"/>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <location filename="ui/mainwindow.ui" line="145"/>
+        <source>Edit</source>
+        <translation>Изменить</translation>
     </message>
 </context>
 <context>
