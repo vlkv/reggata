@@ -9,14 +9,27 @@ import helpers
 from helpers import tr
 import re
 
+AND_OPERATOR = tr('and')
+OR_OPERATOR = tr('or')
+NOT_OPERATOR = tr('not')
+USER_KEYWORD = tr('user')
+PATH_KEYWORD = tr('path')
+
 #Зарезервированные слова и соответствующие им типы токенов
-reserved = {
-   'И' : 'AND',
-   'ИЛИ' : 'OR',
-   'НЕ' : 'NOT',
-   'user' : 'USER',
-   'path' : 'PATH',   
-}
+#Я хочу, чтобы операции and, or, not и др. были в нескольких вариантах.
+#Например, чтобы and можно было записать как and, And, AND
+reserved = dict()
+for tuple in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), 
+           (NOT_OPERATOR, 'NOT'), (USER_KEYWORD, 'USER'), 
+           (PATH_KEYWORD, 'PATH')]:
+    keyword = tuple[0]
+    type = tuple[1]
+    reserved[keyword.capitalize()] = type
+    reserved[keyword.upper()] = type
+    reserved[keyword.lower()] = type
+#Правда ply выводит warning сообщения о том, что токен AND (OR и др.) определен более одного раза...
+#Но работает, как мне хочется.
+
 
 #Список типов токенов
 tokens = [
@@ -31,8 +44,8 @@ tokens = [
 # 1) \" для отображения кавычки "
 # 2) \\ для отображения слеша \
 def t_STRING(t):
-    r'"(\\["\\]|[^"\\])*" | [\w]+'
-    t.type = reserved.get(t.value, 'STRING')    
+    r'"(\\["\\]|[^"\\])*"|[\w]+' #Тут пробелы лишние нельзя ставить!!!
+    t.type = reserved.get(t.value, 'STRING')
     if t.type == 'STRING' and t.value.startswith('"') and t.value.endswith('"'):
         t.value = t.value.replace(r"\\", "\\") #Заменяем \\ на \
         t.value = t.value.replace(r'\"', r'"') #Заменяем \" на "
@@ -52,6 +65,34 @@ def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1) #Пропускаем текущий символ и переходим к следующему
 
+
+def need_quote(string):
+    '''Возвращает True, если строку string нужно заключить в кавычки, чтобы она
+    правильно была распознана как токен типа 'STRING'. 
+    Это вспомогательная функция, не влияющая на работу парсера.'''
+    
+    #Если внутри строки есть пробелы
+    if re.search(r'\s', string):
+        return True
+    
+    #Если не подходит под регэксп токена STRING
+    m = re.match(t_STRING.__doc__, string)
+    if m is None or m.group() != string:
+        return True
+    
+    #Если совпадает с зарезервированным словом
+    if reserved.get(string) is not None:
+        return True
+    
+    return False
+
+def quote(string):
+    '''Заключает string в кавычки и escape-ит нужные символы внутри этой строки.'''
+    
+    #string = string.replace_all(r'"', r'\"')
+    #TODO
+    pass
+    
 
 class QueryExpression(object):
     '''Базовый класс для всех классов-узлов синтаксического дерева разбора.'''
@@ -292,6 +333,12 @@ if __name__ == '__main__':
     print(result.interpret())
 
 
-
+    print(need_quote("abc"))
+    
+    print(need_quote("abc:"))
+    
+    print(need_quote("andk"))
+    
+    print(need_quote("a nd"))
 
 
