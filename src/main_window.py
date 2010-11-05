@@ -4,16 +4,11 @@ Created on 20.08.2010
 
 @author: vlkv
 '''
-
 import os.path
 import sys
-
 import PyQt4
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
-
-
-
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork
@@ -23,7 +18,6 @@ from user_config import UserConfig
 from user_dialog import UserDialog
 from exceptions import LoginError
 import query_parser
-import ply.yacc as yacc
 
 
 class TagCloud(QtGui.QTextEdit):
@@ -141,7 +135,8 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
 		self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
 		self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
-		self.connect(self.ui.action_repo_add_item, QtCore.SIGNAL("triggered()"), self.action_repo_add_item)
+		self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
+		self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
 		self.connect(self.ui.action_user_create, QtCore.SIGNAL("triggered()"), self.action_user_create)
 		self.connect(self.ui.action_user_login, QtCore.SIGNAL("triggered()"), self.action_user_login)
 		self.connect(self.ui.action_user_logout, QtCore.SIGNAL("triggered()"), self.action_user_logout)
@@ -321,7 +316,7 @@ class MainWindow(QtGui.QMainWindow):
 		except Exception as ex:
 			showExcInfo(self, ex)
 			
-	def action_repo_add_item(self):
+	def action_item_add(self):
 		try:
 			if self.active_repo is None:
 				raise Exception(self.tr("Open a repository first."))
@@ -379,12 +374,24 @@ class MainWindow(QtGui.QMainWindow):
 			self.active_user = None
 		except Exception as ex:
 			showExcInfo(self, ex)
+
+
+	def action_item_edit(self):
+		try:
+			for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
+				print(idx.row())
+			#TODO
+			
+		except Exception as ex:
+			showExcInfo(self, ex)
 	
 	def action_template(self):
 		try:
 			pass
 		except Exception as ex:
 			showExcInfo(self, ex)
+			
+
 
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
@@ -441,7 +448,6 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 if __name__ == '__main__':
 	
 	app = QtGui.QApplication(sys.argv)
-	
 	
 	qtr = QtCore.QTranslator()
 	if qtr.load("reggata_ru.qm", ".."):

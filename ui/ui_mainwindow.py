@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Oct 25 16:03:32 2010
+# Created: Fri Nov  5 20:30:15 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(471, 373)
+        MainWindow.resize(595, 444)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
@@ -39,12 +39,14 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.tableView_items)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 471, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 595, 29))
         self.menubar.setObjectName("menubar")
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName("menu_repo")
         self.menu = QtGui.QMenu(self.menubar)
         self.menu.setObjectName("menu")
+        self.menuItem = QtGui.QMenu(self.menubar)
+        self.menuItem.setObjectName("menuItem")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -55,23 +57,27 @@ class Ui_MainWindow(object):
         self.action_repo_open.setObjectName("action_repo_open")
         self.action_repo_close = QtGui.QAction(MainWindow)
         self.action_repo_close.setObjectName("action_repo_close")
-        self.action_repo_add_item = QtGui.QAction(MainWindow)
-        self.action_repo_add_item.setObjectName("action_repo_add_item")
+        self.action_item_add = QtGui.QAction(MainWindow)
+        self.action_item_add.setObjectName("action_item_add")
         self.action_user_create = QtGui.QAction(MainWindow)
         self.action_user_create.setObjectName("action_user_create")
         self.action_user_login = QtGui.QAction(MainWindow)
         self.action_user_login.setObjectName("action_user_login")
         self.action_user_logout = QtGui.QAction(MainWindow)
         self.action_user_logout.setObjectName("action_user_logout")
+        self.action_item_edit = QtGui.QAction(MainWindow)
+        self.action_item_edit.setObjectName("action_item_edit")
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
-        self.menu_repo.addAction(self.action_repo_add_item)
         self.menu.addAction(self.action_user_create)
         self.menu.addAction(self.action_user_login)
         self.menu.addAction(self.action_user_logout)
+        self.menuItem.addAction(self.action_item_add)
+        self.menuItem.addAction(self.action_item_edit)
         self.menubar.addAction(self.menu_repo.menuAction())
         self.menubar.addAction(self.menu.menuAction())
+        self.menubar.addAction(self.menuItem.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -82,11 +88,13 @@ class Ui_MainWindow(object):
         self.pushButton_query_exec.setText(QtGui.QApplication.translate("MainWindow", "Execute", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_repo.setTitle(QtGui.QApplication.translate("MainWindow", "Repository", None, QtGui.QApplication.UnicodeUTF8))
         self.menu.setTitle(QtGui.QApplication.translate("MainWindow", "User", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuItem.setTitle(QtGui.QApplication.translate("MainWindow", "Item", None, QtGui.QApplication.UnicodeUTF8))
         self.action_repo_create.setText(QtGui.QApplication.translate("MainWindow", "New", None, QtGui.QApplication.UnicodeUTF8))
         self.action_repo_open.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.action_repo_close.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_repo_add_item.setText(QtGui.QApplication.translate("MainWindow", "Add item", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_add.setText(QtGui.QApplication.translate("MainWindow", "Add", None, QtGui.QApplication.UnicodeUTF8))
         self.action_user_create.setText(QtGui.QApplication.translate("MainWindow", "Create", None, QtGui.QApplication.UnicodeUTF8))
         self.action_user_login.setText(QtGui.QApplication.translate("MainWindow", "Login", None, QtGui.QApplication.UnicodeUTF8))
         self.action_user_logout.setText(QtGui.QApplication.translate("MainWindow", "Logout", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_edit.setText(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
 
