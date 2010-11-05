@@ -35,12 +35,6 @@ def showExcInfo(parent, ex):
             self.addButton(QtGui.QMessageBox.Ok)
             self.setDefaultButton(QtGui.QMessageBox.Ok)
             self.setEscapeButton(QtGui.QMessageBox.Ok)
-            
-            sb = self.standardButtons()
-            print(int(sb))
-            print(str(self.standardButtons()))
-            print(str(self.button(QtGui.QMessageBox.Ok)))
-            print(str(self.defaultButton()))
     
         def event(self, e):
             result = QtGui.QMessageBox.event(self, e)
