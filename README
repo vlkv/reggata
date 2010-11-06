@@ -1,1 +1,11 @@
-TODO: Нужно сделать описание проекта здесь.
+Reggata - is a program for tagging user files on local computer. 
+The project is not ready to use yet, because there are a lot of functions need to be implemented.
+
+To run reggata you need:
+1) Python 3.1.1 or newer.
+2) Qt-4.4.3 (or newer) and PyQt4.
+3) SQLAlchemy-0.6.5 (http://www.sqlalchemy.org/).
+4) SQLite3 (v3.5.9 or newer) as a database backend for SQLAlchemy.
+5) Ply-3.3 (you can get it from http://www.dabeaz.com/ply/).
+
+
