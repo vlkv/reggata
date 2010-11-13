@@ -83,6 +83,29 @@ class Item(Base):
             raise Exception(tr("Attribute Item.title shouldn't be empty."))
         return True
         
+    def has_data_ref(self, url_str):
+        '''Проверяет, связан ли с данным элементом объект DataRef, 
+        имеющий url=url_str.'''
+        for idr in self.item_data_refs:
+            dr = idr.data_ref
+            if dr is None:
+                continue
+            else:
+                if dr.url == url_str:
+                    return True
+        return False
+            
+    def remove_data_ref(self, url_str):
+        '''Удаляет DataRef (и соответствующий Item_DataRef) с указанным значением url.
+        Из БД ничего не удаляется, эта операция только в ОП.'''
+        target_idr = None
+        for idr in self.item_data_refs:
+            dr = idr.data_ref
+            if dr is None:
+                continue
+            else:
+                if dr.url == url_str:
+                    return True
         
 
         
@@ -107,8 +130,9 @@ class DataRef(Base):
     #их необходимо скопировать.
     dst_path = None
 
-    def __init__(self, url=None, date_created=None):
+    def __init__(self, url=None, date_created=None, type=None):
         self.url = url
+        self.type = type
         if date_created is not None:
             self.date_created = date_created
         else:

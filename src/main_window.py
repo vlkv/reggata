@@ -13,10 +13,10 @@ import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork
 from helpers import tr, showExcInfo, DialogMode, scale_value
-from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
+from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field, Item_DataRef
 from user_config import UserConfig
 from user_dialog import UserDialog
-from exceptions import LoginError
+from exceptions import LoginError, MsgException
 import query_parser
 
 
@@ -325,17 +325,29 @@ class MainWindow(QtGui.QMainWindow):
 	def action_item_add(self):
 		try:
 			if self.active_repo is None:
-				raise Exception(self.tr("Open a repository first."))
+				raise MsgException(self.tr("Open a repository first."))
 			
 			if self.active_user is None:
-				raise Exception(self.tr("Login to a repository first."))
-						
+				raise MsgException(self.tr("Login to a repository first."))
+			
+			#Просим пользователя выбрать один или более файлов
+			files = QtGui.QFileDialog.getOpenFileNames(self, self.tr("Select files to add"))
+			if len(files) == 0:
+				return
+			
+			#Сразу привязываем выбранные файлы к новому элементу
 			it = Item(user_login=self.active_user.login)
+			it.title = os.path.basename(files[0]) #Предлагаем назвать элемент по имени первого файла
+			for file in files:
+				idr = Item_DataRef(DataRef(url=file, type="FILE"))
+				it.item_data_refs.append(idr)
+						
+			#Открываем диалог для ввода остальной информации об элементе
 			d = ItemDialog(it, self)
 			if d.exec_():
 				uow = self.active_repo.createUnitOfWork()
 				try:
-					uow.saveNewItem(d.item)
+					uow.saveNewItem(d.item, self.active_user.login)
 				finally:
 					uow.close()
 				#TODO refresh

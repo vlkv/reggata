@@ -6,12 +6,12 @@ Created on 30.09.2010
 '''
 
 import os.path
-from helpers import tr, to_commalist
+from helpers import tr, to_commalist, is_none_or_empty
 import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
 from db_model import Base, Item, User, Tag, Field, Item_Tag, DataRef
-from exceptions import LoginError
+from exceptions import LoginError, AccessError
 import shutil
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
@@ -94,11 +94,11 @@ class UnitOfWork(object):
     
     _repo_base_path = None
     
-    _session = None
+    _session = None    
     
     def __init__(self, repoMgr):
         self._repo_base_path = repoMgr.base_path
-        self._session = repoMgr.Session()
+        self._session = repoMgr.Session()        
         
     def __del__(self):
         if self._session is not None:
@@ -212,11 +212,17 @@ class UnitOfWork(object):
         return user
 
         
-    def saveNewItem(self, item):
+    def saveNewItem(self, item, user_login):
+        
+        if is_none_or_empty(user_login):
+            raise AccessError(tr("Argument user_login shouldn't be null or empty."))
             
         copy_list = []
         
-        #Сначала надо преобразовать пути у объектов DataRef
+        #Предварительная обработка объекта Item
+        item.user_login = user_login
+        
+        #Предварительная обработка объектов DataRef
         for idr in item.item_data_refs:
             dr = idr.data_ref
             
@@ -227,14 +233,14 @@ class UnitOfWork(object):
             if dr.url.endswith(os.sep):
                 dr.url = dr.url[0:len(dr.url)-1]
             
-            #Запоминаем на время
+            #Запоминаем на время первоначальное значение url
             tmp_url = dr.url
         
             #Определяем, находится ли данный файл уже внутри хранилища
             com_pref = os.path.commonprefix([self._repo_base_path, dr.url])
             if com_pref == self._repo_base_path:
                 #Файл уже внутри
-                #Нужно сделать путь dr.url относительным и всё
+                #Делаем путь dr.url относительным и всё
                 dr.url = os.path.relpath(dr.url, self._repo_base_path)
             else:
                 #Файл снаружи                
@@ -247,11 +253,18 @@ class UnitOfWork(object):
             
             #Запоминаем все пути к файлам из DataRef объектов, чтобы потом копировать
             copy_list.append((tmp_url, dr.url))
+            
+            #Заполняем остальные поля объектов DataRef и Item_DataRef
+            dr.size = os.path.getsize(tmp_url)
+            dr.user_login = user_login
+            idr.user_login = user_login
+            #TODO вычислить hash от содержимого файла и hash_date.                                    
         
-                
-        item_tags = item.item_tags[:]
+        
+        item_tags = item.item_tags[:] #Копируем список
         old_item_tags = []
         for item_tag in item_tags:
+            item_tag.user_login = user_login
             tag = item_tag.tag
             f = self._session.query(Tag).filter(Tag.name==tag.name).first()
             if f is not None:
@@ -259,9 +272,10 @@ class UnitOfWork(object):
                 old_item_tags.append(item_tag)
                 item.item_tags.remove(item_tag)        
                 
-        item_fields = item.item_fields[:]
+        item_fields = item.item_fields[:] #Копируем список
         old_item_fields = []
         for item_field in item_fields:
+            item_field.user_login = user_login
             field = item_field.field
             f = self._session.query(Field).filter(Field.name==field.name).first()
             if f is not None:
@@ -288,6 +302,8 @@ class UnitOfWork(object):
                 raise Exception(tr("DataRef instance with url={}, "
                                    "already in database. "
                                    "Operation cancelled.").format(data_ref.url))
+                #TODO Не выкидывать исключение, а привязывать к существующему объекту?
+                #А вдруг имена совпадают, но содержимое файлов разное?
 
         #Сохраняем item пока что только с новыми тегами и новыми полями
         self._session.add(item)
@@ -301,21 +317,15 @@ class UnitOfWork(object):
         for if_ in old_item_fields:
             item.item_fields.append(if_)
             
-#        for dr in old_item_data_refs:
-#            item.item_data_refs.append(dr)
-            
                         
         self._session.commit()
         
         #Если все сохранилось в БД, то копируем файлы
         for dr in copy_list:
-            #Копируем, только если пути src и dst не совпадают
+            #Копируем, только если пути src и dst не совпадают, иначе это один и тот же файл!
             #Если файл dst существует, то он перезапишется
             if dr[0] != self._repo_base_path + dr[1]:
-                shutil.copy(dr[0], self._repo_base_path + dr[1])
-        #TODO надо копировать не просто в корень...
-        
-        #TODO надо вычислять хеши
+                shutil.copy(dr[0], self._repo_base_path + dr[1])        
 
 
 

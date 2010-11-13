@@ -104,8 +104,23 @@ def scale_value(value, src_range, dst_range):
         result = dst_range[1]
     return result
         
+def index_of(seq, match=None):
+    '''Возвращает индекс первого найденного элемента из последовательности 
+    seq. Для каждого элемента применяется функция match(seq[i]), 
+    если match() возвращает True, то элемент найден.    
+    Если элемент не найден, то возвращается None.    
+    '''
+    for i in range(len(seq)):
+        if match(seq[i]):    
+            return i
+    return None
         
-        
+def is_none_or_empty(s):
+    if not isinstance(s, str):
+        raise TypeError(tr("is_none_or_empty() can be applied only to str objects."))
+    
+    return True if s is None or s == "" else False
+
         
         
         
