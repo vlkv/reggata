@@ -177,17 +177,19 @@ class UnitOfWork(object):
             group by t.name
             ORDER BY t.name'''            
             return self._session.query("name", "c").from_statement(sql).all()
+    
+    def get_item(self, id):
+        return self._session.query(Item).get(id)
         
-        
-    def getTags(self, user_logins=[]):
-        '''Возвращает список тегов хранилища.'''
-        if len(user_logins) == 0:
-            return self._session.query(Tag).order_by(Tag.name).all()
-        else:
-            return self._session.query(Tag).join(Item_Tag) \
-                    .filter(Item_Tag.user_login.in_(user_logins)) \
-                    .order_by(Tag.name).all()
-        #TODO нужны критерии по пользователям и по уже выбранным тегам
+#    def getTags(self, user_logins=[]):
+#        '''Возвращает список тегов хранилища.'''
+#        if len(user_logins) == 0:
+#            return self._session.query(Tag).order_by(Tag.name).all()
+#        else:
+#            return self._session.query(Tag).join(Item_Tag) \
+#                    .filter(Item_Tag.user_login.in_(user_logins)) \
+#                    .order_by(Tag.name).all()
+#        #TODO нужны критерии по пользователям и по уже выбранным тегам
     
     def query_items_by_sql(self, sql):
         print(sql)
@@ -195,12 +197,12 @@ class UnitOfWork(object):
     
     
     
-    def saveNewUser(self, user):
+    def save_new_user(self, user):
         self._session.add(user)
         self._session.commit()
 
 
-    def loginUser(self, login, password):
+    def login_user(self, login, password):
         '''
     	password - это SHA1 hexdigest() хеш.
     	'''
@@ -211,8 +213,14 @@ class UnitOfWork(object):
             raise LoginError(tr("Password incorrect."))
         return user
 
+    def update_existing_item(self, item, user_login):
+        #TODO реализовать метод
+        #Тут нельзя просто вызвать merge... т.к. связанные объекты, такие как
+        #Item_Tag, Item_Field и DataRef объекты имеют некоторые поля с пустыми значениями
+        #в то время как в БД у них есть значения. 
+        raise NotImplementedError()
         
-    def saveNewItem(self, item, user_login):
+    def save_new_item(self, item, user_login):
         
         if is_none_or_empty(user_login):
             raise AccessError(tr("Argument user_login shouldn't be null or empty."))

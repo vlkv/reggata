@@ -206,7 +206,7 @@ class MainWindow(QtGui.QMainWindow):
 			login = UserConfig().get("recent_user.login")
 			password = UserConfig().get("recent_user.password")
 			uow = self.active_repo.createUnitOfWork()
-			self.active_user = uow.loginUser(login, password)
+			self.active_user = uow.login_user(login, password)
 		finally:
 			uow.close()
 		
@@ -312,7 +312,7 @@ class MainWindow(QtGui.QMainWindow):
 			if ud.exec_():
 				uow = self.active_repo.createUnitOfWork()
 				try:				
-					user = uow.loginUser(ud.user.login, ud.user.password)
+					user = uow.login_user(ud.user.login, ud.user.password)
 					self.active_user = user
 				except Exception as ex:
 					showExcInfo(self, ex)
@@ -343,11 +343,11 @@ class MainWindow(QtGui.QMainWindow):
 				it.item_data_refs.append(idr)
 						
 			#Открываем диалог для ввода остальной информации об элементе
-			d = ItemDialog(it, self)
+			d = ItemDialog(it, self, DialogMode.CREATE)
 			if d.exec_():
 				uow = self.active_repo.createUnitOfWork()
 				try:
-					uow.saveNewItem(d.item, self.active_user.login)
+					uow.save_new_item(d.item, self.active_user.login)
 				finally:
 					uow.close()
 				#TODO refresh
@@ -364,7 +364,7 @@ class MainWindow(QtGui.QMainWindow):
 			if u.exec_():
 				uow = self.active_repo.createUnitOfWork()
 				try:
-					uow.saveNewUser(u.user)
+					uow.save_new_user(u.user)
 					
 					#Выполняем "вход" под новым юзером
 					self.active_user = u.user					
@@ -380,7 +380,7 @@ class MainWindow(QtGui.QMainWindow):
 			if ud.exec_():					
 				uow = self.active_repo.createUnitOfWork()
 				try:				
-					user = uow.loginUser(ud.user.login, ud.user.password)
+					user = uow.login_user(ud.user.login, ud.user.password)
 					self.active_user = user
 				finally:
 					uow.close()
@@ -396,9 +396,33 @@ class MainWindow(QtGui.QMainWindow):
 
 	def action_item_edit(self):
 		try:
+			if self.active_repo is None:
+				raise MsgException(self.tr("Open a repository first."))
+			
+			if self.active_user is None:
+				raise MsgException(self.tr("Login to a repository first."))
+			
+			rows = set()
 			for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-				print(idx.row())
-			#TODO
+				rows.add(idx.row())
+			print("selected rows are " + str(rows))
+			
+			if len(rows) == 0:
+				raise MsgException(self.tr("There are no selected items."))
+			
+			if len(rows) > 1:
+				raise MsgException(self.tr("Please select only one item."))
+						
+			item_id = self.model.items[rows.pop()].id
+			uow = self.active_repo.createUnitOfWork()
+			try:
+				item = uow.get_item(item_id)
+				item_dialog = ItemDialog(item, self, DialogMode.EDIT)
+				if item_dialog.exec_():
+					uow.update_existing_item(item_dialog.item, self.active_user)
+															
+			finally:
+				uow.close()
 			
 		except Exception as ex:
 			showExcInfo(self, ex)

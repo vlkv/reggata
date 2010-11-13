@@ -59,13 +59,15 @@ class Item(Base):
     user = relationship(User)
     
     #список связанных файлов/ссылок_URL
-    item_data_refs = relationship("Item_DataRef", order_by="Item_DataRef.order_by_key")
+    item_data_refs = relationship("Item_DataRef", \
+                                  order_by="Item_DataRef.order_by_key", \
+                                  cascade="all, delete-orphan")
     
     #tags - список связанных тегов
-    item_tags = relationship("Item_Tag")
+    item_tags = relationship("Item_Tag", cascade="all, delete-orphan")
     
     #field_vals - список связанных полей
-    item_fields = relationship("Item_Field")
+    item_fields = relationship("Item_Field", cascade="all, delete-orphan")
 
     def __init__(self, user_login=None, title=None, notes=None, date_created=None):
         self.user_login = user_login

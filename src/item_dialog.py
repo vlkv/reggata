@@ -17,7 +17,7 @@ class ItemDialog(qtgui.QDialog):
     Диалог для представления одного элемента хранилища
     '''
 
-    def __init__(self, item, parent=None): #TODO добавить DialogMode
+    def __init__(self, item, parent=None, mode=DialogMode.VIEW):
         super(ItemDialog, self).__init__(parent)
         if type(item) != Item:
             raise TypeError(self.tr("Argument item should be an instance of Item class."))
@@ -25,6 +25,7 @@ class ItemDialog(qtgui.QDialog):
         #    raise TypeError(self.tr("Parent must be an instance of MainWindow class."))
             #Это нужно для получения доступа к полю active_repo главного окна, например
         self.parent = parent
+        self.mode = mode
         self.item = item
         self.ui = ui_itemdialog.Ui_ItemDialog()
         self.ui.setupUi(self)
@@ -37,16 +38,26 @@ class ItemDialog(qtgui.QDialog):
         
     
     def read(self):
-        self.ui.lineEdit_id.setText(self.item.id)
+        self.ui.lineEdit_id.setText(str(self.item.id))
         self.ui.lineEdit_user_login.setText(self.item.user_login)
         self.ui.lineEdit_title.setText(self.item.title)
-        
+        self.ui.plainTextEdit_notes.setPlainText(self.item.notes)
+                
         for idr in self.item.item_data_refs:
             it = qtgui.QListWidgetItem(idr.data_ref.url)
-            it.data_ref_type = "file"
             self.ui.listWidget_data_refs.addItem(it)
+            
+        s = ""
+        for itf in self.item.item_fields:
+            s = s + itf.field.name + "=" + itf.field_value + os.linesep
+        self.ui.plainTextEdit_fields.setPlainText(s)
+        
+        s = ""
+        for itg in self.item.item_tags:
+            s = s + itg.tag.name + " "
+        self.ui.plainTextEdit_tags.setPlainText(s)
     
-        #TODO остальные поля
+        #TODO остальные поля?
         
     
     def write(self):
@@ -54,45 +65,10 @@ class ItemDialog(qtgui.QDialog):
         self.item.title = self.ui.lineEdit_title.text()
         self.item.notes = self.ui.plainTextEdit_notes.toPlainText()
         
-        #Создаем объекты DataRef
-#        for i in range(0, self.ui.listWidget_data_refs.count()):
-#            list_item = self.ui.listWidget_data_refs.item(i)
-#            
-#            i = index_of(self.item.item_data_refs, lambda x: True if x.data_ref.url == list_item.text() else False)
-#            if i is not None:
-#                #Объект DataRef уже имеется в элементе self.item
-#                continue
-#            
-#            dr = DataRef(url=list_item.text())
-#            
-            #Все файлы в одну и ту же директорию
-            #dr.dst_path = self.ui.lineEdit_dst_path.text()
-            #TODO Возможно, необходимо иметь возможность указывать директорию 
-            #для каждого объекта DataRef в отдельности
-                        
-#            if list_item.data_ref_type == "file":
-#                #dr.size = os.path.getsize(list_item.text())
-#                dr.type = "FILE"
-#            elif list_item.data_ref_type == "url":
-#                #dr.size = None
-#                dr.type = "URL"
-#            else:
-#                raise ValueError(self.tr("Unexpected value {}.").format(list_item.data_ref_type))
-            
-            #TODO вычислять size при сохранении в БД
-            
-            #TODO вычислить hash от содержимого файла и hash_date...            
-            
-            #dr.user_login = self.item.user_login
-            #TODO присваивать user_login при сохранении в БД
-            
-            #idr = Item_DataRef(dr)
-            #self.item.item_data_refs.append(idr)
-        
         #Создаем объекты Tag
         text = self.ui.plainTextEdit_tags.toPlainText()
         for t in text.split():
-            tag = Tag(name=t)            
+            tag = Tag(name=t)
             item_tag = Item_Tag(tag)
             item_tag.user_login = self.item.user_login
             self.item.item_tags.append(item_tag)
@@ -112,9 +88,24 @@ class ItemDialog(qtgui.QDialog):
         
     def button_ok(self):
         try:
-            self.write()
-            self.item.check_valid()
-            self.accept()
+            if self.mode == DialogMode.VIEW:
+                self.accept()
+                
+            elif self.mode == DialogMode.CREATE:
+                self.write()
+                self.item.check_valid()
+                self.accept()
+                
+            elif self.mode == DialogMode.EDIT:
+                #Очищаем коллекции тегов/полей
+                del self.item.item_tags[:]
+                del self.item.item_fields[:]
+                
+                #Метод write() создаст все необходимые теги/поля
+                self.write()
+                self.item.check_valid()
+                self.accept()
+                                
         except Exception as ex:
             showExcInfo(self, ex)
     
