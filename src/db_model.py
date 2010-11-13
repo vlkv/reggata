@@ -131,14 +131,23 @@ class DataRef(Base):
     #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
     #их необходимо скопировать.
     dst_path = None
+    
+    #При добавлении объекта DataRef в хранилище путь к внешнему файлу превращается в 
+    #относительный путь внутри хранилища. Однако потом после добавления объекта в БД
+    #нужно скопировать физический файл внутрь хранилища. Данное поле хранит первоначальный
+    #абсолютный адрес файла
+    orig_url = None
 
     def __init__(self, url=None, date_created=None, type=None):
         self.url = url
-        self.type = type
+        
         if date_created is not None:
             self.date_created = date_created
         else:
             self.date_created = datetime.datetime.today()
+        self.type = type
+        self.dst_path = None
+        self.orig_url = None
         
 
 
@@ -155,12 +164,10 @@ class Item_DataRef(Base):
     user = relationship(User)
     
     def __init__(self, data_ref=None):
-        self.data_ref = data_ref
+        self.data_ref = data_ref        
         if data_ref is not None:
             self.data_ref_id = data_ref.id
-            self.user_login = data_ref.user_login
-        self.item_id = None
-        self.order_by_key = None
+            self.user_login = data_ref.user_login        
              
         
     
@@ -176,7 +183,7 @@ class Tag(Base):
     synonym_code = sqa.Column(sqa.Integer)
 
     def __init__(self, name=None):
-        self.id = None        
+        self.id = None
         self.name = name
         self.synonym_code = None
         
@@ -191,8 +198,9 @@ class Item_Tag(Base):
     tag = relationship(Tag)
     user = relationship(User)
     
-    def __init__(self, tag=None):        
+    def __init__(self, tag=None, user_login=None):
         self.tag = tag
+        self.user_login = user_login
         if tag is not None:
             self.tag_id = tag.id            
             

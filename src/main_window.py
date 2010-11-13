@@ -309,10 +309,10 @@ class MainWindow(QtGui.QMainWindow):
 			if self.active_user is None:
 				raise MsgException(self.tr("Login to a repository first."))
 			
+			#Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
 			rows = set()
 			for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
 				rows.add(idx.row())
-			print("selected rows are " + str(rows))
 			
 			if len(rows) == 0:
 				raise MsgException(self.tr("There are no selected items."))
@@ -326,7 +326,7 @@ class MainWindow(QtGui.QMainWindow):
 				item = uow.get_item(item_id)
 				item_dialog = ItemDialog(item, self, DialogMode.EDIT)
 				if item_dialog.exec_():
-					uow.update_existing_item(item_dialog.item, self.active_user)
+					uow.update_existing_item(item_dialog.item, self.active_user.login)
 															
 			finally:
 				uow.close()
@@ -408,7 +408,6 @@ if __name__ == '__main__':
 		app.installTranslator(qtr)
 	else:
 		print("Cannot find translation files.")
-	
 	
 	form = MainWindow()
 	form.show()

@@ -12,6 +12,7 @@ Created on 04.10.2010
 from PyQt4.QtCore import (QCoreApplication)
 import PyQt4.QtGui as QtGui
 import traceback
+import os
 
 
 def tr(text):
@@ -115,12 +116,20 @@ def index_of(seq, match=None):
             return i
     return None
         
-def is_none_or_empty(s):
-    if not isinstance(s, str):
-        raise TypeError(tr("is_none_or_empty() can be applied only to str objects."))
-    
-    return True if s is None or s == "" else False
+def is_none_or_empty(s):    
+    if s is None:
+        return True
+    else:    
+        if not isinstance(s, str):
+            raise TypeError(tr("is_none_or_empty() can be applied only to str objects."))    
+        return True if s == "" else False
 
-        
+def is_internal(url, base_path):
+        '''Метод проверяет, находится ли путь url внутри директории base_path или нет.'''
+        com_pref = os.path.commonprefix([base_path, url])
+        if com_pref == base_path:
+            return True
+        else:
+            return False
         
         
