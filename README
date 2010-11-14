@@ -8,4 +8,6 @@ To run reggata you need:
 4) SQLite3 (v3.5.9 or newer) as a database backend for SQLAlchemy.
 5) Ply-3.3 (you can get it from http://www.dabeaz.com/ply/).
 
+File main_window.py contains the application entry point. To start Reggata execute command:
+$python3 main_window.py
 
