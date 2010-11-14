@@ -10,8 +10,7 @@ from helpers import tr, to_commalist, is_none_or_empty, index_of, is_internal
 import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
-from db_model import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
-    Item_DataRef
+from db_model import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field
 from exceptions import LoginError, AccessError
 import shutil
 import PyQt4.QtGui as QtGui
@@ -185,9 +184,8 @@ class UnitOfWork(object):
         for itag in item.item_tags:             
             itag.tag
         for ifield in item.item_fields:
-            ifield.field
-        for idr in item.item_data_refs:
-            idr.data_ref
+            ifield.field        
+        item.data_ref
         self._session.expunge(item)
         return item
         
@@ -231,12 +229,13 @@ class UnitOfWork(object):
         #item должен быть в detached состоянии.
         
         #Ищем в БД элемент в его первоначальном состоянии
-        item_0 = self.get_item(item.id)
+        #item_0 это объект, который принадлежит текущей сессии
+        item_0 = self._session.query(Item).get(item.id)
         
         #Копируем значения обычных полей. Как-то это некрасиво...
         item_0.title = item.title
         item_0.notes = item.notes
-        item_0.user_login = item.user_login        
+        item_0.user_login = item.user_login
                 
         #Если в item_0 есть теги, которых нет в item, то их нужно удалить
         for itag in item_0.item_tags:
@@ -294,54 +293,50 @@ class UnitOfWork(object):
                 self._session.add(item_0.item_fields[i]) #Вот тут не могу понять, почему этот объект Item_Field нужно явно добавлять в сессию?
                 item_0.item_fields[i].field_value = ifield.field_value
         
-        #Удаляем ненужные Item_DataRef объекты
-        for idr in item_0.item_data_refs:
-            i = index_of(item.item_data_refs, \
-                         lambda x: x.data_ref.url == idr.data_ref.url)
-            if i is None:
-                self._session.delete(idr)
-        self._session.flush()
         
-        files_to_copy = []
         
-        #Добавляем новые DataRef-ы и Item_DataRef-ы
-        for idr in item.item_data_refs:
-            
-            self._prepare_data_ref_for_save(idr.data_ref)
-            
-            i = index_of(item_0.item_data_refs, \
-                         lambda x: x.data_ref.url == idr.data_ref.url)
-            if i is None:
-                #Найден новый DataRef-объект
-                dr = self._session.query(DataRef)\
-                    .filter(DataRef.url==idr.data_ref.url).first()
-                if dr is not None:
-                    raise Exception(tr("DataRef instance with url={}, "
-                                       "already in database. "
-                                       "Operation cancelled.").format(idr.data_ref.url))
-                else:                    
-                    dr = idr.data_ref         
-                    dr.size = os.path.getsize(dr.orig_url)           
-                    dr.user_login = user_login
-                    idata_ref = Item_DataRef(dr)
-                    idata_ref.user_login = user_login
-                    idata_ref.item = item_0
-                    idata_ref.need_copy_file = True
-                    item_0.item_data_refs.append(idata_ref)
-                    self._session.add(dr)
-                    self._session.add(idata_ref)
-                    #Надо не забыть скопировать файл!
-                    files_to_copy.append(dr)
+        data_ref_original_url = None
+        
+        if item.data_ref is None:
+            #У элемента удалили ссылку на файл
+            #Сам DataRef объект удалять не хочется... пока что так
+            item_0.data_ref = None
+            item_0.data_ref_id = None
+        elif item_0.data_ref is None or item.data_ref.url != item_0.data_ref.url:
+            #Элемент привязывается к другому файлу
+            #Смотрим, может быть новый файл уже внутри хранилища, и уже даже есть объект DataRef?
+            #Надо сделать адрес относительным
+            existing_data_ref = None
+            if item.data_ref.url.startswith(self._repo_base_path):
+                url = os.path.relpath(item.data_ref.url, self._repo_base_path)
+                existing_data_ref = self._session.query(DataRef).filter(DataRef.url==url).first()
+            if existing_data_ref is not None:
+                item_0.data_ref = existing_data_ref
+            else:
+                #Объекта DataRef в БД не существует, нужно его создавать
+                #Две ситуации: файл уже внутри хранилища, либо он снаружи
+                #В любом случае item.data_ref.url содержит изначально абсолютный адрес
+                data_ref = item.data_ref
+                data_ref_original_url = data_ref.url
+                data_ref.size = os.path.getsize(data_ref.url)
+                self._prepare_data_ref_for_save(data_ref)
+                data_ref.user_login = user_login #Привязываем объекты к пользователю            
+                #TODO вычислить hash от содержимого файла и hash_date.
+                self._session.add(data_ref)
+                self._session.flush()
+                item_0.data_ref = data_ref
+                
             
         self._session.commit()
         
-        #Копируем файлы
-        for dr in files_to_copy:            
-            if dr.orig_url != self._repo_base_path + dr.url:
-                shutil.copy(dr.orig_url, self._repo_base_path + dr.url)
+        #Копируем файл
+        if data_ref_original_url is not None:            
+            if data_ref_original_url != self._repo_base_path + item_0.data_ref.url:
+                shutil.copy(data_ref_original_url, self._repo_base_path + item_0.data_ref.url)
                 
         
-    def _prepare_data_ref_for_save(self, dr):
+    def _prepare_data_ref_for_save(self, dr):       
+        
         #Нормализация пути
         dr.url = os.path.normpath(dr.url)
         
@@ -350,7 +345,7 @@ class UnitOfWork(object):
             dr.url = dr.url[0:len(dr.url)-1]
         
         #Запоминаем первоначальное значение url
-        dr.orig_url = dr.url
+#        dr.orig_url = dr.url
     
         #Определяем, находится ли данный файл уже внутри хранилища
         if is_internal(dr.url, self._repo_base_path):        
@@ -378,49 +373,48 @@ class UnitOfWork(object):
         #Предварительная обработка объекта Item
         item.user_login = user_login
         
+        #Путь происхождения добавляемого файла. Именно отсюда от будет скопирован внутрь хранилища
+        data_ref_original_url = None
         
-        #Предварительная обработка объектов DataRef
-        for idr in item.item_data_refs:
-            dr = idr.data_ref
-            self._prepare_data_ref_for_save(dr)
-            dr.size = os.path.getsize(dr.orig_url)
-            #Привязываем объекты к пользователю
-            dr.user_login = user_login
-            idr.user_login = user_login
-            
+        #Предварительная обработка объекта DataRef
+        if item.data_ref is not None:
+            data_ref_original_url = item.data_ref.url
+            item.data_ref.size = os.path.getsize(item.data_ref.url)
+            self._prepare_data_ref_for_save(item.data_ref)                        
+            item.data_ref.user_login = user_login #Привязываем объекты к пользователю            
             #TODO вычислить hash от содержимого файла и hash_date.                                    
         
         
-        item_tags = item.item_tags[:] #Копируем список
-        old_item_tags = []
-        for item_tag in item_tags:
+        item_tags_copy = item.item_tags[:] #Копируем список
+        existing_item_tags = []
+        for item_tag in item_tags_copy:
             item_tag.user_login = user_login
             tag = item_tag.tag
             t = self._session.query(Tag).filter(Tag.name==tag.name).first()
             if t is not None:
                 item_tag.tag = t
-                old_item_tags.append(item_tag)
+                existing_item_tags.append(item_tag)
                 item.item_tags.remove(item_tag)        
                 
-        item_fields = item.item_fields[:] #Копируем список
-        old_item_fields = []
-        for item_field in item_fields:
+        item_fields_copy = item.item_fields[:] #Копируем список
+        existing_item_fields = []
+        for item_field in item_fields_copy:
             item_field.user_login = user_login
             field = item_field.field
             f = self._session.query(Field).filter(Field.name==field.name).first()
             if f is not None:
                 item_field.field = f
-                old_item_fields.append(item_field)
+                existing_item_fields.append(item_field)
                 item.item_fields.remove(item_field)
         
         
-        for item_data_ref in item.item_data_refs:
-            data_ref = item_data_ref.data_ref
-            dr = self._session.query(DataRef).filter(DataRef.url==data_ref.url).first()
+    
+        if item.data_ref is not None:
+            dr = self._session.query(DataRef).filter(DataRef.url==item.data_ref.url).first()
             if dr is not None:
                 raise Exception(tr("DataRef instance with url={}, "
                                    "already in database. "
-                                   "Operation cancelled.").format(data_ref.url))
+                                   "Operation cancelled.").format(item.data_ref.url))
                 #TODO Не выкидывать исключение, а привязывать к существующему объекту?
                 #А вдруг имена совпадают, но содержимое файлов разное?
 
@@ -429,24 +423,23 @@ class UnitOfWork(object):
         self._session.flush()
         
         #Добавляем в item существующие теги
-        for it in old_item_tags:
+        for it in existing_item_tags:
             item.item_tags.append(it)
         
         #Добавляем в item существующие поля
-        for if_ in old_item_fields:
+        for if_ in existing_item_fields:
             item.item_fields.append(if_)
-            
                         
         self._session.commit()
         
-        #Если все сохранилось в БД, то копируем файлы
-        for idr in item.item_data_refs:
-            dr = idr.data_ref
+        #Если все сохранилось в БД, то копируем файл, связанный с DataRef
+        if item.data_ref is not None:
+            dr = item.data_ref
             if dr.type == 'FILE':
                 #Копируем, только если пути src и dst не совпадают, иначе это один и тот же файл!
                 #Если файл dst существует, то он перезапишется
-                if dr.orig_url != self._repo_base_path + dr.url:
-                    shutil.copy(dr.orig_url, self._repo_base_path + dr.url)        
+                if data_ref_original_url != self._repo_base_path + dr.url:
+                    shutil.copy(data_ref_original_url, self._repo_base_path + dr.url)        
 
 
 

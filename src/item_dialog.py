@@ -4,15 +4,15 @@ Created on 15.10.2010
 
 @author: vlkv
 '''
-import PyQt4.QtGui as qtgui
-import PyQt4.QtCore as qtcore
+import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 import ui_itemdialog
-from db_model import Item, DataRef, Tag, Item_Tag, Field, Item_Field,\
-    Item_DataRef
-from helpers import tr, showExcInfo, DialogMode, index_of, is_none_or_empty
+from db_model import Item, DataRef, Tag, Item_Tag, Field, Item_Field
+from helpers import tr, showExcInfo, DialogMode, index_of, is_none_or_empty,\
+    is_internal
 import os
 
-class ItemDialog(qtgui.QDialog):
+class ItemDialog(QtGui.QDialog):
     '''
     Диалог для представления одного элемента хранилища
     '''
@@ -29,11 +29,11 @@ class ItemDialog(qtgui.QDialog):
         self.item = item
         self.ui = ui_itemdialog.Ui_ItemDialog()
         self.ui.setupUi(self)
-        self.connect(self.ui.buttonBox, qtcore.SIGNAL("accepted()"), self.button_ok)
-        self.connect(self.ui.buttonBox, qtcore.SIGNAL("rejected()"), self.button_cancel)
-        self.connect(self.ui.pushButton_add_files, qtcore.SIGNAL("clicked()"), self.button_add_files)
-        self.connect(self.ui.pushButton_remove, qtcore.SIGNAL("clicked()"), self.button_remove)
-        self.connect(self.ui.pushButton_select_dst_path, qtcore.SIGNAL("clicked()"), self.button_sel_dst_path)
+        self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.button_ok)
+        self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.button_cancel)
+        self.connect(self.ui.pushButton_add_files, QtCore.SIGNAL("clicked()"), self.button_add_files)
+        self.connect(self.ui.pushButton_remove, QtCore.SIGNAL("clicked()"), self.button_remove)
+        self.connect(self.ui.pushButton_select_dst_path, QtCore.SIGNAL("clicked()"), self.button_sel_dst_path)
         self.read()
         
     
@@ -42,22 +42,30 @@ class ItemDialog(qtgui.QDialog):
         self.ui.lineEdit_user_login.setText(self.item.user_login)
         self.ui.lineEdit_title.setText(self.item.title)
         self.ui.plainTextEdit_notes.setPlainText(self.item.notes)
-                
-        for idr in self.item.item_data_refs:
-            it = qtgui.QListWidgetItem(idr.data_ref.url)
-            self.ui.listWidget_data_refs.addItem(it)
-            
+        
+        #Добавляем в список единственный файл
+        if self.item.data_ref:
+            #TODO если файл --- это архив, то на лету распаковать его и вывести в этот список все содержимое архива
+            lwitem = QtGui.QListWidgetItem(self.item.data_ref.url)
+            self.ui.listWidget_data_refs.addItem(lwitem)        
+            #Проверяем, существует ли файл
+            test_url = self.item.data_ref.url
+            if not os.path.isabs(test_url):
+                test_url = self.parent.active_repo.base_path + os.sep + test_url
+            if not os.path.exists(test_url):
+                lwitem.setTextColor(QtCore.Qt.red)
+        
+        #Выводим информацию о полях элемента и их значениях
         s = ""
         for itf in self.item.item_fields:
             s = s + itf.field.name + "=" + itf.field_value + os.linesep
         self.ui.plainTextEdit_fields.setPlainText(s)
         
+        #Выводим список тегов данного элемента
         s = ""
         for itg in self.item.item_tags:
             s = s + itg.tag.name + " "
         self.ui.plainTextEdit_tags.setPlainText(s)
-    
-        #TODO остальные поля?
         
     
     def write(self):
@@ -83,7 +91,7 @@ class ItemDialog(qtgui.QDialog):
             item_field.user_login = self.item.user_login
             self.item.item_fields.append(item_field)
         
-        #TODO ...
+        
         
         
     def button_ok(self):
@@ -113,56 +121,60 @@ class ItemDialog(qtgui.QDialog):
         self.reject()
         
     def button_add_files(self):
-        files = qtgui.QFileDialog.getOpenFileNames(self, self.tr("Select files to add"))
-        for file in files:
-            #Если lineEdit для title еще пустой, то предлагаем туда записать имя первого файла
-            title = self.ui.lineEdit_title.text()
-            if is_none_or_empty(title):
-                self.ui.lineEdit_title.setText(os.path.basename(file))
+        
+        #Пока что эта кнопка будет менять текущий DataRef на другой файл.
+        #В будущем можно сделать выбор файлов и добавление их в архив, с которым связан данный Item
+        
+        file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select file"))
+        if is_none_or_empty(file):
+            return
+        #Если lineEdit для title еще пустой, то предлагаем туда записать имя первого файла
+        title = self.ui.lineEdit_title.text()
+        if is_none_or_empty(title):
+            self.ui.lineEdit_title.setText(os.path.basename(file))
             
-            #Создаем DataRef объект и привязываем его к self.item
-            idr = Item_DataRef(DataRef(url=file, type="FILE"))
-            idr.data_ref.dst_path = self.ui.lineEdit_dst_path.text()
-            self.item.item_data_refs.append(idr)
+        #Создаем DataRef объект и привязываем его к self.item
+        data_ref = DataRef(url=file, type="FILE")
+        data_ref.dst_path = self.ui.lineEdit_dst_path.text()
+        self.item.data_ref = data_ref
                         
-            #Отображаем в списке файлов диалога
-            list_item = qtgui.QListWidgetItem(file)
-            self.ui.listWidget_data_refs.addItem(list_item)
-            
+        #Отображаем в списке файлов диалога
+        self.ui.listWidget_data_refs.clear() #Удаляем все файлы, что есть сейчас
+        lwitem = QtGui.QListWidgetItem(file) #Создаем и
+        self.ui.listWidget_data_refs.addItem(lwitem) #добавляем новый файл в список
+        
     
     def button_sel_dst_path(self):
-        dir = qtgui.QFileDialog.getExistingDirectory(self, 
-            self.tr("Select destination path in repository"), 
+        dir = QtGui.QFileDialog.getExistingDirectory(self, 
+            self.tr("Select destination path within repository"), 
             self.parent.active_repo.base_path)
         if dir:
-            commonprefix = os.path.commonprefix([dir, self.parent.active_repo.base_path])
-            if commonprefix != self.parent.active_repo.base_path:
-                qtgui.QMessageBox.warning(self, self.tr("Error"), self.tr("Chosen directory is out of active repository."))
+            if not is_internal(dir, self.parent.active_repo.base_path):
+                #Выбрана директория снаружи хранилища
+                QtGui.QMessageBox.warning(self, self.tr("Error"), self.tr("Chosen directory is out of active repository."))
                 return
             else:
                 new_dst_path = os.path.relpath(dir, self.parent.active_repo.base_path)
                 self.ui.lineEdit_dst_path.setText(new_dst_path)
-                #Присваиваем новое значение dst_path всем объектам DataRef, кроме
-                #тех, которые уже расположены внутри хранилища
-                for idr in self.item.item_data_refs:                    
-                    drive, tail = os.path.splitdrive(idr.data_ref.url)
-                    if tail.startswith(os.sep):
-                        #Этот файл еще не в хранилище
-                        idr.data_ref.dst_path = new_dst_path 
+                #Присваиваем новое значение dst_path объекту DataRef, если он ссылается
+                #на новый внешний файл (его путь абсолютный и вне хранилища)                
+                if os.path.isabs(self.item.data_ref.url) and \
+                not is_internal(self.item.data_ref.url, self.parent.active_repo.base_path):
+                    #Этот файл еще не в хранилище
+                    self.item.data_ref.dst_path = new_dst_path
     
     def button_remove(self):
         if self.ui.listWidget_data_refs.count() == 0:
             return
         
-        sel_items = self.ui.listWidget_data_refs.selectedItems()
-        for list_item in sel_items:
-            row = self.ui.listWidget_data_refs.row(list_item)
-            self.ui.listWidget_data_refs.takeItem(row)
+#        sel_items = self.ui.listWidget_data_refs.selectedItems()
+#        for list_item in sel_items:
+#            row = self.ui.listWidget_data_refs.row(list_item)
+#            self.ui.listWidget_data_refs.takeItem(row)
+        self.item.data_ref = None
+        self.item.data_ref_id = None
+        self.ui.listWidget_data_refs.clear()
             
-            #Если такой элемент есть в объекте Item, то удаляем его 
-            i = index_of(self.item.item_data_refs, lambda x: True if x.data_ref.url == list_item.text() else False)
-            if i is not None:
-                self.item.item_data_refs.remove(self.item.item_data_refs[i])
             
             
             

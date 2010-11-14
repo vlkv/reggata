@@ -54,14 +54,13 @@ class Item(Base):
     notes = sqa.Column(sqa.String)
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
     date_created = sqa.Column(sqa.DateTime)
+    data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"))
     
     #пользователь-владелец данного элемента
     user = relationship(User)
     
-    #список связанных файлов/ссылок_URL
-    item_data_refs = relationship("Item_DataRef", \
-                                  order_by="Item_DataRef.order_by_key", \
-                                  cascade="all, delete-orphan")
+    #связанный файл/ссылка_URL
+    data_ref = relationship("DataRef")
     
     #tags - список связанных тегов
     item_tags = relationship("Item_Tag", cascade="all, delete-orphan")
@@ -136,7 +135,7 @@ class DataRef(Base):
     #относительный путь внутри хранилища. Однако потом после добавления объекта в БД
     #нужно скопировать физический файл внутрь хранилища. Данное поле хранит первоначальный
     #абсолютный адрес файла
-    orig_url = None
+#    orig_url = None
 
     def __init__(self, url=None, date_created=None, type=None):
         self.url = url
@@ -148,28 +147,6 @@ class DataRef(Base):
         self.type = type
         self.dst_path = None
         self.orig_url = None
-        
-
-
-class Item_DataRef(Base):
-    __tablename__ = "items_data_refs"
-        
-    item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"), primary_key=True)
-    data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"), primary_key=True)
-    user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
-    order_by_key = sqa.Column(sqa.Integer)
-    
-    item = relationship(Item)
-    data_ref = relationship("DataRef")
-    user = relationship(User)
-    
-    def __init__(self, data_ref=None):
-        self.data_ref = data_ref        
-        if data_ref is not None:
-            self.data_ref_id = data_ref.id
-            self.user_login = data_ref.user_login        
-             
-        
     
         
 class Tag(Base):

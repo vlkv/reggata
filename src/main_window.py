@@ -11,8 +11,8 @@ import PyQt4.QtGui as QtGui
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork
-from helpers import tr, showExcInfo, DialogMode, scale_value
-from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field, Item_DataRef
+from helpers import tr, showExcInfo, DialogMode, scale_value, is_none_or_empty
+from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
 from exceptions import LoginError, MsgException
@@ -238,19 +238,17 @@ class MainWindow(QtGui.QMainWindow):
 				raise MsgException(self.tr("Login to a repository first."))
 			
 			#Просим пользователя выбрать один или более файлов
-			files = QtGui.QFileDialog.getOpenFileNames(self, self.tr("Select files to add"))
-			if len(files) == 0:
+			file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select file to add"))
+			if is_none_or_empty(file):
 				return
 			
-			#Сразу привязываем выбранные файлы к новому элементу
-			it = Item(user_login=self.active_user.login)
-			it.title = os.path.basename(files[0]) #Предлагаем назвать элемент по имени первого файла
-			for file in files:
-				idr = Item_DataRef(DataRef(url=file, type="FILE"))
-				it.item_data_refs.append(idr)
+			#Сразу привязываем выбранный файл к новому элементу
+			item = Item(user_login=self.active_user.login)
+			item.title = os.path.basename(file) #Предлагаем назвать элемент по имени файла			
+			item.data_ref = DataRef(url=file, type="FILE")
 						
 			#Открываем диалог для ввода остальной информации об элементе
-			d = ItemDialog(it, self, DialogMode.CREATE)
+			d = ItemDialog(item, self, DialogMode.CREATE)
 			if d.exec_():
 				uow = self.active_repo.createUnitOfWork()
 				try:
