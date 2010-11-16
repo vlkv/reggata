@@ -2,42 +2,47 @@
 
 # Form implementation generated from reading ui file 'userdialog.ui'
 #
-# Created: Fri Nov  5 21:24:04 2010
-#      by: PyQt4 UI code generator 4.7.3
+# Created: Mon Nov 15 23:00:17 2010
+#      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
 
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    _fromUtf8 = lambda s: s
+
 class Ui_UserDialog(object):
     def setupUi(self, UserDialog):
-        UserDialog.setObjectName("UserDialog")
+        UserDialog.setObjectName(_fromUtf8("UserDialog"))
         UserDialog.resize(242, 146)
         self.verticalLayout = QtGui.QVBoxLayout(UserDialog)
-        self.verticalLayout.setObjectName("verticalLayout")
+        self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.gridLayout = QtGui.QGridLayout()
-        self.gridLayout.setObjectName("gridLayout")
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.label_login = QtGui.QLabel(UserDialog)
-        self.label_login.setObjectName("label_login")
+        self.label_login.setObjectName(_fromUtf8("label_login"))
         self.gridLayout.addWidget(self.label_login, 0, 0, 1, 1)
         self.lineEdit_login = QtGui.QLineEdit(UserDialog)
-        self.lineEdit_login.setObjectName("lineEdit_login")
+        self.lineEdit_login.setObjectName(_fromUtf8("lineEdit_login"))
         self.gridLayout.addWidget(self.lineEdit_login, 0, 2, 1, 1)
         self.label_password = QtGui.QLabel(UserDialog)
-        self.label_password.setObjectName("label_password")
+        self.label_password.setObjectName(_fromUtf8("label_password"))
         self.gridLayout.addWidget(self.label_password, 1, 0, 1, 2)
         self.lineEdit_password = QtGui.QLineEdit(UserDialog)
         self.lineEdit_password.setEchoMode(QtGui.QLineEdit.Password)
-        self.lineEdit_password.setObjectName("lineEdit_password")
+        self.lineEdit_password.setObjectName(_fromUtf8("lineEdit_password"))
         self.gridLayout.addWidget(self.lineEdit_password, 1, 2, 1, 1)
         self.label_group = QtGui.QLabel(UserDialog)
         self.label_group.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedStates))
-        self.label_group.setObjectName("label_group")
+        self.label_group.setObjectName(_fromUtf8("label_group"))
         self.gridLayout.addWidget(self.label_group, 2, 0, 1, 2)
         self.comboBox_group = QtGui.QComboBox(UserDialog)
-        self.comboBox_group.setObjectName("comboBox_group")
-        self.comboBox_group.addItem("")
-        self.comboBox_group.addItem("")
+        self.comboBox_group.setObjectName(_fromUtf8("comboBox_group"))
+        self.comboBox_group.addItem(_fromUtf8(""))
+        self.comboBox_group.addItem(_fromUtf8(""))
         self.gridLayout.addWidget(self.comboBox_group, 2, 2, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout)
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
@@ -45,7 +50,7 @@ class Ui_UserDialog(object):
         self.buttonBox = QtGui.QDialogButtonBox(UserDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
+        self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.verticalLayout.addWidget(self.buttonBox)
 
         self.retranslateUi(UserDialog)

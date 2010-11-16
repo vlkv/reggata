@@ -6,7 +6,8 @@ Created on 30.09.2010
 '''
 
 import os.path
-from helpers import tr, to_commalist, is_none_or_empty, index_of, is_internal
+from helpers import tr, to_commalist, is_none_or_empty, index_of, is_internal,\
+    compute_hash
 import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
@@ -15,6 +16,7 @@ from exceptions import LoginError, AccessError
 import shutil
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
+import datetime
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -299,7 +301,7 @@ class UnitOfWork(object):
         
         if item.data_ref is None:
             #У элемента удалили ссылку на файл
-            #Сам DataRef объект удалять не хочется... пока что так
+            #Сам DataRef объект и файл удалять не хочется... пока что так
             item_0.data_ref = None
             item_0.data_ref_id = None
         elif item_0.data_ref is None or item.data_ref.url != item_0.data_ref.url:
@@ -316,50 +318,58 @@ class UnitOfWork(object):
                 #Объекта DataRef в БД не существует, нужно его создавать
                 #Две ситуации: файл уже внутри хранилища, либо он снаружи
                 #В любом случае item.data_ref.url содержит изначально абсолютный адрес
-                data_ref = item.data_ref
+                data_ref = item.data_ref                
                 data_ref_original_url = data_ref.url
-                data_ref.size = os.path.getsize(data_ref.url)
-                self._prepare_data_ref_for_save(data_ref)
-                data_ref.user_login = user_login #Привязываем объекты к пользователю            
-                #TODO вычислить hash от содержимого файла и hash_date.
+                self._prepare_data_ref(data_ref, user_login)            
+                
                 self._session.add(data_ref)
                 self._session.flush()
                 item_0.data_ref = data_ref
-                
             
         self._session.commit()
         
         #Копируем файл
-        if data_ref_original_url is not None:            
+        if data_ref_original_url is not None:
             if data_ref_original_url != self._repo_base_path + item_0.data_ref.url:
                 shutil.copy(data_ref_original_url, self._repo_base_path + item_0.data_ref.url)
                 
         
-    def _prepare_data_ref_for_save(self, dr):       
-        
-        #Нормализация пути
-        dr.url = os.path.normpath(dr.url)
-        
-        #Убираем слеш, если есть в конце пути
-        if dr.url.endswith(os.sep):
-            dr.url = dr.url[0:len(dr.url)-1]
-        
-        #Запоминаем первоначальное значение url
-#        dr.orig_url = dr.url
     
-        #Определяем, находится ли данный файл уже внутри хранилища
-        if is_internal(dr.url, self._repo_base_path):        
-            #Файл уже внутри
-            #Делаем путь dr.url относительным и всё
-            dr.url = os.path.relpath(dr.url, self._repo_base_path)
-        else:
-            #Файл снаружи                
-            if not is_none_or_empty(dr.dst_path):            
-                #Такой файл будет скопирован в хранилище в директорию dr.dst_path
-                dr.url = dr.dst_path + os.sep + os.path.basename(dr.url)
+        
+    def _prepare_data_ref(self, data_ref, user_login):
+        
+        def _prepare_data_ref_url(dr):                   
+            #Нормализация пути
+            dr.url = os.path.normpath(dr.url)            
+            #Убираем слеш, если есть в конце пути
+            if dr.url.endswith(os.sep):
+                dr.url = dr.url[0:len(dr.url)-1]                
+            #Определяем, находится ли данный файл уже внутри хранилища
+            if is_internal(dr.url, self._repo_base_path):
+                #Файл уже внутри
+                #Делаем путь dr.url относительным и всё
+                dr.url = os.path.relpath(dr.url, self._repo_base_path)
             else:
-                #Если dst_path пустая, тогда копируем в корень хранилища
-                dr.url = os.path.basename(dr.url)
+                #Файл снаружи                
+                if not is_none_or_empty(dr.dst_path):            
+                    #Такой файл будет скопирован в хранилище в директорию dr.dst_path
+                    dr.url = dr.dst_path + os.sep + os.path.basename(dr.url)
+                else:
+                    #Если dst_path пустая, тогда копируем в корень хранилища
+                    dr.url = os.path.basename(dr.url)
+        
+        #Привязываем к пользователю
+        data_ref.user_login = user_login
+                
+        #Запоминаем размер файла
+        data_ref.size = os.path.getsize(data_ref.url)
+        
+        #Вычисляем хеш. Это может занять продолжительное время...
+        data_ref.hash = compute_hash(data_ref.url)
+        data_ref.date_hashed = datetime.datetime.today()
+        
+        #Делаем путь относительным, относительно корня хранилища
+        _prepare_data_ref_url(data_ref)
         
         
         
@@ -378,11 +388,10 @@ class UnitOfWork(object):
         
         #Предварительная обработка объекта DataRef
         if item.data_ref is not None:
-            data_ref_original_url = item.data_ref.url
-            item.data_ref.size = os.path.getsize(item.data_ref.url)
-            self._prepare_data_ref_for_save(item.data_ref)                        
-            item.data_ref.user_login = user_login #Привязываем объекты к пользователю            
-            #TODO вычислить hash от содержимого файла и hash_date.                                    
+            data_ref_original_url = item.data_ref.url            
+            self._prepare_data_ref(item.data_ref, user_login)
+            
+                                                
         
         
         item_tags_copy = item.item_tags[:] #Копируем список

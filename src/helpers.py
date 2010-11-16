@@ -13,6 +13,8 @@ from PyQt4.QtCore import (QCoreApplication)
 import PyQt4.QtGui as QtGui
 import traceback
 import os
+import hashlib
+import time
 
 
 def tr(text):
@@ -116,7 +118,10 @@ def index_of(seq, match=None):
             return i
     return None
         
-def is_none_or_empty(s):    
+def is_none_or_empty(s):
+    '''Возвращает True, если строка s является None или "".
+    Если передать объект класса, отличного от str, генерируется исключение TypeError.
+    '''
     if s is None:
         return True
     else:    
@@ -131,5 +136,25 @@ def is_internal(url, base_path):
             return True
         else:
             return False
+        
+        
+def compute_hash(filename, chunksize=131072, algorithm="sha1"):
+    '''Возвращает хэш от содержимого файла filename.'''
+    #Можно использовать md5, он вычисляется существенно быстрее, чем sha1.    
+    start = time.time()
+    f = open(filename, 'rb')
+    filehash = hashlib.new(algorithm)
+    while True:
+        data = f.read(chunksize)
+        if not data:
+            break
+        filehash.update(data)
+    hash = filehash.hexdigest()
+    print("Hash {} computed in time of {} sec".format(algorithm, time.time() - start))
+    return hash
+    
+    
+
+        
         
         
