@@ -1,15 +1,46 @@
+== About Reggata ==
+
 Reggata - is a program for tagging user files on local computer. 
-The project is not ready to use yet, because there are a lot of functions need to be implemented.
+The project is not ready to use yet, because there are a lot of functions 
+need to be implemented.
+
+
+== Reggata dependencies ==
 
 To run reggata you need:
 1) Python 3.1.1 or newer.
 2) Qt-4.4.3 (or newer)
-2a) SIP (4.11.2-1)
-2b) PyQt4 (4.8.1-1)
-3) SQLAlchemy-0.6.5 (http://www.sqlalchemy.org/).
-4) SQLite3 (v3.5.9 or newer) as a database backend for SQLAlchemy.
-5) Ply-3.3 (you can get it from http://www.dabeaz.com/ply/).
+3) SIP (4.11.2-1)
+4) PyQt4 (4.8.1-1)
+5) SQLAlchemy-0.6.5 (http://www.sqlalchemy.org/).
+6) SQLite3 (v3.5.9 or newer) as a database backend for SQLAlchemy.
+7) Ply-3.3 (you can get it from http://www.dabeaz.com/ply/).
+
+
+== Starting Reggata ==
 
 File main_window.py contains the entry point of the application. To start Reggata execute command:
 python3 main_window.py
+
+
+== About the author ==
+
+Reggata is created by Vitaly Volkov (nicknames: vlkv, vitvlkv). 
+Contact email: vitvlkv@gmail.com
+
+
+== Licence ==
+
+Reggata is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Reggata is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 
