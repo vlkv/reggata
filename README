@@ -19,8 +19,7 @@ To run reggata you need:
 
 == Starting Reggata ==
 
-File main_window.py contains the entry point of the application. To start Reggata execute command:
-python3 main_window.py
+To start Reggata execute script "reggata" in root directory of source tree.
 
 
 == About the author ==
