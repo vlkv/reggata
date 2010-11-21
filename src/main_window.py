@@ -106,7 +106,8 @@ class MainWindow(QtGui.QMainWindow):
 		except:
 			pass
 		
-		self.ui.tableView_items.setItemDelegateForColumn(1, ImageThumbDelegate())
+		#В третьей колонке отображаем миниатюры изображений
+		self.ui.tableView_items.setItemDelegateForColumn(2, ImageThumbDelegate())
 
 	def reset_tag_cloud(self):
 		self.ui.tag_cloud.reset()
@@ -372,17 +373,19 @@ class MainWindow(QtGui.QMainWindow):
 
 
 class ImageThumbDelegate(QtGui.QAbstractItemDelegate):
+	'''Делегат, для отображения миниатюры файла-изображения в таблице элементов
+	хранилища.'''
+	def sizeHint(self, option, index):
+		return QtCore.QSize(option.rect)
    
-    def sizeHint(self, option, index):
-        return QtCore.QSize(120, 30)
-   
-    def paint(self, painter, option, index):
-        painter.fillRect(option.rect, QtGui.QBrush(QtGui.QColor.red))
-        painter.drawText(option.rect.bottomLeft(), index.data())
-        
-
-
-
+	def paint(self, painter, option, index):
+		image = QtGui.QImage(index.data())
+		if image:
+		    painter.drawImage(option.rect, image)
+    
+	    #TODO Нужно кешировать сгенерированные миниматюры
+	    #Потому что так как сейчас --- очень неэффективно и медленно! 
+    	
 
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
@@ -434,7 +437,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 			elif column == self.TITLE:
 				return item.title
 			elif column == self.IMAGE_THUMB:
-				return item.data_ref.url if item.data_ref else None
+				return self.repo.base_path + os.sep + item.data_ref.url if item.data_ref else None
 			else:
 				return None
 			
