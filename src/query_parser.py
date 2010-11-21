@@ -208,15 +208,25 @@ class TagsConjunction(QueryExpression):
             no_tags_str = "" 
         
         
-        s = '''select distinct i.id, i.title, i.notes, i.user_login 
+        #Данный запрос будет попутно извлекать информацию о 
+        #связанных с элементами объектов DataRef
+        s = '''--TagsConjunction.interpret() function
+        select distinct 
+            i.id, i.title, i.notes, i.user_login, i.date_created, i.data_ref_id, 
+            dr.id as data_refs_id, dr.url as data_refs_url, dr.type as data_refs_type, 
+            dr.hash as data_refs_hash, dr.date_hashed as data_refs_date_hashed, 
+            dr.size as data_refs_size, dr.date_created as data_refs_date_created, 
+            dr.user_login as data_refs_user_login 
         from items i 
         left join items_tags it on i.id = it.item_id 
-        left join tags t on t.id = it.tag_id 
+        left join tags t on t.id = it.tag_id
+        left join data_refs dr on dr.id = i.data_ref_id  
             where ''' + yes_tags_str + ''' 
             ''' + extras_users_str + '''
             ''' + no_tags_str + '''
             ''' + group_by_having
-                 
+        
+        
         #TODO сделать интерпретацию для токенов PATH            
             
         return s

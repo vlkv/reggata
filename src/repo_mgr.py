@@ -27,7 +27,7 @@ from helpers import tr, to_commalist, is_none_or_empty, index_of, is_internal,\
     compute_hash
 import consts
 import sqlalchemy as sqa
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, joinedload, contains_eager
 from db_model import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field
 from exceptions import LoginError, AccessError
 import shutil
@@ -53,7 +53,9 @@ class RepoMgr(object):
         if not os.path.exists(self.base_path + os.sep + consts.METADATA_DIR):
             raise Exception(tr("Directory {} is not a repository base path.").format(self.base_path))
         
-        self.__engine = sqa.create_engine("sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE)
+        self.__engine = sqa.create_engine(\
+            "sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE, \
+            echo=True)
 
         self.Session = sessionmaker(bind=self.__engine) #expire_on_commit=False
         
@@ -139,7 +141,9 @@ class UnitOfWork(object):
         #TODO Пока что не учитывается аргумент user_logins
         
         if len(tag_names) == 0:
-            sql = '''select t.name as name, count(*) as c
+            sql = '''
+            --Related tags query №1 from get_related_tags()
+            select t.name as name, count(*) as c
                 from tags t
                 join items_tags it on it.tag_id = t.id
             where
@@ -149,7 +153,8 @@ class UnitOfWork(object):
             return self._session.query("name", "c").from_statement(sql).all()
         else:                
             #Сначала нужно получить список id-шников для всех имен тегов
-            sql = '''select * from tags t
+            sql = '''--get_related_tags(): getting list of id for all selected tags
+            select * from tags t
             where t.name in (''' + to_commalist(tag_names, lambda x: "'" + x + "'") + ''')
             order by t.id'''
             tags = self._session.query(Tag).from_statement(sql).all()
@@ -182,7 +187,7 @@ class UnitOfWork(object):
                 where = where + \
                 " AND t.id <> {0} ".format(tag_ids[i])
             
-            sql = '''
+            sql = '''--Related tags query №2 from get_related_tags()
             select t.name as name, count(*) as c
                 from tags t
                 join items_tags it on it.tag_id = t.id
@@ -220,7 +225,14 @@ class UnitOfWork(object):
     
     def query_items_by_sql(self, sql):
         print(sql)
-        return self._session.query(Item).from_statement(sql).all()
+        items = self._session.query(Item).options(contains_eager('data_ref')).from_statement(sql).all()
+        
+        #Выше использовался joinedload, поэтому по идее следующий цикл
+        #не должен порождать новые SQL запросы            
+        for item in items:
+            item.data_ref
+        
+        return items
     
     
     

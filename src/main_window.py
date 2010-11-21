@@ -105,6 +105,8 @@ class MainWindow(QtGui.QMainWindow):
 				self._login_recent_user()
 		except:
 			pass
+		
+		self.ui.tableView_items.setItemDelegateForColumn(1, ImageThumbDelegate())
 
 	def reset_tag_cloud(self):
 		self.ui.tag_cloud.reset()
@@ -369,10 +371,26 @@ class MainWindow(QtGui.QMainWindow):
 
 
 
+class ImageThumbDelegate(QtGui.QAbstractItemDelegate):
+   
+    def sizeHint(self, option, index):
+        return QtCore.QSize(120, 30)
+   
+    def paint(self, painter, option, index):
+        painter.fillRect(option.rect, QtGui.QBrush(QtGui.QColor.red))
+        painter.drawText(option.rect.bottomLeft(), index.data())
+        
+
+
+
+
+
 class RepoItemTableModel(QtCore.QAbstractTableModel):
+	'''Модель таблицы, отображающей элементы хранилища.'''
 	
 	ID = 0
 	TITLE = 1
+	IMAGE_THUMB = 2
 	
 	def __init__(self, repo):
 		super(RepoItemTableModel, self).__init__()
@@ -380,6 +398,8 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		self.items = []
 		
 	def query(self, query_text):
+		'''Выполняет извлечение элементов из хранилища.'''
+		
 		if query_text is None or query_text.strip()=="":
 			self.items = []
 			self.reset()
@@ -390,6 +410,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 			tree = query_parser.parser.parse(query_text)
 			sql = tree.interpret()
 			self.items = uow.query_items_by_sql(sql)
+
 			self.reset()
 		finally:
 			uow.close()
@@ -398,26 +419,32 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		return len(self.items)
 	
 	def columnCount(self, index=QtCore.QModelIndex()):
-		return 2
+		return 3
 	
 	def data(self, index, role=QtCore.Qt.DisplayRole):
-		if not index.isValid() or \
-			not (0 <= index.row() < len(self.items)):
+		if not index.isValid() or not (0 <= index.row() < len(self.items)):
 			return None
 		
 		item = self.items[index.row()]
 		column = index.column()
+		
 		if role == QtCore.Qt.DisplayRole:
 			if column == self.ID:
 				return item.id
 			elif column == self.TITLE:
 				return item.title
+			elif column == self.IMAGE_THUMB:
+				return item.data_ref.url if item.data_ref else None
+			else:
+				return None
 			
 		elif role == QtCore.Qt.TextAlignmentRole:
 			if column == self.ID:
 				return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-			else:
+			elif column == self.TITLE:
 				return int(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+			else:
+				return None
 			
 		else:
 			return None
