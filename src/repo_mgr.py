@@ -34,6 +34,7 @@ import shutil
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 import datetime
+from sqlalchemy.exc import ResourceClosedError
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -150,7 +151,15 @@ class UnitOfWork(object):
                 1
             group by t.name
             ORDER BY t.name'''
-            return self._session.query("name", "c").from_statement(sql).all()
+            
+            #Здесь пришлось вставлять этот try..except, т.к. иначе пустой список (если нет связанных тегов)
+            #не возвращается, а вылетает ResourceClosedError. Не очень удобно, однако. 
+            try:
+                return self._session.query("name", "c").from_statement(sql).all()
+            except ResourceClosedError as ex:
+                return []
+            
+            
         else:                
             #Сначала нужно получить список id-шников для всех имен тегов
             sql = '''--get_related_tags(): getting list of id for all selected tags
@@ -199,8 +208,11 @@ class UnitOfWork(object):
                 ) ''' + where + '''            
                 --Важно, чтобы эти id-шники следовали по возрастанию
             group by t.name
-            ORDER BY t.name'''            
-            return self._session.query("name", "c").from_statement(sql).all()
+            ORDER BY t.name'''
+            try:            
+                return self._session.query("name", "c").from_statement(sql).all()
+            except ResourceClosedError as ex:
+                return []
     
     def get_item(self, id):
         '''Возвращает detached-объект класса Item, с заданным значением id. '''

@@ -129,7 +129,8 @@ class MainWindow(QtGui.QMainWindow):
 		
 	def query_reset(self):
 		self.ui.lineEdit_query.setText("")
-		self.model.query("")
+		if self.model:
+			self.model.query("")
 		self.ui.tag_cloud.reset()
 		
 		
