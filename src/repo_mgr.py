@@ -286,7 +286,8 @@ class UnitOfWork(object):
 
     def login_user(self, login, password):
         '''
-    	password - это SHA1 hexdigest() хеш.
+    	password - это SHA1 hexdigest() хеш. В случае неверного логина или пароля, 
+    	выкидывается LoginError.
     	'''
         user = self._session.query(User).get(login)
         if user is None:

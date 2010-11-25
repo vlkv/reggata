@@ -97,14 +97,11 @@ class MainWindow(QtGui.QMainWindow):
 		
 		#Открываем последнее хранилище, с которым работал пользователь
 		try:
-			tmp = UserConfig().get("recent_repo.base_path")
-			if tmp:
-				self.active_repo = RepoMgr(tmp)
-				
-				#Пробуем залогиниться
-				self._login_recent_user()
+			tmp = UserConfig()["recent_repo.base_path"]
+			self.active_repo = RepoMgr(tmp)
+			self._login_recent_user()
 		except:
-			pass
+			print(self.tr("Cannot open/login recent repository."))
 		
 		#В третьей колонке отображаем миниатюры изображений
 		self.ui.tableView_items.setItemDelegateForColumn(2, ImageThumbDelegate())
@@ -140,11 +137,19 @@ class MainWindow(QtGui.QMainWindow):
 		
 	
 	def _login_recent_user(self):
-		#Пробуем выполнить вход под логином/паролем последнего юзера
+		'''Функция пробует выполнить вход в текущее хранилище под логином/паролем последнего юзера.
+		Если что не так, данная функция выкидывает исключение.'''
+		
+		if self.active_repo is None:
+			raise MsgException(self.tr("You cannot login because there is no opened repo."))
+		
+		login = UserConfig().get("recent_user.login")
+		password = UserConfig().get("recent_user.password")
+		#login и password могут оказаться равны None (если не найдены). 
+		#Это значит, что uow.login_user() выкинет LoginError
+		
+		uow = self.active_repo.createUnitOfWork()
 		try:
-			login = UserConfig().get("recent_user.login")
-			password = UserConfig().get("recent_user.password")
-			uow = self.active_repo.createUnitOfWork()
 			self.active_user = uow.login_user(login, password)
 		finally:
 			uow.close()
@@ -193,6 +198,7 @@ class MainWindow(QtGui.QMainWindow):
 			#Запоминаем путь к хранилищу
 			UserConfig().store("recent_repo.base_path", repo.base_path)
 				
+			#Отображаем в статус-баре имя хранилища
 			#Если путь оканчивается на os.sep то os.path.split() возвращает ""
 			(head, tail) = os.path.split(repo.base_path)
 			while tail == "" and head != "":

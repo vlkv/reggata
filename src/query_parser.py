@@ -168,6 +168,8 @@ class TagsConjunction(QueryExpression):
     
             
     def interpret(self):
+        
+        #yes_tags_str, group_by_having
         group_by_having = ""
         if len(self.yes_tags) > 0:
             yes_tags_str = helpers.to_commalist(self.yes_tags, lambda x: "t.name='" + x.interpret() + "'", " or ")
@@ -177,13 +179,14 @@ class TagsConjunction(QueryExpression):
         else:
             yes_tags_str = " 1 "
             
-        
+        #extras_users_str
         if len(self.extras_users) > 0:
             comma_list = helpers.to_commalist(self.extras_users, lambda x: "'" + x.interpret() + "'", ", ") 
             extras_users_str = " it.user_login IN (" + comma_list + ") "
         else:
             extras_users_str = " 1 "
         
+        #no_tags_str
         if len(self.no_tags) > 0:
             no_tags_str = " i.id NOT IN (select i.id from items i " + \
             " left join items_tags it on i.id = it.item_id " + \
@@ -192,6 +195,10 @@ class TagsConjunction(QueryExpression):
             extras_users_str + ") "
         else:
             no_tags_str = " 1 "
+        
+        
+        #thumbnails_str
+        thumbnails_str = "th.size = "
         
         
         #Данный запрос будет попутно извлекать информацию о 
