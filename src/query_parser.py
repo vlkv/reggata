@@ -217,7 +217,7 @@ class TagsConjunction(QueryExpression):
             dr.id as data_refs_id, dr.url as data_refs_url, dr.type as data_refs_type, 
             dr.hash as data_refs_hash, dr.date_hashed as data_refs_date_hashed, 
             dr.size as data_refs_size, dr.date_created as data_refs_date_created, 
-            dr.user_login as data_refs_user_login
+            dr.user_login as data_refs_user_login,
             --
             th.data_ref_id as thumbnails_data_ref_id,
             th.size as thumbnails_size,

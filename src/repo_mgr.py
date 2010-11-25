@@ -238,7 +238,7 @@ class UnitOfWork(object):
     def query_items_by_sql(self, sql):
         print(sql)
         items = self._session.query(Item).\
-            options(contains_eager("data_ref", "data_ref.thumbnails")).\
+            options(contains_eager(Item.data_ref, DataRef.thumbnails)).\
             from_statement(sql).all()
         
         #Выше использовался joinedload, поэтому по идее следующий цикл
