@@ -138,21 +138,22 @@ class Tag(QueryExpression):
 class TagsConjunction(QueryExpression):
     '''
     Конъюнкция тегов или их отрицаний, например:
-    Тег1 И Тег2 И НЕ Тег3
+    "Книга И Программирование И НЕ Проектирование"
     
-    SQL запрос:
+    Реализация такого запроса на SQL:
     
     select * from items i 
     left join items_tags it on i.id = it.item_id
     left join tags t on t.id = it.tag_id
     where
-        (t.name='Книга' or t.name='Программирование')
-        and i.id NOT IN (select i.id from items i 
+        (t.name='Книга' or t.name='Программирование')    --yes_tags_str
+        
+        and i.id NOT IN (select i.id from items i        --no_tags_str
         left join items_tags it on i.id = it.item_id 
         left join tags t on t.id = it.tag_id
         where t.name='Проектирование')
-    group by i.id 
-    having count(*)=2
+        
+        group by i.id having count(*)=2                  --group_by_having
     '''    
     
     def __init__(self):
@@ -164,53 +165,39 @@ class TagsConjunction(QueryExpression):
         self.extras_paths = []
         self.extras_users = []
     
-    @property
-    def tags(self):
-        return self.yes_tags + self.no_tags
     
-    def add_tag(self, tag):
-        if tag.is_negative:
-            self.no_tags.append(tag)
-        else:
-            self.yes_tags.append(tag)
-            
-    def add_extras(self, ext):
-        if ext.type == 'USER':
-            self.extras_users.append(ext)
-        elif ext.type == 'PATH':
-            self.extras_paths.append(ext)
-        else:
-            raise Exception(tr("Unexpected type of extras {}").format(str(ext.type)))
             
     def interpret(self):
         group_by_having = ""
-        if len(self.yes_tags) > 0:            
-            yes_tags_str = "(" + helpers.to_commalist(self.yes_tags, lambda x: "t.name='" + x.interpret() + "'", ' or ') + ")"
+        if len(self.yes_tags) > 0:
+            yes_tags_str = helpers.to_commalist(self.yes_tags, lambda x: "t.name='" + x.interpret() + "'", " or ")
             
             if len(self.yes_tags) > 1:
-                group_by_having = '''group by i.id having count(*)={} '''.format(len(self.yes_tags))            
+                group_by_having = " group by i.id having count(*)={} ".format(len(self.yes_tags))
         else:
             yes_tags_str = " 1 "
             
         
         if len(self.extras_users) > 0:
-            extras_users_str = "and (it.user_login IN (" + helpers.to_commalist(self.extras_users, lambda x: "'" + x.interpret() + "'", ", ") + ")) "
+            comma_list = helpers.to_commalist(self.extras_users, lambda x: "'" + x.interpret() + "'", ", ") 
+            extras_users_str = " it.user_login IN (" + comma_list + ") "
         else:
-            extras_users_str = ""
+            extras_users_str = " 1 "
         
-        if len(self.no_tags) > 0:    
-            no_tags_str = ''' and i.id NOT IN (select i.id from items i  
-            left join items_tags it on i.id = it.item_id  
-            left join tags t on t.id = it.tag_id 
-            where (''' + helpers.to_commalist(self.no_tags, lambda x: "t.name='" + x.interpret() + "'", ' or ') + ''')
-            ''' + extras_users_str + ") "
+        if len(self.no_tags) > 0:
+            no_tags_str = " i.id NOT IN (select i.id from items i " + \
+            " left join items_tags it on i.id = it.item_id " + \
+            " left join tags t on t.id = it.tag_id " + \
+            " where (" + helpers.to_commalist(self.no_tags, lambda x: "t.name='" + x.interpret() + "'", " or ") + ") " + \
+            extras_users_str + ") "
         else:
-            no_tags_str = "" 
+            no_tags_str = " 1 "
         
         
         #Данный запрос будет попутно извлекать информацию о 
         #связанных с элементами объектов DataRef
-        s = '''--TagsConjunction.interpret() function
+        s = '''
+        --TagsConjunction.interpret() function
         select distinct 
             i.*,             
             dr.id AS data_refs_id, 
@@ -231,15 +218,35 @@ class TagsConjunction(QueryExpression):
         left outer join tags t on t.id = it.tag_id
         left outer join data_refs dr on dr.id = i.data_ref_id
         left outer join thumbnails th on th.data_ref_id = dr.id  
-            where ''' + yes_tags_str + ''' 
-            ''' + extras_users_str + '''
-            ''' + no_tags_str + '''
+            where (''' + yes_tags_str + ''') 
+            and (''' + extras_users_str + ''') 
+            and (''' + no_tags_str + ''') 
             ''' + group_by_having
-        
-        
+        #!!! Тут будет ошибка, если у data_ref-а будет более одной миниатюры!!!
+                
         #TODO сделать интерпретацию для токенов PATH            
             
         return s
+    
+    @property
+    def tags(self):
+        return self.yes_tags + self.no_tags
+    
+    def add_tag(self, tag):
+        if tag.is_negative:
+            self.no_tags.append(tag)
+        else:
+            self.yes_tags.append(tag)
+            
+    def add_extras(self, ext):
+        if ext.type == 'USER':
+            self.extras_users.append(ext)
+        elif ext.type == 'PATH':
+            self.extras_paths.append(ext)
+        else:
+            raise Exception(tr("Unexpected type of extras {}").format(str(ext.type)))
+        
+        
         
 class Extras(QueryExpression):
     type = None
