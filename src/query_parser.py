@@ -25,6 +25,8 @@ import ply.lex as lex
 import helpers
 from helpers import tr
 import re
+from user_config import UserConfig
+from db_model import Thumbnail
 
 AND_OPERATOR = tr('and')
 OR_OPERATOR = tr('or')
@@ -198,7 +200,7 @@ class TagsConjunction(QueryExpression):
         
         
         #thumbnails_str
-        thumbnails_str = "th.size = "
+        thumbnails_str = "th.size = {} ".format(UserConfig().get("thumbnails.size", 150))
         
         
         #Данный запрос будет попутно извлекать информацию о 
@@ -224,12 +226,13 @@ class TagsConjunction(QueryExpression):
         left outer join items_tags it on i.id = it.item_id 
         left outer join tags t on t.id = it.tag_id
         left outer join data_refs dr on dr.id = i.data_ref_id
-        left outer join thumbnails th on th.data_ref_id = dr.id  
+        left outer join thumbnails th on th.data_ref_id = dr.id and ''' + thumbnails_str + '''
             where (''' + yes_tags_str + ''') 
             and (''' + extras_users_str + ''') 
-            and (''' + no_tags_str + ''') 
+            and (''' + no_tags_str + ''')
             ''' + group_by_having
         #!!! Тут будет ошибка, если у data_ref-а будет более одной миниатюры!!!
+        #Поэтому нужно указывать в запросе точно какой размер thumbnail-ов необходим.
                 
         #TODO сделать интерпретацию для токенов PATH            
             
