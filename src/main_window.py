@@ -443,8 +443,8 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 				return item.id
 			elif column == self.TITLE:
 				return item.title
-			elif column == self.IMAGE_THUMB:
-				return self.repo.base_path + os.sep + item.data_ref.url if item.data_ref else None
+#			elif column == self.IMAGE_THUMB:
+#				return self.repo.base_path + os.sep + item.data_ref.url if item.data_ref else None
 			else:
 				return None
 			

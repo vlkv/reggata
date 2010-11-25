@@ -238,13 +238,17 @@ class UnitOfWork(object):
     def query_items_by_sql(self, sql):
         print(sql)
         items = self._session.query(Item).\
-            options(contains_eager(Item.data_ref, DataRef.thumbnails)).\
+            options(contains_eager("data_ref", "thumbnails")).\
             from_statement(sql).all()
+            
+        #            options(contains_eager(Item.data_ref, DataRef.thumbnails)).\
         
         #Выше использовался joinedload, поэтому по идее следующий цикл
         #не должен порождать новые SQL запросы
         for item in items:
             item.data_ref
+            for thumbnail in item.data_ref.thumbnails:
+                thumbnail
         
         return items
     
