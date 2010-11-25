@@ -199,20 +199,20 @@ class TagsConjunction(QueryExpression):
         s = '''
         --TagsConjunction.interpret() function
         select distinct 
-            i.*,             
-            dr.id AS data_refs_id, 
-            dr.url AS data_refs_url, 
-            dr.type AS data_refs_type, 
-            dr.hash AS data_refs_hash, 
-            dr.date_hashed AS data_refs_date_hashed, 
-            dr.size AS data_refs_size, 
-            dr.date_created AS data_refs_date_created, 
-            dr.user_login AS data_refs_user_login,
-            th.data_ref_id AS thumbnails_data_ref_id, 
-            th.size AS thumbnails_size, 
-            th.dimension AS thumbnails_dimension, 
-            th.data AS thumbnails_data, 
-            th.date_created AS thumbnails_date_created 
+            i.*,
+            dr.id AS dr_id, 
+            dr.url AS dr_url, 
+            dr.type AS dr_type, 
+            dr.hash AS dr_hash, 
+            dr.date_hashed AS dr_date_hashed, 
+            dr.size AS dr_size, 
+            dr.date_created AS dr_date_created, 
+            dr.user_login AS dr_user_login,
+            th.data_ref_id AS th_data_ref_id, 
+            th.size AS th_size, 
+            th.dimension AS th_dimension, 
+            th.data AS th_data, 
+            th.date_created AS th_date_created 
         from items i 
         left outer join items_tags it on i.id = it.item_id 
         left outer join tags t on t.id = it.tag_id
