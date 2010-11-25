@@ -379,6 +379,12 @@ class ImageThumbDelegate(QtGui.QAbstractItemDelegate):
 		return QtCore.QSize(option.rect)
    
 	def paint(self, painter, option, index):
+		
+		
+		model = index.model()
+		item = model.items[index.row()]
+		print("title = " + item.title)
+		
 		image = QtGui.QImage(index.data())
 		if image:
 		    painter.drawImage(option.rect, image)

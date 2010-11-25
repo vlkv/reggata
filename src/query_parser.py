@@ -213,14 +213,22 @@ class TagsConjunction(QueryExpression):
         s = '''--TagsConjunction.interpret() function
         select distinct 
             i.id, i.title, i.notes, i.user_login, i.date_created, i.data_ref_id, 
+            --
             dr.id as data_refs_id, dr.url as data_refs_url, dr.type as data_refs_type, 
             dr.hash as data_refs_hash, dr.date_hashed as data_refs_date_hashed, 
             dr.size as data_refs_size, dr.date_created as data_refs_date_created, 
-            dr.user_login as data_refs_user_login 
+            dr.user_login as data_refs_user_login
+            --
+            th.data_ref_id as thumbnails_data_ref_id,
+            th.size as thumbnails_size,
+            th.dimension as thumbnails_dimension,
+            th.data as thumbnails_data,
+            th.date_created as thumbnails_date_created
         from items i 
         left join items_tags it on i.id = it.item_id 
         left join tags t on t.id = it.tag_id
-        left join data_refs dr on dr.id = i.data_ref_id  
+        left join data_refs dr on dr.id = i.data_ref_id
+        left join thumbnails th on th.data_ref_id = dr.id  
             where ''' + yes_tags_str + ''' 
             ''' + extras_users_str + '''
             ''' + no_tags_str + '''
