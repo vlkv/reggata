@@ -35,6 +35,7 @@ import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 import datetime
 from sqlalchemy.exc import ResourceClosedError
+from sqlalchemy.sql.expression import select
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -237,18 +238,41 @@ class UnitOfWork(object):
     
     def query_items_by_sql(self, sql):
         print(sql)
+        
+        data_refs = Base.metadata.tables['data_refs']
+        thumbnails = Base.metadata.tables['thumbnails']
+        
+        eager_columns = select([
+                    data_refs.c.id.label('data_refs_id'),
+                    data_refs.c.url.label('data_refs_url'),
+                    data_refs.c.type.label('data_refs_type'),
+                    data_refs.c.hash.label('data_refs_hash'),
+                    data_refs.c.date_hashed.label('data_refs_date_hashed'),
+                    data_refs.c.size.label('data_refs_size'),
+                    data_refs.c.date_created.label('data_refs_date_created'),
+                    data_refs.c.user_login.label('data_refs_user_login'),
+                    thumbnails.c.data_ref_id.label('thumbnails_data_ref_id'),
+                    thumbnails.c.size.label('thumbnails_size'),
+                    thumbnails.c.dimension.label('thumbnails_dimension'),
+                    thumbnails.c.data.label('thumbnails_data'),
+                    thumbnails.c.date_created.label('thumbnails_date_created'),
+                    ])
+                    
         items = self._session.query(Item).\
-            options(contains_eager("data_ref", "thumbnails")).\
+            options(contains_eager("data_ref"), contains_eager("data_ref.thumbnails")).\
             from_statement(sql).all()
             
+#            options(contains_eager(("data_ref", "thumbnails"), alias=eager_columns)).\
         #            options(contains_eager(Item.data_ref, DataRef.thumbnails)).\
         
         #Выше использовался joinedload, поэтому по идее следующий цикл
         #не должен порождать новые SQL запросы
-        for item in items:
-            item.data_ref
-            for thumbnail in item.data_ref.thumbnails:
-                thumbnail
+#        for item in items:
+#            item.data_ref
+#            for thumbnail in item.data_ref.thumbnails:
+#                thumbnail
+#        
+        self._session.expunge_all()
         
         return items
     

@@ -384,7 +384,7 @@ class ImageThumbDelegate(QtGui.QAbstractItemDelegate):
 		
 		model = index.model()
 		item = model.items[index.row()]
-		print("title = " + item.title)
+		print("url = " + item.data_ref.url)
 		
 		image = QtGui.QImage(index.data())
 		if image:
@@ -392,7 +392,6 @@ class ImageThumbDelegate(QtGui.QAbstractItemDelegate):
     
 	    #TODO Нужно кешировать сгенерированные миниматюры
 	    #Потому что так как сейчас --- очень неэффективно и медленно! 
-    	
 
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
