@@ -27,6 +27,7 @@ from helpers import tr
 import re
 from user_config import UserConfig
 from db_model import Thumbnail
+import consts
 
 AND_OPERATOR = tr('and')
 OR_OPERATOR = tr('or')
@@ -200,7 +201,7 @@ class TagsConjunction(QueryExpression):
         
         
         #thumbnails_str
-        thumbnails_str = "th.size = {} ".format(UserConfig().get("thumbnails.size", 150))
+        thumbnails_str = "th.size = {} ".format(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE))
         
         
         #Данный запрос будет попутно извлекать информацию о 
