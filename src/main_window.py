@@ -465,7 +465,9 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 					#Запоминаем в ОП
 					self.thumbs[item.data_ref.id] = pixmap
 					
-					#TODO Надо бы еще сохранять миниатюру в БД..					
+					#TODO Надо бы еще сохранять миниатюру в БД..
+					#Потому, что если результат запроса будет содержать много элементов (графических файлов)
+					#то будет жутко тормозить каждый раз
 					return pixmap
 			
 		elif role == QtCore.Qt.TextAlignmentRole:

@@ -221,7 +221,7 @@ class Thumbnail(Base):
     dimension = sqa.Column(sqa.Enum("WIDTH", "HEIGHT"), nullable=False)
     
     #Двоичные данные изображения миниатюры
-    data = sqa.Column(sqa.Binary)
+    data = sqa.Column(sqa.LargeBinary)
     
     #Дата создания миниатюры
     #Если Thumbnail.date_created будет новее, чем DataRef.date_hashed, 
