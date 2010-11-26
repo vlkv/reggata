@@ -444,15 +444,17 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		if role == QtCore.Qt.DisplayRole:
 			if column == self.ID:
 				return item.id
+			
 			elif column == self.TITLE:
 				return item.title
+			
 			elif column == self.IMAGE_THUMB:
-				print("DisplayRole IMAGE_THUMB")
-				
 				if self.thumbs.get(item.data_ref.id):
 					#Если в ОП уже загружена миниатюра
 					return self.thumbs.get(item.data_ref.id)
-				elif item.data_ref.url.endswith(".jpg"):
+				
+				elif item.data_ref.is_image():
+					#Загружаем изображение в ОП и масштабируем его до размера миниатюры
 					image = QtGui.QImage(self.repo.base_path + os.sep + item.data_ref.url)
 					pixmap = QtGui.QPixmap.fromImage(image)
 					if (pixmap.height() > pixmap.width()):
@@ -466,11 +468,6 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 					#TODO Надо бы еще сохранять миниатюру в БД..					
 					return pixmap
 			
-		elif role == QtCore.Qt.DisplayRole:
-			if column == self.IMAGE_THUMB:
-				pass
-
-		
 		elif role == QtCore.Qt.TextAlignmentRole:
 			if column == self.ID:
 				return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)

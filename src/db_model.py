@@ -25,8 +25,9 @@ import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey, ForeignKeyConstraint
-from helpers import tr
+from helpers import tr, is_none_or_empty
 import datetime
+import os
 
 
 Base = declarative_base()
@@ -139,6 +140,11 @@ class DataRef(Base):
     #для объектов 'URL' --- это непосредственно url-ссылка
     url = sqa.Column(sqa.String, nullable=False, unique=True)
     
+    #TODO Возможно имеет смысл для объектов типа FILE отдельно хранить путь и базовое имя файла.
+    #Это может пригодиться для поиска файлов по его физическому имени (т.к. так как сейчас
+    #если искать наподобие data_ref.url LIKE '%something%' то поиск будет выдавать совпадения,
+    #если совпадает имя директории на пути к файлу.
+    
     #Тип объекта DataRef
     #TODO Добавить тип ZIP (архив), а также можно добавить тип DIR (директория)
     type = sqa.Column(sqa.Enum("FILE", "URL"), nullable=False)
@@ -177,7 +183,24 @@ class DataRef(Base):
         self.type = type
         self.dst_path = None
         self.orig_url = None
+        
+    def is_image(self):
+        '''Возвращает True, если данный DataRef объект имеет тип FILE и ссылается
+        на растровое графическое изображение, одного из поддерживаемых форматов.
+        Проверка основана на сравнении расширения файла со списком расширений поддерживаемых
+        форматов.'''
+        supported = set([".bmp", ".gif", ".jpg", ".jpeg", ".png", ".pbm", ".pgm", ".ppm", ".xbm", ".xpm"])
+        if self.type and self.type == "FILE" and not is_none_or_empty(self.url):
+            
+            root, ext = os.path.splitext(self.url.lower())
+            if ext in supported:
+                return True
+        
+        return False
+            
+        
     
+#TODO Нужно еще подумать, сильно ли нужен данный класс... Хотя в будущем я думаю, что все-таки нужен
 class Thumbnail(Base):
     '''
     Миниатюра изображения графического файла, сама ссылка на файл хранится в DataRef.
