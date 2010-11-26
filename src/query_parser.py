@@ -26,7 +26,6 @@ import helpers
 from helpers import tr
 import re
 from user_config import UserConfig
-from db_model import Thumbnail
 import consts
 
 AND_OPERATOR = tr('and')

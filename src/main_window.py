@@ -511,6 +511,7 @@ if __name__ == '__main__':
 	
 	app = QtGui.QApplication(sys.argv)
 	
+	#TODO Сделать выбор языка либо через конфиг файл reggata.conf, либо через Меню->Опции->Язык
 	qtr = QtCore.QTranslator()
 	if qtr.load("reggata_ru.qm", ".."):
 		app.installTranslator(qtr)
@@ -520,20 +521,3 @@ if __name__ == '__main__':
 	form = MainWindow()
 	form.show()
 	app.exec_()
-
-#	path = '../test.sqlite'
-#	if os.path.isfile(path):
-#		conn = sqlite3.connect(path)
-#		try:
-#			c = conn.cursor()
-#			c.execute('''insert into "data"
-#				  (uri, size) values ('path_to_file 4', '10243434')''')
-#			conn.commit()
-#			c.close()
-#		except:
-#			print 'error: ', sys.exc_info()
-#		finally:
-#			conn.close()
-#
-#	else:
-#		print 'file not found ', path
