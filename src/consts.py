@@ -32,3 +32,4 @@ USER_CONFIG_DIR = os.path.expanduser("~") + os.sep + ".config" + os.sep + "regga
 REGGATA_INI = "reggata.ini"
 USER_CONFIG_FILE = USER_CONFIG_DIR + os.sep + REGGATA_INI
 
+THUMBNAIL_DEFAULT_SIZE = 100
