@@ -106,15 +106,23 @@ class MainWindow(QtGui.QMainWindow):
 		#В третьей колонке отображаем миниатюры изображений
 		self.ui.tableView_items.setItemDelegateForColumn(2, ImageThumbDelegate())
 		
-		#Восстанавливаем размер окна, как был раньше
+		#Пытаемся восстанавливить размер окна, как был при последнем запуске
 		try:
-			width = int(UserConfig().get("main_window.width"))
-			height = int(UserConfig().get("main_window.height"))
+			width = int(UserConfig().get("main_window.width", 640))
+			height = int(UserConfig().get("main_window.height", 480))
 			self.resize(width, height)
 		except:
 			pass
 		
+		#Делаем так, чтобы размер окна сохранялся при изменении
+		self.save_state_timer = QtCore.QTimer(self)
+		self.save_state_timer.setSingleShot(True)
+		self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_main_window_state)
 		
+		#Восстанавливаем размер облака тегов
+		self.ui.tag_cloud.hint_height = int(UserConfig().get("main_window.tag_cloud.height", 100))
+		self.ui.tag_cloud.hint_width = int(UserConfig().get("main_window.tag_cloud.width", 100))
+		self.connect(self.ui.tag_cloud, QtCore.SIGNAL("maySaveSize"), self.save_main_window_state)
 		
 
 	def reset_tag_cloud(self):
@@ -129,14 +137,16 @@ class MainWindow(QtGui.QMainWindow):
 			text = text + query_parser.NOT_OPERATOR + " " + tag + " "
 		text = self.ui.lineEdit_query.setText(text)
 		self.query_exec()
+	
+	def save_main_window_state(self):
+		#Тут нужно сохранить в конфиге пользователя размер окна
+		UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
+		UserConfig().storeAll({"main_window.tag_cloud.width":self.ui.tag_cloud.hint_width, "main_window.tag_cloud.height":self.ui.tag_cloud.hint_height})
 		
+		self.ui.statusbar.showMessage(self.tr("Main window state has saved."), 5000)
 		
 	def resizeEvent(self, resize_event):
-		#Тут нужно сохранить в конфиге пользователя размер
-		UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
-		
-		#TODO как-то очень неоптимально это сохраняется... очень много раз перезаписывается конфиг файл!!!
-		
+		self.save_state_timer.start(3000) #Повторный вызов start() делает перезапуск таймера 
 			
 		
 	def query_reset(self):

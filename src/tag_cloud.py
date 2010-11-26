@@ -35,15 +35,39 @@ class TagCloud(QtGui.QTextEdit):
     
     _repo = None
         
+    hint_width = None
+    hint_height = None
     
     def __init__(self, parent=None, repo=None):
         super(TagCloud, self).__init__(parent)
         self.setMouseTracking(True)
         self.setReadOnly(True)
-        self.tags = set() #Выбранные теги        
+        self.tags = set() #Выбранные теги
         self.not_tags = set() #Выбранные отрицания тегов
-        self.repo = repo        
+        self.repo = repo
         
+        #Значения по умолчанию
+        self.hint_width = 320
+        self.hint_height = 240
+        
+        #Таймер для задержки отправки сигнала maySaveSize
+        self.save_state_timer = QtCore.QTimer(self)
+        self.save_state_timer.setSingleShot(True)
+        self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), lambda: self.emit(QtCore.SIGNAL("maySaveSize")))
+    
+    
+    def resizeEvent(self, resize_event):
+        self.hint_width = self.width()
+        self.hint_height = self.height()
+        self.save_state_timer.start(3000)
+        #Через три секунды будет отправлен сигнал главному окну, чтобы оно 
+        #сохранило размер облака тегов
+        
+        return super(TagCloud, self).resizeEvent(resize_event)
+        
+        
+    def sizeHint(self):
+        return QtCore.QSize(self.hint_width, self.hint_height)
     
     def add_user(self, user_login):
         self._users.add(user_login)
