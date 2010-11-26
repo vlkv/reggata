@@ -77,9 +77,8 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.ui.action_user_logout, QtCore.SIGNAL("triggered()"), self.action_user_logout)
 		self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
 		self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
-		self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
-		
-		
+		self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)		
+
 		#Добавляем на статус бар поля для отображения текущего хранилища и пользователя
 		self.ui.label_repo = QtGui.QLabel()
 		self.ui.label_user = QtGui.QLabel()
@@ -108,6 +107,17 @@ class MainWindow(QtGui.QMainWindow):
 		
 		#В третьей колонке отображаем миниатюры изображений
 		self.ui.tableView_items.setItemDelegateForColumn(2, ImageThumbDelegate())
+		
+		#Восстанавливаем размер окна, как был раньше
+		try:
+			width = int(UserConfig().get("main_window.width"))
+			height = int(UserConfig().get("main_window.height"))
+			self.resize(width, height)
+		except:
+			pass
+		
+		
+		
 
 	def reset_tag_cloud(self):
 		self.ui.tag_cloud.reset()
@@ -123,7 +133,11 @@ class MainWindow(QtGui.QMainWindow):
 		self.query_exec()
 		
 		
+	def resizeEvent(self, resize_event):
+		#Тут нужно сохранить в конфиге пользователя размер
+		UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
 		
+		#TODO как-то очень неоптимально это сохраняется... очень много раз перезаписывается конфиг файл!!!
 		
 			
 		
