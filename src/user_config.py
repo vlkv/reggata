@@ -53,8 +53,15 @@ class UserConfig(object):
     def __init__(self):
         pass
     
-    def get(self, key):
+    def __getitem__(self, key):
+        '''Операция [], возвращает значение параметра с ключом key. Если ключ key не существует, то выкидывается исключение.'''
         return self._props[key]
+    
+    def get(self, key, default=None):
+        '''Возвращает значение параметра с ключом key. Если ключа key не существует, то
+        возвращает значение аргумента default. Если default не задан, то его значение по 
+        умолчанию равно None.'''
+        return self._props.get(key, default)
     
     def store(self, key, value):
         self._props[key] = str(value)

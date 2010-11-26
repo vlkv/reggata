@@ -25,8 +25,9 @@ import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey, ForeignKeyConstraint
-from helpers import tr
+from helpers import tr, is_none_or_empty
 import datetime
+import os
 
 
 Base = declarative_base()
@@ -134,25 +135,43 @@ class DataRef(Base):
     __tablename__ = "data_refs"
     
     id = sqa.Column(sqa.Integer, primary_key=True)
-    url = sqa.Column(sqa.String, nullable=False, unique=True)
-    type = sqa.Column(sqa.Enum("FILE", "URL"), nullable=False)
-    hash = sqa.Column(sqa.String)
-    date_hashed = sqa.Column(sqa.DateTime)
-    size = sqa.Column(sqa.Integer)
-    date_created = sqa.Column(sqa.DateTime)
-    user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
     
+    #Локатор ресурса. Для объектов типа 'FILE' это путь к файлу внутри хранилища
+    #для объектов 'URL' --- это непосредственно url-ссылка
+    url = sqa.Column(sqa.String, nullable=False, unique=True)
+    
+    #TODO Возможно имеет смысл для объектов типа FILE отдельно хранить путь и базовое имя файла.
+    #Это может пригодиться для поиска файлов по его физическому имени (т.к. так как сейчас
+    #если искать наподобие data_ref.url LIKE '%something%' то поиск будет выдавать совпадения,
+    #если совпадает имя директории на пути к файлу.
+    
+    #Тип объекта DataRef
+    #TODO Добавить тип ZIP (архив), а также можно добавить тип DIR (директория)
+    type = sqa.Column(sqa.Enum("FILE", "URL"), nullable=False)
+    
+    #Хеш (md5 или sha1) от содержимого файла. Для объектов DataRef имеющих тип type отличный от 'FILE' равен NULL
+    hash = sqa.Column(sqa.String)
+    
+    #Дата/время вычисления хеша hash. Если date_hashed < даты последней модификации физического файла, то хеш нужно пересчитать
+    date_hashed = sqa.Column(sqa.DateTime)
+    
+    #Размер физического файла на диске (для объектов типа 'FILE', для остальных NULL)
+    size = sqa.Column(sqa.Integer)    
+    
+    #Это дата создания объекта DataRef в БД (не имеет ничего общего с датой создания файла на ФС)
+    date_created = sqa.Column(sqa.DateTime)
+    
+    #Пользователь-владелец данного объекта (обычно тот, кто его создал)
+    user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
+        
     user = relationship(User)
+    
+    thumbnails = relationship("Thumbnail")
 
     #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
-    #их необходимо скопировать.
+    #их необходимо скопировать. Данное поле в БД не сохраняется.
     dst_path = None
     
-    #При добавлении объекта DataRef в хранилище путь к внешнему файлу превращается в 
-    #относительный путь внутри хранилища. Однако потом после добавления объекта в БД
-    #нужно скопировать физический файл внутрь хранилища. Данное поле хранит первоначальный
-    #абсолютный адрес файла
-#    orig_url = None
 
     def __init__(self, url=None, date_created=None, type=None):
         self.url = url
@@ -164,8 +183,64 @@ class DataRef(Base):
         self.type = type
         self.dst_path = None
         self.orig_url = None
-    
         
+    def is_image(self):
+        '''Возвращает True, если данный DataRef объект имеет тип FILE и ссылается
+        на растровое графическое изображение, одного из поддерживаемых форматов.
+        Проверка основана на сравнении расширения файла со списком расширений поддерживаемых
+        форматов.'''
+        supported = set([".bmp", ".gif", ".jpg", ".jpeg", ".png", ".pbm", ".pgm", ".ppm", ".xbm", ".xpm"])
+        if self.type and self.type == "FILE" and not is_none_or_empty(self.url):
+            
+            root, ext = os.path.splitext(self.url.lower())
+            if ext in supported:
+                return True
+        
+        return False
+            
+        
+    
+#TODO Нужно еще подумать, сильно ли нужен данный класс... Хотя в будущем я думаю, что все-таки нужен
+class Thumbnail(Base):
+    '''
+    Миниатюра изображения графического файла, сама ссылка на файл хранится в DataRef.
+    
+    TODO: Кстати, миниатюры можно добавлять не только для графических файлов.
+    Если DataRef указывает на книгу в формате pdf, то миниатюра может содержать 
+    изображение титульного листа книги (причем не обязательно очень маленького разрешения).
+    Для mp3 файла это может быть обложка диска альбома и т.п.
+    '''
+    __tablename__ = "thumbnails"
+    
+    data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"), primary_key=True)
+    
+    #Размер в пикселях миниатюры (это величина наибольшей размерности)
+    size = sqa.Column(sqa.Integer, primary_key=True)
+    
+    #Размерность (ширина или высота), размер которой записан в size
+    dimension = sqa.Column(sqa.Enum("WIDTH", "HEIGHT"), nullable=False)
+    
+    #Двоичные данные изображения миниатюры
+    data = sqa.Column(sqa.LargeBinary)
+    
+    #Дата создания миниатюры
+    #Если Thumbnail.date_created будет новее, чем DataRef.date_hashed, 
+    #то это повод для обновления миниатюры
+    date_created = sqa.Column(sqa.DateTime)
+    
+    #Логическое поле, определяющее, следует ли автоматически обновлять миниатюру
+    #auto_updated = sqa.Column(sqa.Boolean, default=True)
+    
+    
+    data_ref = relationship(DataRef)
+    
+    def __init__(self):
+        self.data_ref_id = None
+        self.size = None        
+        self.data = None
+        
+    
+    
 class Tag(Base):
     '''
     Тег (ключевое слово), описывающий элементы хранилища.

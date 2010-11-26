@@ -28,13 +28,15 @@ from helpers import tr, to_commalist, is_none_or_empty, index_of, is_internal,\
 import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker, joinedload, contains_eager
-from db_model import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field
+from db_model import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
+    Thumbnail
 from exceptions import LoginError, AccessError
 import shutil
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 import datetime
 from sqlalchemy.exc import ResourceClosedError
+from sqlalchemy.sql.expression import select
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -237,12 +239,41 @@ class UnitOfWork(object):
     
     def query_items_by_sql(self, sql):
         print(sql)
-        items = self._session.query(Item).options(contains_eager('data_ref')).from_statement(sql).all()
+        
+        data_refs = Base.metadata.tables[DataRef.__tablename__]
+        thumbnails = Base.metadata.tables[Thumbnail.__tablename__]
+        
+        eager_columns = select([
+                    data_refs.c.id.label('dr_id'),
+                    data_refs.c.url.label('dr_url'),
+                    data_refs.c.type.label('dr_type'),
+                    data_refs.c.hash.label('dr_hash'),
+                    data_refs.c.date_hashed.label('dr_date_hashed'),
+                    data_refs.c.size.label('dr_size'),
+                    data_refs.c.date_created.label('dr_date_created'),
+                    data_refs.c.user_login.label('dr_user_login'),
+                    thumbnails.c.data_ref_id.label('th_data_ref_id'),
+                    thumbnails.c.size.label('th_size'),
+                    thumbnails.c.dimension.label('th_dimension'),
+                    thumbnails.c.data.label('th_data'),
+                    thumbnails.c.date_created.label('th_date_created'),
+                    ])
+                    
+        items = self._session.query(Item).\
+            options(contains_eager("data_ref", alias=eager_columns), contains_eager("data_ref.thumbnails", alias=eager_columns)).\
+            from_statement(sql).all()
+            
+#            options(contains_eager(("data_ref", "thumbnails"), alias=eager_columns)).\
+        #            options(contains_eager(Item.data_ref, DataRef.thumbnails)).\
         
         #Выше использовался joinedload, поэтому по идее следующий цикл
-        #не должен порождать новые SQL запросы            
-        for item in items:
-            item.data_ref
+        #не должен порождать новые SQL запросы
+#        for item in items:
+#            item.data_ref
+#            for thumbnail in item.data_ref.thumbnails:
+#                thumbnail
+
+        self._session.expunge_all()
         
         return items
     
@@ -255,7 +286,8 @@ class UnitOfWork(object):
 
     def login_user(self, login, password):
         '''
-    	password - это SHA1 hexdigest() хеш.
+    	password - это SHA1 hexdigest() хеш. В случае неверного логина или пароля, 
+    	выкидывается LoginError.
     	'''
         user = self._session.query(User).get(login)
         if user is None:

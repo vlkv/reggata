@@ -35,6 +35,7 @@ from user_dialog import UserDialog
 from exceptions import LoginError, MsgException
 import query_parser
 from tag_cloud import TagCloud
+import consts
 
 #TODO Исправить виджеты на ItemDialog-е, вызванные переходом на новую схему БД
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
@@ -96,14 +97,11 @@ class MainWindow(QtGui.QMainWindow):
 		
 		#Открываем последнее хранилище, с которым работал пользователь
 		try:
-			tmp = UserConfig().get("recent_repo.base_path")
-			if tmp:
-				self.active_repo = RepoMgr(tmp)
-				
-				#Пробуем залогиниться
-				self._login_recent_user()
+			tmp = UserConfig()["recent_repo.base_path"]
+			self.active_repo = RepoMgr(tmp)
+			self._login_recent_user()
 		except:
-			pass
+			print(self.tr("Cannot open/login recent repository."))
 		
 		#В третьей колонке отображаем миниатюры изображений
 		self.ui.tableView_items.setItemDelegateForColumn(2, ImageThumbDelegate())
@@ -151,14 +149,23 @@ class MainWindow(QtGui.QMainWindow):
 	def query_exec(self):
 		query_text = self.ui.lineEdit_query.text()
 		self.model.query(query_text)
+		self.ui.tableView_items.resizeRowsToContents()
 		
 	
 	def _login_recent_user(self):
-		#Пробуем выполнить вход под логином/паролем последнего юзера
+		'''Функция пробует выполнить вход в текущее хранилище под логином/паролем последнего юзера.
+		Если что не так, данная функция выкидывает исключение.'''
+		
+		if self.active_repo is None:
+			raise MsgException(self.tr("You cannot login because there is no opened repo."))
+		
+		login = UserConfig().get("recent_user.login")
+		password = UserConfig().get("recent_user.password")
+		#login и password могут оказаться равны None (если не найдены). 
+		#Это значит, что uow.login_user() выкинет LoginError
+		
+		uow = self.active_repo.createUnitOfWork()
 		try:
-			login = UserConfig().get("recent_user.login")
-			password = UserConfig().get("recent_user.password")
-			uow = self.active_repo.createUnitOfWork()
 			self.active_user = uow.login_user(login, password)
 		finally:
 			uow.close()
@@ -207,6 +214,7 @@ class MainWindow(QtGui.QMainWindow):
 			#Запоминаем путь к хранилищу
 			UserConfig().store("recent_repo.base_path", repo.base_path)
 				
+			#Отображаем в статус-баре имя хранилища
 			#Если путь оканчивается на os.sep то os.path.split() возвращает ""
 			(head, tail) = os.path.split(repo.base_path)
 			while tail == "" and head != "":
@@ -388,20 +396,20 @@ class MainWindow(QtGui.QMainWindow):
 
 
 class ImageThumbDelegate(QtGui.QAbstractItemDelegate):
-	'''Делегат, для отображения миниатюры файла-изображения в таблице элементов
+	'''Делегат, для отображения миниатюры графического файла в таблице элементов
 	хранилища.'''
 	def sizeHint(self, option, index):
-		return QtCore.QSize(option.rect)
-   
-	def paint(self, painter, option, index):
-		image = QtGui.QImage(index.data())
-		if image:
-		    painter.drawImage(option.rect, image)
-    
-	    #TODO Нужно кешировать сгенерированные миниматюры
-	    #Потому что так как сейчас --- очень неэффективно и медленно! 
-    	
+		pixmap = index.data()
+		if pixmap:
+			return pixmap.size()
+		else:
+			return QtCore.QSize(option.rect.width(), option.rect.height())
 
+	def paint(self, painter, option, index):
+		pixmap = index.data()
+		if pixmap:
+			painter.drawPixmap(option.rect.topLeft(), pixmap)
+	
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
 	'''Модель таблицы, отображающей элементы хранилища.'''
@@ -414,6 +422,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		super(RepoItemTableModel, self).__init__()
 		self.repo = repo
 		self.items = []
+		self.thumbs = dict()
 		
 	def query(self, query_text):
 		'''Выполняет извлечение элементов из хранилища.'''
@@ -449,23 +458,41 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		if role == QtCore.Qt.DisplayRole:
 			if column == self.ID:
 				return item.id
+			
 			elif column == self.TITLE:
 				return item.title
+			
 			elif column == self.IMAGE_THUMB:
-				return self.repo.base_path + os.sep + item.data_ref.url if item.data_ref else None
-			else:
-				return None
+				if self.thumbs.get(item.data_ref.id):
+					#Если в ОП уже загружена миниатюра
+					return self.thumbs.get(item.data_ref.id)
+				
+				elif item.data_ref.is_image():
+					#Загружаем изображение в ОП и масштабируем его до размера миниатюры
+					image = QtGui.QImage(self.repo.base_path + os.sep + item.data_ref.url)
+					pixmap = QtGui.QPixmap.fromImage(image)
+					if (pixmap.height() > pixmap.width()):
+						pixmap = pixmap.scaledToHeight(int(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)))
+					else:
+						pixmap = pixmap.scaledToWidth(int(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)))
+					
+					#Запоминаем в ОП
+					self.thumbs[item.data_ref.id] = pixmap
+					
+					#TODO Надо бы еще сохранять миниатюру в БД..
+					#Потому, что если результат запроса будет содержать много элементов (графических файлов)
+					#то будет жутко тормозить каждый раз
+					return pixmap
 			
 		elif role == QtCore.Qt.TextAlignmentRole:
 			if column == self.ID:
 				return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 			elif column == self.TITLE:
 				return int(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
-			else:
-				return None
-			
-		else:
-			return None
+		
+		
+		#Во всех остальных случаях возвращаем None	
+		return None
 		
 		
 
