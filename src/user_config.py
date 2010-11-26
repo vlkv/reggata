@@ -57,14 +57,14 @@ class UserConfig(object):
         return self._props[key]
     
     def store(self, key, value):
-        self._props[key] = value
+        self._props[key] = str(value)
         self._props.store(open(consts.USER_CONFIG_FILE, 'w'))
         
     def storeAll(self, d):
         if type(d) != dict:
             raise TypeError("This is not a dict instance.")
         for key in d.keys():
-            self._props[key] = d[key]
+            self._props[key] = str(d[key])
         self._props.store(open(consts.USER_CONFIG_FILE, 'w'))
     
     def refresh(self):
