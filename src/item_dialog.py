@@ -87,6 +87,7 @@ class ItemDialog(QtGui.QDialog):
         for itg in self.item.item_tags:
             s = s + itg.tag.name + " "
         self.ui.plainTextEdit_tags.setPlainText(s)
+        #TODO Некоторые теги надо заключать в кавычки!
         
     
     def write(self):
