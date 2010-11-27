@@ -5,7 +5,7 @@ Created on 27.11.2010
 '''
 import re
 
-
+#TODO Тут ничего не работает!!!
 def escape(string, esc_rules):
     for esc_rule in esc_rules:
         esc_seq, raw_seq = esc_rule

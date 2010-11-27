@@ -23,6 +23,7 @@ Created on 13.11.2010
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from helpers import tr, showExcInfo, DialogMode, scale_value
+from parsers.query_tokens import need_quote
 
 class TagCloud(QtGui.QTextEdit):
     '''
@@ -113,8 +114,14 @@ class TagCloud(QtGui.QTextEdit):
                 
                 text = ""
                 for tag in tags:
-                    font_size = int(scale_value(tag.c, (min, max), (0, 5)))                    
-                    text = text + ' <font size="+{}">'.format(font_size) + tag.name + '</font>'
+                    font_size = int(scale_value(tag.c, (min, max), (0, 5)))
+                    tag_name = tag.name
+                    if need_quote(tag_name):
+                        #TODO нужно как раз применить escape-последовательности 
+                        tag_name = '"' + tag_name + '"'
+                         
+                                            
+                    text = text + ' <font size="+{}">'.format(font_size) + tag_name + '</font>'
                 self.setText(text)
             finally:
                 uow.close()
