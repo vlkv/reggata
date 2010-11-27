@@ -104,7 +104,10 @@ class MainWindow(QtGui.QMainWindow):
 			print(self.tr("Cannot open/login recent repository."))
 		
 		#В третьей колонке отображаем миниатюры изображений
-		self.ui.tableView_items.setItemDelegateForColumn(2, ImageThumbDelegate())
+#		self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate())
+		#Почему-то не получается задать делегата для одной колонки!!!
+		#Поэтому задаем его для всей таблицы:
+		self.ui.tableView_items.setItemDelegate(ImageThumbDelegate())
 		
 		#Пытаемся восстанавливить размер окна, как был при последнем запуске
 		try:
@@ -404,21 +407,25 @@ class MainWindow(QtGui.QMainWindow):
 			
 
 
-
-class ImageThumbDelegate(QtGui.QAbstractItemDelegate):
+#QAbstractItemDelegate
+class ImageThumbDelegate(QtGui.QStyledItemDelegate):
 	'''Делегат, для отображения миниатюры графического файла в таблице элементов
 	хранилища.'''
 	def sizeHint(self, option, index):
-		pixmap = index.data()
+		pixmap = index.data(QtCore.Qt.UserRole)
 		if pixmap:
 			return pixmap.size()
 		else:
 			return QtCore.QSize(option.rect.width(), option.rect.height())
 
-	def paint(self, painter, option, index):
-		pixmap = index.data()
+	def paint(self, painter, option, index):		
+		pixmap = index.data(QtCore.Qt.UserRole)
 		if pixmap:
 			painter.drawPixmap(option.rect.topLeft(), pixmap)
+			#painter.drawPixmap(option.rect, pixmap)
+		else:
+			#super(ImageThumbDelegate, self).paint(painter, option, index) #Почему-то так не работает! Возможно это чисто заморочки PyQt
+			QtGui.QStyledItemDelegate.paint(self, painter, option, index)
 	
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
@@ -471,8 +478,10 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 			
 			elif column == self.TITLE:
 				return item.title
-			
-			elif column == self.IMAGE_THUMB:
+
+		#Данная роль используется для отображения миниатюр графических файлов
+		elif role == QtCore.Qt.UserRole:
+			if column == self.IMAGE_THUMB:
 				if self.thumbs.get(item.data_ref.id):
 					#Если в ОП уже загружена миниатюра
 					return self.thumbs.get(item.data_ref.id)
@@ -482,9 +491,11 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 					image = QtGui.QImage(self.repo.base_path + os.sep + item.data_ref.url)
 					pixmap = QtGui.QPixmap.fromImage(image)
 					if (pixmap.height() > pixmap.width()):
-						pixmap = pixmap.scaledToHeight(int(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)))
+						pixmap = pixmap.scaledToHeight(\
+                        int(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)))
 					else:
-						pixmap = pixmap.scaledToWidth(int(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)))
+						pixmap = pixmap.scaledToWidth(\
+                        int(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)))
 					
 					#Запоминаем в ОП
 					self.thumbs[item.data_ref.id] = pixmap
@@ -493,7 +504,8 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 					#Потому, что если результат запроса будет содержать много элементов (графических файлов)
 					#то будет жутко тормозить каждый раз
 					return pixmap
-			
+		
+
 		elif role == QtCore.Qt.TextAlignmentRole:
 			if column == self.ID:
 				return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
@@ -508,6 +520,9 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 
 
 if __name__ == '__main__':
+	
+	print("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
+	print("qt_version = {}".format(QtCore.QT_VERSION_STR))
 	
 	app = QtGui.QApplication(sys.argv)
 	

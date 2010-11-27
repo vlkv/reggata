@@ -289,6 +289,8 @@ class UnitOfWork(object):
     	password - это SHA1 hexdigest() хеш. В случае неверного логина или пароля, 
     	выкидывается LoginError.
     	'''
+        if is_none_or_empty(login):
+            raise LoginError(tr("User login cannot be empty."))
         user = self._session.query(User).get(login)
         if user is None:
             raise LoginError(tr("User {} doesn't exist.").format(login))
