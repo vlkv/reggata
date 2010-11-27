@@ -21,6 +21,7 @@ Created on 27.11.2010
 Токены для парсера tags_def_parser.
 '''
 from ply import lex
+import re
 
 #Список типов токенов
 tokens = [
@@ -53,3 +54,21 @@ def build_lexer():
     '''Строит лексический анализатор на основе всех определенных здесь токенов.'''
     lexer = lex.lex()
     return lexer
+
+
+def needs_quote(string):
+    '''Возвращает True, если строку string нужно заключить в кавычки, чтобы она
+    правильно была распознана как токен типа 'STRING'. 
+    Это вспомогательная функция, не влияющая на работу парсера.'''
+    
+    #Если внутри строки есть пробелы
+    if re.search(r'\s', string): #re.search() возвращает None если ничего не найдено
+        return True
+    
+    #Если не подходит под регэксп токена STRING
+    m = re.match(t_STRING.__doc__, string)
+    if m is None or m.group() != string:
+        return True
+    
+    return False
+

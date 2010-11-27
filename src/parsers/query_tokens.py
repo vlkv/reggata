@@ -82,13 +82,13 @@ def t_error(t):
     t.lexer.skip(1) #Пропускаем текущий символ и переходим к следующему
 
 
-def need_quote(string):
+def needs_quote(string):
     '''Возвращает True, если строку string нужно заключить в кавычки, чтобы она
     правильно была распознана как токен типа 'STRING'. 
     Это вспомогательная функция, не влияющая на работу парсера.'''
     
     #Если внутри строки есть пробелы
-    if re.search(r'\s', string):
+    if re.search(r'\s', string): #re.search() возвращает None если ничего не найдено
         return True
     
     #Если не подходит под регэксп токена STRING
@@ -102,16 +102,9 @@ def need_quote(string):
     
     return False
 
-def quote(string):
-    '''Заключает string в кавычки и escape-ит нужные символы внутри этой строки.'''
-    
-    #string = string.replace_all(r'"', r'\"')
-    #TODO
-    pass
 
-def unquote(string):
-    '''Убрать кавычки и раскрыть все escape последовательности как есть. '''
-    pass
+
+
 
 
 def build_lexer():    
