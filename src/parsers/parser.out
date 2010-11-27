@@ -1,0 +1,81 @@
+Created by PLY version 3.3 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    AND
+    RPAREN
+    COLON
+    USER
+    LPAREN
+    NOT
+    PATH
+    OR
+
+Grammar
+
+Rule 0     S' -> tags_def_expression
+Rule 1     tags_def_expression -> tags_def_expression STRING
+Rule 2     tags_def_expression -> STRING
+Rule 3     tags_def_expression -> <empty>
+
+Terminals, with rules where they appear
+
+AND                  : 
+COLON                : 
+LPAREN               : 
+NOT                  : 
+OR                   : 
+PATH                 : 
+RPAREN               : 
+STRING               : 1 2
+USER                 : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+tags_def_expression  : 1 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . tags_def_expression
+    (1) tags_def_expression -> . tags_def_expression STRING
+    (2) tags_def_expression -> . STRING
+    (3) tags_def_expression -> .
+
+  ! shift/reduce conflict for STRING resolved as shift
+    STRING          shift and go to state 2
+    $end            reduce using rule 3 (tags_def_expression -> .)
+
+  ! STRING          [ reduce using rule 3 (tags_def_expression -> .) ]
+
+    tags_def_expression            shift and go to state 1
+
+state 1
+
+    (0) S' -> tags_def_expression .
+    (1) tags_def_expression -> tags_def_expression . STRING
+
+    STRING          shift and go to state 3
+
+
+state 2
+
+    (2) tags_def_expression -> STRING .
+
+    STRING          reduce using rule 2 (tags_def_expression -> STRING .)
+    $end            reduce using rule 2 (tags_def_expression -> STRING .)
+
+
+state 3
+
+    (1) tags_def_expression -> tags_def_expression STRING .
+
+    STRING          reduce using rule 1 (tags_def_expression -> tags_def_expression STRING .)
+    $end            reduce using rule 1 (tags_def_expression -> tags_def_expression STRING .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for STRING in state 0 resolved as shift

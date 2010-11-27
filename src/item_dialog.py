@@ -28,6 +28,7 @@ from db_model import Item, DataRef, Tag, Item_Tag, Field, Item_Field
 from helpers import tr, showExcInfo, DialogMode, index_of, is_none_or_empty,\
     is_internal
 import os
+from parsers import tags_def_parser
 
 class ItemDialog(QtGui.QDialog):
     '''
@@ -95,7 +96,7 @@ class ItemDialog(QtGui.QDialog):
         
         #Создаем объекты Tag
         text = self.ui.plainTextEdit_tags.toPlainText()
-        for t in text.split():
+        for t in tags_def_parser.parse(text):
             tag = Tag(name=t)
             item_tag = Item_Tag(tag)
             item_tag.user_login = self.item.user_login
@@ -129,7 +130,7 @@ class ItemDialog(QtGui.QDialog):
                 del self.item.item_tags[:]
                 del self.item.item_fields[:]
                 
-                #Метод write() создаст все необходимые теги/поля
+                #Метод write() создаст все необходимые теги/поля (как бы заново)
                 self.write()
                 self.item.check_valid()
                 self.accept()

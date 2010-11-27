@@ -33,7 +33,7 @@ from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
 from exceptions import LoginError, MsgException
-import query_parser
+from parsers import query_parser
 from tag_cloud import TagCloud
 import consts
 
@@ -452,7 +452,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		
 		uow = self.repo.createUnitOfWork()
 		try:
-			tree = query_parser.parser.parse(query_text)
+			tree = query_parser.parse(query_text)
 			sql = tree.interpret()
 			self.items = uow.query_items_by_sql(sql)
 
