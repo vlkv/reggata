@@ -27,17 +27,17 @@ from parsers.tags_def_tokens import *
 #Далее следуют продукции грамматики языка 
 
 def p_tags_def_expression(p):
-    '''tags_def_expression : tags_def_expression STRING '''
+    '''tags_def_expression : tags_def_expression tag '''
     p[1].append(p[2])
     p[0] = p[1]
     
-def p_tags_def_expression_atom(p):
-    '''tags_def_expression : STRING '''
-    p[0] = [p[1]]
-
 def p_tags_def_expression_empty(p):
     '''tags_def_expression : '''
     p[0] = []
+
+def p_tag(p):
+    '''tag : STRING'''
+    p[0] = p[1]
 
 #Правило для определения действий в случае возникновения ошибки
 def p_error(p):

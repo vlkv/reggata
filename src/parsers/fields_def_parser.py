@@ -30,10 +30,6 @@ def p_fields_def_expression(p):
     '''fields_def_expression : fields_def_expression field_value_pair '''
     p[1].append(p[2])
     p[0] = p[1]
-    
-def p_fields_def_expression_atom(p):
-    '''fields_def_expression : field_value_pair '''
-    p[0] = [p[1]]
 
 def p_fields_def_expression_empty(p):
     '''fields_def_expression : '''
