@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemdialog.ui'
 #
-# Created: Mon Nov 15 23:00:16 2010
+# Created: Sat Nov 27 13:31:59 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -89,12 +89,6 @@ class Ui_ItemDialog(object):
         self.horizontalLayout.addWidget(self.pushButton_remove)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem1)
-        self.pushButton_move_up = QtGui.QPushButton(ItemDialog)
-        self.pushButton_move_up.setObjectName(_fromUtf8("pushButton_move_up"))
-        self.horizontalLayout.addWidget(self.pushButton_move_up)
-        self.pushButton_move_down = QtGui.QPushButton(ItemDialog)
-        self.pushButton_move_down.setObjectName(_fromUtf8("pushButton_move_down"))
-        self.horizontalLayout.addWidget(self.pushButton_move_down)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.verticalLayout_2.addLayout(self.verticalLayout)
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
@@ -152,8 +146,6 @@ class Ui_ItemDialog(object):
         self.pushButton_add_files.setText(QtGui.QApplication.translate("ItemDialog", "Add files", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_add_URL.setText(QtGui.QApplication.translate("ItemDialog", "Add URLs", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_remove.setText(QtGui.QApplication.translate("ItemDialog", "Remove", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_move_up.setText(QtGui.QApplication.translate("ItemDialog", "Move up", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_move_down.setText(QtGui.QApplication.translate("ItemDialog", "Move down", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("ItemDialog", "Destination path:", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_select_dst_path.setText(QtGui.QApplication.translate("ItemDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("ItemDialog", "Fields:", None, QtGui.QApplication.UnicodeUTF8))

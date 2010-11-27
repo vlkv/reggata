@@ -162,20 +162,6 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_move_up" >
-         <property name="text" >
-          <string>Move up</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_move_down" >
-         <property name="text" >
-          <string>Move down</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
     </layout>
