@@ -23,7 +23,8 @@ Created on 13.11.2010
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from helpers import tr, showExcInfo, DialogMode, scale_value
-from parsers.query_tokens import need_quote
+from parsers.query_tokens import needs_quote
+from parsers.util import quote
 
 class TagCloud(QtGui.QTextEdit):
     '''
@@ -115,13 +116,8 @@ class TagCloud(QtGui.QTextEdit):
                 text = ""
                 for tag in tags:
                     font_size = int(scale_value(tag.c, (min, max), (0, 5)))
-                    tag_name = tag.name
-                    if need_quote(tag_name):
-                        #TODO нужно как раз применить escape-последовательности 
-                        tag_name = '"' + tag_name + '"'
-                         
-                                            
-                    text = text + ' <font size="+{}">'.format(font_size) + tag_name + '</font>'
+                    #Тут как раз не нужно escape-ить имена тегов!                    
+                    text = text + ' <font style="BACKGROUND-COLOR: Beige" size="+{}">'.format(font_size) + tag.name + '</font>'
                 self.setText(text)
             finally:
                 uow.close()
@@ -137,6 +133,8 @@ class TagCloud(QtGui.QTextEdit):
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
         self.word = word
+        #TODO Если тег содержит пробелы, то word неправильно определяется!
+        #Надо будет что-то по этому поводу сделать
         
     def mouseDoubleClickEvent(self, e):
         #TODO Нужно при нажатом Ctr добавлять word в множество _not_tags

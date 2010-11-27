@@ -25,10 +25,12 @@ import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 import ui_itemdialog
 from db_model import Item, DataRef, Tag, Item_Tag, Field, Item_Field
-from helpers import tr, showExcInfo, DialogMode, index_of, is_none_or_empty,\
-    is_internal
+from helpers import tr, showExcInfo, DialogMode, index_of, is_none_or_empty, \
+                    is_internal
 import os
 from parsers import tags_def_parser
+from parsers.tags_def_tokens import needs_quote
+from parsers.util import quote, unquote
 
 class ItemDialog(QtGui.QDialog):
     '''
@@ -85,9 +87,10 @@ class ItemDialog(QtGui.QDialog):
         #Выводим список тегов данного элемента
         s = ""
         for itg in self.item.item_tags:
-            s = s + itg.tag.name + " "
+            tag_name = itg.tag.name
+            s = s + (quote(tag_name) if needs_quote(tag_name) else tag_name) + " "
         self.ui.plainTextEdit_tags.setPlainText(s)
-        #TODO Некоторые теги надо заключать в кавычки!
+        
         
     
     def write(self):
@@ -102,7 +105,7 @@ class ItemDialog(QtGui.QDialog):
             item_tag = Item_Tag(tag)
             item_tag.user_login = self.item.user_login
             self.item.item_tags.append(item_tag)
-        #TODO сделать поддержку двойных кавычек
+        
         
         #Создаем объекты Field
         text = self.ui.plainTextEdit_fields.toPlainText()
