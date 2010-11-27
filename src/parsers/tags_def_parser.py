@@ -22,7 +22,7 @@ Created on 27.11.2010
 '''
 
 import ply.yacc as yacc
-from parsers.query_tokens import *
+from parsers.tags_def_tokens import *
 
 #Далее следуют продукции грамматики языка 
 
@@ -58,8 +58,10 @@ def parse(text):
 
 if __name__ == '__main__':
     
-    text = r'asdf "asdf a"  "quoted" "symbol \"a\""'
+    text = r'asdf "asdf a"  "quoted" "symbol \"a\" "'
     res = parse(text)
     print(res)
     for r in res:
         print(r)
+        
+        

@@ -5,7 +5,7 @@ _tabversion = '3.2'
 
 _lr_method = 'LALR'
 
-_lr_signature = b'\x11\x9de\xf2\xb8\xcd\x8e\x1f\xddZ\x18E\xe6\x91NS'
+_lr_signature = b'8\xf8\t\xb6\xb1o:\xfcb<\xf1\xd5\x9dvx\xda'
     
 _lr_action_items = {'STRING':([0,1,2,3,],[2,3,-2,-1,]),'$end':([0,1,2,3,],[-3,0,-2,-1,]),}
 
@@ -26,7 +26,7 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> tags_def_expression","S'",1,None,None,None),
-  ('tags_def_expression -> tags_def_expression STRING','tags_def_expression',2,'p_tags_def_expression','/home/vlkv/projects/reggata.git/src/parsers/tags_def_parser.py',13),
-  ('tags_def_expression -> STRING','tags_def_expression',1,'p_tags_def_expression_atom','/home/vlkv/projects/reggata.git/src/parsers/tags_def_parser.py',18),
-  ('tags_def_expression -> <empty>','tags_def_expression',0,'p_tags_def_expression_empty','/home/vlkv/projects/reggata.git/src/parsers/tags_def_parser.py',22),
+  ('tags_def_expression -> tags_def_expression STRING','tags_def_expression',2,'p_tags_def_expression','/home/vlkv/projects/reggata.git/src/parsers/tags_def_parser.py',30),
+  ('tags_def_expression -> STRING','tags_def_expression',1,'p_tags_def_expression_atom','/home/vlkv/projects/reggata.git/src/parsers/tags_def_parser.py',35),
+  ('tags_def_expression -> <empty>','tags_def_expression',0,'p_tags_def_expression_empty','/home/vlkv/projects/reggata.git/src/parsers/tags_def_parser.py',39),
 ]

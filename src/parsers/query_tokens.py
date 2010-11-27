@@ -34,11 +34,9 @@ PATH_KEYWORD = tr('path')
 #Я хочу, чтобы операции and, or, not и др. были в нескольких вариантах.
 #Например, чтобы and можно было записать как and, And, AND
 reserved = dict()
-for tuple in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), 
-           (NOT_OPERATOR, 'NOT'), (USER_KEYWORD, 'USER'), 
-           (PATH_KEYWORD, 'PATH')]:
-    keyword = tuple[0]
-    type = tuple[1]
+for tuple in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'), 
+              (USER_KEYWORD, 'USER'), (PATH_KEYWORD, 'PATH')]:
+    keyword, type = tuple
     reserved[keyword.capitalize()] = type
     reserved[keyword.upper()] = type
     reserved[keyword.lower()] = type
@@ -52,20 +50,23 @@ tokens = [
    'LPAREN', #Открывающая круглая скобка ) 
    'RPAREN', #Закрывающая круглая скобка )
    'COLON', #Двоеточие : (ставится после ключевых слов user и после path)
-   
 ] + list(reserved.values())
 
-#Строка в двойных кавычках, которая может содержать две escape последовательности:
+# Строка. Если содержит пробелы или двойные кавычки или обратный слеш, то
+# должна быть в двойных кавычках. Для строки в кавычках есть две escape 
+# последовательности:
 # 1) \" для отображения кавычки "
 # 2) \\ для отображения слеша \
 def t_STRING(t):
-    r'"(\\["\\]|[^"\\])*"|[\w]+' #Тут пробелы лишние нельзя ставить!!!
+    r'''"(\\["\\]|[^"\\])*"|[\w]+''' #Тут пробелы лишние нельзя ставить!!!
     t.type = reserved.get(t.value, 'STRING')
-    if t.type == 'STRING' and t.value.startswith('"') and t.value.endswith('"'):
+    if t.type == 'STRING' and t.value.startswith('"') and t.value.endswith('"') and not t.value.endswith(r'\"'):
         t.value = t.value.replace(r"\\", "\\") #Заменяем \\ на \
         t.value = t.value.replace(r'\"', r'"') #Заменяем \" на "
         t.value = t.value[1:-1] #Удаляем кавычки с начала и с конца, "abc" становится abc        
     return t
+
+
 
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'

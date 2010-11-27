@@ -1,16 +1,5 @@
 Created by PLY version 3.3 (http://www.dabeaz.com/ply)
 
-Unused terminals:
-
-    AND
-    RPAREN
-    COLON
-    USER
-    LPAREN
-    NOT
-    PATH
-    OR
-
 Grammar
 
 Rule 0     S' -> tags_def_expression
@@ -20,15 +9,7 @@ Rule 3     tags_def_expression -> <empty>
 
 Terminals, with rules where they appear
 
-AND                  : 
-COLON                : 
-LPAREN               : 
-NOT                  : 
-OR                   : 
-PATH                 : 
-RPAREN               : 
 STRING               : 1 2
-USER                 : 
 error                : 
 
 Nonterminals, with rules where they appear
