@@ -104,10 +104,11 @@ class MainWindow(QtGui.QMainWindow):
 			print(self.tr("Cannot open/login recent repository."))
 		
 		#В третьей колонке отображаем миниатюры изображений
-#		self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate())
-		#Почему-то не получается задать делегата для одной колонки!!!
-		#Поэтому задаем его для всей таблицы:
-		self.ui.tableView_items.setItemDelegate(ImageThumbDelegate())
+		self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate()) 		
+		#Работает в PyQt начиная с 4.8.1. В PyQt 4.7.3 не работает!
+		
+		#Для старых версий PyQt задаем его для всей таблицы:
+#		self.ui.tableView_items.setItemDelegate(ImageThumbDelegate()) 
 		
 		#Пытаемся восстанавливить размер окна, как был при последнем запуске
 		try:
@@ -424,8 +425,8 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
 			painter.drawPixmap(option.rect.topLeft(), pixmap)
 			#painter.drawPixmap(option.rect, pixmap)
 		else:
-			#super(ImageThumbDelegate, self).paint(painter, option, index) #Почему-то так не работает! Возможно это чисто заморочки PyQt
-			QtGui.QStyledItemDelegate.paint(self, painter, option, index)
+			super(ImageThumbDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
+			#QtGui.QStyledItemDelegate.paint(self, painter, option, index) #Для PyQt 4.7.3 работает вот так
 	
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
@@ -503,6 +504,8 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 					#TODO Надо бы еще сохранять миниатюру в БД..
 					#Потому, что если результат запроса будет содержать много элементов (графических файлов)
 					#то будет жутко тормозить каждый раз
+					
+					#Тут бы отображать диалог ожидания, если картинок много...
 					return pixmap
 		
 
