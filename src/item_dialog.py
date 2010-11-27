@@ -28,8 +28,7 @@ from db_model import Item, DataRef, Tag, Item_Tag, Field, Item_Field
 from helpers import tr, showExcInfo, DialogMode, index_of, is_none_or_empty, \
                     is_internal
 import os
-from parsers import tags_def_parser
-from parsers.tags_def_tokens import needs_quote
+from parsers import tags_def_parser, fields_def_parser, fields_def_tokens
 from parsers.util import quote, unquote
 
 class ItemDialog(QtGui.QDialog):
@@ -81,14 +80,16 @@ class ItemDialog(QtGui.QDialog):
         #Выводим информацию о полях элемента и их значениях
         s = ""
         for itf in self.item.item_fields:
-            s = s + itf.field.name + "=" + itf.field_value + os.linesep
+            name = quote(itf.field.name) if fields_def_parser.needs_quote(itf.field.name) else itf.field.name
+            value = quote(itf.field_value) if fields_def_parser.needs_quote(itf.field_value) else itf.field_value
+            s = s + name + ":" + value + os.linesep
         self.ui.plainTextEdit_fields.setPlainText(s)
         
         #Выводим список тегов данного элемента
         s = ""
         for itg in self.item.item_tags:
             tag_name = itg.tag.name
-            s = s + (quote(tag_name) if needs_quote(tag_name) else tag_name) + " "
+            s = s + (quote(tag_name) if tags_def_parser.needs_quote(tag_name) else tag_name) + " "
         self.ui.plainTextEdit_tags.setPlainText(s)
         
         
@@ -109,8 +110,7 @@ class ItemDialog(QtGui.QDialog):
         
         #Создаем объекты Field
         text = self.ui.plainTextEdit_fields.toPlainText()
-        for pair in text.split():
-            f, v = pair.split('=')
+        for (f, v) in fields_def_parser.parse(text):
             field = Field(name=f)
             item_field = Item_Field(field, v)
             item_field.user_login = self.item.user_login
