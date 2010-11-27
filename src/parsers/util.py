@@ -5,39 +5,32 @@ Created on 27.11.2010
 '''
 import re
 
-#TODO Тут ничего не работает!!!
-def escape(string, esc_rules):
-    for esc_rule in esc_rules:
-        esc_seq, raw_seq = esc_rule
-        string = re.sub(raw_seq, esc_seq, string)
+
+def escape(string):
+    #Сначала escap-им слеши
+    string = re.sub(r'\\', r'\\\\', string)
+    #Только потом все остальные символы!
+    string = re.sub(r'"', r'\"', string)    
     return string
 
 
-def unescape(string, esc_rules):
-    for esc_rule in esc_rules:
-        esc_seq, raw_seq = esc_rule
-        string = re.sub(esc_seq, raw_seq, string)
+def unescape(string):
+    string = re.sub(r'\\"', r'"', string)
+    string = re.sub(r'\\\\', r'\\', string)
     return string
-    
-             
         
         
 if __name__ == "__main__":
+        
+    unescaped = r'This string should be \properly\ "escaped"!'
+    print(unescaped)
+    print(escape(unescaped))
     
-    one = '\\'
+    escaped = r'Is this \\string\\ un-\"escaped\"?'
+    print(escaped)
+    print(unescape(escaped))
+
     
-    unescaped = r'we \need\ to "escape" this string!'
-    print(re.sub(r'\\', "\\", unescaped))
-    #print(unescaped.replace('\\', r'\\'))
-    m = re.findall(r'\\', unescaped)
+    m = re.findall(r'"', unescaped)
     print(m)
     
-    #, (r'\\\\', '\\')
-    
-    
-    (r'\\"', r'"')
-    
-        
-
-
-
