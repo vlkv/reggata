@@ -42,11 +42,14 @@ def tr(text):
     return s
 
 
-def showExcInfo(parent, ex):
+def showExcInfo(parent, ex, tracebk=True):
+    '''Окно данного класса можно растягивать мышкой, в отличие от стандартного 
+    QMessageBox-а. Решение взято отсюда: 
+    http://stackoverflow.com/questions/2655354/how-to-allow-resizing-of-qmessagebox-in-pyqt4
     
-    '''Окно данного класса можно растягивать мышкой, 
-    в отличие от стандартного QMessageBox-а.
-    Решение взято отсюда: http://stackoverflow.com/questions/2655354/how-to-allow-resizing-of-qmessagebox-in-pyqt4'''
+    Если traceback задать равным False, то окно не содержит раздел DetailedText
+    с информацией о stack trace (как это по русски сказать?).
+    '''
     class MyMessageBox(QtGui.QMessageBox):
         def __init__(self, parent=None):
             super(MyMessageBox, self).__init__(parent)    
@@ -73,12 +76,13 @@ def showExcInfo(parent, ex):
                 textEdit.setMaximumWidth(16777215)
                 textEdit.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
                 
-            return result    
+            return result
     
     mb = MyMessageBox(parent)
     mb.setWindowTitle(tr("Information"))
     mb.setText(str(ex))
-    mb.setDetailedText(traceback.format_exc())    
+    if tracebk:
+        mb.setDetailedText(traceback.format_exc())
     mb.exec_()
     
     
