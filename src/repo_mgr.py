@@ -446,9 +446,7 @@ class UnitOfWork(object):
         #Делаем путь относительным, относительно корня хранилища
         _prepare_data_ref_url(data_ref)
         
-        
-        
-        
+    
     def save_new_item(self, item, user_login):
         
         if is_none_or_empty(user_login):
@@ -513,9 +511,9 @@ class UnitOfWork(object):
         #Добавляем в item существующие поля
         for if_ in existing_item_fields:
             item.item_fields.append(if_)
-                        
-        self._session.commit()
-        
+                              
+        self._session.flush()
+                
         #Если все сохранилось в БД, то копируем файл, связанный с DataRef
         if item.data_ref is not None:
             dr = item.data_ref
@@ -523,8 +521,43 @@ class UnitOfWork(object):
                 #Копируем, только если пути src и dst не совпадают, иначе это один и тот же файл!
                 #Если файл dst существует, то он перезапишется
                 if data_ref_original_url != self._repo_base_path + dr.url:
-                    shutil.copy(data_ref_original_url, self._repo_base_path + dr.url)        
+                    shutil.copy(data_ref_original_url, self._repo_base_path + dr.url)
 
-
+        self._session.commit()
+        
+    
+class BackgrThread(QtCore.QThread):
+        
+    def __init__(self, parent, callable, *args):
+        super(BackgrThread, self).__init__(parent)
+        self.args = args
+        self.callable = callable
+    
+    def run(self):
+        try:
+            self.callable(*self.args)
+            self.emit(QtCore.SIGNAL("finished()"))
+        except Exception as ex:
+            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
+        
+        
+#    def __init__(self, uow, item, user_login, parent=None):
+#        super(Worker, self).__init__(parent)
+#        self.uow = uow
+#        self.item = item
+#        self.user_login = user_login
+#    
+#    def run(self):
+#        try:
+#            self.uow.save_new_item(self.item, self.user_login)
+#            self.emit(QtCore.SIGNAL("finished()"))
+#        except Exception as ex:
+#            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
+#        finally:
+#            #А может и не закрывать тут юнит?            
+#            self.uow.close()
+        
+        
+        
 
 

@@ -27,7 +27,7 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import RepoMgr, UnitOfWork
+from repo_mgr import RepoMgr, UnitOfWork, BackgrThread
 from helpers import tr, showExcInfo, DialogMode, scale_value, is_none_or_empty
 from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
@@ -296,8 +296,44 @@ class MainWindow(QtGui.QMainWindow):
 							
 		except Exception as ex:
 			showExcInfo(self, ex)
+	
+
 			
+		
+		
+				
+		
 	def action_item_add(self):
+		
+		class WaitDialog(QtGui.QDialog):
+			'''Диалог должен уметь:
+			1) Работать в режиме неопределенного окончания работы
+			2) Работать и отображать сколько процентов завершено
+			3) Отображать сообщение (просто статический текст)
+			4) Иметь возможность отмены операции
+			5) Отображать информацию о случившихся ошибках в процессе работы
+			6) Отображать себя после паузы (4 секунды)
+			'''
+			
+			
+			
+			def __init__(self, parent=None, minDur=1000):
+				super(WaitDialog, self).__init__(parent)
+				self.resize(320, 240)
+				self.setModal(True)
+				self.timer = QtCore.QTimer(self)
+				self.timer.setSingleShot(True)
+				self.connect(self.timer, QtCore.SIGNAL("timeout()"), lambda: print("lambda: self.show()"))
+				self.timer.start(minDur)
+				print("Timer started?")
+			
+			def exception(self, msg):
+				showExcInfo(self, Exception(msg), False)
+				
+			def closeEvent(self, close_event):
+				'''Данный метод делает невозможным закрыть окно кнопкой "крестик".'''
+				close_event.ignore()
+		
 		try:
 			if self.active_repo is None:
 				raise MsgException(self.tr("Open a repository first."))
@@ -305,7 +341,7 @@ class MainWindow(QtGui.QMainWindow):
 			if self.active_user is None:
 				raise MsgException(self.tr("Login to a repository first."))
 			
-			#Просим пользователя выбрать один или более файлов
+			#Просим пользователя выбрать один файл
 			file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select file to add"))
 			if is_none_or_empty(file):
 				return
@@ -320,7 +356,22 @@ class MainWindow(QtGui.QMainWindow):
 			if d.exec_():
 				uow = self.active_repo.createUnitOfWork()
 				try:
-					uow.save_new_item(d.item, self.active_user.login)
+					#uow.save_new_item(d.item, self.active_user.login)
+					bt = BackgrThread(self, uow.save_new_item, d.item, self.active_user.login)
+					
+					
+					wd = WaitDialog(self)
+					self.connect(bt, QtCore.SIGNAL("finished()"), wd.reject)
+					self.connect(bt, QtCore.SIGNAL("exception"), wd.exception)
+										
+					bt.start()
+					bt.wait(1000)					
+					if bt.isRunning():
+						wd.exec_()
+
+					print("Done!!!")
+					
+										
 				finally:
 					uow.close()
 				#TODO refresh
