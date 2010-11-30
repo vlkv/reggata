@@ -95,6 +95,12 @@ class Item(Base):
         else:
             self.date_created = datetime.datetime.today()
         
+    def has_tag(self, tag_name):
+        '''Возвращает True, если данный элемент имеет тег с имененм tag_name.'''
+        for item_tag in self.item_tags:
+            if item_tag.tag.name == tag_name:
+                return True
+        return False
         
     def check_valid(self):
         '''Проверяет, что состояние объекта допустимое. Связи с другими объектами не учитываются.'''
