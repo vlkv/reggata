@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Nov 27 13:31:59 2010
+# Created: Tue Nov 30 23:38:39 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -47,7 +47,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.frame)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 26))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName(_fromUtf8("menu_repo"))
@@ -83,13 +83,19 @@ class Ui_MainWindow(object):
         self.action_user_logout.setObjectName(_fromUtf8("action_user_logout"))
         self.action_item_edit = QtGui.QAction(MainWindow)
         self.action_item_edit.setObjectName(_fromUtf8("action_item_edit"))
+        self.action_item_add_many = QtGui.QAction(MainWindow)
+        self.action_item_add_many.setObjectName(_fromUtf8("action_item_add_many"))
+        self.action_user_change_pass = QtGui.QAction(MainWindow)
+        self.action_user_change_pass.setObjectName(_fromUtf8("action_user_change_pass"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
         self.menu.addAction(self.action_user_create)
         self.menu.addAction(self.action_user_login)
         self.menu.addAction(self.action_user_logout)
+        self.menu.addAction(self.action_user_change_pass)
         self.menuItem.addAction(self.action_item_add)
+        self.menuItem.addAction(self.action_item_add_many)
         self.menuItem.addAction(self.action_item_edit)
         self.menubar.addAction(self.menu_repo.menuAction())
         self.menubar.addAction(self.menu.menuAction())
@@ -110,9 +116,11 @@ class Ui_MainWindow(object):
         self.action_repo_create.setText(QtGui.QApplication.translate("MainWindow", "New", None, QtGui.QApplication.UnicodeUTF8))
         self.action_repo_open.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.action_repo_close.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_add.setText(QtGui.QApplication.translate("MainWindow", "Add", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_add.setText(QtGui.QApplication.translate("MainWindow", "Add one", None, QtGui.QApplication.UnicodeUTF8))
         self.action_user_create.setText(QtGui.QApplication.translate("MainWindow", "Create", None, QtGui.QApplication.UnicodeUTF8))
         self.action_user_login.setText(QtGui.QApplication.translate("MainWindow", "Login", None, QtGui.QApplication.UnicodeUTF8))
         self.action_user_logout.setText(QtGui.QApplication.translate("MainWindow", "Logout", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_edit.setText(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_add_many.setText(QtGui.QApplication.translate("MainWindow", "Add many", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_user_change_pass.setText(QtGui.QApplication.translate("MainWindow", "Change password", None, QtGui.QApplication.UnicodeUTF8))
 

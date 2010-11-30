@@ -219,7 +219,7 @@ class UnitOfWork(object):
     def get_item(self, id):
         '''Возвращает detached-объект класса Item, с заданным значением id. '''
         item = self._session.query(Item).get(id)
-        for itag in item.item_tags:             
+        for itag in item.item_tags:
             itag.tag
         for ifield in item.item_fields:
             ifield.field        
@@ -238,7 +238,6 @@ class UnitOfWork(object):
 #        #TODO нужны критерии по пользователям и по уже выбранным тегам
     
     def query_items_by_sql(self, sql):
-        print(sql)
         
         data_refs = Base.metadata.tables[DataRef.__tablename__]
         thumbnails = Base.metadata.tables[Thumbnail.__tablename__]

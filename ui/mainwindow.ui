@@ -59,7 +59,7 @@
      <x>0</x>
      <y>0</y>
      <width>659</width>
-     <height>29</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_repo" >
@@ -77,12 +77,14 @@
     <addaction name="action_user_create" />
     <addaction name="action_user_login" />
     <addaction name="action_user_logout" />
+    <addaction name="action_user_change_pass" />
    </widget>
    <widget class="QMenu" name="menuItem" >
     <property name="title" >
      <string>Item</string>
     </property>
     <addaction name="action_item_add" />
+    <addaction name="action_item_add_many" />
     <addaction name="action_item_edit" />
    </widget>
    <addaction name="menu_repo" />
@@ -122,7 +124,7 @@
   </action>
   <action name="action_item_add" >
    <property name="text" >
-    <string>Add</string>
+    <string>Add one</string>
    </property>
   </action>
   <action name="action_user_create" >
@@ -143,6 +145,16 @@
   <action name="action_item_edit" >
    <property name="text" >
     <string>Edit</string>
+   </property>
+  </action>
+  <action name="action_item_add_many" >
+   <property name="text" >
+    <string>Add many</string>
+   </property>
+  </action>
+  <action name="action_user_change_pass" >
+   <property name="text" >
+    <string>Change password</string>
    </property>
   </action>
  </widget>

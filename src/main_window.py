@@ -28,7 +28,8 @@ import PyQt4.QtGui as QtGui
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork, BackgrThread
-from helpers import tr, showExcInfo, DialogMode, scale_value, is_none_or_empty
+from helpers import tr, showExcInfo, DialogMode, scale_value, is_none_or_empty,\
+	WaitDialog
 from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
@@ -36,6 +37,7 @@ from exceptions import LoginError, MsgException
 from parsers import query_parser
 from tag_cloud import TagCloud
 import consts
+from items_dialog import ItemsDialog
 
 
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
@@ -71,11 +73,16 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
 		self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
 		self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
-		self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
-		self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
+		
 		self.connect(self.ui.action_user_create, QtCore.SIGNAL("triggered()"), self.action_user_create)
 		self.connect(self.ui.action_user_login, QtCore.SIGNAL("triggered()"), self.action_user_login)
 		self.connect(self.ui.action_user_logout, QtCore.SIGNAL("triggered()"), self.action_user_logout)
+		self.connect(self.ui.action_user_change_pass, QtCore.SIGNAL("triggered()"), self.action_user_change_pass)
+		
+		self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
+		self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
+		self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
+		
 		self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
 		self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
 		self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)		
@@ -301,39 +308,16 @@ class MainWindow(QtGui.QMainWindow):
 			
 		
 		
-				
+	def action_item_add_many(self):
+		'''Добавление нескольких элементов в хранилище. При этом ко всем добавляемым
+		 файлам привязываются одинаковые теги и поля. И они копируются в одну и ту 
+		 же директорию хранилища. Название title каждого элемента будет совпадать с
+		 именем добавляемого файла.'''
+		raise NotImplementedError("Sorry!")
+		
 		
 	def action_item_add(self):
-		
-		class WaitDialog(QtGui.QDialog):
-			'''Диалог должен уметь:
-			1) Работать в режиме неопределенного окончания работы
-			2) Работать и отображать сколько процентов завершено
-			3) Отображать сообщение (просто статический текст)
-			4) Иметь возможность отмены операции
-			5) Отображать информацию о случившихся ошибках в процессе работы
-			6) Отображать себя после паузы (4 секунды)
-			'''
-			
-			
-			
-			def __init__(self, parent=None, minDur=1000):
-				super(WaitDialog, self).__init__(parent)
-				self.resize(320, 240)
-				self.setModal(True)
-				self.timer = QtCore.QTimer(self)
-				self.timer.setSingleShot(True)
-				self.connect(self.timer, QtCore.SIGNAL("timeout()"), lambda: print("lambda: self.show()"))
-				self.timer.start(minDur)
-				print("Timer started?")
-			
-			def exception(self, msg):
-				showExcInfo(self, Exception(msg), False)
-				
-			def closeEvent(self, close_event):
-				'''Данный метод делает невозможным закрыть окно кнопкой "крестик".'''
-				close_event.ignore()
-		
+		'''Добавление одного элемента в хранилище.'''
 		try:
 			if self.active_repo is None:
 				raise MsgException(self.tr("Open a repository first."))
@@ -357,8 +341,7 @@ class MainWindow(QtGui.QMainWindow):
 				uow = self.active_repo.createUnitOfWork()
 				try:
 					#uow.save_new_item(d.item, self.active_user.login)
-					bt = BackgrThread(self, uow.save_new_item, d.item, self.active_user.login)
-					
+					bt = BackgrThread(self, uow.save_new_item, d.item, self.active_user.login)					
 					
 					wd = WaitDialog(self)
 					self.connect(bt, QtCore.SIGNAL("finished()"), wd.reject)
@@ -398,6 +381,10 @@ class MainWindow(QtGui.QMainWindow):
 			showExcInfo(self, ex)
 		
 
+	def action_user_change_pass(self):
+		#TODO Надо сделать такую функцию
+		raise NotImplementedError("Sorry!")
+
 	def action_user_login(self):
 		try:
 			ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
@@ -435,18 +422,33 @@ class MainWindow(QtGui.QMainWindow):
 				raise MsgException(self.tr("There are no selected items."))
 			
 			if len(rows) > 1:
-				raise MsgException(self.tr("Please select only one item."))
-						
-			item_id = self.model.items[rows.pop()].id
-			uow = self.active_repo.createUnitOfWork()
-			try:
-				item = uow.get_item(item_id)
-				item_dialog = ItemDialog(item, self, DialogMode.EDIT)
-				if item_dialog.exec_():
-					uow.update_existing_item(item_dialog.item, self.active_user.login)
-															
-			finally:
-				uow.close()
+				#Была выбрана группа элементов более 1-го				
+				uow = self.active_repo.createUnitOfWork()
+				try:
+					sel_items = []
+					for row in rows:
+						#Я понимаю, что это жутко неоптимально, но пока что пусть будет так.
+						#Выполняется отдельный SQL запрос (и не один...) для каждого из выбранных элементов
+						#Потом надо бы исправить (хотя бы теги/поля/датарефы извлекать по join-стратегии
+						id = self.model.items[row].id
+						sel_items.append(uow.get_item(id))
+					dlg = ItemsDialog(sel_items, self)
+					dlg.exec_()
+					#TODO надо теперь сохранять в БД изменения...
+					#...
+				finally:
+					uow.close()
+			else:
+				#Был выбран ровно 1 элемент
+				item_id = self.model.items[rows.pop()].id
+				uow = self.active_repo.createUnitOfWork()
+				try:
+					item = uow.get_item(item_id)
+					item_dialog = ItemDialog(item, self, DialogMode.EDIT)
+					if item_dialog.exec_():
+						uow.update_existing_item(item_dialog.item, self.active_user.login)
+				finally:
+					uow.close()
 			
 		except Exception as ex:
 			showExcInfo(self, ex)

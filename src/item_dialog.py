@@ -38,6 +38,9 @@ class ItemDialog(QtGui.QDialog):
 
     def __init__(self, item, parent=None, mode=DialogMode.VIEW):
         super(ItemDialog, self).__init__(parent)
+        self.ui = ui_itemdialog.Ui_ItemDialog()
+        self.ui.setupUi(self)
+        
         if type(item) != Item:
             raise TypeError(self.tr("Argument item should be an instance of Item class."))
 
@@ -45,12 +48,10 @@ class ItemDialog(QtGui.QDialog):
         #потому, что дальше будут обращения к полю parent.active_repo 
         if parent.__class__.__name__ != "MainWindow": 
             raise TypeError(self.tr("Parent must be an instance of MainWindow class."))
-            
+                    
         self.parent = parent
         self.mode = mode
-        self.item = item
-        self.ui = ui_itemdialog.Ui_ItemDialog()
-        self.ui.setupUi(self)
+        self.item = item        
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.button_ok)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.button_cancel)
         self.connect(self.ui.pushButton_add_files, QtCore.SIGNAL("clicked()"), self.button_add_files)
@@ -125,6 +126,11 @@ class ItemDialog(QtGui.QDialog):
                 self.accept()
                 
             elif self.mode == DialogMode.CREATE:
+                #Очищаем коллекции тегов/полей
+                #Т.к. возможно уже write() один раз вызывался, но потом check_valid() выкинул исключение
+                del self.item.item_tags[:]
+                del self.item.item_fields[:]
+                
                 self.write()
                 self.item.check_valid()
                 self.accept()

@@ -32,6 +32,7 @@ import traceback
 import os
 import hashlib
 import time
+from PyQt4 import QtCore
 
 
 def tr(text):
@@ -174,7 +175,34 @@ def compute_hash(filename, chunksize=131072, algorithm="sha1"):
     print("Hash {} computed in time of {} sec".format(algorithm, time.time() - start))
     return hash
     
+
+class WaitDialog(QtGui.QDialog):
+    #TODO Это пока что заготовка, а не готовый класс
+    '''Диалог должен уметь:
+    1) Работать в режиме неопределенного окончания работы
+    2) Работать и отображать сколько процентов завершено
+    3) Отображать сообщение (просто статический текст)
+    4) Иметь возможность отмены операции
+    5) Отображать информацию о случившихся ошибках в процессе работы
+    6) Отображать себя после паузы (4 секунды)
+    '''
     
+    def __init__(self, parent=None, minDur=1000):
+        super(WaitDialog, self).__init__(parent)
+        self.resize(320, 240)
+        self.setModal(True)
+        self.timer = QtCore.QTimer(self)
+        self.timer.setSingleShot(True)
+        self.connect(self.timer, QtCore.SIGNAL("timeout()"), lambda: print("lambda: self.show()"))
+        self.timer.start(minDur)
+        print("Timer started?")
+    
+    def exception(self, msg):
+        showExcInfo(self, Exception(msg), False)
+        
+    def closeEvent(self, close_event):
+        '''Данный метод делает невозможным закрыть окно кнопкой "крестик".'''
+        close_event.ignore()    
 
         
         
