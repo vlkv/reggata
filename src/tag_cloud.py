@@ -33,7 +33,7 @@ class TagCloud(QtGui.QTextEdit):
     
     #Пользователи (их логины), теги которых должны отображаться в облаке
     #Если пустое множество, то в облаке отображаются теги всех пользователей
-    _users = set()
+    _users = set() #TODO Это пока что не используется... (не реализовано)
     
     _repo = None
         
@@ -116,7 +116,7 @@ class TagCloud(QtGui.QTextEdit):
                 text = ""
                 for tag in tags:
                     font_size = int(scale_value(tag.c, (min, max), (0, 5)))
-                    #Тут как раз не нужно escape-ить имена тегов!                    
+                    #Тут как раз НЕ нужно escape-ить имена тегов!                    
                     text = text + ' <font style="BACKGROUND-COLOR: Beige" size="+{}">'.format(font_size) + tag.name + '</font>'
                 self.setText(text)
             finally:
@@ -133,12 +133,13 @@ class TagCloud(QtGui.QTextEdit):
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
         self.word = word
-        #TODO Если тег содержит пробелы, то word неправильно определяется!
+        #TODO Если тег содержит пробелы (или другие символы, типа - (дефис)) 
+        #то word неправильно определяется!
         #Надо будет что-то по этому поводу сделать
         
     def mouseDoubleClickEvent(self, e):
         #TODO Нужно при нажатом Ctr добавлять word в множество _not_tags
-        if self.word != "" and self.word is not None:            
+        if self.word != "" and self.word is not None:
             self.tags.add(self.word)            
             self.emit(QtCore.SIGNAL("selectedTagsChanged"))
             self.refresh()
