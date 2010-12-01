@@ -89,6 +89,36 @@ class ItemsDialog(QtGui.QDialog):
                 else:
                     tags_str = tags_str + '<font color="grey">' + tag_name + "</font> "                    
         self.ui.textEdit_tags.setText(tags_str)
+        
+        fields_str = ""
+        seen_fields = set()
+        for i in range(0, len(self.items)):
+            for j in range(0, len(self.items[i].item_fields)):
+                field_name = self.items[i].item_fields[j].field.name
+                field_value = self.items[i].item_fields[j].field_value
+                if field_name in seen_fields:
+                    continue
+                all_have_field = True
+                all_have_field_value = True
+                for k in range(0, len(self.items)):
+                    if i == k:
+                        continue
+                    if not self.items[k].has_field(field_name):
+                        all_have_field = False
+                    if not self.items[k].has_field(field_name, field_value):
+                        all_have_field_value = False
+                    if not all_have_field and not all_have_field_value:
+                        break
+                        
+                seen_fields.add(field_name)
+                if all_have_field_value:
+                    fields_str = fields_str + "<b>" + field_name + ": " + field_value + "</b> "
+                elif all_have_field:
+                    fields_str = fields_str + '<b>' + field_name + "</b>: ### "
+                    #TODO Могут быть проблемы, если значением тега реально будет строка '###'
+                else:
+                    fields_str = fields_str + '<font color="grey">' + field_name + "</font>: ### "
+        self.ui.textEdit_fields.setText(fields_str)
                     
                             
           

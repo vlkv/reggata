@@ -96,10 +96,19 @@ class Item(Base):
             self.date_created = datetime.datetime.today()
         
     def has_tag(self, tag_name):
-        '''Возвращает True, если данный элемент имеет тег с имененм tag_name.'''
+        '''Возвращает True, если данный элемент имеет тег с имененем tag_name.'''
         for item_tag in self.item_tags:
             if item_tag.tag.name == tag_name:
                 return True
+        return False
+    
+    def has_field(self, field_name, field_value=None):
+        '''Возвращает True, если данный элемент имеет поле с имененем field_name.
+        Если field_value не None, то проверяется еще и равно ли данное поле этому значению.'''
+        for item_field in self.item_fields:
+            if item_field.field.name == field_name:
+                if field_value is None or item_field.field_value == field_value:
+                    return True
         return False
         
     def check_valid(self):
