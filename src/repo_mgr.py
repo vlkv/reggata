@@ -110,7 +110,7 @@ class RepoMgr(object):
         Что должен возвращать данный метод?
         '''
         #TODO
-        pass
+        raise NotImplementedError()
 
     def createUnitOfWork(self):
         return UnitOfWork(self)
@@ -331,7 +331,45 @@ class UnitOfWork(object):
             raise LoginError(tr("Password incorrect."))
         return user
 
-    def update_existing_item(self, item, user_login):        
+    def move_data_ref_file(self, data_ref, dst_path):
+        '''Метод перемещает файл, на который ссылается data_ref, в другую директорию
+        внутри хранилища, задаваемую dst_path (это должен быть относительный путь).
+        '''
+        if data_ref.type != 'FILE':
+            raise ValueError(tr("DataRef object must be of FILE type."))
+        
+        data_ref_0 = self._session.query(DataRef).get(data_ref.id)
+        
+        #Запоминаем исходное расположение файла
+        src_path = data_ref_0.url
+        abs_src_path = os.path.join(self._repo_base_path, data_ref_0.url)
+        
+        #Преобразуем dst_path в абсолютный путь
+        abs_dst_path = os.path.join(self._repo_base_path, dst_path)
+        
+        if not os.path.exists(abs_src_path):
+            raise Exception(tr("File {} not found!").format(abs_src_path))
+        
+        if os.path.exists(abs_dst_path):
+            raise Exception(tr("Pathname {} already exists. I'm not to overwrite it!").format(abs_dst_path))
+        
+        data_ref_0.url = dst_path
+        self._session.flush()
+        
+        #Теперь начинаем перемещение файла
+        shutil.move(abs_src_path, abs_dst_path)
+        
+        #TODO Тут может быть вставить какую-нибудь проверку соответствия хеша?
+        
+        self._session.commit()
+            
+        
+
+    def update_existing_item(self, item, user_login):
+        '''Изменяет существующий элемент хранилища. Поскольку в принципе, пользователь
+        может добавить свои теги к чужому элементу, то необходимо передавать логин
+        пользователя, который осуществляет редактирование (т.е. user_login).
+        '''
         #Тут нельзя просто вызвать merge... т.к. связанные объекты, такие как
         #Item_Tag, Item_Field и DataRef объекты имеют некоторые поля с пустыми значениями
         #в то время как в БД у них есть значения.
@@ -342,11 +380,14 @@ class UnitOfWork(object):
         #item_0 это объект, который принадлежит текущей сессии
         item_0 = self._session.query(Item).get(item.id)
         
-        #Копируем значения обычных полей. Как-то это некрасиво...
+        #Редактирование полей, которые можно редактировать (вообще у item-а есть еще и другие поля).
         item_0.title = item.title
         item_0.notes = item.notes
         item_0.user_login = item.user_login
-                
+        
+        #TODO Тут наверное нужно запрещать пользователю удалять чужие теги, поля и data_ref-ы!!!
+        
+        #Удаление тегов
         #Если в item_0 есть теги, которых нет в item, то их нужно удалить
         for itag in item_0.item_tags:
             i = index_of(item.item_tags, lambda x: True if x.tag.name == itag.tag.name else False)
@@ -356,6 +397,7 @@ class UnitOfWork(object):
                 self._session.delete(itag)
         self._session.flush()
         
+        #Добавление тегов
         #Если в item есть теги, которых нет в item_0, то их нужно создать
         for itag in item.item_tags:
             i = index_of(item_0.item_tags, lambda x: True if x.tag.name == itag.tag.name else False)
@@ -374,14 +416,14 @@ class UnitOfWork(object):
                 item_0.item_tags.append(item_tag)        
                 #Почему нужно обе стороны связывать? Ведь relation?
                 
-        #Удаляем нужные поля
+        #Удаление полей
         for ifield in item_0.item_fields:
             i = index_of(item.item_fields, lambda o: True if o.field.name == ifield.field.name else False)
             if i is None:
                 self._session.delete(ifield)
         self._session.flush()
         
-        #Добавляем новые поля, редактируем существующие (где нужно)
+        #Добавление новых полей, изменение значений существующих
         for ifield in item.item_fields:
             i = index_of(item_0.item_fields, \
                          lambda o: True if o.field.name == ifield.field.name else False)
@@ -408,13 +450,13 @@ class UnitOfWork(object):
         data_ref_original_url = None
         
         if item.data_ref is None:
-            #У элемента удалили ссылку на файл
+            #У элемента удалили ссылку на файл (также может быть, что её у него и не было).
             #Сам DataRef объект и файл удалять не хочется... пока что так
             item_0.data_ref = None
             item_0.data_ref_id = None
         elif item_0.data_ref is None or item.data_ref.url != item_0.data_ref.url:
-            #Элемент привязывается к другому файлу
-            #Смотрим, может быть новый файл уже внутри хранилища, и уже даже есть объект DataRef?
+            #Элемент привязывается к новому или другому файлу
+            #Смотрим, может быть привязываемый файл уже внутри хранилища, и уже может быть есть даже объект DataRef?
             #Надо сделать адрес относительным
             existing_data_ref = None
             if item.data_ref.url.startswith(self._repo_base_path):
@@ -433,15 +475,18 @@ class UnitOfWork(object):
                 self._session.add(data_ref)
                 self._session.flush()
                 item_0.data_ref = data_ref
+        else:
+            #У элемента не меняется его привязка к DataRef объекту
+            pass
             
-        self._session.commit()
+        self._session.flush()
         
         #Копируем файл
         if data_ref_original_url is not None:
             if data_ref_original_url != self._repo_base_path + item_0.data_ref.url:
                 shutil.copy(data_ref_original_url, self._repo_base_path + item_0.data_ref.url)
                 
-        
+        self._session.commit()
     
         
     def _prepare_data_ref(self, data_ref, user_login):
