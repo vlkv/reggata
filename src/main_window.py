@@ -232,7 +232,7 @@ class MainWindow(QtGui.QMainWindow):
 		
 		
 		if user is not None:
-			self.ui.label_user.setText(user.login)
+			self.ui.label_user.setText("<b>" + user.login + "</b>")
 			
 			#Запоминаем пользователя
 			UserConfig().storeAll({"recent_user.login":user.login, "recent_user.password":user.password})
@@ -264,7 +264,7 @@ class MainWindow(QtGui.QMainWindow):
 			(head, tail) = os.path.split(repo.base_path)
 			while tail == "" and head != "":
 				(head, tail) = os.path.split(head)
-			self.ui.label_repo.setText(tail)
+			self.ui.label_repo.setText("<b>" + tail + "</b>")
 			
 			#Выводим сообщение
 			self.ui.statusbar.showMessage(self.tr("Opened repository from {}.").format(repo.base_path), 5000)
