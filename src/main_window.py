@@ -194,7 +194,9 @@ class MainWindow(QtGui.QMainWindow):
 	def query_exec(self):
 		query_text = self.ui.lineEdit_query.text()
 		self.model.query(query_text)
+		self.ui.tableView_items.resizeColumnsToContents()
 		self.ui.tableView_items.resizeRowsToContents()
+		
 		
 	
 	def _login_recent_user(self):
@@ -512,6 +514,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 	ID = 0
 	TITLE = 1
 	IMAGE_THUMB = 2
+	LIST_OF_TAGS = 3
 	
 	def __init__(self, repo):
 		super(RepoItemTableModel, self).__init__()
@@ -545,7 +548,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		return len(self.items)
 	
 	def columnCount(self, index=QtCore.QModelIndex()):
-		return 3
+		return 4
 	
 	def data(self, index, role=QtCore.Qt.DisplayRole):
 		if not index.isValid() or not (0 <= index.row() < len(self.items)):
@@ -560,6 +563,9 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 			
 			elif column == self.TITLE:
 				return item.title
+			
+			elif column == self.LIST_OF_TAGS:
+				return item.get_list_of_tags()
 
 		#Данная роль используется для отображения миниатюр графических файлов
 		elif role == QtCore.Qt.UserRole:

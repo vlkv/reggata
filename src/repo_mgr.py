@@ -38,6 +38,7 @@ import datetime
 from sqlalchemy.exc import ResourceClosedError
 from sqlalchemy.sql.expression import select
 from user_config import UserConfig
+import db_model
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -228,32 +229,35 @@ class UnitOfWork(object):
         item.data_ref
         self._session.expunge(item)
         return item
-        
-#    def getTags(self, user_logins=[]):
-#        '''Возвращает список тегов хранилища.'''
-#        if len(user_logins) == 0:
-#            return self._session.query(Tag).order_by(Tag.name).all()
-#        else:
-#            return self._session.query(Tag).join(Item_Tag) \
-#                    .filter(Item_Tag.user_login.in_(user_logins)) \
-#                    .order_by(Tag.name).all()
-#        #TODO нужны критерии по пользователям и по уже выбранным тегам
     
     def get_untagged_items(self):
         thumbnail_default_size = UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)
+        
         sql = '''
-        select i.*, ''' + \
-        DataRef._sql_from() + ", " + \
-        Thumbnail._sql_from() + \
-        ''' 
-        from items i
-        left join items_tags it on i.id = it.item_id
-        left join data_refs on i.data_ref_id = data_refs.id
-        left join thumbnails on data_refs.id = thumbnails.data_ref_id and thumbnails.size = {} 
-        where it.item_id is null '''.format(thumbnail_default_size)
+        select sub.*, ''' + \
+        db_model.Item_Tag._sql_from() + ", " + \
+        db_model.Tag._sql_from() + \
+        '''
+        from (select i.*, ''' + \
+            DataRef._sql_from() + ", " + \
+            Thumbnail._sql_from() + \
+            ''' 
+            from items i
+            left join items_tags it on i.id = it.item_id
+            left join data_refs on i.data_ref_id = data_refs.id
+            left join thumbnails on data_refs.id = thumbnails.data_ref_id and thumbnails.size = {} 
+            where it.item_id is null 
+        ) as sub
+        left join items_tags on sub.id = items_tags.item_id
+        left join tags on tags.id = items_tags.tag_id 
+        '''.format(thumbnail_default_size)
+        
         items = self._session.query(Item)\
-            .options(contains_eager("data_ref"), contains_eager("data_ref.thumbnails"))\
-            .from_statement(sql).all()
+            .options(contains_eager("data_ref"), \
+                     contains_eager("data_ref.thumbnails"), \
+                     contains_eager("item_tags"), \
+                     contains_eager("item_tags.tag"))\
+            .from_statement(sql).all()        
             
         self._session.expunge_all()
                 
@@ -289,7 +293,10 @@ class UnitOfWork(object):
 #            from_statement(sql).all()
 
         items = self._session.query(Item)\
-            .options(contains_eager("data_ref"), contains_eager("data_ref.thumbnails"))\
+            .options(contains_eager("data_ref"), \
+                     contains_eager("data_ref.thumbnails"), \
+                     contains_eager("item_tags"), \
+                     contains_eager("item_tags.tag"))\
             .from_statement(sql).all()
             
         #Выше использовался joinedload, поэтому по идее следующий цикл

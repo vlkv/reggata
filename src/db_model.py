@@ -95,6 +95,13 @@ class Item(Base):
         else:
             self.date_created = datetime.datetime.today()
             
+    def get_list_of_tags(self):
+        '''Возвращает строку, содержащую список всех тегов элемента.'''
+        s = ""
+        for item_tag in self.item_tags:
+            s = s + item_tag.tag.name + " "
+        return s
+    
     def has_tag(self, tag_name):
         '''Возвращает True, если данный элемент имеет тег с имененем tag_name.'''
         for item_tag in self.item_tags:
@@ -290,6 +297,13 @@ class Tag(Base):
         self.name = name
         self.synonym_code = None
         
+    @staticmethod
+    def _sql_from():
+        return '''
+        tags.id as tags_id,
+        tags.name as tags_name,
+        tags.synonym_code as tags_synonym_code '''
+        
 class Item_Tag(Base):
     __tablename__ = "items_tags"
         
@@ -307,7 +321,12 @@ class Item_Tag(Base):
         if tag is not None:
             self.tag_id = tag.id            
             
-        
+    @staticmethod
+    def _sql_from():
+        return '''
+        items_tags.item_id as items_tags_item_id, 
+        items_tags.tag_id as items_tags_tag_id, 
+        items_tags.user_login as items_tags_user_login '''
     
 class Field(Base):
     '''
