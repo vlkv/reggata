@@ -108,7 +108,7 @@ class MainWindow(QtGui.QMainWindow):
 			self.active_repo = RepoMgr(tmp)
 			self._login_recent_user()
 		except:
-			print(self.tr("Cannot open/login recent repository."))
+			self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), 5000)
 		
 		#В третьей колонке отображаем миниатюры изображений
 		self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate()) 		
