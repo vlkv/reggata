@@ -28,7 +28,7 @@ import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import RepoMgr, UnitOfWork, BackgrThread
+from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread
 from helpers import tr, showExcInfo, DialogMode, scale_value, is_none_or_empty,\
 	WaitDialog
 from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
@@ -433,6 +433,10 @@ class MainWindow(QtGui.QMainWindow):
 
 
 	def action_item_edit(self):
+		
+		def raise_exc(msg):
+			raise Exception(msg)
+		
 		try:
 			if self.active_repo is None:
 				raise MsgException(self.tr("Open a repository first."))
@@ -458,11 +462,14 @@ class MainWindow(QtGui.QMainWindow):
 						#Выполняется отдельный SQL запрос (и не один...) для каждого из выбранных элементов
 						#Потом надо бы исправить (хотя бы теги/поля/датарефы извлекать по join-стратегии
 						id = self.model.items[row].id
-						sel_items.append(uow.get_item(id))
+						sel_items.append(uow.get_item(id))						
 					dlg = ItemsDialog(sel_items, self)
-					dlg.exec_()
-					#TODO надо теперь сохранять в БД изменения...
-					#...
+					if dlg.exec_():
+						#TODO надо теперь сохранять в БД изменения...
+						thread = UpdateGroupOfItemsThread(self, self.active_repo, sel_items)
+						self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+						thread.start()
+						thread.wait()
 				finally:
 					uow.close()
 			else:

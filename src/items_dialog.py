@@ -75,7 +75,15 @@ class ItemsDialog(QtGui.QDialog):
         #Потому что элементы можно группой добавлять, а также группой редактировать
     
     def write(self):
-        self.dst_path = self.ui.lineEdit_dst_path.text()
+        
+        if self.group_has_files and self.dst_path is not None:
+            for item in self.items:
+                if item.data_ref and item.data_ref.type != 'FILE':
+                    continue
+                filename = os.path.basename(item.data_ref.url)
+                item.data_ref.url = os.path.join(self.dst_path, filename)
+        
+        #TODO Надо остальное сохранять (теги, поля)
         
     def read(self):
         '''Теги, которые есть у всех элементов из items нужно выводить черным.
@@ -194,8 +202,12 @@ class ItemsDialog(QtGui.QDialog):
              
                             
           
-    def button_ok(self):        
-        pass
+    def button_ok(self):
+        try:
+            self.write()            
+            self.accept()
+        except Exception as ex:
+            helpers.showExcInfo(self, ex)
     
     def button_cancel(self):
         self.reject()
