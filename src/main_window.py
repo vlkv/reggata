@@ -470,8 +470,10 @@ class MainWindow(QtGui.QMainWindow):
 						self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
 						thread.start()
 						thread.wait()
+						#TODO Тут надо отображать WaitDialog
 				finally:
 					uow.close()
+					
 			else:
 				#Был выбран ровно 1 элемент
 				item_id = self.model.items[rows.pop()].id
@@ -480,12 +482,14 @@ class MainWindow(QtGui.QMainWindow):
 					item = uow.get_item(item_id)
 					item_dialog = ItemDialog(item, self, DialogMode.EDIT)
 					if item_dialog.exec_():
-						uow.update_existing_item(item_dialog.item, self.active_user.login)
+						uow.update_existing_item(item_dialog.item, self.active_user.login)						
 				finally:
-					uow.close()
+					uow.close()					
 			
 		except Exception as ex:
 			showExcInfo(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 	
 	def action_template(self):
 		try:

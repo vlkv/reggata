@@ -40,6 +40,7 @@ from sqlalchemy.sql.expression import select
 from user_config import UserConfig
 import db_model
 import traceback
+import os
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -336,7 +337,8 @@ class UnitOfWork(object):
     def move_data_ref_file(self, data_ref):
         '''Метод перемещает файл, на который ссылается data_ref, в другую директорию
         внутри хранилища. Эта директория назначения, задается в поле 
-        data_ref.url (это должен быть относительный путь).
+        data_ref.dst_path (это должен быть относительный путь до директории, 
+        куда следует переместить файл).
         
         Предполагается, что data_ref - это detached экземпляр.
         
@@ -353,9 +355,9 @@ class UnitOfWork(object):
         src_path = data_ref_0.url
         abs_src_path = os.path.join(self._repo_base_path, data_ref_0.url)
         
-        #Преобразуем dst_path в абсолютный путь
-        dst_path = data_ref.url
-        abs_dst_path = os.path.join(self._repo_base_path, data_ref.url)        
+        #Преобразуем dst_path в абсолютный путь ДО ФАЙЛА
+        dst_path = os.path.join(data_ref.dst_path, os.path.basename(data_ref.url)) 
+        abs_dst_path = os.path.join(self._repo_base_path, dst_path)
         if not os.path.exists(abs_src_path):
             raise Exception(tr("File {} not found!").format(abs_src_path))
         
@@ -462,7 +464,16 @@ class UnitOfWork(object):
                 item_0.item_fields[i].field_value = ifield.field_value
         
         
-        print("URL: " + item_0.data_ref.url)
+        #TODO Перемещение существующих data_ref-объектов нужно выполнять наверное тут!
+        #Это будет более правильно. Нужно просто смотреть, если data_ref.url не изменился, тогда
+        #Нужно глянуть на data_ref.dst_path - если он другой, то существующий файл нужно 
+        #переместить.
+        #Если же изменился сам data_ref.url (ссылка item.data_ref пустая, либо поменялся data_ref.url)
+        #Тогда система пытается привязать другой файл (на который указываетс data_ref.url)
+        #к данному элементу. Причем, если data_ref.dst_path не пустая строка, то система
+        #сохранит этот другой файл (путем копирования, а не перемещения) в данной директории
+        #data_ref.dst_path. 
+        #Вот так нужно сделать. А метод move_data_ref_file() тогда будет не нужен.
         
         data_ref_original_url = None
         
@@ -505,6 +516,7 @@ class UnitOfWork(object):
                 
         self._session.commit()
         
+        self._session.refresh(item_0)
         self._session.expunge(item_0)
         return item_0
     
@@ -637,8 +649,6 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
                     dr = self.uow.move_data_ref_file(item.data_ref)
                     item.data_ref = dr
                 
-                print("url = " + item.data_ref.url)
-                
                 #Редактируем каждый item
                 #У него могут поменяться набор тегов/полей но не data_ref-объекты
                 self.uow.update_existing_item(item, item.user_login)
@@ -649,7 +659,7 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
             print(traceback.format_exc())
         finally:
             self.emit(QtCore.SIGNAL("finished()"))
-            self.uow.close()    
+            self.uow.close()
         
     
 class BackgrThread(QtCore.QThread):

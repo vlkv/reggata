@@ -76,12 +76,13 @@ class ItemsDialog(QtGui.QDialog):
     
     def write(self):
         
+        #Если пользователь выберер другую директорию назначения, то мы ее 
+        #сохраняем в поле DataRef.dst_path (это будет только имя директории!!!)
         if self.group_has_files and self.dst_path is not None:
             for item in self.items:
                 if item.data_ref and item.data_ref.type != 'FILE':
-                    continue
-                filename = os.path.basename(item.data_ref.url)
-                item.data_ref.url = os.path.join(self.dst_path, filename)
+                    continue                
+                item.data_ref.dst_path = self.dst_path
         
         #TODO Надо остальное сохранять (теги, поля)
         
