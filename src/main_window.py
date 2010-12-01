@@ -25,6 +25,7 @@ import os.path
 import sys
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
+from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork, BackgrThread
@@ -99,6 +100,8 @@ class MainWindow(QtGui.QMainWindow):
 		self.ui.tag_cloud = TagCloud(self)
 		self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
 		self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), self.selected_tags_changed)
+		self.connect(self.ui.action_tools_tag_cloud, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_tag_cloud.setVisible(b))
+		self.connect(self.ui.dockWidget_tag_cloud, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
 		
 		self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("textEdited(QString)"), self.reset_tag_cloud)
 		
@@ -134,10 +137,23 @@ class MainWindow(QtGui.QMainWindow):
 		self.ui.tag_cloud.hint_height = int(UserConfig().get("main_window.tag_cloud.height", 100))
 		self.ui.tag_cloud.hint_width = int(UserConfig().get("main_window.tag_cloud.width", 100))
 		self.connect(self.ui.tag_cloud, QtCore.SIGNAL("maySaveSize"), self.save_main_window_state)
+		dock_area = int(UserConfig().get("main_window.tag_cloud.dock_area", QtCore.Qt.TopDockWidgetArea))
 		self.removeDockWidget(self.ui.dockWidget_tag_cloud)
-		self.addDockWidget(int(UserConfig().get("main_window.tag_cloud.dock_area", QtCore.Qt.TopDockWidgetArea)), self.ui.dockWidget_tag_cloud)
+		self.addDockWidget(dock_area if dock_area != Qt.NoDockWidgetArea else QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
 		self.ui.dockWidget_tag_cloud.show()
-		
+
+#	def set_visible_tag_cloud(self, show):
+##		if show and self.ui.dockWidget_tag_cloud.isHidden():
+##			self.removeDockWidget(self.ui.dockWidget_tag_cloud)
+##			self.addDockWidget(int(UserConfig().get("main_window.tag_cloud.dock_area", QtCore.Qt.TopDockWidgetArea)), self.ui.dockWidget_tag_cloud)
+##			self.ui.dockWidget_tag_cloud.show()
+##		else:
+##			self.removeDockWidget(self.ui.dockWidget_tag_cloud)
+#				
+#		self.ui.dockWidget_tag_cloud.setVisible(show)
+##		if show:
+##			self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
+#			
 
 	def reset_tag_cloud(self):
 		self.ui.tag_cloud.reset()

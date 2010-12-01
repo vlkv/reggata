@@ -64,7 +64,7 @@
    </property>
    <widget class="QMenu" name="menu_repo" >
     <property name="title" >
-     <string>Repository</string>
+     <string>&amp;Repository</string>
     </property>
     <addaction name="action_repo_create" />
     <addaction name="action_repo_open" />
@@ -72,7 +72,7 @@
    </widget>
    <widget class="QMenu" name="menu" >
     <property name="title" >
-     <string>User</string>
+     <string>&amp;User</string>
     </property>
     <addaction name="action_user_create" />
     <addaction name="action_user_login" />
@@ -81,15 +81,22 @@
    </widget>
    <widget class="QMenu" name="menuItem" >
     <property name="title" >
-     <string>Item</string>
+     <string>&amp;Item</string>
     </property>
     <addaction name="action_item_add" />
     <addaction name="action_item_add_many" />
     <addaction name="action_item_edit" />
    </widget>
+   <widget class="QMenu" name="menuTools" >
+    <property name="title" >
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="action_tools_tag_cloud" />
+   </widget>
    <addaction name="menu_repo" />
    <addaction name="menu" />
    <addaction name="menuItem" />
+   <addaction name="menuTools" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
   <widget class="QDockWidget" name="dockWidget_tag_cloud" >
@@ -97,7 +104,7 @@
     <bool>false</bool>
    </property>
    <property name="features" >
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+    <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
    <property name="windowTitle" >
     <string>Tag cloud</string>
@@ -109,52 +116,66 @@
   </widget>
   <action name="action_repo_create" >
    <property name="text" >
-    <string>New</string>
+    <string>&amp;New</string>
    </property>
   </action>
   <action name="action_repo_open" >
    <property name="text" >
-    <string>Open</string>
+    <string>&amp;Open</string>
    </property>
   </action>
   <action name="action_repo_close" >
    <property name="text" >
-    <string>Close</string>
+    <string>&amp;Close</string>
    </property>
   </action>
   <action name="action_item_add" >
    <property name="text" >
-    <string>Add one</string>
+    <string>Add &amp;one</string>
    </property>
   </action>
   <action name="action_user_create" >
    <property name="text" >
-    <string>Create</string>
+    <string>&amp;Create</string>
    </property>
   </action>
   <action name="action_user_login" >
    <property name="text" >
-    <string>Login</string>
+    <string>&amp;Login</string>
    </property>
   </action>
   <action name="action_user_logout" >
    <property name="text" >
-    <string>Logout</string>
+    <string>Log&amp;out</string>
    </property>
   </action>
   <action name="action_item_edit" >
    <property name="text" >
-    <string>Edit</string>
+    <string>&amp;Edit</string>
    </property>
   </action>
   <action name="action_item_add_many" >
    <property name="text" >
-    <string>Add many</string>
+    <string>Add &amp;many</string>
    </property>
   </action>
   <action name="action_user_change_pass" >
    <property name="text" >
-    <string>Change password</string>
+    <string>Change &amp;password</string>
+   </property>
+  </action>
+  <action name="action_tools_tag_cloud" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Tag &amp;cloud</string>
    </property>
   </action>
  </widget>
