@@ -7,6 +7,9 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 import ui_itemsdialog
 import os
+import helpers
+from exceptions import MsgException
+from helpers import is_internal
 
 
 class CustomTextEdit(QtGui.QTextEdit):
@@ -46,15 +49,19 @@ class ItemsDialog(QtGui.QDialog):
     items = None
 
     dst_path = None
+    group_has_files = False
 
     def __init__(self, items=[], parent=None):
         super(ItemsDialog, self).__init__(parent)
         self.ui = ui_itemsdialog.Ui_ItemsDialog()
         self.ui.setupUi(self)
         self.items = items
+        self.parent = parent
         
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.button_ok)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.button_cancel)
+        self.connect(self.ui.pushButton_select_dst_path, QtCore.SIGNAL("clicked()"), self.select_dst_path)
+        
         
         self.ui.textEdit_tags = CustomTextEdit()
         self.ui.verticalLayout_tags.addWidget(self.ui.textEdit_tags)
@@ -65,6 +72,7 @@ class ItemsDialog(QtGui.QDialog):
         self.read()
         
         #TODO Добавить поддержку DialogMode
+        #Потому что элементы можно группой добавлять, а также группой редактировать
     
     def write(self):
         self.dst_path = self.ui.lineEdit_dst_path.text()
@@ -135,6 +143,8 @@ class ItemsDialog(QtGui.QDialog):
         self.dst_path = None
         same_path = None
         for i in range(len(self.items)):
+            #При подсчете не учитываются объекты DataRef имеющие тип URL (или любой отличный от FILE)
+            #Также не учитываются элементы, которые не связаны с DataRef-объектами
             if self.items[i].data_ref is None or self.items[i].data_ref.type != 'FILE':
                 continue
             
@@ -147,20 +157,40 @@ class ItemsDialog(QtGui.QDialog):
                     same_path = 'no'
                     break
         if same_path is None:
-            #Все элементы не содержат ссылок на файлы
+            #Все элементы не содержат ссылок на файлы (Либо нет DataRef объектов, либо они есть но не типа FILE)
             self.dst_path = None
+            self.group_has_files = False
             self.ui.lineEdit_dst_path.setText(self.tr('<not applicable>'))
         elif same_path == 'yes':
             #Все элементы, связанные с DataRef-ами типа FILE, находятся в ОДНОЙ директории
+            self.group_has_files = True
             self.ui.lineEdit_dst_path.setText(self.dst_path)
         else:
             #Элементы, связанные с DataRef-ами типа FILE, находятся в РАЗНЫХ директориях
             self.dst_path = None #Обнуляем это поле
+            self.group_has_files = True
             self.ui.lineEdit_dst_path.setText(self.tr('<different values>'))
         
-        #При подсчете не учитываются объекты DataRef имеющие тип URL (или любой отличный от FILE)        
-        
                 
+        
+    def select_dst_path(self):
+        try:
+            if not self.group_has_files:
+                raise MsgException(self.tr("Selected group of items doesn't reference any physical files on filesysem."))
+            
+            dir = QtGui.QFileDialog.getExistingDirectory(self, 
+                self.tr("Select destination path within repository"), 
+                self.parent.active_repo.base_path)
+            if dir:
+                if not is_internal(dir, self.parent.active_repo.base_path):
+                    #Выбрана директория снаружи хранилища
+                    raise MsgException(self.tr("Chosen directory is out of active repository."))
+                else:
+                    self.dst_path = os.path.relpath(dir, self.parent.active_repo.base_path)
+                    self.ui.lineEdit_dst_path.setText(self.dst_path)
+        
+        except Exception as ex:
+            helpers.showExcInfo(self, ex)
              
                             
           
