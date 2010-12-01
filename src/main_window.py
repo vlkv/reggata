@@ -550,6 +550,25 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 	def columnCount(self, index=QtCore.QModelIndex()):
 		return 4
 	
+	def headerData(self, section, orientation, role=Qt.DisplayRole):
+		if orientation == Qt.Horizontal:
+			if role == Qt.DisplayRole:
+				if section == self.ID:
+					return self.tr("Id")
+				elif section == self.TITLE:
+					return self.tr("Title")
+				elif section == self.IMAGE_THUMB:
+					return self.tr("Thumbnail")
+				elif section == self.LIST_OF_TAGS:
+					return self.tr("Tags")
+			else:
+				return None
+		elif orientation == Qt.Vertical and role == Qt.DisplayRole:
+			return section+1
+		else:
+			return None
+
+	
 	def data(self, index, role=QtCore.Qt.DisplayRole):
 		if not index.isValid() or not (0 <= index.row() < len(self.items)):
 			return None
