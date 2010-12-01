@@ -176,23 +176,28 @@ class ItemDialog(QtGui.QDialog):
         
     
     def button_sel_dst_path(self):
-        dir = QtGui.QFileDialog.getExistingDirectory(self, 
-            self.tr("Select destination path within repository"), 
-            self.parent.active_repo.base_path)
-        if dir:
-            if not is_internal(dir, self.parent.active_repo.base_path):
-                #Выбрана директория снаружи хранилища
-                QtGui.QMessageBox.warning(self, self.tr("Error"), self.tr("Chosen directory is out of active repository."))
-                return
-            else:
-                new_dst_path = os.path.relpath(dir, self.parent.active_repo.base_path)
-                self.ui.lineEdit_dst_path.setText(new_dst_path)
-                #Присваиваем новое значение dst_path объекту DataRef, если он ссылается
-                #на новый внешний файл (его путь абсолютный и вне хранилища)                
-                if os.path.isabs(self.item.data_ref.url) and \
-                not is_internal(self.item.data_ref.url, self.parent.active_repo.base_path):
-                    #Этот файл еще не в хранилище
-                    self.item.data_ref.dst_path = new_dst_path
+        try:
+            if self.item.data_ref is None:
+                raise Exception(self.tr("You must define a data reference first."))
+            
+            dir = QtGui.QFileDialog.getExistingDirectory(self, 
+                self.tr("Select destination path within repository"), 
+                self.parent.active_repo.base_path)
+            if dir:
+                if not is_internal(dir, self.parent.active_repo.base_path):
+                    #Выбрана директория снаружи хранилища
+                    raise Exception(self.tr("Chosen directory is out of active repository."))
+                else:
+                    new_dst_path = os.path.relpath(dir, self.parent.active_repo.base_path)
+                    self.ui.lineEdit_dst_path.setText(new_dst_path)
+                    #Присваиваем новое значение dst_path объекту DataRef, если он ссылается
+                    #на новый внешний файл (его путь абсолютный и вне хранилища)                
+                    if os.path.isabs(self.item.data_ref.url) and \
+                    not is_internal(self.item.data_ref.url, self.parent.active_repo.base_path):
+                        #Этот файл еще не в хранилище
+                        self.item.data_ref.dst_path = new_dst_path
+        except Exception as ex:
+            showExcInfo(self, ex)
     
     def button_remove(self):
         if self.ui.listWidget_data_refs.count() == 0:
