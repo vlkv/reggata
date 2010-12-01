@@ -6,6 +6,7 @@ Created on 30.11.2010
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 import ui_itemsdialog
+import os
 
 
 class CustomTextEdit(QtGui.QTextEdit):
@@ -119,7 +120,28 @@ class ItemsDialog(QtGui.QDialog):
                 else:
                     fields_str = fields_str + '<font color="grey">' + field_name + "</font>: ### "
         self.ui.textEdit_fields.setText(fields_str)
-                    
+
+        one_path = True
+        path_str = ""
+        index = 0
+        while index < len(self.items) and self.items[index].data_ref.type != 'FILE':
+            index = index + 1
+        if index < len(self.items):
+            path_str, basename = os.path.split(self.items[index].data_ref.url)
+            for i in range(index + 1, len(self.items)):
+                if self.items[i].data_ref.type != 'FILE':
+                    continue
+                p,b = os.path.split(self.items[i].data_ref.url)
+                if path_str != p:
+                    one_path = False
+                    break
+        if not one_path:
+            path_str = "###"
+            #Тут могут быть проблемы, если директория называется '###'
+        self.ui.lineEdit_dst_path.setText(path_str)
+        
+                
+             
                             
           
     def button_ok(self):        
