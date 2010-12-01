@@ -45,6 +45,8 @@ class ItemsDialog(QtGui.QDialog):
 
     items = None
 
+    dst_path = None
+
     def __init__(self, items=[], parent=None):
         super(ItemsDialog, self).__init__(parent)
         self.ui = ui_itemsdialog.Ui_ItemsDialog()
@@ -63,7 +65,9 @@ class ItemsDialog(QtGui.QDialog):
         self.read()
         
         #TODO Добавить поддержку DialogMode
-        
+    
+    def write(self):
+        self.dst_path = self.ui.lineEdit_dst_path.text()
         
     def read(self):
         '''Теги, которые есть у всех элементов из items нужно выводить черным.
@@ -126,24 +130,35 @@ class ItemsDialog(QtGui.QDialog):
                     fields_str = fields_str + '<font color="grey">' + field_name + "</font>: ### "
         self.ui.textEdit_fields.setText(fields_str)
 
-        one_path = True
-        path_str = ""
-        index = 0
-        while index < len(self.items) and self.items[index].data_ref.type != 'FILE':
-            index = index + 1
-        if index < len(self.items):
-            path_str, basename = os.path.split(self.items[index].data_ref.url)
-            for i in range(index + 1, len(self.items)):
-                if self.items[i].data_ref.type != 'FILE':
-                    continue
-                p,b = os.path.split(self.items[i].data_ref.url)
-                if path_str != p:
-                    one_path = False
+
+
+        self.dst_path = None
+        same_path = None
+        for i in range(len(self.items)):
+            if self.items[i].data_ref is None or self.items[i].data_ref.type != 'FILE':
+                continue
+            
+            if self.dst_path is None:
+                self.dst_path, null = os.path.split(self.items[i].data_ref.url)
+                same_path = 'yes'
+            else:
+                path, null = os.path.split(self.items[i].data_ref.url)
+                if self.dst_path != path:
+                    same_path = 'no'
                     break
-        if not one_path:
-            path_str = "###"
-            #Тут могут быть проблемы, если директория называется '###'
-        self.ui.lineEdit_dst_path.setText(path_str)
+        if same_path is None:
+            #Все элементы не содержат ссылок на файлы
+            self.dst_path = None
+            self.ui.lineEdit_dst_path.setText(self.tr('<not applicable>'))
+        elif same_path == 'yes':
+            #Все элементы, связанные с DataRef-ами типа FILE, находятся в ОДНОЙ директории
+            self.ui.lineEdit_dst_path.setText(self.dst_path)
+        else:
+            #Элементы, связанные с DataRef-ами типа FILE, находятся в РАЗНЫХ директориях
+            self.dst_path = None #Обнуляем это поле
+            self.ui.lineEdit_dst_path.setText(self.tr('<different values>'))
+        
+        #При подсчете не учитываются объекты DataRef имеющие тип URL (или любой отличный от FILE)        
         
                 
              

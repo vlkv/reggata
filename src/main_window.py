@@ -351,15 +351,16 @@ class MainWindow(QtGui.QMainWindow):
 			if self.active_user is None:
 				raise MsgException(self.tr("Login to a repository first."))
 			
+			#Создаем новый (пустой пока) элемент
+			item = Item(user_login=self.active_user.login)
+			
 			#Просим пользователя выбрать один файл
 			file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select file to add"))
-			if is_none_or_empty(file):
-				return
+			if not is_none_or_empty(file):
+				#Сразу привязываем выбранный файл к новому элементу
+				item.title = os.path.basename(file) #Предлагаем назвать элемент по имени файла			
+				item.data_ref = DataRef(url=file, type="FILE")
 			
-			#Сразу привязываем выбранный файл к новому элементу
-			item = Item(user_login=self.active_user.login)
-			item.title = os.path.basename(file) #Предлагаем назвать элемент по имени файла			
-			item.data_ref = DataRef(url=file, type="FILE")
 						
 			#Открываем диалог для ввода остальной информации об элементе
 			d = ItemDialog(item, self, DialogMode.CREATE)
@@ -497,8 +498,10 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
 			return pixmap.size()
 		else:
 			return QtCore.QSize(option.rect.width(), option.rect.height())
+			#TODO Тут вобщем-то надо вычислить размер на основе data(Qt.DisplayRole)
+			
 
-	def paint(self, painter, option, index):		
+	def paint(self, painter, option, index):
 		pixmap = index.data(QtCore.Qt.UserRole)
 		if pixmap:
 			painter.drawPixmap(option.rect.topLeft(), pixmap)
@@ -588,7 +591,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 
 		#Данная роль используется для отображения миниатюр графических файлов
 		elif role == QtCore.Qt.UserRole:
-			if column == self.IMAGE_THUMB:
+			if column == self.IMAGE_THUMB and item.data_ref is not None:
 				if self.thumbs.get(item.data_ref.id):
 					#Если в ОП уже загружена миниатюра
 					return self.thumbs.get(item.data_ref.id)
