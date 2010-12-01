@@ -56,14 +56,19 @@ class TagCloud(QtGui.QTextEdit):
         self.save_state_timer = QtCore.QTimer(self)
         self.save_state_timer.setSingleShot(True)
         self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), lambda: self.emit(QtCore.SIGNAL("maySaveSize")))
-    
-    
+        
+        
     def resizeEvent(self, resize_event):
         self.hint_width = self.width()
         self.hint_height = self.height()
         self.save_state_timer.start(3000)
         #Через три секунды будет отправлен сигнал главному окну, чтобы оно 
         #сохранило размер облака тегов
+        
+        #Как правило, если dock_widget внутри которого находится облако тегов
+        #перетаскивать мышкой в другую область, то меняется и размер облака тегов.
+        #Соответственно, срабатывает данный обработчик и потом в главном окне
+        #сохраняется размер облака тегов и заодно и положение dock_widget-а.
         
         return super(TagCloud, self).resizeEvent(resize_event)
         

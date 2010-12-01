@@ -134,6 +134,9 @@ class MainWindow(QtGui.QMainWindow):
 		self.ui.tag_cloud.hint_height = int(UserConfig().get("main_window.tag_cloud.height", 100))
 		self.ui.tag_cloud.hint_width = int(UserConfig().get("main_window.tag_cloud.width", 100))
 		self.connect(self.ui.tag_cloud, QtCore.SIGNAL("maySaveSize"), self.save_main_window_state)
+		self.removeDockWidget(self.ui.dockWidget_tag_cloud)
+		self.addDockWidget(int(UserConfig().get("main_window.tag_cloud.dock_area", QtCore.Qt.TopDockWidgetArea)), self.ui.dockWidget_tag_cloud)
+		self.ui.dockWidget_tag_cloud.show()
 		
 
 	def reset_tag_cloud(self):
@@ -152,7 +155,12 @@ class MainWindow(QtGui.QMainWindow):
 	def save_main_window_state(self):
 		#Тут нужно сохранить в конфиге пользователя размер окна
 		UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
+		
+		#Размер облака тегов
 		UserConfig().storeAll({"main_window.tag_cloud.width":self.ui.tag_cloud.hint_width, "main_window.tag_cloud.height":self.ui.tag_cloud.hint_height})
+		
+		#Расположение облака тегов
+		UserConfig().store("main_window.tag_cloud.dock_area", str(self.dockWidgetArea(self.ui.dockWidget_tag_cloud)))
 		
 		self.ui.statusbar.showMessage(self.tr("Main window state has saved."), 5000)
 		
