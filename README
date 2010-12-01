@@ -4,6 +4,12 @@ Reggata - is a program for tagging user files on local computer.
 The project is not ready to use yet, because there are a lot of functions 
 need to be implemented.
 
+=== Alike projects ===
+I would like Reggata to be like Delicious (http://www.delicious.com), but for tagging local files (and URL bookmarks also though) and storing all information in local database, not remote server.
+Like Calibre (http://calibre-ebook.com/ which is for electronic books) or JBrout (http://jbrout.manatlan.com/ which is for digital photos) but for files of any type.
+Like Tag2Find (http://www.tag2find.com/ which is for windows only as I know) but cross-platform.
+Also, in the future I would like Reggata to have repository clone/merge features like Git (http://git-scm.com/), but without storing every last version state but only the last one.
+
 
 == Reggata dependencies ==
 
