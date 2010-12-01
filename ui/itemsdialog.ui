@@ -41,7 +41,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" >
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_7" >
+      <layout class="QVBoxLayout" name="verticalLayout_fields" >
        <item>
         <widget class="QLabel" name="label_7" >
          <property name="text" >
@@ -49,22 +49,16 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QTextEdit" name="textEdit_fields" />
-       </item>
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_8" >
+      <layout class="QVBoxLayout" name="verticalLayout_tags" >
        <item>
         <widget class="QLabel" name="label_6" >
          <property name="text" >
           <string>Tags:</string>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="textEdit_tags" />
        </item>
       </layout>
      </item>

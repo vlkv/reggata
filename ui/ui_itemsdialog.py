@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemsdialog.ui'
 #
-# Created: Tue Nov 30 23:38:39 2010
+# Created: Wed Dec  1 08:13:48 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -35,24 +35,18 @@ class Ui_ItemsDialog(object):
         self.verticalLayout.addLayout(self.horizontalLayout_5)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
-        self.verticalLayout_7 = QtGui.QVBoxLayout()
-        self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))
+        self.verticalLayout_fields = QtGui.QVBoxLayout()
+        self.verticalLayout_fields.setObjectName(_fromUtf8("verticalLayout_fields"))
         self.label_7 = QtGui.QLabel(ItemsDialog)
         self.label_7.setObjectName(_fromUtf8("label_7"))
-        self.verticalLayout_7.addWidget(self.label_7)
-        self.textEdit_fields = QtGui.QTextEdit(ItemsDialog)
-        self.textEdit_fields.setObjectName(_fromUtf8("textEdit_fields"))
-        self.verticalLayout_7.addWidget(self.textEdit_fields)
-        self.horizontalLayout.addLayout(self.verticalLayout_7)
-        self.verticalLayout_8 = QtGui.QVBoxLayout()
-        self.verticalLayout_8.setObjectName(_fromUtf8("verticalLayout_8"))
+        self.verticalLayout_fields.addWidget(self.label_7)
+        self.horizontalLayout.addLayout(self.verticalLayout_fields)
+        self.verticalLayout_tags = QtGui.QVBoxLayout()
+        self.verticalLayout_tags.setObjectName(_fromUtf8("verticalLayout_tags"))
         self.label_6 = QtGui.QLabel(ItemsDialog)
         self.label_6.setObjectName(_fromUtf8("label_6"))
-        self.verticalLayout_8.addWidget(self.label_6)
-        self.textEdit_tags = QtGui.QTextEdit(ItemsDialog)
-        self.textEdit_tags.setObjectName(_fromUtf8("textEdit_tags"))
-        self.verticalLayout_8.addWidget(self.textEdit_tags)
-        self.horizontalLayout.addLayout(self.verticalLayout_8)
+        self.verticalLayout_tags.addWidget(self.label_6)
+        self.horizontalLayout.addLayout(self.verticalLayout_tags)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.buttonBox = QtGui.QDialogButtonBox(ItemsDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)

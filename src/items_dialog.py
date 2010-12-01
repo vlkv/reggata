@@ -4,7 +4,31 @@ Created on 30.11.2010
 @author: vlkv
 '''
 from PyQt4 import QtGui, QtCore
+from PyQt4.QtCore import Qt
 import ui_itemsdialog
+
+
+class CustomTextEdit(QtGui.QTextEdit):
+    '''Немного модифицированный QTextEdit, который отображает весь вводимый 
+    пользователем текст выделяющимся шрифтом (вне зависимости от текущего 
+    формата редактируемого текста).'''
+    def __init__(self, parent=None):
+        super(CustomTextEdit, self).__init__(parent)
+        
+    def currentCharFormatChanged(self, fmt):
+        print("currentCharFormatChanged()")
+        old_fmt = self.currentCharFormat()
+        self.setCurrentCharFormat(old_fmt)
+    
+    def event(self, e):
+        print(str(e))
+        if e.type() == QtCore.QEvent.KeyPress:
+            #Делаем ввод нового текста синим шрифтом
+            f = QtGui.QTextCharFormat()
+            self.setCurrentCharFormat(f)
+            self.setTextColor(Qt.blue)
+        return super(CustomTextEdit, self).event(e)
+        
 
 class ItemsDialog(QtGui.QDialog):
     '''
@@ -23,6 +47,12 @@ class ItemsDialog(QtGui.QDialog):
         
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.button_ok)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.button_cancel)
+        
+        self.ui.textEdit_tags = CustomTextEdit()
+        self.ui.verticalLayout_tags.addWidget(self.ui.textEdit_tags)
+        
+        self.ui.textEdit_fields = CustomTextEdit()
+        self.ui.verticalLayout_fields.addWidget(self.ui.textEdit_fields)
         
         self.read()
         
