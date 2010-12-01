@@ -94,7 +94,7 @@ class Item(Base):
             self.date_created = date_created
         else:
             self.date_created = datetime.datetime.today()
-        
+            
     def has_tag(self, tag_name):
         '''Возвращает True, если данный элемент имеет тег с имененем tag_name.'''
         for item_tag in self.item_tags:
@@ -187,6 +187,17 @@ class DataRef(Base):
     #их необходимо скопировать. Данное поле в БД не сохраняется.
     dst_path = None
     
+    @staticmethod
+    def _sql_from():
+        return '''
+            data_refs.id AS data_refs_id, 
+            data_refs.url AS data_refs_url, 
+            data_refs.type AS data_refs_type, 
+            data_refs.hash AS data_refs_hash, 
+            data_refs.date_hashed AS data_refs_date_hashed, 
+            data_refs.size AS data_refs_size, 
+            data_refs.date_created AS data_refs_date_created, 
+            data_refs.user_login AS data_refs_user_login '''
 
     def __init__(self, url=None, date_created=None, type=None):
         self.url = url
@@ -255,6 +266,14 @@ class Thumbnail(Base):
         self.data = None
         
     
+    @staticmethod
+    def _sql_from():
+        return '''
+        thumbnails.data_ref_id AS thumbnails_data_ref_id, 
+        thumbnails.size AS thumbnails_size, 
+        thumbnails.dimension AS thumbnails_dimension, 
+        thumbnails.data AS thumbnails_data, 
+        thumbnails.date_created AS thumbnails_date_created '''
     
 class Tag(Base):
     '''

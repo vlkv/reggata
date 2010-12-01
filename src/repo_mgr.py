@@ -37,6 +37,7 @@ import PyQt4.QtCore as QtCore
 import datetime
 from sqlalchemy.exc import ResourceClosedError
 from sqlalchemy.sql.expression import select
+from user_config import UserConfig
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -219,6 +220,7 @@ class UnitOfWork(object):
     def get_item(self, id):
         '''Возвращает detached-объект класса Item, с заданным значением id. '''
         item = self._session.query(Item).get(id)
+        #TODO Сюда надо добавить eagerload выражения...
         for itag in item.item_tags:
             itag.tag
         for ifield in item.item_fields:
@@ -237,34 +239,59 @@ class UnitOfWork(object):
 #                    .order_by(Tag.name).all()
 #        #TODO нужны критерии по пользователям и по уже выбранным тегам
     
-    def query_items_by_sql(self, sql):
-        
-        data_refs = Base.metadata.tables[DataRef.__tablename__]
-        thumbnails = Base.metadata.tables[Thumbnail.__tablename__]
-        
-        eager_columns = select([
-                    data_refs.c.id.label('dr_id'),
-                    data_refs.c.url.label('dr_url'),
-                    data_refs.c.type.label('dr_type'),
-                    data_refs.c.hash.label('dr_hash'),
-                    data_refs.c.date_hashed.label('dr_date_hashed'),
-                    data_refs.c.size.label('dr_size'),
-                    data_refs.c.date_created.label('dr_date_created'),
-                    data_refs.c.user_login.label('dr_user_login'),
-                    thumbnails.c.data_ref_id.label('th_data_ref_id'),
-                    thumbnails.c.size.label('th_size'),
-                    thumbnails.c.dimension.label('th_dimension'),
-                    thumbnails.c.data.label('th_data'),
-                    thumbnails.c.date_created.label('th_date_created'),
-                    ])
-                    
-        items = self._session.query(Item).\
-            options(contains_eager("data_ref", alias=eager_columns), contains_eager("data_ref.thumbnails", alias=eager_columns)).\
-            from_statement(sql).all()
+    def get_untagged_items(self):
+        thumbnail_default_size = UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)
+        sql = '''
+        select i.*, ''' + \
+        DataRef._sql_from() + ", " + \
+        Thumbnail._sql_from() + \
+        ''' 
+        from items i
+        left join items_tags it on i.id = it.item_id
+        left join data_refs on i.data_ref_id = data_refs.id
+        left join thumbnails on data_refs.id = thumbnails.data_ref_id and thumbnails.size = {} 
+        where it.item_id is null '''.format(thumbnail_default_size)
+        items = self._session.query(Item)\
+            .options(contains_eager("data_ref"), contains_eager("data_ref.thumbnails"))\
+            .from_statement(sql).all()
             
-#            options(contains_eager(("data_ref", "thumbnails"), alias=eager_columns)).\
-        #            options(contains_eager(Item.data_ref, DataRef.thumbnails)).\
+        self._session.expunge_all()
+                
+        return items
+    
+    def query_items_by_sql(self, sql):
+        '''
+        Внимание! sql должен извлекать не только item-ы, но также и связанные (при помощи left join)
+        элементы data_refs и thumbnails.
+        '''
         
+#Это так для примера: как я задавал alias
+#        data_refs = Base.metadata.tables[DataRef.__tablename__]
+#        thumbnails = Base.metadata.tables[Thumbnail.__tablename__]        
+#        eager_columns = select([
+#                    data_refs.c.id.label('dr_id'),
+#                    data_refs.c.url.label('dr_url'),
+#                    data_refs.c.type.label('dr_type'),
+#                    data_refs.c.hash.label('dr_hash'),
+#                    data_refs.c.date_hashed.label('dr_date_hashed'),
+#                    data_refs.c.size.label('dr_size'),
+#                    data_refs.c.date_created.label('dr_date_created'),
+#                    data_refs.c.user_login.label('dr_user_login'),
+#                    thumbnails.c.data_ref_id.label('th_data_ref_id'),
+#                    thumbnails.c.size.label('th_size'),
+#                    thumbnails.c.dimension.label('th_dimension'),
+#                    thumbnails.c.data.label('th_data'),
+#                    thumbnails.c.date_created.label('th_date_created'),
+#                    ])                    
+#        items = self._session.query(Item).\
+#            options(contains_eager("data_ref", alias=eager_columns), \                    
+#                    contains_eager("data_ref.thumbnails", alias=eager_columns)).\
+#            from_statement(sql).all()
+
+        items = self._session.query(Item)\
+            .options(contains_eager("data_ref"), contains_eager("data_ref.thumbnails"))\
+            .from_statement(sql).all()
+            
         #Выше использовался joinedload, поэтому по идее следующий цикл
         #не должен порождать новые SQL запросы
 #        for item in items:

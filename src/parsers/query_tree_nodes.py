@@ -24,6 +24,7 @@ Created on 27.11.2010
 import consts
 import helpers
 from user_config import UserConfig
+from db_model import DataRef, Thumbnail
 
 
 class QueryExpression(object):
@@ -113,33 +114,31 @@ class TagsConjunction(QueryExpression):
         
         
         #thumbnails_str
-        thumbnails_str = "th.size = {} ".format(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE))
+        thumbnails_str = "thumbnails.size = {} ".format(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE))
         
+#            dr.id AS dr_id, 
+#            dr.url AS dr_url, 
+#            dr.type AS dr_type, 
+#            dr.hash AS dr_hash, 
+#            dr.date_hashed AS dr_date_hashed, 
+#            dr.size AS dr_size, 
+#            dr.date_created AS dr_date_created, 
+#            dr.user_login AS dr_user_login,
         
         #Данный запрос будет попутно извлекать информацию о 
         #связанных с элементами объектов DataRef
         s = '''
         --TagsConjunction.interpret() function
         select distinct 
-            i.*,
-            dr.id AS dr_id, 
-            dr.url AS dr_url, 
-            dr.type AS dr_type, 
-            dr.hash AS dr_hash, 
-            dr.date_hashed AS dr_date_hashed, 
-            dr.size AS dr_size, 
-            dr.date_created AS dr_date_created, 
-            dr.user_login AS dr_user_login,
-            th.data_ref_id AS th_data_ref_id, 
-            th.size AS th_size, 
-            th.dimension AS th_dimension, 
-            th.data AS th_data, 
-            th.date_created AS th_date_created 
+            i.*, ''' + \
+            DataRef._sql_from() + ", " + \
+            Thumbnail._sql_from() + \
+        '''
         from items i 
         left outer join items_tags it on i.id = it.item_id 
         left outer join tags t on t.id = it.tag_id
-        left outer join data_refs dr on dr.id = i.data_ref_id
-        left outer join thumbnails th on th.data_ref_id = dr.id and ''' + thumbnails_str + '''
+        left outer join data_refs on data_refs.id = i.data_ref_id
+        left outer join thumbnails on thumbnails.data_ref_id = data_refs.id and ''' + thumbnails_str + '''
             where (''' + yes_tags_str + ''') 
             and (''' + extras_users_str + ''') 
             and (''' + no_tags_str + ''')

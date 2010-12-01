@@ -523,19 +523,23 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		'''Выполняет извлечение элементов из хранилища.'''
 		
 		if query_text is None or query_text.strip()=="":
-			self.items = []
-			self.reset()
-			return
-		
-		uow = self.repo.createUnitOfWork()
-		try:
-			tree = query_parser.parse(query_text)
-			sql = tree.interpret()
-			self.items = uow.query_items_by_sql(sql)
+			#Если запрос пустой, тогда извлекаем элементы не имеющие тегов
+			uow = self.repo.createUnitOfWork()
+			try:
+				self.items = uow.get_untagged_items()
+				self.reset()
+			finally:
+				uow.close()
+		else:
 
-			self.reset()
-		finally:
-			uow.close()
+			uow = self.repo.createUnitOfWork()
+			try:
+				tree = query_parser.parse(query_text)
+				sql = tree.interpret()
+				self.items = uow.query_items_by_sql(sql)
+				self.reset()
+			finally:
+				uow.close()
 	
 	def rowCount(self, index=QtCore.QModelIndex()):
 		return len(self.items)
