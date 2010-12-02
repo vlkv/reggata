@@ -309,7 +309,8 @@ class UnitOfWork(object):
 #            for thumbnail in item.data_ref.thumbnails:
 #                thumbnail
 
-        self._session.expunge_all()
+        for item in items:
+            self._session.expunge(item)
         
         return items
     
@@ -318,6 +319,7 @@ class UnitOfWork(object):
     def save_new_user(self, user):
         self._session.add(user)
         self._session.commit()
+        self._session.expunge(user)
 
 
     def login_user(self, login, password):
@@ -332,6 +334,8 @@ class UnitOfWork(object):
             raise LoginError(tr("User {} doesn't exist.").format(login))
         if user.password != password:
             raise LoginError(tr("Password incorrect."))
+        
+        self._session.expunge(user)
         return user
 
         
@@ -618,6 +622,8 @@ class UnitOfWork(object):
                     shutil.copy(data_ref_original_url, self._repo_base_path + dr.url)
 
         self._session.commit()
+        
+        
 
 class UpdateGroupOfItemsThread(QtCore.QThread):
     def __init__(self, parent, repo, items):

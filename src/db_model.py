@@ -75,10 +75,10 @@ class Item(Base):
     data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"))
     
     #пользователь-владелец данного элемента
-    user = relationship(User)
+    user = relationship(User, cascade="save-update, merge, expunge, refresh-expire")
     
     #связанный файл/ссылка_URL
-    data_ref = relationship("DataRef")
+    data_ref = relationship("DataRef", cascade="all")
     
     #tags - список связанных тегов
     item_tags = relationship("Item_Tag", cascade="all, delete-orphan")
@@ -185,10 +185,12 @@ class DataRef(Base):
     
     #Пользователь-владелец данного объекта (обычно тот, кто его создал)
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
-        
-    user = relationship(User)
     
-    thumbnails = relationship("Thumbnail")
+    
+    user = relationship(User, cascade="save-update, merge, expunge, refresh-expire")
+    
+    thumbnails = relationship("Thumbnail", cascade="all, delete-orphan")
+
 
     #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
     #их необходимо скопировать. Данное поле в БД не сохраняется.
@@ -263,9 +265,7 @@ class Thumbnail(Base):
     
     #Логическое поле, определяющее, следует ли автоматически обновлять миниатюру
     #auto_updated = sqa.Column(sqa.Boolean, default=True)
-    
-    
-    data_ref = relationship(DataRef)
+        
     
     def __init__(self):
         self.data_ref_id = None
@@ -311,9 +311,9 @@ class Item_Tag(Base):
     tag_id = sqa.Column(sqa.Integer, ForeignKey("tags.id"), primary_key=True)
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
     
-    item = relationship(Item)
-    tag = relationship(Tag)
-    user = relationship(User)
+    #item = relationship(Item)
+    tag = relationship(Tag, cascade="save-update, merge, expunge, refresh-expire")
+    #user = relationship(User)
     
     def __init__(self, tag=None, user_login=None):
         self.tag = tag
@@ -337,7 +337,7 @@ class Field(Base):
     id = sqa.Column(sqa.Integer, primary_key=True)
     name = sqa.Column(sqa.String, nullable=False, unique=True)
     synonym_code = sqa.Column(sqa.Integer)
-#    value_type = sqa.Column(sqa.Enum("STRING", "NUMBER"), nullable=False, default="STRING")
+    #value_type = sqa.Column(sqa.Enum("STRING", "NUMBER"), nullable=False, default="STRING")
 
     def __init__(self, name=None):
         self.id = None
@@ -360,9 +360,9 @@ class Item_Field(Base):
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
     field_value = sqa.Column(sqa.String, nullable=False, default="")
 
-    item = relationship(Item)
-    field = relationship(Field)
-    user = relationship(User)
+    #item = relationship(Item)
+    field = relationship(Field, cascade="save-update, merge, expunge, refresh-expire")
+    #user = relationship(User)
     
     
     def __init__(self, field=None, value=None, user_login=None):
