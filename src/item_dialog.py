@@ -83,7 +83,7 @@ class ItemDialog(QtGui.QDialog):
         for itf in self.item.item_fields:
             name = quote(itf.field.name) if fields_def_parser.needs_quote(itf.field.name) else itf.field.name
             value = quote(itf.field_value) if fields_def_parser.needs_quote(itf.field_value) else itf.field_value
-            s = s + name + ":" + value + os.linesep
+            s = s + name + ": " + value + os.linesep
         self.ui.plainTextEdit_fields.setPlainText(s)
         
         #Выводим список тегов данного элемента
