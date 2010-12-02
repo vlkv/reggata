@@ -176,34 +176,60 @@ def compute_hash(filename, chunksize=131072, algorithm="sha1"):
     return hash
     
 
-class WaitDialog(QtGui.QDialog):
-    #TODO Это пока что заготовка, а не готовый класс
+class WaitDialog(QtGui.QDialog):    
     '''Диалог должен уметь:
-    1) Работать в режиме неопределенного окончания работы
-    2) Работать и отображать сколько процентов завершено
-    3) Отображать сообщение (просто статический текст)
-    4) Иметь возможность отмены операции
-    5) Отображать информацию о случившихся ошибках в процессе работы
-    6) Отображать себя после паузы (4 секунды)
+    1) Работать в режиме неопределенного окончания работы (параметр indeterminate)
+    2) Работать и отображать сколько процентов завершено (слот set_progress)
+    3) Отображать сообщение (просто статический текст) (параметр message)
+    4) Иметь возможность отмены операции (Этого пока что нет!) 
+    5) Отображать информацию о случившихся ошибках в процессе работы (слот exception)
+    6) Отображать себя после паузы (4 секунды) (Этого нет, но можно сделать снаружи!)
     '''
     
-    def __init__(self, parent=None, minDur=1000):
+    def __init__(self, parent=None, message=tr("Please, wait..."), indeterminate=False, minimum=0, maximum=100):
         super(WaitDialog, self).__init__(parent)
-        self.resize(320, 240)
         self.setModal(True)
-        self.timer = QtCore.QTimer(self)
-        self.timer.setSingleShot(True)
-        self.connect(self.timer, QtCore.SIGNAL("timeout()"), lambda: print("lambda: self.show()"))
-        self.timer.start(minDur)
-        print("Timer started?")
+        
+        vbox = QtGui.QVBoxLayout()
+        
+        self.msg_label = QtGui.QLabel(message)
+        vbox.addWidget(self.msg_label)
+        
+        self.progress_bar = QtGui.QProgressBar()
+        self.progress_bar.setMinimum(minimum)
+        self.progress_bar.setMaximum(maximum)
+        vbox.addWidget(self.progress_bar)
+        
+        if indeterminate:
+            self.progress_bar.setTextVisible(False)
+            self.timer = QtCore.QTimer()
+            self.connect(self.timer, QtCore.SIGNAL("timeout()"), self.indeterminate_timer)
+            self.timer.start(100)
+        
+        self.setLayout(vbox)
+    
+    def indeterminate_timer(self):
+        value = self.progress_bar.value()
+        value = value + int((self.progress_bar.maximum() - self.progress_bar.minimum())/5.0)
+        self.progress_bar.setValue(value if value <= self.progress_bar.maximum() else self.progress_bar.minimum())
+        
     
     def exception(self, msg):
+        '''Слот, вызываемый в случае получения информации, что в процессе 
+        ожидания возникло исключение.'''
         showExcInfo(self, Exception(msg), False)
+        self.reject()
         
     def closeEvent(self, close_event):
         '''Данный метод делает невозможным закрыть окно кнопкой "крестик".'''
-        close_event.ignore()    
-
+        close_event.ignore()
+        
+    def set_progress(self, percent_completed):
+        '''Слот, вызываемый для отображения текущего процента завершенности задачи.'''        
+        print("Completed {}%".format(percent_completed))
+        self.progress_bar.setValue(percent_completed)
+        
+        
         
         
         

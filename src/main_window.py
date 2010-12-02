@@ -368,15 +368,15 @@ class MainWindow(QtGui.QMainWindow):
 				uow = self.active_repo.createUnitOfWork()
 				try:
 					#uow.save_new_item(d.item, self.active_user.login)
-					bt = BackgrThread(self, uow.save_new_item, d.item, self.active_user.login)
+					thread = BackgrThread(self, uow.save_new_item, d.item, self.active_user.login)
 					
-					wd = WaitDialog(self)
-					self.connect(bt, QtCore.SIGNAL("finished()"), wd.reject)
-					self.connect(bt, QtCore.SIGNAL("exception"), wd.exception)
+					wd = WaitDialog(self, indeterminate=True)
+					self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+					self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
 										
-					bt.start()
-					bt.wait(1000)
-					if bt.isRunning():
+					thread.start()
+					thread.wait(1000)
+					if thread.isRunning():
 						wd.exec_()
 
 					print("Done!!!")
@@ -464,15 +464,23 @@ class MainWindow(QtGui.QMainWindow):
 						#Выполняется отдельный SQL запрос (и не один...) для каждого из выбранных элементов
 						#Потом надо бы исправить (хотя бы теги/поля/датарефы извлекать по join-стратегии
 						id = self.model.items[row].id
-						sel_items.append(uow.get_item(id))						
+						sel_items.append(uow.get_item(id))
 					dlg = ItemsDialog(sel_items, self)
-					if dlg.exec_():
-						#TODO надо теперь сохранять в БД изменения...
+					if dlg.exec_():						
 						thread = UpdateGroupOfItemsThread(self, self.active_repo, sel_items)
 						self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
-						thread.start()
-						thread.wait()
+												
 						#TODO Тут надо отображать WaitDialog
+						wd = WaitDialog(self)
+						self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+						self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+						self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+											
+						thread.start()
+						thread.wait(1000)
+						if thread.isRunning():
+							wd.exec_()
+						
 				finally:
 					uow.close()
 					

@@ -459,7 +459,7 @@ class UnitOfWork(object):
                 #В любом случае item.data_ref.url содержит изначально абсолютный адрес                
                 data_ref = item.data_ref
                 data_ref_original_url = data_ref.url
-                self._prepare_data_ref(data_ref, user_login)            
+                self._prepare_data_ref(data_ref, user_login)
                 
                 self._session.add(data_ref)
                 self._session.flush()
@@ -622,23 +622,28 @@ class UnitOfWork(object):
         
 
 class UpdateGroupOfItemsThread(QtCore.QThread):
+    
     def __init__(self, parent, repo, items):
         super(UpdateGroupOfItemsThread, self).__init__(parent)
-        self.uow = repo.createUnitOfWork()
+        self.repo = repo
         self.items = items
-        
+
     def run(self):
+        uow = self.repo.createUnitOfWork()
         try:
+            i = 0
             for item in self.items:
                 #Редактируем каждый item
-                self.uow.update_existing_item(item, item.user_login)
+                uow.update_existing_item(item, item.user_login)
+                i = i + 1
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
                 
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
             print(traceback.format_exc())
         finally:
-            self.emit(QtCore.SIGNAL("finished()"))
-            self.uow.close()
+            self.emit(QtCore.SIGNAL("finished"))
+            uow.close()
         
     
 class BackgrThread(QtCore.QThread):
@@ -654,7 +659,7 @@ class BackgrThread(QtCore.QThread):
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
         finally:
-            self.emit(QtCore.SIGNAL("finished()"))
+            self.emit(QtCore.SIGNAL("finished"))
             
         
         
