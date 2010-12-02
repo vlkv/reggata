@@ -334,51 +334,7 @@ class UnitOfWork(object):
             raise LoginError(tr("Password incorrect."))
         return user
 
-    def move_data_ref_file(self, data_ref):
-        '''Метод перемещает файл, на который ссылается data_ref, в другую директорию
-        внутри хранилища. Эта директория назначения, задается в поле 
-        data_ref.dst_path (это должен быть относительный путь до директории, 
-        куда следует переместить файл).
         
-        Предполагается, что data_ref - это detached экземпляр.
-        
-        Возвращает detached экземпляр data_ref с обновленным состоянием. 
-        '''
-                
-        
-        data_ref_0 = self._session.query(DataRef).get(data_ref.id)
-        
-        if data_ref_0.type != 'FILE':
-            raise ValueError(tr("DataRef object must be of FILE type."))
-        
-        #Запоминаем исходное расположение файла
-        src_path = data_ref_0.url
-        abs_src_path = os.path.join(self._repo_base_path, data_ref_0.url)
-        
-        #Преобразуем dst_path в абсолютный путь ДО ФАЙЛА
-        dst_path = os.path.join(data_ref.dst_path, os.path.basename(data_ref.url)) 
-        abs_dst_path = os.path.join(self._repo_base_path, dst_path)
-        if not os.path.exists(abs_src_path):
-            raise Exception(tr("File {} not found!").format(abs_src_path))
-        
-        if os.path.exists(abs_dst_path):
-            raise Exception(tr("Pathname {} already exists. I'm not to overwrite it!").format(abs_dst_path))
-        
-        data_ref_0.url = dst_path
-        self._session.flush()
-        
-        #Теперь начинаем перемещение файла
-        shutil.move(abs_src_path, abs_dst_path)
-        
-        #TODO Тут может быть вставить какую-нибудь проверку соответствия хеша?
-        
-        self._session.commit()
-        
-        self._session.refresh(data_ref_0)
-        self._session.expunge(data_ref_0)
-        return data_ref_0
-        
-
     def update_existing_item(self, item, user_login):
         '''Изменяет существующий элемент хранилища. Поскольку в принципе, пользователь
         может добавить свои теги к чужому элементу, то необходимо передавать логин
@@ -402,6 +358,7 @@ class UnitOfWork(object):
         item_0.title = item.title
         item_0.notes = item.notes
         item_0.user_login = item.user_login
+        self._session.flush()
         
         #TODO Тут наверное нужно запрещать пользователю удалять чужие теги, поля и data_ref-ы!!!
         
@@ -433,6 +390,7 @@ class UnitOfWork(object):
                 item_tag.item = item_0
                 item_0.item_tags.append(item_tag)        
                 #Почему нужно обе стороны связывать? Ведь relation?
+        self._session.flush()
                 
         #Удаление полей
         for ifield in item_0.item_fields:
@@ -462,7 +420,7 @@ class UnitOfWork(object):
                 #Поле существует, но изменилось значение
                 self._session.add(item_0.item_fields[i]) #Вот тут не могу понять, почему этот объект Item_Field нужно явно добавлять в сессию?
                 item_0.item_fields[i].field_value = ifield.field_value
-        
+        self._session.flush()
         
         #TODO Перемещение существующих data_ref-объектов нужно выполнять наверное тут!
         #Это будет более правильно. Нужно просто смотреть, если data_ref.url не изменился, тогда
@@ -476,15 +434,17 @@ class UnitOfWork(object):
         #Вот так нужно сделать. А метод move_data_ref_file() тогда будет не нужен.
         
         data_ref_original_url = None
+        need_file_operation = None
         
         if item.data_ref is None:
             #У элемента удалили ссылку на файл (также может быть, что её у него и не было).
             #Сам DataRef объект и файл удалять не хочется... пока что так
             item_0.data_ref = None
             item_0.data_ref_id = None
-        elif item_0.data_ref is None or item.data_ref.url != item_0.data_ref.url:
-            #Элемент привязывается к новому или другому файлу
-            #Смотрим, может быть привязываемый файл уже внутри хранилища, и уже может быть есть даже объект DataRef?
+        elif item_0.data_ref is None or item_0.data_ref.url != item.data_ref.url:
+            #Элемент привязывается впервые к файлу либо перепривязывается к другому файлу.
+            #Смотрим, может быть привязываемый файл уже внутри хранилища, 
+            #и уже может быть есть даже объект DataRef?
             #Надо сделать адрес относительным
             existing_data_ref = None
             if item.data_ref.url.startswith(self._repo_base_path):
@@ -495,24 +455,48 @@ class UnitOfWork(object):
             else:
                 #Объекта DataRef в БД не существует, нужно его создавать
                 #Две ситуации: файл уже внутри хранилища, либо он снаружи
-                #В любом случае item.data_ref.url содержит изначально абсолютный адрес
-                data_ref = item.data_ref                
+                #В любом случае item.data_ref.url содержит изначально абсолютный адрес                
+                data_ref = item.data_ref
                 data_ref_original_url = data_ref.url
                 self._prepare_data_ref(data_ref, user_login)            
                 
                 self._session.add(data_ref)
                 self._session.flush()
                 item_0.data_ref = data_ref
-        else:
+                need_file_operation = "copy"
+                
+        elif item.data_ref.type == 'FILE' and not is_none_or_empty(item.data_ref.dst_path):
             #У элемента не меняется его привязка к DataRef объекту
-            pass
+            #Но, возможно, было задано поле data_ref.dst_path и data_ref нужно
+            #ПЕРЕМЕСТИТЬ в другую директорию хранилища
+            #dst_path в данном случае должен содержать относительный путь до директории назначения.
+                        
+            #Запоминаем исходное расположение файла            
+            abs_src_path = os.path.join(self._repo_base_path, item_0.data_ref.url)
             
+            #Преобразуем dst_path в абсолютный путь ДО ФАЙЛА
+            dst_path = os.path.join(item.data_ref.dst_path, os.path.basename(item.data_ref.url)) 
+            abs_dst_path = os.path.join(self._repo_base_path, dst_path)
+            
+            if not os.path.exists(abs_src_path):
+                raise Exception(tr("File {} not found!").format(abs_src_path))
+            if not os.path.exists(abs_dst_path):
+                item_0.data_ref.url = dst_path
+                need_file_operation = "move"
+            elif not os.path.samefile(abs_src_path, abs_dst_path):
+                raise Exception(tr("Pathname {1} already exists. File {0} would not be moved.")\
+                                .format(abs_src_path, abs_dst_path))            
+                    
         self._session.flush()
-        
-        #Копируем файл (если необходимо, конечно)
-        if data_ref_original_url is not None:
+                
+        #Копируем или перемещаем файл (если необходимо, конечно)
+        if need_file_operation == "copy":
             if data_ref_original_url != self._repo_base_path + item_0.data_ref.url:
                 shutil.copy(data_ref_original_url, self._repo_base_path + item_0.data_ref.url)
+        elif need_file_operation == "move":
+            #Теперь начинаем перемещение файла
+            shutil.move(abs_src_path, abs_dst_path)
+            
                 
         self._session.commit()
         
@@ -644,15 +628,8 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
     def run(self):
         try:
             for item in self.items:
-                #DataRef, который связан с данным item-ом возможно необходимо переместить
-                if item.data_ref and item.data_ref.type == 'FILE':
-                    dr = self.uow.move_data_ref_file(item.data_ref)
-                    item.data_ref = dr
-                
                 #Редактируем каждый item
-                #У него могут поменяться набор тегов/полей но не data_ref-объекты
                 self.uow.update_existing_item(item, item.user_login)
-                
                 
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))

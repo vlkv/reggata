@@ -190,12 +190,18 @@ class ItemDialog(QtGui.QDialog):
                 else:
                     new_dst_path = os.path.relpath(dir, self.parent.active_repo.base_path)
                     self.ui.lineEdit_dst_path.setText(new_dst_path)
-                    #Присваиваем новое значение dst_path объекту DataRef, если он ссылается
-                    #на новый внешний файл (его путь абсолютный и вне хранилища)                
-                    if os.path.isabs(self.item.data_ref.url) and \
-                    not is_internal(self.item.data_ref.url, self.parent.active_repo.base_path):
-                        #Этот файл еще не в хранилище
-                        self.item.data_ref.dst_path = new_dst_path
+#                    #Присваиваем новое значение dst_path объекту DataRef, если он ссылается
+#                    #на новый внешний файл (его путь абсолютный и вне хранилища)                
+#                    if os.path.isabs(self.item.data_ref.url) and \
+#                    not is_internal(self.item.data_ref.url, self.parent.active_repo.base_path):
+#                        #Этот файл еще не в хранилище
+#                        self.item.data_ref.dst_path = new_dst_path
+                    self.item.data_ref.dst_path = new_dst_path
+                    #Если файл self.item.data_ref уже в хранилище и в БД, то изменение 
+                    #dst_path означает ПЕРЕМЕЩЕНИЕ его в другую поддиректорию внутри хранилища
+                    #Если файл self.item.data_ref - новый и в хранилище и БД еще
+                    #не сохранен, то dst_path - это директория, куда данный файл
+                    #будет СКОПИРОВАН 
         except Exception as ex:
             showExcInfo(self, ex)
     
@@ -210,6 +216,7 @@ class ItemDialog(QtGui.QDialog):
         self.item.data_ref = None
         self.item.data_ref_id = None
         self.ui.listWidget_data_refs.clear()
+        self.ui.lineEdit_dst_path.clear()
             
             
             
