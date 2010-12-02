@@ -288,8 +288,8 @@ class MainWindow(QtGui.QMainWindow):
 	def action_repo_create(self):
 		try:
 			base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a base path for new repository"))
-			if base_path == "":
-				raise Exception(self.tr("You haven't chosen existent directory. Operation canceled."))
+			if not base_path:
+				raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
 			self.active_repo = RepoMgr.create_new_repo(base_path)
 			self.active_user = None
 		except Exception as ex:
@@ -299,7 +299,7 @@ class MainWindow(QtGui.QMainWindow):
 	def action_repo_close(self):
 		try:
 			if self.active_repo is None:
-				raise Exception(self.tr("There is no opened repository."))
+				raise MsgException(self.tr("There is no opened repository."))
 			self.active_repo = None #Сборщик мусора и деструктор сделают свое дело
 			self.active_user = None
 		except Exception as ex:
@@ -308,7 +308,7 @@ class MainWindow(QtGui.QMainWindow):
 	def action_repo_open(self):
 		try:
 			base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a repository base path"))
-			if base_path == "":
+			if not base_path:
 				raise Exception(self.tr("You haven't chosen existent directory. Operation canceled."))
 			self.active_repo = RepoMgr(base_path)			
 			self.active_user = None
@@ -368,14 +368,14 @@ class MainWindow(QtGui.QMainWindow):
 				uow = self.active_repo.createUnitOfWork()
 				try:
 					#uow.save_new_item(d.item, self.active_user.login)
-					bt = BackgrThread(self, uow.save_new_item, d.item, self.active_user.login)					
+					bt = BackgrThread(self, uow.save_new_item, d.item, self.active_user.login)
 					
 					wd = WaitDialog(self)
 					self.connect(bt, QtCore.SIGNAL("finished()"), wd.reject)
 					self.connect(bt, QtCore.SIGNAL("exception"), wd.exception)
 										
 					bt.start()
-					bt.wait(1000)					
+					bt.wait(1000)
 					if bt.isRunning():
 						wd.exec_()
 
@@ -388,6 +388,8 @@ class MainWindow(QtGui.QMainWindow):
 				
 		except Exception as ex:
 			showExcInfo(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 	
 	def action_user_create(self):
 		try:
@@ -435,7 +437,7 @@ class MainWindow(QtGui.QMainWindow):
 	def action_item_edit(self):
 		
 		def raise_exc(msg):
-			raise Exception(msg)
+			raise MsgException(msg)
 		
 		try:
 			if self.active_repo is None:
