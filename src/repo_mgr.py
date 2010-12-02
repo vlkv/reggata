@@ -27,7 +27,8 @@ from helpers import tr, to_commalist, is_none_or_empty, index_of, is_internal,\
     compute_hash
 import consts
 import sqlalchemy as sqa
-from sqlalchemy.orm import sessionmaker, joinedload, contains_eager
+from sqlalchemy.orm import sessionmaker, joinedload, contains_eager,\
+    joinedload_all
 from db_model import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
     Thumbnail
 from exceptions import LoginError, AccessError
@@ -222,15 +223,12 @@ class UnitOfWork(object):
     
     def get_item(self, id):
         '''Возвращает detached-объект класса Item, с заданным значением id. '''
-        item = self._session.query(Item).get(id)
-        #TODO Сюда надо добавить eagerload выражения...
-        for itag in item.item_tags:
-            itag.tag
-        for ifield in item.item_fields:
-            ifield.field        
-        item.data_ref
-#        self._session.expunge(item)
-        self._session.expunge_all()
+        item = self._session.query(Item)\
+            .options(joinedload_all('data_ref'))\
+            .options(joinedload_all('item_tags.tag'))\
+            .options(joinedload_all('item_fields.field'))\
+            .get(id)
+        self._session.expunge(item)        
         return item
     
     def get_untagged_items(self):
