@@ -24,6 +24,7 @@ Created on 16.10.2010
 from pyjavaproperties import Properties
 import consts
 import os
+import codecs
 
 class UserConfig(object):
     '''
@@ -46,7 +47,7 @@ class UserConfig(object):
                 os.mknod(consts.USER_CONFIG_FILE)
                 
             #Если файла не существует, из load() вылетает исключение
-            cls._props.load(open(consts.USER_CONFIG_FILE))
+            cls._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
             
         return cls._instance
     
@@ -65,17 +66,17 @@ class UserConfig(object):
     
     def store(self, key, value):
         self._props[key] = str(value)
-        self._props.store(open(consts.USER_CONFIG_FILE, 'w'))
+        self._props.store(codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8"))
         
     def storeAll(self, d):
         if type(d) != dict:
             raise TypeError("This is not a dict instance.")
         for key in d.keys():
             self._props[key] = str(d[key])
-        self._props.store(open(consts.USER_CONFIG_FILE, 'w'))
+        self._props.store(codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8"))
     
     def refresh(self):
-        self._props.load(open(consts.USER_CONFIG_FILE))
+        self._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
         
 #Это тестовый код
 if __name__ == "__main__":
