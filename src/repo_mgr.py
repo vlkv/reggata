@@ -507,10 +507,10 @@ class UnitOfWork(object):
         
         def _prepare_data_ref_url(dr):                   
             #Нормализация пути
-            dr.url = os.path.normpath(dr.url)            
+            dr.url = os.path.normpath(dr.url)
             #Убираем слеш, если есть в конце пути
             if dr.url.endswith(os.sep):
-                dr.url = dr.url[0:len(dr.url)-1]                
+                dr.url = dr.url[0:len(dr.url)-1]
             #Определяем, находится ли данный файл уже внутри хранилища
             if is_internal(dr.url, self._repo_base_path):
                 #Файл уже внутри
@@ -520,7 +520,7 @@ class UnitOfWork(object):
                 #Файл снаружи                
                 if not is_none_or_empty(dr.dst_path):            
                     #Такой файл будет скопирован в хранилище в директорию dr.dst_path
-                    dr.url = dr.dst_path + os.sep + os.path.basename(dr.url)
+                    dr.url = os.path.join(dr.dst_path, os.path.basename(dr.url))
                 else:
                     #Если dst_path пустая, тогда копируем в корень хранилища
                     dr.url = os.path.basename(dr.url)
@@ -612,8 +612,8 @@ class UnitOfWork(object):
             if dr.type == 'FILE':
                 #Копируем, только если пути src и dst не совпадают, иначе это один и тот же файл!
                 #Если файл dst существует, то он перезапишется
-                if data_ref_original_url != self._repo_base_path + dr.url:
-                    shutil.copy(data_ref_original_url, self._repo_base_path + dr.url)
+                if data_ref_original_url != os.path.join(self._repo_base_path, dr.url):
+                    shutil.copy(data_ref_original_url, os.path.join(self._repo_base_path, dr.url))
 
         self._session.commit()
         
