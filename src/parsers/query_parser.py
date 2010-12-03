@@ -140,8 +140,7 @@ if __name__ == '__main__':
     # Test data
     data = r'''
     Tag1 "Slash\\ quote\" end" and "tag 2" user : "asdf"
-    '''    
-#   Tag1 И НЕ "Слеш\\ кавычка\" конец" И "Тег 2" user : "asdf"
+    '''
     
 ##############################
         
