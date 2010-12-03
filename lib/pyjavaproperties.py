@@ -242,7 +242,7 @@ class Properties(object):
 
         #print("stream type = " + stream.__class__.__name__)
         if not isinstance(stream, io.TextIOBase) and not isinstance(stream, codecs.StreamReaderWriter):
-            raise TypeError('Argument should be a io.TextIOBase object!')
+            raise TypeError('Argument should be a io.TextIOBase or codecs.StreamReaderWriter object!')
         
         
         
