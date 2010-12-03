@@ -509,7 +509,6 @@ class MainWindow(QtGui.QMainWindow):
 			
 
 
-#QAbstractItemDelegate
 class ImageThumbDelegate(QtGui.QStyledItemDelegate):
 	'''Делегат, для отображения миниатюры графического файла в таблице элементов
 	хранилища.'''
@@ -518,8 +517,7 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
 		if pixmap:
 			return pixmap.size()
 		else:
-			return QtCore.QSize(option.rect.width(), option.rect.height())
-			#TODO Тут вобщем-то надо вычислить размер на основе data(Qt.DisplayRole)
+			return super(ImageThumbDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1			
 			
 
 	def paint(self, painter, option, index):
@@ -529,7 +527,7 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
 			#painter.drawPixmap(option.rect, pixmap)
 		else:
 			super(ImageThumbDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
-			#QtGui.QStyledItemDelegate.paint(self, painter, option, index) #Для PyQt 4.7.3 работает вот так
+			#QtGui.QStyledItemDelegate.paint(self, painter, option, index) #Для PyQt 4.7.3 надо так
 	
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
