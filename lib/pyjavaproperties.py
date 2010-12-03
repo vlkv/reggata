@@ -12,6 +12,7 @@ Converted to python 3 by vlkv <vitvlkv@gmail.com> with 2to3 program and little h
 import sys, io
 import re
 import time
+import codecs
 
 class IllegalArgumentException(Exception):
 
@@ -236,12 +237,19 @@ class Properties(object):
         """ Load properties from an open file stream """
         
         # For the time being only accept file input streams
-#        if type(stream) is not file:        
-        if not isinstance(stream, io.TextIOBase):
+        #if type(stream) is not file:
+        #    raise TypeError('Argument should be a file object!')
+
+        #print("stream type = " + stream.__class__.__name__)
+        if not isinstance(stream, io.TextIOBase) and not isinstance(stream, codecs.StreamReaderWriter):
             raise TypeError('Argument should be a io.TextIOBase object!')
+        
+        
+        
         # Check for the opened mode
-        if stream.mode != 'r':
-            raise ValueError('Stream should be opened in read-only mode!')
+        #print("mode = " + stream.mode)
+        if stream.mode != 'r' and stream.mode != 'rb':
+            raise ValueError('Stream should be opened in "r" or "rb" mode!')
 
         try:
             lines = stream.readlines()
