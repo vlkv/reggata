@@ -26,7 +26,7 @@ import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 from db_model import User
 import ui_userdialog
-from helpers import showExcInfo, tr, DialogMode
+from helpers import show_exc_info, tr, DialogMode
 from exceptions import UnsupportedDialogModeError
 import hashlib
 
@@ -72,7 +72,7 @@ class UserDialog(QtGui.QDialog):
             self.user.check_valid()
             self.accept()
         except Exception as ex:
-            showExcInfo(self, ex)
+            show_exc_info(self, ex)
 
     def button_cancel(self):
         self.reject()

@@ -25,7 +25,7 @@ import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 import ui_itemdialog
 from db_model import Item, DataRef, Tag, Item_Tag, Field, Item_Field
-from helpers import tr, showExcInfo, DialogMode, index_of, is_none_or_empty, \
+from helpers import tr, show_exc_info, DialogMode, index_of, is_none_or_empty, \
                     is_internal
 import os
 from parsers import tags_def_parser, fields_def_parser, fields_def_tokens
@@ -146,7 +146,7 @@ class ItemDialog(QtGui.QDialog):
                 self.accept()
                                 
         except Exception as ex:
-            showExcInfo(self, ex)
+            show_exc_info(self, ex)
     
     def button_cancel(self):
         self.reject()
@@ -203,7 +203,7 @@ class ItemDialog(QtGui.QDialog):
                     #не сохранен, то dst_path - это директория, куда данный файл
                     #будет СКОПИРОВАН 
         except Exception as ex:
-            showExcInfo(self, ex)
+            show_exc_info(self, ex)
     
     def button_remove(self):
         if self.ui.listWidget_data_refs.count() == 0:

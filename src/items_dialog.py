@@ -200,7 +200,7 @@ class ItemsDialog(QtGui.QDialog):
                     self.ui.lineEdit_dst_path.setText(self.dst_path)
         
         except Exception as ex:
-            helpers.showExcInfo(self, ex)
+            helpers.show_exc_info(self, ex)
              
                             
           
@@ -209,7 +209,7 @@ class ItemsDialog(QtGui.QDialog):
             self.write()            
             self.accept()
         except Exception as ex:
-            helpers.showExcInfo(self, ex)
+            helpers.show_exc_info(self, ex)
     
     def button_cancel(self):
         self.reject()

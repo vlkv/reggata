@@ -23,7 +23,7 @@ Created on 13.11.2010
 '''
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
-from helpers import tr, showExcInfo, DialogMode, scale_value
+from helpers import tr, show_exc_info, DialogMode, scale_value
 from parsers.query_tokens import needs_quote
 from parsers.util import quote
 
@@ -107,7 +107,7 @@ class TagCloud(QtGui.QTextEdit):
         if self.repo is None:
             self.setText("")
         else:
-            uow = self.repo.createUnitOfWork()
+            uow = self.repo.create_unit_of_work()
             try:
                 tags = uow.get_related_tags(list(self.tags))
                 

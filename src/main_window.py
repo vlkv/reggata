@@ -29,7 +29,7 @@ from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread
-from helpers import tr, showExcInfo, DialogMode, scale_value, is_none_or_empty,\
+from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
 	WaitDialog
 from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
@@ -52,6 +52,7 @@ from items_dialog import ItemsDialog
 #TODO Сделать проект механизма клонирования/синхронизации хранилищ
 #TODO Сделать возможность привязывать несколько файлов к одному Item-у при помощи архивирования их на лету (при помощи zip, например)
 #TODO Сделать новый тип объекта DataRef для сохранения ссылок на директории. Тогда можно будет привязывать теги и поля к директориям внутри хранилища. Надо еще подумать, стоит ли такое реализовывать или нет.
+#TODO Сделать встроенный просмотрщик графических файлов.
 
 class MainWindow(QtGui.QMainWindow):
 	'''
@@ -211,7 +212,7 @@ class MainWindow(QtGui.QMainWindow):
 		#login и password могут оказаться равны None (если не найдены). 
 		#Это значит, что uow.login_user() выкинет LoginError
 		
-		uow = self.active_repo.createUnitOfWork()
+		uow = self.active_repo.create_unit_of_work()
 		try:
 			self.active_user = uow.login_user(login, password)
 		finally:
@@ -293,7 +294,7 @@ class MainWindow(QtGui.QMainWindow):
 			self.active_repo = RepoMgr.create_new_repo(base_path)
 			self.active_user = None
 		except Exception as ex:
-			showExcInfo(self, ex)
+			show_exc_info(self, ex)
 			
 		
 	def action_repo_close(self):
@@ -303,7 +304,7 @@ class MainWindow(QtGui.QMainWindow):
 			self.active_repo = None #Сборщик мусора и деструктор сделают свое дело
 			self.active_user = None
 		except Exception as ex:
-			showExcInfo(self, ex)
+			show_exc_info(self, ex)
 
 	def action_repo_open(self):
 		try:
@@ -318,17 +319,17 @@ class MainWindow(QtGui.QMainWindow):
 			#Отображаем диалог ввода логина/пароля (с возможностью отмены или создания нового юзера)
 			ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
 			if ud.exec_():
-				uow = self.active_repo.createUnitOfWork()
+				uow = self.active_repo.create_unit_of_work()
 				try:				
 					user = uow.login_user(ud.user.login, ud.user.password)
 					self.active_user = user
 				except Exception as ex:
-					showExcInfo(self, ex)
+					show_exc_info(self, ex)
 				finally:
 					uow.close()
 							
 		except Exception as ex:
-			showExcInfo(self, ex)
+			show_exc_info(self, ex)
 	
 
 			
@@ -365,7 +366,7 @@ class MainWindow(QtGui.QMainWindow):
 			#Открываем диалог для ввода остальной информации об элементе
 			d = ItemDialog(item, self, DialogMode.CREATE)
 			if d.exec_():
-				uow = self.active_repo.createUnitOfWork()
+				uow = self.active_repo.create_unit_of_work()
 				try:
 					#uow.save_new_item(d.item, self.active_user.login)
 					thread = BackgrThread(self, uow.save_new_item, d.item, self.active_user.login)
@@ -387,7 +388,7 @@ class MainWindow(QtGui.QMainWindow):
 				#TODO refresh
 				
 		except Exception as ex:
-			showExcInfo(self, ex)
+			show_exc_info(self, ex)
 		else:
 			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 	
@@ -398,7 +399,7 @@ class MainWindow(QtGui.QMainWindow):
 			
 			u = UserDialog(User(), self)
 			if u.exec_():
-				uow = self.active_repo.createUnitOfWork()
+				uow = self.active_repo.create_unit_of_work()
 				try:
 					uow.save_new_user(u.user)
 					
@@ -407,7 +408,7 @@ class MainWindow(QtGui.QMainWindow):
 				finally:
 					uow.close()
 		except Exception as ex:
-			showExcInfo(self, ex)
+			show_exc_info(self, ex)
 		
 
 	def action_user_change_pass(self):
@@ -418,20 +419,20 @@ class MainWindow(QtGui.QMainWindow):
 		try:
 			ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
 			if ud.exec_():					
-				uow = self.active_repo.createUnitOfWork()
+				uow = self.active_repo.create_unit_of_work()
 				try:				
 					user = uow.login_user(ud.user.login, ud.user.password)
 					self.active_user = user
 				finally:
 					uow.close()
 		except Exception as ex:
-			showExcInfo(self, ex)
+			show_exc_info(self, ex)
 	
 	def action_user_logout(self):
 		try:
 			self.active_user = None
 		except Exception as ex:
-			showExcInfo(self, ex)
+			show_exc_info(self, ex)
 
 
 	def action_item_edit(self):
@@ -456,7 +457,7 @@ class MainWindow(QtGui.QMainWindow):
 			
 			if len(rows) > 1:
 				#Была выбрана группа элементов более 1-го				
-				uow = self.active_repo.createUnitOfWork()
+				uow = self.active_repo.create_unit_of_work()
 				try:
 					sel_items = []
 					for row in rows:
@@ -487,7 +488,7 @@ class MainWindow(QtGui.QMainWindow):
 			else:
 				#Был выбран ровно 1 элемент
 				item_id = self.model.items[rows.pop()].id
-				uow = self.active_repo.createUnitOfWork()
+				uow = self.active_repo.create_unit_of_work()
 				try:
 					item = uow.get_item(item_id)
 					item_dialog = ItemDialog(item, self, DialogMode.EDIT)
@@ -497,7 +498,7 @@ class MainWindow(QtGui.QMainWindow):
 					uow.close()					
 			
 		except Exception as ex:
-			showExcInfo(self, ex)
+			show_exc_info(self, ex)
 		else:
 			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 	
@@ -505,7 +506,7 @@ class MainWindow(QtGui.QMainWindow):
 		try:
 			pass
 		except Exception as ex:
-			showExcInfo(self, ex)
+			show_exc_info(self, ex)
 			
 
 
@@ -549,7 +550,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		
 		if query_text is None or query_text.strip()=="":
 			#Если запрос пустой, тогда извлекаем элементы не имеющие тегов
-			uow = self.repo.createUnitOfWork()
+			uow = self.repo.create_unit_of_work()
 			try:
 				self.items = uow.get_untagged_items()
 				self.reset()
@@ -557,7 +558,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 				uow.close()
 		else:
 
-			uow = self.repo.createUnitOfWork()
+			uow = self.repo.create_unit_of_work()
 			try:
 				tree = query_parser.parse(query_text)
 				sql = tree.interpret()

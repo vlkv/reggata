@@ -115,7 +115,7 @@ class RepoMgr(object):
         #TODO
         raise NotImplementedError()
 
-    def createUnitOfWork(self):
+    def create_unit_of_work(self):
         return UnitOfWork(self)
 
 
@@ -627,7 +627,7 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
         self.items = items
 
     def run(self):
-        uow = self.repo.createUnitOfWork()
+        uow = self.repo.create_unit_of_work()
         try:
             i = 0
             for item in self.items:

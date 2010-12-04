@@ -43,7 +43,7 @@ def tr(text):
     return s
 
 
-def showExcInfo(parent, ex, tracebk=True):
+def show_exc_info(parent, ex, tracebk=True):
     '''Окно данного класса можно растягивать мышкой, в отличие от стандартного 
     QMessageBox-а. Решение взято отсюда: 
     http://stackoverflow.com/questions/2655354/how-to-allow-resizing-of-qmessagebox-in-pyqt4
@@ -217,7 +217,7 @@ class WaitDialog(QtGui.QDialog):
     def exception(self, msg):
         '''Слот, вызываемый в случае получения информации, что в процессе 
         ожидания возникло исключение.'''
-        showExcInfo(self, Exception(msg), False)
+        show_exc_info(self, Exception(msg), False)
         self.reject()
         
     def closeEvent(self, close_event):
