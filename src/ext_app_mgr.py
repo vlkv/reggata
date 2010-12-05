@@ -69,6 +69,10 @@ class ExtAppMgr(object):
         if not command:
             raise Exception(tr("Command for file_type {0} not found. Edit your {1} file.").format(file_type, consts.USER_CONFIG_FILE))
 
+        #TODO Это нужно вставить в класс DataRef. Потому, что для DataRef-ов типа URL не нужно проводить такие
+        #преобразования!!!
+        #Также в других местах кода (где например генерируются миниатюры изображений)
+        #необходимо также использовать преобразованные пути.
         #Преобразование слешей / или \ в os.sep
         if platform.system() == "Windows":
             abs_path = abs_path.replace("/", os.sep)
