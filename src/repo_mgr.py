@@ -482,7 +482,7 @@ class UnitOfWork(object):
             if not os.path.exists(abs_dst_path):
                 item_0.data_ref.url = dst_path
                 need_file_operation = "move"
-            elif not os.path.samefile(abs_src_path, abs_dst_path):
+            elif os.path.abspath(abs_src_path) != os.path.abspath(abs_dst_path):
                 raise Exception(tr("Pathname {1} already exists. File {0} would not be moved.")\
                                 .format(abs_src_path, abs_dst_path))            
                     
