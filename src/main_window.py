@@ -194,10 +194,15 @@ class MainWindow(QtGui.QMainWindow):
 		
 		
 	def query_exec(self):
-		query_text = self.ui.lineEdit_query.text()
-		self.model.query(query_text)
-		self.ui.tableView_items.resizeColumnsToContents()
-		self.ui.tableView_items.resizeRowsToContents()
+		try:
+			if not self.active_repo:
+				raise MsgException(self.tr("Open a repository first."))
+			query_text = self.ui.lineEdit_query.text()
+			self.model.query(query_text)
+			self.ui.tableView_items.resizeColumnsToContents()
+			self.ui.tableView_items.resizeRowsToContents()
+		except Exception as ex:
+			show_exc_info(self, ex)
 		
 		
 	
@@ -462,8 +467,15 @@ class MainWindow(QtGui.QMainWindow):
 		
 
 	def action_user_change_pass(self):
-		#TODO Надо сделать такую функцию
-		raise NotImplementedError("Sorry!")
+		try:
+			#TODO
+			raise NotImplementedError("This function is not implemented yet.")
+		except Exception as ex:
+			show_exc_info(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+		
+		
 
 	def action_user_login(self):
 		try:
@@ -556,6 +568,8 @@ class MainWindow(QtGui.QMainWindow):
 			pass
 		except Exception as ex:
 			show_exc_info(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 			
 
 
