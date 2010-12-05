@@ -25,6 +25,7 @@ from pyjavaproperties import Properties
 import consts
 import os
 import codecs
+from helpers import tr
 
 class UserConfig(object):
     '''
@@ -36,16 +37,17 @@ class UserConfig(object):
     
     _props = None
     
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
+    def __new__(cls, *args, **kwargs):        
+        if not cls._instance:            
             cls._instance = super(UserConfig, cls).__new__(cls, *args, **kwargs)
             
             cls._props = Properties()
             if not os.path.exists(consts.USER_CONFIG_DIR):
-                os.makedirs(consts.USER_CONFIG_DIR)
+                os.makedirs(consts.USER_CONFIG_DIR)            
+                
             if not os.path.exists(consts.USER_CONFIG_FILE):
                 #Создаем файл
-                os.mknod(consts.USER_CONFIG_FILE)
+                #os.mknod(consts.USER_CONFIG_FILE) #По всей видимости os.mknod() недоступна под Windows!
                 
                 #Записываем в этот файл шаблон конфигурации
                 reggata_conf = \
@@ -55,16 +57,18 @@ ExtAppMgr.command.images=gqview {}
 ExtAppMgr.command.pdf=xpdf {}
 ExtAppMgr.command.audio=vlc {}
 '''
+                #Файл будет создан, если его еще нет
                 f = codecs.open(consts.USER_CONFIG_FILE, "w", "utf-8")
                 f.write(reggata_conf)
                 f.close()
                 
+            
             #Если файла не существует, из load() вылетает исключение
             cls._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
             
         return cls._instance
     
-    def __init__(self):
+    def __init__(self):        
         pass
     
     def __getitem__(self, key):
@@ -83,7 +87,7 @@ ExtAppMgr.command.audio=vlc {}
         
     def storeAll(self, d):
         if type(d) != dict:
-            raise TypeError("This is not a dict instance.")
+            raise TypeError(tr("This is not a dict instance."))
         for key in d.keys():
             self._props[key] = str(d[key])
         self._props.store(codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8"))
@@ -96,6 +100,8 @@ if __name__ == "__main__":
     uc1 = UserConfig()
     uc2 = UserConfig()
     print(uc1 == uc2)
+    
+    
     
     
     
