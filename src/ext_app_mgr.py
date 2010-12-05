@@ -29,7 +29,7 @@ import subprocess
 import shlex
 
 #Пример фрагмента из reggata.conf
-#ExtAppMgr.file_types = {'images' : ['.jpg', '.png', '.gif', '.bmp'], 'pdf' : ['.pdf']}
+#ExtAppMgr.file_types = {'images' \: ['.jpg', '.png', '.gif', '.bmp'], 'pdf' \: ['.pdf']}
 #ExtAppMgr.command.images = gqview {}
 #ExtAppMgr.command.pdf = xpdf {}
 
@@ -43,23 +43,23 @@ class ExtAppMgr(object):
     обновлять их DataRef.hash.
     '''
 
-    file_types = None
-    extensions = None
+    file_types = None #Ключ - название группы файлов, значение - список расширений файлов
+    extensions = None #Ключ - расширение файла (в нижнем регистре), значение - название группы файлов
 
     def __init__(self):
-        self.file_types = eval(UserConfig().get('ExtAppMgr.file_types', "dict()"))
         self.extensions = dict()
-        for file_type in self.file_types.items():
-            type, ext_list = file_type            
+        self.file_types = eval(UserConfig().get('ExtAppMgr.file_types', "dict()"))
+        for type, ext_list in self.file_types.items():             
             for ext in ext_list:
+                ext = ext.lower()
                 if ext in self.extensions.keys():
                     raise ValueError(tr("File extension {} cannot be in more than one file_type group.").format(ext))
-                self.extensions[ext] = type 
+                self.extensions[ext] = type
              
     def invoke(self, abs_path, file_type=None):
         if not file_type:
             name, ext = os.path.splitext(abs_path)
-            file_type = self.extensions.get(ext)
+            file_type = self.extensions.get(ext.lower())
         
         if not file_type:
             raise Exception(tr("File type is not defined for {0} file extension. Edit your {1} file.").format(ext, consts.USER_CONFIG_FILE))
