@@ -195,6 +195,10 @@ class DataRef(Base):
     '''
     Ссылка на файл или URL.
     '''
+    
+    FILE = "FILE"
+    URL = "URL"
+    
     __tablename__ = "data_refs"
     
     id = sqa.Column(sqa.Integer, primary_key=True)
@@ -210,7 +214,7 @@ class DataRef(Base):
     
     #Тип объекта DataRef
     #TODO Добавить тип ZIP (архив), а также можно добавить тип DIR (директория)
-    type = sqa.Column(sqa.Enum("FILE", "URL"), nullable=False)
+    type = sqa.Column(sqa.Enum(FILE, URL), nullable=False)
     
     #Хеш (md5 или sha1) от содержимого файла. Для объектов DataRef имеющих тип type отличный от 'FILE' равен NULL
     hash = sqa.Column(sqa.String)
