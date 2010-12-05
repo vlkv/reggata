@@ -44,7 +44,20 @@ class UserConfig(object):
             if not os.path.exists(consts.USER_CONFIG_DIR):
                 os.makedirs(consts.USER_CONFIG_DIR)
             if not os.path.exists(consts.USER_CONFIG_FILE):
+                #Создаем файл
                 os.mknod(consts.USER_CONFIG_FILE)
+                
+                #Записываем в этот файл шаблон конфигурации
+                reggata_conf = \
+'''
+ExtAppMgr.file_types={'images' \: ['.jpg', '.png', '.gif', '.bmp'], 'pdf' \: ['.pdf'], 'audio' \: ['.mp3', '.wav', '.flac', '.ogg']}
+ExtAppMgr.command.images=gqview {}
+ExtAppMgr.command.pdf=xpdf {}
+ExtAppMgr.command.audio=vlc {}
+'''
+                f = codecs.open(consts.USER_CONFIG_FILE, "w", "utf-8")
+                f.write(reggata_conf)
+                f.close()
                 
             #Если файла не существует, из load() вылетает исключение
             cls._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
