@@ -68,9 +68,10 @@ class ExtAppMgr(object):
         if not command:
             raise Exception(tr("Command for file_type {0} not found. Edit your {1} file.").format(file_type, consts.USER_CONFIG_FILE))
 
-        command = command.format(abs_path)
-        print("subprocess.call(): " + command)
+        command = command.format('"' + abs_path + '"')
+        print("subprocess.Popen(): " + command)
         args = shlex.split(command)
+        print(args)
         #subprocess.call(args) #Такой вызов блокирует текущий поток
         pid = subprocess.Popen(args).pid #Такой вызов не блокирует поток
         print("Created process with PID = {}".format(pid))

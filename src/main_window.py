@@ -351,7 +351,7 @@ class MainWindow(QtGui.QMainWindow):
 			sel_row = sel_indexes[0].row()			
 			data_ref = self.model.items[sel_row].data_ref
 			
-			if data_ref.type != DataRef.FILE:
+			if not data_ref or data_ref.type != DataRef.FILE:
 				raise MsgException(self.tr("Action 'View item' can be applied only to items linked with files."))
 			
 			eam = ExtAppMgr()
