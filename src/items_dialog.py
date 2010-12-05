@@ -35,6 +35,9 @@ class CustomTextEdit(QtGui.QTextEdit):
             self.setCurrentCharFormat(f)
             self.setTextColor(Qt.blue)
         return super(CustomTextEdit, self).event(e)
+    
+    #TODO так как я реализовал сейчас, вообще не нужно редактировать текст на CustomTextEdit-ах
+    #Для ввода текста я сделал отдельные виджеты.
         
 
 class ItemsDialog(QtGui.QDialog):
@@ -47,8 +50,6 @@ class ItemsDialog(QtGui.QDialog):
     группами.
     '''
     
-    #TODO Диалог не доделан!
-
     items = None
 
     dst_path = None
