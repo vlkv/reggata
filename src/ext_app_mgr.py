@@ -24,7 +24,6 @@ Created on 05.12.2010
 from user_config import UserConfig
 from helpers import tr
 import os
-import platform
 import consts
 import subprocess
 import shlex
@@ -69,18 +68,6 @@ class ExtAppMgr(object):
         if not command:
             raise Exception(tr("Command for file_type {0} not found. Edit your {1} file.").format(file_type, consts.USER_CONFIG_FILE))
 
-        #TODO Это нужно вставить в класс DataRef. Потому, что для DataRef-ов типа URL не нужно проводить такие
-        #преобразования!!!
-        #Также в других местах кода (где например генерируются миниатюры изображений)
-        #необходимо также использовать преобразованные пути.
-        #Преобразование слешей / или \ в os.sep
-        if platform.system() == "Windows":
-            abs_path = abs_path.replace("/", os.sep)
-        elif platform.system() == "Linux":
-            abs_path = abs_path.replace("\\", os.sep)
-        else:
-            print("Unknown platform.system() = {}".format(platform.system()))
-        
         command = command.format('"' + abs_path + '"')
         print("subprocess.Popen(): " + command)
         args = shlex.split(command)

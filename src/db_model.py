@@ -28,6 +28,7 @@ from sqlalchemy import ForeignKey, ForeignKeyConstraint
 from helpers import tr, is_none_or_empty
 import datetime
 import os
+import platform
 
 
 Base = declarative_base()
@@ -205,7 +206,7 @@ class DataRef(Base):
     
     #Локатор ресурса. Для объектов типа 'FILE' это путь к файлу внутри хранилища
     #для объектов 'URL' --- это непосредственно url-ссылка
-    url = sqa.Column(sqa.String, nullable=False, unique=True)
+    url_raw = sqa.Column(sqa.String, name="url", nullable=False, unique=True)
     
     #TODO Возможно имеет смысл для объектов типа FILE отдельно хранить путь и базовое имя файла.
     #Это может пригодиться для поиска файлов по его физическому имени (т.к. так как сейчас
@@ -240,6 +241,20 @@ class DataRef(Base):
     #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
     #их необходимо скопировать. Данное поле в БД не сохраняется.
     dst_path = None
+    
+    def _get_url(self):
+        if platform.system() == "Windows":
+            return self.url_raw.replace("/", os.sep)
+        elif platform.system() == "Linux":
+            return self.url_raw.replace("\\", os.sep)
+        else:
+            #TODO Может добавить что-то для других ОС?
+            return self.url_raw
+        
+    def _set_url(self, value):
+        self.url = value
+                
+    url = property(_get_url, _set_url, doc="Свойство url.")
     
     @staticmethod
     def _sql_from():
