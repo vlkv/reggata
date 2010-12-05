@@ -33,6 +33,7 @@ import os
 import hashlib
 import time
 from PyQt4 import QtCore
+from exceptions import MsgException
 
 
 def tr(text):
@@ -228,6 +229,14 @@ class WaitDialog(QtGui.QDialog):
         '''Слот, вызываемый для отображения текущего процента завершенности задачи.'''        
         print("Completed {}%".format(percent_completed))
         self.progress_bar.setValue(percent_completed)
+        
+#Дело в том, что в lambda нельзя засунуть raise
+def raise_exc(msg):
+    raise Exception(msg)
+
+#Дело в том, что в lambda нельзя засунуть raise
+def raise_msg_exc(msg):
+    raise MsgException(msg)
         
         
         

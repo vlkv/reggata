@@ -10,8 +10,9 @@ import ui_itemsdialog
 import os
 import helpers
 from exceptions import MsgException
-from helpers import is_internal, DialogMode
+from helpers import is_internal, DialogMode, is_none_or_empty
 import parsers
+from db_model import DataRef
 
 
 class CustomTextEdit(QtGui.QTextEdit):
@@ -58,6 +59,8 @@ class ItemsDialog(QtGui.QDialog):
         self.ui = ui_itemsdialog.Ui_ItemsDialog()
         self.ui.setupUi(self)
         self.items = items
+        if len(items) <= 1:
+            raise ValueError(self.tr("ItemsDialog cannot operate with one or zero Item objects."))
         self.parent = parent
         
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.button_ok)
@@ -101,9 +104,9 @@ class ItemsDialog(QtGui.QDialog):
         
         #Если пользователь выберер другую директорию назначения, то мы ее 
         #сохраняем в поле DataRef.dst_path (это будет только имя директории!!!)
-        if self.group_has_files and self.dst_path is not None:
+        if (self.group_has_files or self.mode == DialogMode.CREATE) and not is_none_or_empty(self.dst_path):
             for item in self.items:
-                if item.data_ref and item.data_ref.type != 'FILE':
+                if item.data_ref and item.data_ref.type != DataRef.FILE:
                     continue                
                 item.data_ref.dst_path = self.dst_path
         
@@ -171,95 +174,100 @@ class ItemsDialog(QtGui.QDialog):
         if not (len(self.items) > 1):
             return
     
-        tags_str = ""
-        seen_tags = set()
-        for i in range(0, len(self.items)):
-            for j in range(0, len(self.items[i].item_tags)):
-                tag_name = self.items[i].item_tags[j].tag.name
-                if tag_name in seen_tags:
-                    continue
-                has_all = True
-                for k in range(0, len(self.items)):
-                    if i == k:
-                        continue
-                    if not self.items[k].has_tag(tag_name):
-                        has_all = False
-                        break
-                seen_tags.add(tag_name)
-                if has_all:
-                    tags_str = tags_str + "<b>" + tag_name + "</b> "
-                else:
-                    tags_str = tags_str + '<font color="grey">' + tag_name + "</font> "                    
-        self.ui.textEdit_tags.setText(tags_str)
+        if self.mode == DialogMode.EDIT:
         
-        fields_str = ""
-        seen_fields = set()
-        for i in range(0, len(self.items)):
-            for j in range(0, len(self.items[i].item_fields)):
-                field_name = self.items[i].item_fields[j].field.name
-                field_value = self.items[i].item_fields[j].field_value
-                if field_name in seen_fields:
-                    continue
-                all_have_field = True
-                all_have_field_value = True
-                for k in range(0, len(self.items)):
-                    if i == k:
+            tags_str = ""
+            seen_tags = set()
+            for i in range(0, len(self.items)):
+                for j in range(0, len(self.items[i].item_tags)):
+                    tag_name = self.items[i].item_tags[j].tag.name
+                    if tag_name in seen_tags:
                         continue
-                    if not self.items[k].has_field(field_name):
-                        all_have_field = False
-                    if not self.items[k].has_field(field_name, field_value):
-                        all_have_field_value = False
-                    if not all_have_field and not all_have_field_value:
-                        break
-                        
-                seen_fields.add(field_name)
-                if all_have_field_value:
-                    fields_str = fields_str + "<b>" + field_name + ": " + field_value + "</b> "
-                elif all_have_field:
-                    fields_str = fields_str + '<b>' + field_name + "</b>: ### "
-                    #TODO Могут быть проблемы, если значением тега реально будет строка '###'
-                else:
-                    fields_str = fields_str + '<font color="grey">' + field_name + "</font>: ### "
-        self.ui.textEdit_fields.setText(fields_str)
-
-
-
-        self.dst_path = None
-        same_path = None
-        for i in range(len(self.items)):
-            #При подсчете не учитываются объекты DataRef имеющие тип URL (или любой отличный от FILE)
-            #Также не учитываются элементы, которые не связаны с DataRef-объектами
-            if self.items[i].data_ref is None or self.items[i].data_ref.type != 'FILE':
-                continue
+                    has_all = True
+                    for k in range(0, len(self.items)):
+                        if i == k:
+                            continue
+                        if not self.items[k].has_tag(tag_name):
+                            has_all = False
+                            break
+                    seen_tags.add(tag_name)
+                    if has_all:
+                        tags_str = tags_str + "<b>" + tag_name + "</b> "
+                    else:
+                        tags_str = tags_str + '<font color="grey">' + tag_name + "</font> "                    
+            self.ui.textEdit_tags.setText(tags_str)
             
-            if self.dst_path is None:
-                self.dst_path, null = os.path.split(self.items[i].data_ref.url)
-                same_path = 'yes'
-            else:
-                path, null = os.path.split(self.items[i].data_ref.url)
-                if self.dst_path != path:
-                    same_path = 'no'
-                    break
-        if same_path is None:
-            #Все элементы не содержат ссылок на файлы (Либо нет DataRef объектов, либо они есть но не типа FILE)
+            fields_str = ""
+            seen_fields = set()
+            for i in range(0, len(self.items)):
+                for j in range(0, len(self.items[i].item_fields)):
+                    field_name = self.items[i].item_fields[j].field.name
+                    field_value = self.items[i].item_fields[j].field_value
+                    if field_name in seen_fields:
+                        continue
+                    all_have_field = True
+                    all_have_field_value = True
+                    for k in range(0, len(self.items)):
+                        if i == k:
+                            continue
+                        if not self.items[k].has_field(field_name):
+                            all_have_field = False
+                        if not self.items[k].has_field(field_name, field_value):
+                            all_have_field_value = False
+                        if not all_have_field and not all_have_field_value:
+                            break
+                            
+                    seen_fields.add(field_name)
+                    if all_have_field_value:
+                        fields_str = fields_str + "<b>" + field_name + ": " + field_value + "</b> "
+                    elif all_have_field:
+                        fields_str = fields_str + '<b>' + field_name + "</b>: ### "
+                        #TODO Могут быть проблемы, если значением тега реально будет строка '###'
+                    else:
+                        fields_str = fields_str + '<font color="grey">' + field_name + "</font>: ### "
+            self.ui.textEdit_fields.setText(fields_str)
+    
+    
+    
             self.dst_path = None
-            self.group_has_files = False
-            self.ui.lineEdit_dst_path.setText(self.tr('<not applicable>'))
-        elif same_path == 'yes':
-            #Все элементы, связанные с DataRef-ами типа FILE, находятся в ОДНОЙ директории
-            self.group_has_files = True
-            self.ui.lineEdit_dst_path.setText(self.dst_path)
-        else:
-            #Элементы, связанные с DataRef-ами типа FILE, находятся в РАЗНЫХ директориях
-            self.dst_path = None #Обнуляем это поле
-            self.group_has_files = True
-            self.ui.lineEdit_dst_path.setText(self.tr('<different values>'))
-        
+            same_path = None
+            for i in range(len(self.items)):
+                #При подсчете не учитываются объекты DataRef имеющие тип URL (или любой отличный от FILE)
+                #Также не учитываются элементы, которые не связаны с DataRef-объектами
+                if self.items[i].data_ref is None or self.items[i].data_ref.type != 'FILE':
+                    continue
+                
+                if self.dst_path is None:
+                    self.dst_path, null = os.path.split(self.items[i].data_ref.url)
+                    same_path = 'yes'
+                else:
+                    path, null = os.path.split(self.items[i].data_ref.url)
+                    if self.dst_path != path:
+                        same_path = 'no'
+                        break
+            if same_path is None:
+                #Все элементы не содержат ссылок на файлы (Либо нет DataRef объектов, либо они есть но не типа FILE)
+                self.dst_path = None
+                self.group_has_files = False
+                self.ui.lineEdit_dst_path.setText(self.tr('<not applicable>'))
+            elif same_path == 'yes':
+                #Все элементы, связанные с DataRef-ами типа FILE, находятся в ОДНОЙ директории
+                self.group_has_files = True
+                self.ui.lineEdit_dst_path.setText(self.dst_path)
+            else:
+                #Элементы, связанные с DataRef-ами типа FILE, находятся в РАЗНЫХ директориях
+                self.dst_path = None #Обнуляем это поле
+                self.group_has_files = True
+                self.ui.lineEdit_dst_path.setText(self.tr('<different values>'))
+                
+        elif self.mode == DialogMode.CREATE:
+            pass
+            
                 
         
     def select_dst_path(self):
         try:
-            if not self.group_has_files:
+            if self.mode == DialogMode.EDIT and not self.group_has_files:
                 raise MsgException(self.tr("Selected group of items doesn't reference any physical files on filesysem."))
             
             dir = QtGui.QFileDialog.getExistingDirectory(self, 

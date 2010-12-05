@@ -28,9 +28,10 @@ import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread
+from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread,\
+	CreateGroupIfItemsThread
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
-	WaitDialog
+	WaitDialog, raise_exc
 from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
@@ -337,10 +338,61 @@ class MainWindow(QtGui.QMainWindow):
 		
 	def action_item_add_many(self):
 		'''Добавление нескольких элементов в хранилище. При этом ко всем добавляемым
-		 файлам привязываются одинаковые теги и поля. И они копируются в одну и ту 
-		 же директорию хранилища. Название title каждого элемента будет совпадать с
-		 именем добавляемого файла.'''
-		raise NotImplementedError("Sorry!")
+		файлам привязываются одинаковые теги и поля. И они копируются в одну и ту 
+		же директорию хранилища. Название title каждого элемента будет совпадать с
+		именем добавляемого файла.'''
+		try:
+			if self.active_repo is None:
+				raise MsgException(self.tr("Open a repository first."))
+			
+			if self.active_user is None:
+				raise MsgException(self.tr("Login to a repository first."))
+			
+			#Просим пользователя выбрать файлы
+#			file_dialog = QtGui.QFileDialog(self, self.tr("Select files and directories to add"))
+#			file_dialog.setFileMode(QtGui.QFileDialog.Directory)
+#			if file_dialog.exec_() == QtGui.QDialog.Accepted:
+#				files = file_dialog.selectedFiles()
+#				for file in files:
+#					print(file)
+
+			#TODO Надо сделать функцию рекурсивного добавления множества файлов из директории
+				
+					
+			files = QtGui.QFileDialog.getOpenFileNames(self, self.tr("Select file to add"))
+			if len(files) == 0:
+				raise MsgException(self.tr("No files chosen. Operation cancelled."))
+			
+			items = []
+			for file in files:
+				item = Item(user_login=self.active_user.login)
+				item.title = os.path.basename(file)
+				item.data_ref = DataRef(url=file, type=DataRef.FILE)
+				items.append(item)
+			
+			#Открываем диалог для ввода информации о тегах и полях
+			d = ItemsDialog(self, items, DialogMode.CREATE)
+			if d.exec_():
+				
+				thread = CreateGroupIfItemsThread(self, self.active_repo, items)
+				self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+										
+				#TODO Тут надо отображать WaitDialog
+				wd = WaitDialog(self)
+				self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+				self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+				self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+									
+				thread.start()
+				thread.wait(1000)
+				if thread.isRunning():
+					wd.exec_()
+				
+		except Exception as ex:
+			show_exc_info(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+			#TODO refresh
 		
 		
 	def action_item_add(self):
@@ -360,7 +412,7 @@ class MainWindow(QtGui.QMainWindow):
 			if not is_none_or_empty(file):
 				#Сразу привязываем выбранный файл к новому элементу
 				item.title = os.path.basename(file) #Предлагаем назвать элемент по имени файла			
-				item.data_ref = DataRef(url=file, type="FILE")
+				item.data_ref = DataRef(url=file, type=FILE)
 			
 						
 			#Открываем диалог для ввода остальной информации об элементе
@@ -379,18 +431,16 @@ class MainWindow(QtGui.QMainWindow):
 					thread.wait(1000)
 					if thread.isRunning():
 						wd.exec_()
-
-					print("Done!!!")
-					
 										
 				finally:
 					uow.close()
-				#TODO refresh
+				
 				
 		except Exception as ex:
 			show_exc_info(self, ex)
 		else:
 			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+			#TODO refresh
 	
 	def action_user_create(self):
 		try:
@@ -437,8 +487,7 @@ class MainWindow(QtGui.QMainWindow):
 
 	def action_item_edit(self):
 		
-		def raise_exc(msg):
-			raise MsgException(msg)
+		
 		
 		try:
 			if self.active_repo is None:

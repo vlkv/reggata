@@ -609,7 +609,7 @@ class UnitOfWork(object):
         #Если все сохранилось в БД, то копируем файл, связанный с DataRef
         if item.data_ref is not None:
             dr = item.data_ref
-            if dr.type == 'FILE':
+            if dr.type == DataRef.FILE:
                 #Копируем, только если пути src и dst не совпадают, иначе это один и тот же файл!
                 #Если файл dst существует, то он перезапишется
                 if data_ref_original_url != os.path.join(self._repo_base_path, dr.url):
@@ -617,6 +617,30 @@ class UnitOfWork(object):
 
         self._session.commit()
         
+        
+        
+class CreateGroupIfItemsThread(QtCore.QThread):
+    def __init__(self, parent, repo, items):
+        super(CreateGroupIfItemsThread, self).__init__(parent)
+        self.repo = repo
+        self.items = items
+    
+    def run(self):
+        uow = self.repo.create_unit_of_work()
+        try:
+            i = 0
+            for item in self.items:
+                #Сохраняем каждый item в отдельности
+                uow.save_new_item(item, item.user_login)
+                i = i + 1
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
+    
+        except Exception as ex:
+            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
+            print(traceback.format_exc())
+        finally:
+            self.emit(QtCore.SIGNAL("finished"))
+            uow.close()
         
 
 class UpdateGroupOfItemsThread(QtCore.QThread):
