@@ -466,7 +466,7 @@ class MainWindow(QtGui.QMainWindow):
 						#Потом надо бы исправить (хотя бы теги/поля/датарефы извлекать по join-стратегии
 						id = self.model.items[row].id
 						sel_items.append(uow.get_item(id))
-					dlg = ItemsDialog(sel_items, self)
+					dlg = ItemsDialog(self, sel_items, DialogMode.EDIT)
 					if dlg.exec_():						
 						thread = UpdateGroupOfItemsThread(self, self.active_repo, sel_items)
 						self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))

@@ -94,6 +94,16 @@ class Item(Base):
             self.date_created = date_created
         else:
             self.date_created = datetime.datetime.today()
+    
+    def add_tag(self, name, user_login=None):
+        tag = Tag(name)
+        item_tag = Item_Tag(tag, user_login)
+        self.item_tags.append(item_tag)
+        
+    def add_field_value(self, name, value, user_login=None):
+        field = Field(name)
+        item_field = Item_Field(field, value, user_login)
+        self.item_fields.append(item_field)
             
     def get_list_of_tags(self):
         '''Возвращает строку, содержащую список всех тегов элемента.'''
@@ -101,6 +111,37 @@ class Item(Base):
         for item_tag in self.item_tags:
             s = s + item_tag.tag.name + " "
         return s
+    
+    def remove_tag(self, tag_name):
+        i = 0
+        while i < len(self.item_tags):
+            item_tag = self.item_tags[i]
+            if item_tag.tag.name == tag_name:
+                break
+            i = i + 1
+            
+        if i < len(self.item_tags):
+            #тег найден - удаляем
+            self.item_tags.pop(i)
+            return True
+        else:
+            return None
+
+    def remove_field(self, field_name):
+        i = 0
+        while i < len(self.item_fields):
+            item_field = self.item_fields[i] 
+            if item_field.field.name == field_name:
+                break
+            i = i + 1
+            
+        if i < len(self.item_fields):
+            #тег найден - удаляем
+            self.item_fields.pop(i)
+            return True
+        else:
+            return None
+        
     
     def has_tag(self, tag_name):
         '''Возвращает True, если данный элемент имеет тег с имененем tag_name.'''

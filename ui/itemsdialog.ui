@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>512</width>
-    <height>298</height>
+    <width>490</width>
+    <height>332</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -43,7 +43,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_fields" >
        <item>
-        <widget class="QLabel" name="label_7" >
+        <widget class="QLabel" name="label_fields" >
          <property name="text" >
           <string>Fields:</string>
          </property>
@@ -54,11 +54,75 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_tags" >
        <item>
-        <widget class="QLabel" name="label_6" >
+        <widget class="QLabel" name="label_tags" >
          <property name="text" >
           <string>Tags:</string>
          </property>
         </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2" >
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_fields_2" >
+       <item>
+        <widget class="QLabel" name="label_9" >
+         <property name="text" >
+          <string>Fields to add:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="plainTextEdit_fields_add" />
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_tags_2" >
+       <item>
+        <widget class="QLabel" name="label_10" >
+         <property name="text" >
+          <string>Tags to add:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="plainTextEdit_tags_add" />
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3" >
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_fields_3" >
+       <item>
+        <widget class="QLabel" name="label_fields_rm" >
+         <property name="text" >
+          <string>Field names to remove:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="plainTextEdit_fields_rm" />
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_tags_3" >
+       <item>
+        <widget class="QLabel" name="label_tags_rm" >
+         <property name="text" >
+          <string>Tags to remove:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="plainTextEdit_tags_rm" />
        </item>
       </layout>
      </item>

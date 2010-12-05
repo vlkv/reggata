@@ -10,7 +10,8 @@ import ui_itemsdialog
 import os
 import helpers
 from exceptions import MsgException
-from helpers import is_internal
+from helpers import is_internal, DialogMode
+import parsers
 
 
 class CustomTextEdit(QtGui.QTextEdit):
@@ -52,7 +53,7 @@ class ItemsDialog(QtGui.QDialog):
     dst_path = None
     group_has_files = False
 
-    def __init__(self, items=[], parent=None):
+    def __init__(self, parent=None, items=[], mode=DialogMode.EDIT):
         super(ItemsDialog, self).__init__(parent)
         self.ui = ui_itemsdialog.Ui_ItemsDialog()
         self.ui.setupUi(self)
@@ -70,10 +71,31 @@ class ItemsDialog(QtGui.QDialog):
         self.ui.textEdit_fields = CustomTextEdit()
         self.ui.verticalLayout_fields.addWidget(self.ui.textEdit_fields)
         
+        
+        self.set_dialog_mode(mode)
         self.read()
         
         #TODO Добавить поддержку DialogMode
         #Потому что элементы можно группой добавлять, а также группой редактировать
+    
+    def set_dialog_mode(self, mode):
+        if mode == DialogMode.CREATE:
+            self.ui.label_tags.setVisible(False)
+            self.ui.textEdit_tags.setVisible(False)
+            
+            self.ui.label_fields.setVisible(False)
+            self.ui.textEdit_fields.setVisible(False)
+            
+            self.ui.label_tags_rm.setVisible(False)
+            self.ui.plainTextEdit_tags_rm.setVisible(False)
+            
+            self.ui.label_fields_rm.setVisible(False)
+            self.ui.plainTextEdit_fields_rm.setVisible(False)
+        elif mode == DialogMode.EDIT:
+            pass
+        else:
+            raise ValueError(self.tr("ItemsDialog does not support DialogMode = {}").format(mode))
+        self.mode = mode    
     
     def write(self):
         
@@ -85,7 +107,59 @@ class ItemsDialog(QtGui.QDialog):
                     continue                
                 item.data_ref.dst_path = self.dst_path
         
-        #TODO Надо остальное сохранять (теги, поля)
+        #Теги, которые нужно добавить        
+        text = self.ui.plainTextEdit_tags_add.toPlainText()
+        tags_add = set(parsers.tags_def_parser.parse(text))
+        
+        #Теги, которые нужно удалить        
+        text = self.ui.plainTextEdit_tags_rm.toPlainText()
+        tags_rm = set(parsers.tags_def_parser.parse(text))
+        
+        #Поля, которые нужно добавить
+        text = self.ui.plainTextEdit_fields_add.toPlainText()
+        fieldvals_add = set(parsers.fields_def_parser.parse(text))
+        
+        #Имена полей, которые нужно удалить
+        text = self.ui.plainTextEdit_fields_rm.toPlainText()
+        fields_rm = set(parsers.tags_def_parser.parse(text)) #Здесь используется парсер для тегов!
+            
+            
+        
+        #Выполняем проверку, чтобы добавляемые и удаляемые теги не пересекались
+        intersection = tags_add.intersection(tags_rm)
+        if len(intersection) > 0:
+            raise ValueError(self.tr("Tags {} cannot be in both add and remove lists.").format(str(intersection)))
+        
+        #Выполняем проверку, чтобы добавляемые и удаляемые поля не пересекались
+        intersection = set()
+        for f, v in fieldvals_add:
+            if f in fields_rm:
+                intersection.add(f)
+        if len(intersection) > 0:
+            raise ValueError(self.tr("Fields {} cannot be in both add and remove lists.").format(str(intersection)))
+            
+        for item in self.items:
+            #Добавляем новые теги
+            for t in tags_add:
+                if not item.has_tag(t):
+                    item.add_tag(name=t)
+            
+            #Удаляем теги
+            for t in tags_rm:
+                item.remove_tag(t)
+
+            #Добавляем новые поля
+            for f, v in fieldvals_add:
+                #Сначала удаляем
+                item.remove_field(f)
+                #Теперь добавляем (вдруг, значение поля изменилось?)
+                item.add_field_value(f, v)
+            
+            #Удаляем поля
+            for f in fields_rm:
+                item.remove_field(f)
+                    
+            
         
     def read(self):
         '''Теги, которые есть у всех элементов из items нужно выводить черным.
