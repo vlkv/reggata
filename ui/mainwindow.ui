@@ -86,6 +86,7 @@
     <addaction name="action_item_add" />
     <addaction name="action_item_add_many" />
     <addaction name="action_item_edit" />
+    <addaction name="action_item_view" />
    </widget>
    <widget class="QMenu" name="menuTools" >
     <property name="title" >
@@ -176,6 +177,11 @@
    </property>
    <property name="text" >
     <string>Tag &amp;cloud</string>
+   </property>
+  </action>
+  <action name="action_item_view" >
+   <property name="text" >
+    <string>&amp;View with external application</string>
    </property>
   </action>
  </widget>

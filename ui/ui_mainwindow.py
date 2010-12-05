@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sun Dec  5 12:10:28 2010
+# Created: Sun Dec  5 19:20:21 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -94,6 +94,8 @@ class Ui_MainWindow(object):
         self.action_tools_tag_cloud.setChecked(True)
         self.action_tools_tag_cloud.setEnabled(True)
         self.action_tools_tag_cloud.setObjectName(_fromUtf8("action_tools_tag_cloud"))
+        self.action_item_view = QtGui.QAction(MainWindow)
+        self.action_item_view.setObjectName(_fromUtf8("action_item_view"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -104,6 +106,7 @@ class Ui_MainWindow(object):
         self.menuItem.addAction(self.action_item_add)
         self.menuItem.addAction(self.action_item_add_many)
         self.menuItem.addAction(self.action_item_edit)
+        self.menuItem.addAction(self.action_item_view)
         self.menuTools.addAction(self.action_tools_tag_cloud)
         self.menubar.addAction(self.menu_repo.menuAction())
         self.menubar.addAction(self.menu.menuAction())
@@ -134,4 +137,5 @@ class Ui_MainWindow(object):
         self.action_item_add_many.setText(QtGui.QApplication.translate("MainWindow", "Add &many", None, QtGui.QApplication.UnicodeUTF8))
         self.action_user_change_pass.setText(QtGui.QApplication.translate("MainWindow", "Change &password", None, QtGui.QApplication.UnicodeUTF8))
         self.action_tools_tag_cloud.setText(QtGui.QApplication.translate("MainWindow", "Tag &cloud", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_view.setText(QtGui.QApplication.translate("MainWindow", "&View with external application", None, QtGui.QApplication.UnicodeUTF8))
 

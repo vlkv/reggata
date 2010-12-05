@@ -40,6 +40,7 @@ from parsers import query_parser
 from tag_cloud import TagCloud
 import consts
 from items_dialog import ItemsDialog
+from ext_app_mgr import ExtAppMgr
 
 
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
@@ -85,6 +86,8 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
 		self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
 		self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
+		self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
+		self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view) 
 		
 		self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
 		self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
@@ -339,7 +342,27 @@ class MainWindow(QtGui.QMainWindow):
 	
 
 			
-		
+	def action_item_view(self):
+		try:
+			sel_indexes = self.ui.tableView_items.selectionModel().selectedIndexes()
+			if len(sel_indexes) > 1:
+				raise MsgException(self.tr("Select only one item, please."))
+			
+			sel_row = sel_indexes[0].row()			
+			data_ref = self.model.items[sel_row].data_ref
+			
+			if data_ref.type != DataRef.FILE:
+				raise MsgException(self.tr("Action 'View item' can be applied only to items linked with files."))
+			
+			eam = ExtAppMgr()
+			eam.invoke(os.path.join(self.active_repo.base_path, data_ref.url))
+			
+			
+			
+		except Exception as ex:
+			show_exc_info(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 		
 	def action_item_add_many(self):
 		'''Добавление нескольких элементов в хранилище. При этом ко всем добавляемым
@@ -417,7 +440,7 @@ class MainWindow(QtGui.QMainWindow):
 			if not is_none_or_empty(file):
 				#Сразу привязываем выбранный файл к новому элементу
 				item.title = os.path.basename(file) #Предлагаем назвать элемент по имени файла			
-				item.data_ref = DataRef(url=file, type=FILE)
+				item.data_ref = DataRef(url=file, type=DataRef.FILE)
 			
 						
 			#Открываем диалог для ввода остальной информации об элементе
@@ -498,9 +521,6 @@ class MainWindow(QtGui.QMainWindow):
 
 
 	def action_item_edit(self):
-		
-		
-		
 		try:
 			if self.active_repo is None:
 				raise MsgException(self.tr("Open a repository first."))
