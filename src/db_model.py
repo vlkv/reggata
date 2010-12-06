@@ -243,7 +243,7 @@ class DataRef(Base):
     dst_path = None
     
     def _get_url(self):
-        if self.type == self.FILE:
+        if self.type == DataRef.FILE:
             if platform.system() == "Windows":
                 return self.url_raw.replace("/", os.sep)
             elif platform.system() == "Linux":
