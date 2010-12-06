@@ -25,7 +25,7 @@ To run reggata you need:
 
 == Starting Reggata ==
 
-To start Reggata execute script "reggata" in root directory of source tree.
+To start Reggata execute script "reggata" (or "reggata.bat" on Windows) in root directory of source tree.
 
 
 == About the author ==
