@@ -24,7 +24,7 @@ Created on 15.10.2010
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 import ui_itemdialog
-from db_model import Item, DataRef, Tag, Item_Tag, Field, Item_Field
+from db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
 from helpers import tr, show_exc_info, DialogMode, index_of, is_none_or_empty, \
                     is_internal
 import os

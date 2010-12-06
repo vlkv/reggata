@@ -29,7 +29,7 @@ import consts
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker, joinedload, contains_eager,\
     joinedload_all
-from db_model import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
+from db_schema import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
     Thumbnail
 from exceptions import LoginError, AccessError
 import shutil
@@ -39,7 +39,7 @@ import datetime
 from sqlalchemy.exc import ResourceClosedError
 from sqlalchemy.sql.expression import select
 from user_config import UserConfig
-import db_model
+import db_schema
 import traceback
 import os
 
@@ -236,8 +236,8 @@ class UnitOfWork(object):
         
         sql = '''
         select sub.*, ''' + \
-        db_model.Item_Tag._sql_from() + ", " + \
-        db_model.Tag._sql_from() + \
+        Item_Tag._sql_from() + ", " + \
+        Tag._sql_from() + \
         '''
         from (select i.*, ''' + \
             DataRef._sql_from() + ", " + \

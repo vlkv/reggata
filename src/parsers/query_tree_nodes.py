@@ -25,7 +25,7 @@ Created on 27.11.2010
 import consts
 import helpers
 from user_config import UserConfig
-import db_model
+import db_schema
 
 
 class QueryExpression(object):
@@ -131,14 +131,14 @@ class TagsConjunction(QueryExpression):
         s = '''
         --TagsConjunction.interpret() function
         select sub.*, ''' + \
-        db_model.Item_Tag._sql_from() + ", " + \
-        db_model.Tag._sql_from() + \
+        db_schema.Item_Tag._sql_from() + ", " + \
+        db_schema.Tag._sql_from() + \
         ''' 
         from
             (select distinct 
             i.*, ''' + \
-            db_model.DataRef._sql_from() + ", " + \
-            db_model.Thumbnail._sql_from() + \
+            db_schema.DataRef._sql_from() + ", " + \
+            db_schema.Thumbnail._sql_from() + \
         '''
         from items i 
         left outer join items_tags it on i.id = it.item_id 

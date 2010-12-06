@@ -32,7 +32,7 @@ from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread
 	CreateGroupIfItemsThread
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
 	WaitDialog, raise_exc
-from db_model import Base, User, Item, DataRef, Tag, Field, Item_Field
+from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
 from exceptions import LoginError, MsgException

@@ -19,8 +19,9 @@ along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 
 Created on 11.10.2010
 
-@author: vlkv
+Схема базы данных хранилища метаданных Reggata.
 '''
+
 import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref

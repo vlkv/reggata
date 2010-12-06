@@ -12,7 +12,7 @@ import helpers
 from exceptions import MsgException
 from helpers import is_internal, DialogMode, is_none_or_empty
 import parsers
-from db_model import DataRef
+from db_schema import DataRef
 
 
 class CustomTextEdit(QtGui.QTextEdit):
