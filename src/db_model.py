@@ -243,13 +243,15 @@ class DataRef(Base):
     dst_path = None
     
     def _get_url(self):
-        if platform.system() == "Windows":
-            return self.url_raw.replace("/", os.sep)
-        elif platform.system() == "Linux":
-            return self.url_raw.replace("\\", os.sep)
-        else:
-            #TODO Может добавить что-то для других ОС?
-            return self.url_raw
+        if self.type == self.FILE:
+            if platform.system() == "Windows":
+                return self.url_raw.replace("/", os.sep)
+            elif platform.system() == "Linux":
+                return self.url_raw.replace("\\", os.sep)
+            else:
+                #TODO Может добавить что-то для других ОС?
+                pass
+        return self.url_raw
         
     def _set_url(self, value):
         self.url = value
