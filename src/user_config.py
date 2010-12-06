@@ -100,6 +100,7 @@ if __name__ == "__main__":
     uc1 = UserConfig()
     uc2 = UserConfig()
     print(uc1 == uc2)
+    print(uc1 is uc2)
     
     
     

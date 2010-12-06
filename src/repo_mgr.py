@@ -45,26 +45,22 @@ import os
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
-    
-    '''Соединение с базой метаданных '''
-    __engine = None
-    
-    '''Класс сессии '''
-    Session = None
-    
-    _base_path = None
-
+        
     def __init__(self, path_to_repo):
         '''Открывает хранилище по адресу path_to_repo. 
         Делает некторые проверки того, что хранилище корректно.'''
-        self.base_path = path_to_repo
+        
+        #self._base_path --- Абсолютный путь к корню хранилища
+        self._base_path = path_to_repo
         if not os.path.exists(self.base_path + os.sep + consts.METADATA_DIR):
             raise Exception(tr("Directory {} is not a repository base path.").format(self.base_path))
         
+        #self.__engine --- Соединение с базой метаданных
         self.__engine = sqa.create_engine(\
             "sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE, \
             echo=True)
-
+        
+        #Класс сессии
         self.Session = sessionmaker(bind=self.__engine) #expire_on_commit=False
         
     def __del__(self):
@@ -120,10 +116,6 @@ class RepoMgr(object):
 
 
 class UnitOfWork(object):
-    
-    _repo_base_path = None
-    
-    _session = None    
     
     def __init__(self, repoMgr):
         self._repo_base_path = repoMgr.base_path

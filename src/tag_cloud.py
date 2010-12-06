@@ -32,22 +32,17 @@ class TagCloud(QtGui.QTextEdit):
     Виджет для отображения облака тегов.
     '''
     
-    #Пользователи (их логины), теги которых должны отображаться в облаке
-    #Если пустое множество, то в облаке отображаются теги всех пользователей
-    _users = set() #TODO Это пока что не используется... (не реализовано)
-    
-    _repo = None
-        
-    hint_width = None
-    hint_height = None
-    
     def __init__(self, parent=None, repo=None):
         super(TagCloud, self).__init__(parent)
         self.setMouseTracking(True)
         self.setReadOnly(True)
         self.tags = set() #Выбранные теги
         self.not_tags = set() #Выбранные отрицания тегов
-        self.repo = repo
+        self._repo = repo
+        
+        #Пользователи (их логины), теги которых должны отображаться в облаке
+        #Если пустое множество, то в облаке отображаются теги всех пользователей
+        self._users = set() #TODO Это пока что не используется... (не реализовано)
         
         #Значения по умолчанию
         self.hint_width = 320

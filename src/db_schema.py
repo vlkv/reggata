@@ -239,9 +239,6 @@ class DataRef(Base):
     thumbnails = relationship("Thumbnail", cascade="all, delete-orphan")
 
 
-    #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
-    #их необходимо скопировать. Данное поле в БД не сохраняется.
-    dst_path = None
     
     def _get_url(self):
         if self.type == DataRef.FILE:
@@ -279,8 +276,11 @@ class DataRef(Base):
         else:
             self.date_created = datetime.datetime.today()
         self.type = type
+        
+        #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
+        #их необходимо скопировать. Данное поле в БД не сохраняется.
         self.dst_path = None
-        self.orig_url = None
+                
         
     def is_image(self):
         '''Возвращает True, если данный DataRef объект имеет тип FILE и ссылается

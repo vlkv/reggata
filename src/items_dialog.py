@@ -50,19 +50,25 @@ class ItemsDialog(QtGui.QDialog):
     группами.
     '''
     
-    items = None
+    
 
-    dst_path = None
-    group_has_files = False
+    
+    
 
     def __init__(self, parent=None, items=[], mode=DialogMode.EDIT):
         super(ItemsDialog, self).__init__(parent)
         self.ui = ui_itemsdialog.Ui_ItemsDialog()
         self.ui.setupUi(self)
+        
+        self.parent = parent
         self.items = items
+        self.dst_path = None
+        self.group_has_files = False
+        
+        
         if len(items) <= 1:
             raise ValueError(self.tr("ItemsDialog cannot operate with one or zero Item objects."))
-        self.parent = parent
+        
         
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.button_ok)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.button_cancel)
@@ -79,8 +85,7 @@ class ItemsDialog(QtGui.QDialog):
         self.set_dialog_mode(mode)
         self.read()
         
-        #TODO Добавить поддержку DialogMode
-        #Потому что элементы можно группой добавлять, а также группой редактировать
+        
     
     def set_dialog_mode(self, mode):
         if mode == DialogMode.CREATE:

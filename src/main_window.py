@@ -59,19 +59,20 @@ class MainWindow(QtGui.QMainWindow):
 	Главное окно приложения reggata.
 	'''
 	
-	#Текущее активное открытое хранилище (объект RepoMgr)
-	__active_repo = None
-	
-	#Текущий пользователь, который работает с программой
-	__active_user = None
-	
-	'''Модель таблицы для отображения элементов хранилища.'''
-	model = None
-	
 	def __init__(self, parent=None):
 		super(MainWindow, self).__init__(parent)
 		self.ui = ui_mainwindow.Ui_MainWindow()
 		self.ui.setupUi(self)
+		
+		#Текущее активное открытое хранилище (объект RepoMgr)
+		self.__active_repo = None
+		
+		#Текущий пользователь, который работает с программой
+		self.__active_user = None
+		
+		#Модель таблицы для отображения элементов хранилища
+		self.model = None	
+		
 		self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
 		self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
 		self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
@@ -145,18 +146,6 @@ class MainWindow(QtGui.QMainWindow):
 		self.addDockWidget(dock_area if dock_area != Qt.NoDockWidgetArea else QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
 		self.ui.dockWidget_tag_cloud.show()
 
-#	def set_visible_tag_cloud(self, show):
-##		if show and self.ui.dockWidget_tag_cloud.isHidden():
-##			self.removeDockWidget(self.ui.dockWidget_tag_cloud)
-##			self.addDockWidget(int(UserConfig().get("main_window.tag_cloud.dock_area", QtCore.Qt.TopDockWidgetArea)), self.ui.dockWidget_tag_cloud)
-##			self.ui.dockWidget_tag_cloud.show()
-##		else:
-##			self.removeDockWidget(self.ui.dockWidget_tag_cloud)
-#				
-#		self.ui.dockWidget_tag_cloud.setVisible(show)
-##		if show:
-##			self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
-#			
 
 	def reset_tag_cloud(self):
 		self.ui.tag_cloud.reset()

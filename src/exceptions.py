@@ -39,3 +39,5 @@ class MsgException(Exception):
     пользователю какую-нибудь информацию.'''
     def __init__(self, msg):
         super(MsgException, self).__init__(msg)
+        
+        

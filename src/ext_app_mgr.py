@@ -43,11 +43,12 @@ class ExtAppMgr(object):
     обновлять их DataRef.hash.
     '''
 
-    file_types = None #Ключ - название группы файлов, значение - список расширений файлов
-    extensions = None #Ключ - расширение файла (в нижнем регистре), значение - название группы файлов
-
     def __init__(self):
+    	
+    	#Ключ - название группы файлов, значение - список расширений файлов
         self.extensions = dict()
+        
+        #Ключ - расширение файла (в нижнем регистре), значение - название группы файлов
         self.file_types = eval(UserConfig().get('ExtAppMgr.file_types', "dict()"))
         for type, ext_list in self.file_types.items():             
             for ext in ext_list:
