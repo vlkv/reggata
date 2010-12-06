@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sun Dec  5 19:20:21 2010
+# Created: Tue Dec  7 00:24:16 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -47,7 +47,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.frame)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 29))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName(_fromUtf8("menu_repo"))
@@ -96,6 +96,8 @@ class Ui_MainWindow(object):
         self.action_tools_tag_cloud.setObjectName(_fromUtf8("action_tools_tag_cloud"))
         self.action_item_view = QtGui.QAction(MainWindow)
         self.action_item_view.setObjectName(_fromUtf8("action_item_view"))
+        self.action_item_add_many_rec = QtGui.QAction(MainWindow)
+        self.action_item_add_many_rec.setObjectName(_fromUtf8("action_item_add_many_rec"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -105,6 +107,7 @@ class Ui_MainWindow(object):
         self.menu.addAction(self.action_user_change_pass)
         self.menuItem.addAction(self.action_item_add)
         self.menuItem.addAction(self.action_item_add_many)
+        self.menuItem.addAction(self.action_item_add_many_rec)
         self.menuItem.addAction(self.action_item_edit)
         self.menuItem.addAction(self.action_item_view)
         self.menuTools.addAction(self.action_tools_tag_cloud)
@@ -137,5 +140,6 @@ class Ui_MainWindow(object):
         self.action_item_add_many.setText(QtGui.QApplication.translate("MainWindow", "Add &many", None, QtGui.QApplication.UnicodeUTF8))
         self.action_user_change_pass.setText(QtGui.QApplication.translate("MainWindow", "Change &password", None, QtGui.QApplication.UnicodeUTF8))
         self.action_tools_tag_cloud.setText(QtGui.QApplication.translate("MainWindow", "Tag &cloud", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_view.setText(QtGui.QApplication.translate("MainWindow", "&View with external application", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_view.setText(QtGui.QApplication.translate("MainWindow", "&View with external app", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_add_many_rec.setText(QtGui.QApplication.translate("MainWindow", "Add many &recursively", None, QtGui.QApplication.UnicodeUTF8))
 

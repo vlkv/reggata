@@ -85,6 +85,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
 		self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
 		self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
+		self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
 		self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
 		self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view) 
 		
@@ -350,6 +351,63 @@ class MainWindow(QtGui.QMainWindow):
 			show_exc_info(self, ex)
 		else:
 			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+
+	def action_item_add_many_rec(self):
+		'''Добавление всех файлов, содержащихся в одной директории, в виде 
+		отдельных элементов в хранилище. При этом ко всем добавляемым
+		файлам привязываются одинаковые теги и поля. 
+		Расположение файлов в хранилище будет соответствовать их расположению в 
+		исходной директории.
+		Название title каждого элемента будет совпадать с
+		именем добавляемого файла.'''
+		try:
+			if self.active_repo is None:
+				raise MsgException(self.tr("Open a repository first."))
+			
+			if self.active_user is None:
+				raise MsgException(self.tr("Login to a repository first."))
+			
+			
+			dir = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Select one directory"))
+			if not dir:
+				raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
+			
+			items = []
+			for root, dirs, files in os.walk(dir):
+				for file in files:
+#					print(os.path.relpath(root, dir) + " FILE: " + file)
+					abs_file = os.path.join(root, file)
+					item = Item(user_login=self.active_user.login)
+					item.title = file
+					item.data_ref = DataRef(url=abs_file, type=DataRef.FILE)
+					item.data_ref.dst_subpath = os.path.relpath(root, dir)
+					items.append(item)
+			
+			#Открываем диалог для ввода информации о тегах и полях
+			d = ItemsDialog(self, items, DialogMode.CREATE, same_dst_path=False)
+			if d.exec_():
+				
+				thread = CreateGroupIfItemsThread(self, self.active_repo, items)
+				self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+										
+				#TODO Тут надо отображать WaitDialog
+				wd = WaitDialog(self)
+				self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+				self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+				self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+									
+				thread.start()
+				thread.wait(1000)
+				if thread.isRunning():
+					wd.exec_()
+				
+		except Exception as ex:
+			show_exc_info(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+			#TODO refresh
+			
+			
 		
 	def action_item_add_many(self):
 		'''Добавление нескольких элементов в хранилище. При этом ко всем добавляемым

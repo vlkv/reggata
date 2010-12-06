@@ -238,7 +238,22 @@ class DataRef(Base):
     
     thumbnails = relationship("Thumbnail", cascade="all, delete-orphan")
 
-
+    def __init__(self, url=None, date_created=None, type=None):
+        self.url = url
+        
+        if date_created is not None:
+            self.date_created = date_created
+        else:
+            self.date_created = datetime.datetime.today()
+        self.type = type
+        
+        #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
+        #их необходимо скопировать. Данное поле в БД не сохраняется.
+        self.dst_path = None
+        
+        #Это доп. поле для функции Добавления файлов из директории рекурсивно.
+        #В поле хранится относительный путь внутри исходной сканируемой директории.
+        self.dst_subpath = None
     
     def _get_url(self):
         if self.type == DataRef.FILE:
@@ -252,7 +267,7 @@ class DataRef(Base):
         return self.url_raw
         
     def _set_url(self, value):
-        self.url = value
+        self.url_raw = value
                 
     url = property(_get_url, _set_url, doc="Свойство url.")
     
@@ -268,18 +283,7 @@ class DataRef(Base):
             data_refs.date_created AS data_refs_date_created, 
             data_refs.user_login AS data_refs_user_login '''
 
-    def __init__(self, url=None, date_created=None, type=None):
-        self.url = url
-        
-        if date_created is not None:
-            self.date_created = date_created
-        else:
-            self.date_created = datetime.datetime.today()
-        self.type = type
-        
-        #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
-        #их необходимо скопировать. Данное поле в БД не сохраняется.
-        self.dst_path = None
+    
                 
         
     def is_image(self):

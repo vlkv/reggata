@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemsdialog.ui'
 #
-# Created: Sun Dec  5 19:20:21 2010
+# Created: Tue Dec  7 00:24:15 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,9 +17,20 @@ except AttributeError:
 class Ui_ItemsDialog(object):
     def setupUi(self, ItemsDialog):
         ItemsDialog.setObjectName(_fromUtf8("ItemsDialog"))
-        ItemsDialog.resize(490, 332)
+        ItemsDialog.resize(490, 394)
         self.verticalLayout = QtGui.QVBoxLayout(ItemsDialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.horizontalLayout_4 = QtGui.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
+        self.label = QtGui.QLabel(ItemsDialog)
+        self.label.setObjectName(_fromUtf8("label"))
+        self.horizontalLayout_4.addWidget(self.label)
+        self.label_num_of_items = QtGui.QLabel(ItemsDialog)
+        self.label_num_of_items.setObjectName(_fromUtf8("label_num_of_items"))
+        self.horizontalLayout_4.addWidget(self.label_num_of_items)
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem)
+        self.verticalLayout.addLayout(self.horizontalLayout_4)
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
         self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
         self.label_8 = QtGui.QLabel(ItemsDialog)
@@ -103,6 +114,8 @@ class Ui_ItemsDialog(object):
 
     def retranslateUi(self, ItemsDialog):
         ItemsDialog.setWindowTitle(QtGui.QApplication.translate("ItemsDialog", "ItemsDialog", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("ItemsDialog", "Number of items: ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_num_of_items.setText(QtGui.QApplication.translate("ItemsDialog", "0", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("ItemsDialog", "Destination path:", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_select_dst_path.setText(QtGui.QApplication.translate("ItemsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
         self.label_fields.setText(QtGui.QApplication.translate("ItemsDialog", "Fields:", None, QtGui.QApplication.UnicodeUTF8))

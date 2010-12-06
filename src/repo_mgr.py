@@ -576,7 +576,7 @@ class UnitOfWork(object):
         
     
         if item.data_ref is not None:
-            dr = self._session.query(DataRef).filter(DataRef.url==item.data_ref.url).first()
+            dr = self._session.query(DataRef).filter(DataRef.url_raw==item.data_ref.url_raw).first()
             if dr is not None:
                 raise Exception(tr("DataRef instance with url={}, "
                                    "already in database. "
@@ -604,8 +604,14 @@ class UnitOfWork(object):
             if dr.type == DataRef.FILE:
                 #Копируем, только если пути src и dst не совпадают, иначе это один и тот же файл!
                 #Если файл dst существует, то он перезапишется
-                if data_ref_original_url != os.path.join(self._repo_base_path, dr.url):
-                    shutil.copy(data_ref_original_url, os.path.join(self._repo_base_path, dr.url))
+                abs_dst_path = os.path.join(self._repo_base_path, dr.url)
+                if data_ref_original_url != abs_dst_path:                    
+                    try:
+                        head, tail = os.path.split(abs_dst_path)
+                        os.makedirs(head)
+                    except:
+                        pass
+                    shutil.copy(data_ref_original_url, abs_dst_path)
 
         self._session.commit()
         

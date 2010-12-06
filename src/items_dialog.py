@@ -55,7 +55,7 @@ class ItemsDialog(QtGui.QDialog):
     
     
 
-    def __init__(self, parent=None, items=[], mode=DialogMode.EDIT):
+    def __init__(self, parent=None, items=[], mode=DialogMode.EDIT, same_dst_path=True):
         super(ItemsDialog, self).__init__(parent)
         self.ui = ui_itemsdialog.Ui_ItemsDialog()
         self.ui.setupUi(self)
@@ -64,10 +64,12 @@ class ItemsDialog(QtGui.QDialog):
         self.items = items
         self.dst_path = None
         self.group_has_files = False
+        self.same_dst_path = same_dst_path
         
         
         if len(items) <= 1:
             raise ValueError(self.tr("ItemsDialog cannot operate with one or zero Item objects."))
+        self.ui.label_num_of_items.setText(str(len(items)))
         
         
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.button_ok)
@@ -108,13 +110,25 @@ class ItemsDialog(QtGui.QDialog):
     
     def write(self):
         
-        #Если пользователь выберер другую директорию назначения, то мы ее 
+        #Если пользователь выберет другую директорию назначения, то мы ее 
         #сохраняем в поле DataRef.dst_path (это будет только имя директории!!!)
-        if (self.group_has_files or self.mode == DialogMode.CREATE) and not is_none_or_empty(self.dst_path):
+        
+        if self.mode == DialogMode.EDIT and self.group_has_files and not is_none_or_empty(self.dst_path):
+            for item in self.items:
+                if item.data_ref and item.data_ref.type != DataRef.FILE:
+                    continue
+                item.data_ref.dst_path = self.dst_path
+        
+        elif self.mode == DialogMode.CREATE:
             for item in self.items:
                 if item.data_ref and item.data_ref.type != DataRef.FILE:
                     continue                
-                item.data_ref.dst_path = self.dst_path
+                if self.same_dst_path:
+                    item.data_ref.dst_path = self.dst_path
+                else:
+                    item.data_ref.dst_path = os.path.normpath(os.path.join(self.dst_path, item.data_ref.dst_subpath))
+                
+                 
         
         #Теги, которые нужно добавить        
         text = self.ui.plainTextEdit_tags_add.toPlainText()

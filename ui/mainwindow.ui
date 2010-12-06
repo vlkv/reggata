@@ -59,7 +59,7 @@
      <x>0</x>
      <y>0</y>
      <width>659</width>
-     <height>26</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_repo" >
@@ -85,6 +85,7 @@
     </property>
     <addaction name="action_item_add" />
     <addaction name="action_item_add_many" />
+    <addaction name="action_item_add_many_rec" />
     <addaction name="action_item_edit" />
     <addaction name="action_item_view" />
    </widget>
@@ -181,7 +182,12 @@
   </action>
   <action name="action_item_view" >
    <property name="text" >
-    <string>&amp;View with external application</string>
+    <string>&amp;View with external app</string>
+   </property>
+  </action>
+  <action name="action_item_add_many_rec" >
+   <property name="text" >
+    <string>Add many &amp;recursively</string>
    </property>
   </action>
  </widget>
