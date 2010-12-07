@@ -28,12 +28,6 @@ import consts
 import subprocess
 import shlex
 
-#Пример фрагмента из reggata.conf
-#ExtAppMgr.file_types = {'images' \: ['.jpg', '.png', '.gif', '.bmp'], 'pdf' \: ['.pdf']}
-#ExtAppMgr.command.images = gqview {}
-#ExtAppMgr.command.pdf = xpdf {}
-
-
 class ExtAppMgr(object):
     '''
     Класс для вызова внешних приложений, которые нужны для просмотра
@@ -41,15 +35,29 @@ class ExtAppMgr(object):
     
     Кстати, если редактировать файлы, а не просматривать, то надо как-то оперативно
     обновлять их DataRef.hash.
+    
+    Пример фрагмента reggata.conf:
+    
+    ExtAppMgr.file_types = ['images', 'pdf', 'audio']
+    ExtAppMgr.images.extensions = ['.jpg', '.png', '.gif', '.bmp']
+    ExtAppMgr.images.command = gqview {}
+    ExtAppMgr.pdf.extensions = ['.pdf']
+    ExtAppMgr.pdf.command = xpdf {}
+    ExtAppMgr.audio.extensions = ['.mp3', '.ogg', '.flac', '.wav']
+    ExtAppMgr.audio.command = vlc {}
     '''
 
     def __init__(self):
-    	
-    	#Ключ - название группы файлов, значение - список расширений файлов
-        self.extensions = dict()
+
+        file_types_list = eval(UserConfig().get('ExtAppMgr.file_types', "[]"))
         
+        #Ключ - название группы файлов, значение - список расширений файлов
+        self.file_types = dict()
+        for file_type in file_types_list:
+            self.file_types[file_type] = eval(UserConfig().get('ExtAppMgr.{}.extensions'.format(file_type)))
+            
         #Ключ - расширение файла (в нижнем регистре), значение - название группы файлов
-        self.file_types = eval(UserConfig().get('ExtAppMgr.file_types', "dict()"))
+        self.extensions = dict()
         for type, ext_list in self.file_types.items():             
             for ext in ext_list:
                 ext = ext.lower()
@@ -65,7 +73,7 @@ class ExtAppMgr(object):
         if not file_type:
             raise Exception(tr("File type is not defined for {0} file extension. Edit your {1} file.").format(ext, consts.USER_CONFIG_FILE))
         
-        command = UserConfig().get("ExtAppMgr.command." + file_type)
+        command = UserConfig().get("ExtAppMgr.{}.command".format(file_type))
         if not command:
             raise Exception(tr("Command for file_type {0} not found. Edit your {1} file.").format(file_type, consts.USER_CONFIG_FILE))
 
