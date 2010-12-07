@@ -23,9 +23,11 @@ Created on 13.11.2010
 '''
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
-from helpers import tr, show_exc_info, DialogMode, scale_value
+from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty
 from parsers.query_tokens import needs_quote
 from parsers.util import quote
+import parsers
+from exceptions import MsgException
 
 class TagCloud(QtGui.QTextEdit):
     '''
@@ -39,6 +41,8 @@ class TagCloud(QtGui.QTextEdit):
         self.tags = set() #Выбранные теги
         self.not_tags = set() #Выбранные отрицания тегов
         self._repo = repo
+        
+        self.menu = None #Это ссылка на контекстное меню (при нажатии правой кнопки мыши)
         
         #Пользователи (их логины), теги которых должны отображаться в облаке
         #Если пустое множество, то в облаке отображаются теги всех пользователей
@@ -137,14 +141,58 @@ class TagCloud(QtGui.QTextEdit):
         #TODO Если тег содержит пробелы (или другие символы, типа - (дефис)) 
         #то word неправильно определяется!
         #Надо будет что-то по этому поводу сделать
+        return super(TagCloud, self).mouseMoveEvent(e)
         
     def mouseDoubleClickEvent(self, e):
+        '''Добавление тега в запрос.'''
         #TODO Нужно при нажатом Ctr добавлять word в множество _not_tags
         if self.word != "" and self.word is not None:
             self.tags.add(self.word)            
             self.emit(QtCore.SIGNAL("selectedTagsChanged"))
             self.refresh()
             
-#    def event(self, e):        
-#        print(str(e))
-#        return super(TagCloud, self).event(e)
+    def event(self, e):
+#        print("TagCloud caught event " + str(e))
+        return super(TagCloud, self).event(e)
+    
+    def and_tag(self):
+        '''Добавление тега в запрос (через контекстное меню).'''
+        try:
+            sel_text = self.textCursor().selectedText()
+            if not sel_text:
+                raise MsgException(self.tr("There is no selected text in tag cloud."))
+            if parsers.query_parser.needs_quote(sel_text):
+                sel_text = parsers.util.quote(sel_text)
+            self.tags.add(sel_text)
+            self.emit(QtCore.SIGNAL("selectedTagsChanged"))
+            self.refresh()
+        except Exception as ex:
+            show_exc_info(self, ex)
+        
+    def and_not_tag(self):
+        '''Добавление отрицания тега в запрос (через контекстное меню).'''
+        try:
+            sel_text = self.textCursor().selectedText()
+            if not sel_text:
+                    raise MsgException(self.tr("There is no selected text in tag cloud."))
+            if parsers.query_parser.needs_quote(sel_text):
+                sel_text = parsers.util.quote(sel_text)
+            self.not_tags.add(sel_text)
+            self.emit(QtCore.SIGNAL("selectedTagsChanged"))
+            self.refresh()
+        except Exception as ex:
+            show_exc_info(self, ex)
+            
+    
+    def contextMenuEvent(self, e):
+        if not self.menu:
+            self.menu = QtGui.QMenu()
+            self.action_and_tag = self.menu.addAction(self.tr("AND Tag"))
+            self.connect(self.action_and_tag, QtCore.SIGNAL("triggered()"), self.and_tag)
+            self.action_and_not_tag = self.menu.addAction(self.tr("AND NOT Tag"))
+            self.connect(self.action_and_not_tag, QtCore.SIGNAL("triggered()"), self.and_not_tag)            
+        self.menu.exec_(e.globalPos())        
+     
+ 
+    
+    

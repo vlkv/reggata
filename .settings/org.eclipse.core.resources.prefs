@@ -1,4 +1,4 @@
-#Tue Dec 07 20:11:40 MSK 2010
+#Wed Dec 08 00:40:31 MSK 2010
 eclipse.preferences.version=1
 encoding//doc/query_grammar.txt=UTF-8
 encoding//src/consts.py=utf-8
@@ -14,6 +14,7 @@ encoding//src/parsers/query_parser.py=utf-8
 encoding//src/parsers/query_tree_nodes.py=utf-8
 encoding//src/parsers/tags_def_parser.py=utf-8
 encoding//src/parsers/tags_def_tokens.py=utf-8
+encoding//src/parsers/util.py=utf-8
 encoding//src/repo_mgr.py=utf-8
 encoding//src/tag_cloud.py=utf-8
 encoding//src/user_config.py=utf-8
