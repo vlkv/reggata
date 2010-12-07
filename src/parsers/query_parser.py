@@ -49,17 +49,14 @@ def p_simple_expression(p):
     elif len(p) == 3:
         for e in p[2]:
             p[1].add_extras(e)
-        p[0] = p[1]    
+        p[0] = p[1]
 
 def p_extras_user(p):
     '''extras : USER COLON STRING extras'''
     e = Extras()
     e.type = 'USER'
     e.value = p[3]
-
-    
     p[4].append(e)
-
     p[0] = p[4]
 
     
@@ -68,18 +65,13 @@ def p_extras_path(p):
     e = Extras()
     e.type = 'PATH'
     e.value = p[3]    
-    
     p[4].append(e)
-            
     p[0] = p[4]
     
 def p_extras_empty(p):
     '''extras : '''    
     p[0] = []
     
-#def p_extras_one_path(p):
-#    '''extras :'''    
-#    p[0] = []
     
 # Конъюнкция имен тегов или их отрицаний
 def p_tags_conjunction(p):
@@ -113,7 +105,7 @@ def p_tag(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    print("Syntax error in input! " + str(p))
+    print("Syntax error in the query! " + str(p))
 
 
 #Строим лексический анализатор

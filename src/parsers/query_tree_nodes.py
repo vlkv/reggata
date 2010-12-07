@@ -116,8 +116,7 @@ class TagsConjunction(QueryExpression):
             no_tags_str = " i.id NOT IN (select i.id from items i " + \
             " left join items_tags it on i.id = it.item_id " + \
             " left join tags t on t.id = it.tag_id " + \
-            " where (" + helpers.to_commalist(self.no_tags, lambda x: "t.name='" + x.interpret() + "'", " or ") + ") " + \
-            extras_users_str + ") "
+            " where (" + helpers.to_commalist(self.no_tags, lambda x: "t.name='" + x.interpret() + "'", " or ") + ") " + ") "
         else:
             no_tags_str = " 1 "
         
