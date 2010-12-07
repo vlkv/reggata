@@ -70,7 +70,9 @@ class MainWindow(QtGui.QMainWindow):
 		self.__active_user = None
 		
 		#Модель таблицы для отображения элементов хранилища
-		self.model = None	
+		self.model = None
+		
+		
 		
 		self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
 		self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
@@ -146,6 +148,13 @@ class MainWindow(QtGui.QMainWindow):
 		self.addDockWidget(dock_area if dock_area != Qt.NoDockWidgetArea else QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
 		self.ui.dockWidget_tag_cloud.show()
 
+	def event(self, e):
+		#Информация о нажатии Control-а передается облаку тегов
+		if e.type() == QtCore.QEvent.KeyPress and e.key() == Qt.Key_Control:
+			self.ui.tag_cloud.control_pressed = True
+		elif e.type() == QtCore.QEvent.KeyRelease and e.key() == Qt.Key_Control:
+			self.ui.tag_cloud.control_pressed = False
+		return super(MainWindow, self).event(e)
 
 	def reset_tag_cloud(self):
 		self.ui.tag_cloud.reset()

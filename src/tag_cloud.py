@@ -28,6 +28,7 @@ from parsers.query_tokens import needs_quote
 from parsers.util import quote
 import parsers
 from exceptions import MsgException
+from user_config import UserConfig
 
 class TagCloud(QtGui.QTextEdit):
     '''
@@ -43,6 +44,9 @@ class TagCloud(QtGui.QTextEdit):
         self._repo = repo
         
         self.menu = None #Это ссылка на контекстное меню (при нажатии правой кнопки мыши)
+        
+        #True, когда нажата клавиша Control
+        self.control_pressed = False
         
         #Пользователи (их логины), теги которых должны отображаться в облаке
         #Если пустое множество, то в облаке отображаются теги всех пользователей
@@ -121,8 +125,10 @@ class TagCloud(QtGui.QTextEdit):
                 text = ""
                 for tag in tags:
                     font_size = int(scale_value(tag.c, (min, max), (0, 5)))
-                    #Тут как раз НЕ нужно escape-ить имена тегов!                    
-                    text = text + ' <font style="BACKGROUND-COLOR: Beige" size="+{}">'.format(font_size) + tag.name + '</font>'
+                    #Тут как раз НЕ нужно escape-ить имена тегов!
+                    bg_color = UserConfig().get("tag_cloud.tag_background_color", "Beige")
+                    text = text + ' <font style="BACKGROUND-COLOR: ' + bg_color + '" size="+{}">'.format(font_size) + tag.name + '</font>'
+                    
                 self.setText(text)
             finally:
                 uow.close()
@@ -145,15 +151,18 @@ class TagCloud(QtGui.QTextEdit):
         
     def mouseDoubleClickEvent(self, e):
         '''Добавление тега в запрос.'''
-        #TODO Нужно при нажатом Ctr добавлять word в множество _not_tags
-        if self.word != "" and self.word is not None:
-            self.tags.add(self.word)            
+        
+        if not is_none_or_empty(self.word):
+            if self.control_pressed:
+                self.not_tags.add(self.word)
+            else:
+                self.tags.add(self.word)
             self.emit(QtCore.SIGNAL("selectedTagsChanged"))
             self.refresh()
             
-    def event(self, e):
+#    def event(self, e):
 #        print("TagCloud caught event " + str(e))
-        return super(TagCloud, self).event(e)
+#        return super(TagCloud, self).event(e)
     
     def and_tag(self):
         '''Добавление тега в запрос (через контекстное меню).'''
