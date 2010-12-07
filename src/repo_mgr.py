@@ -220,7 +220,7 @@ class UnitOfWork(object):
             .options(joinedload_all('item_tags.tag'))\
             .options(joinedload_all('item_fields.field'))\
             .get(id)
-        self._session.expunge(item)        
+        self._session.expunge(item)
         return item
     
     def get_untagged_items(self):
