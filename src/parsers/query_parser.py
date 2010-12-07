@@ -53,18 +53,14 @@ def p_simple_expression(p):
 
 def p_extras_user(p):
     '''extras : USER COLON STRING extras'''
-    e = Extras()
-    e.type = 'USER'
-    e.value = p[3]
+    e = Extras('USER', p[3])
     p[4].append(e)
     p[0] = p[4]
 
     
 def p_extras_path(p):
     '''extras : PATH COLON STRING extras'''
-    e = Extras()
-    e.type = 'PATH'
-    e.value = p[3]    
+    e = Extras('PATH', p[3])
     p[4].append(e)
     p[0] = p[4]
     

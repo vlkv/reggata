@@ -158,8 +158,13 @@ class TagsConjunction(QueryExpression):
         
         
 class Extras(QueryExpression):
-    type = None
-    value = None
-    
+
+    def __init__(self, type=None, value=None):
+        self.type = type #'USER' или 'PATH'
+        self.value = value #логин пользователя или путь в хранилище
+            
     def interpret(self):
         return str(self.value)
+
+
+
