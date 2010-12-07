@@ -133,11 +133,9 @@ class TagsConjunction(QueryExpression):
             and (''' + extras_users_str + ''') 
             and (''' + no_tags_str + ''')
             and (''' + extras_paths_str + ''')
-            ''' + group_by_having
-        
-        #TODO сделать интерпретацию для токенов PATH
-            
+            ''' + group_by_having            
         return s
+    
     
     @property
     def tags(self):
