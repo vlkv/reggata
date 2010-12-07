@@ -25,7 +25,7 @@ Created on 11.10.2010
 import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import ForeignKey, ForeignKeyConstraint
+from sqlalchemy import ForeignKey, ForeignKeyConstraint, orm
 from helpers import tr, is_none_or_empty
 import datetime
 import os
@@ -237,6 +237,11 @@ class DataRef(Base):
     user = relationship(User, cascade="save-update, merge, expunge, refresh-expire")
     
     thumbnails = relationship("Thumbnail", cascade="all, delete-orphan")
+
+    @orm.reconstructor
+    def __init_on_load__(self):
+        self.dst_path = None
+        self.dst_subpath = None
 
     def __init__(self, url=None, date_created=None, type=None):
         self.url = url
