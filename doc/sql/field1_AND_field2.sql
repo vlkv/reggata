@@ -1,12 +1,23 @@
 
 --Выборка по полям: Поле1=знач1 И Поле2=знач2
-select * 
-from items i
-join items_fields i_f1 on i_f1.item_id = i.id
-join items_fields i_f2 on i_f2.item_id = i.id and i_f1.field_id < i_f2.field_id
-where 
-        i_f1.field_id = 1 and i_f1.field_value LIKE '%Эккель%' --Автор
-    and i_f2.field_id = 2 and CAST(i_f2.field_value as REAL) >= 5 --Рейтинг
-    --Очень важно, чтобы id-шники полей следовали по возрастанию (в том же порядке, как склеивались таблицы)
+select 
+    i.id, i.title,
+    if1.item_id as if1_i, if1.field_id as if1_f, f1.name as f1_name, if1.field_value as if1_fv,  
+    if2.item_id as if2_i, if2.field_id as if2_f, f2.name as f2_name, if2.field_value as if2_fv
+    from items i
+    inner join items_fields if1 on if1.item_id = i.id
+    inner join fields f1 on f1.id = if1.field_id
+    inner join items_fields if2 on if2.item_id = i.id and if1.field_id < if2.field_id
+    inner join fields f2 on f2.id = if2.field_id    
+    where 
+            f1.name = 'Автор' and if1.field_value LIKE 'Пупкин'
+        and f2.name = 'Рейтинг' and CAST(if2.field_value as REAL) >= 5
+	--Очень важно, чтобы id-шники полей следовали по возрастанию
     
+
+	--Вот так работать не будет, т.к. id поля Рейтинг больше, чем id поля Автор
+--            f2.name = 'Автор' and if2.field_value LIKE 'Пупкин'
+--        and f1.name = 'Рейтинг' and CAST(if1.field_value as REAL) < 5
+
+
 
