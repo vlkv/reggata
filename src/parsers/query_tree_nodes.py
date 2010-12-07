@@ -103,6 +103,14 @@ class TagsConjunction(QueryExpression):
         else:
             extras_users_str = " 1 "
         
+        #extras_paths_str
+        if len(self.extras_paths) > 0:
+            extras_paths_str = helpers.to_commalist( \
+                self.extras_paths, lambda x: "data_refs.url LIKE '" + x.interpret() + "%'", " OR ")
+        else:
+            extras_paths_str = " 1 "
+            
+        
         #no_tags_str
         if len(self.no_tags) > 0:
             no_tags_str = " i.id NOT IN (select i.id from items i " + \
@@ -113,50 +121,22 @@ class TagsConjunction(QueryExpression):
         else:
             no_tags_str = " 1 "
         
-        
-        #thumbnails_str
-        thumbnails_str = "thumbnails.size = {} ".format(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE))
-        
-#            dr.id AS dr_id, 
-#            dr.url AS dr_url, 
-#            dr.type AS dr_type, 
-#            dr.hash AS dr_hash, 
-#            dr.date_hashed AS dr_date_hashed, 
-#            dr.size AS dr_size, 
-#            dr.date_created AS dr_date_created, 
-#            dr.user_login AS dr_user_login,
-        
-        #Данный запрос будет попутно извлекать информацию о 
-        #связанных с элементами объектов DataRef
         s = '''
         --TagsConjunction.interpret() function
-        select sub.*, ''' + \
-        db_schema.Item_Tag._sql_from() + ", " + \
-        db_schema.Tag._sql_from() + \
-        ''' 
-        from
-            (select distinct 
-            i.*, ''' + \
-            db_schema.DataRef._sql_from() + ", " + \
-            db_schema.Thumbnail._sql_from() + \
-        '''
+        select distinct 
+            i.*, 
+            ''' + db_schema.DataRef._sql_from() + '''
         from items i 
-        left outer join items_tags it on i.id = it.item_id 
-        left outer join tags t on t.id = it.tag_id
-        left outer join data_refs on data_refs.id = i.data_ref_id
-        left outer join thumbnails on thumbnails.data_ref_id = data_refs.id and ''' + thumbnails_str + '''        
+        left join items_tags it on i.id = it.item_id 
+        left join tags t on t.id = it.tag_id
+        left join data_refs on data_refs.id = i.data_ref_id
             where (''' + yes_tags_str + ''') 
             and (''' + extras_users_str + ''') 
             and (''' + no_tags_str + ''')
-            ''' + group_by_having + '''
-        ) as sub
-        left outer join items_tags on sub.id = items_tags.item_id
-        left outer join tags on tags.id = items_tags.tag_id
-        '''
-        #!!! Тут будет ошибка, если у data_ref-а будет более одной миниатюры!!!
-        #Поэтому нужно указывать в запросе точно какой размер thumbnail-ов необходим.
-                
-        #TODO сделать интерпретацию для токенов PATH            
+            and (''' + extras_paths_str + ''')
+            ''' + group_by_having
+        
+        #TODO сделать интерпретацию для токенов PATH
             
         return s
     

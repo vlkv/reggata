@@ -256,6 +256,37 @@ class UnitOfWork(object):
                 
         return items
     
+    def query_items_by_tree(self, query_tree):
+        '''
+        Функция извлекает item-ы, которые соответствуют дереву разбора query_tree.
+        '''
+        
+        sub_sql = query_tree.interpret()
+        
+        sql = '''
+        select sub.*, 
+        ''' + db_schema.Item_Tag._sql_from() + ''', 
+        ''' + db_schema.Tag._sql_from() + ''',
+        ''' + db_schema.Thumbnail._sql_from() + '''
+        from (''' + sub_sql + ''') as sub
+        left join items_tags on sub.id = items_tags.item_id
+        left join tags on tags.id = items_tags.tag_id
+        left join thumbnails on thumbnails.data_ref_id = sub.data_refs_id and 
+                  thumbnails.size = ''' + str(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)) + '''
+        '''
+        
+        items = self._session.query(Item)\
+            .options(contains_eager("data_ref"), \
+                     contains_eager("data_ref.thumbnails"), \
+                     contains_eager("item_tags"), \
+                     contains_eager("item_tags.tag"))\
+            .from_statement(sql).all()
+    
+        for item in items:
+            self._session.expunge(item)
+        
+        return items
+    
     def query_items_by_sql(self, sql):
         '''
         Внимание! sql должен извлекать не только item-ы, но также и связанные (при помощи left join)

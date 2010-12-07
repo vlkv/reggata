@@ -684,12 +684,10 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 			finally:
 				uow.close()
 		else:
-
 			uow = self.repo.create_unit_of_work()
 			try:
-				tree = query_parser.parse(query_text)
-				sql = tree.interpret()
-				self.items = uow.query_items_by_sql(sql)
+				query_tree = query_parser.parse(query_text)
+				self.items = uow.query_items_by_tree(query_tree)
 				self.reset()
 			finally:
 				uow.close()

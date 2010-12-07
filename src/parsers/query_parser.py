@@ -52,41 +52,34 @@ def p_simple_expression(p):
         p[0] = p[1]    
 
 def p_extras_user(p):
-    '''extras : extras USER COLON STRING '''
+    '''extras : USER COLON STRING extras'''
     e = Extras()
     e.type = 'USER'
-    e.value = p[4]
-    if type(p[1]) == list:
-        p[1].append(e)
-    else:
-        p[1] = [e]        
-    p[0] = p[1]
+    e.value = p[3]
+
+    
+    p[4].append(e)
+
+    p[0] = p[4]
 
     
 def p_extras_path(p):
-    '''extras : extras PATH COLON STRING '''
+    '''extras : PATH COLON STRING extras'''
     e = Extras()
     e.type = 'PATH'
-    e.value = p[4]
-    if type(p[1]) == list:
-        p[1].append(e)
-    else:
-        p[1] = [e]        
-    p[0] = p[1]
+    e.value = p[3]    
     
-def p_extras_one_user(p):
-    '''extras : USER COLON STRING'''
-    e = Extras()
-    e.type = 'USER'
-    e.value = p[3]
-    p[0] = [e]
+    p[4].append(e)
+            
+    p[0] = p[4]
     
-def p_extras_one_path(p):
-    '''extras : PATH COLON STRING'''
-    e = Extras()
-    e.type = 'PATH'
-    e.value = p[3]
-    p[0] = [e]
+def p_extras_empty(p):
+    '''extras : '''    
+    p[0] = []
+    
+#def p_extras_one_path(p):
+#    '''extras :'''    
+#    p[0] = []
     
 # Конъюнкция имен тегов или их отрицаний
 def p_tags_conjunction(p):
