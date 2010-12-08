@@ -39,6 +39,12 @@ class FieldOpVal(QueryExpression):
     Узел синт. дерева для представления тройки (ИмяПоля,Операция,Значение).
     '''
     
+    def __init__(self, name, op, value):
+        self.name = name
+        self.op = op
+        self.value = value
+        
+    
 class FieldsConjunction(QueryExpression):
     '''
     Конъюнкция объектов FieldOpVal.
@@ -53,12 +59,15 @@ class FieldsConjunction(QueryExpression):
         and i_f2.field_id = 2 and CAST(i_f2.field_value as REAL) >= 5 --Рейтинг
         --Очень важно, чтобы id-шники полей следовали по возрастанию (в том же порядке, как склеивались таблицы)
     '''
+    
+    def __init__(self):
+        self.field_op_vals = []
+    
+    def add_field_op_val(self, field_op_val):
+        self.field_op_vals.append(field_op_val)
 
 class Tag(QueryExpression):
-    '''Узел синтаксического дерева для представления тегов.'''
-    
-    name = None
-    is_negative = None
+    '''Узел синтаксического дерева для представления тегов.'''    
     
     def __init__(self, name, is_negative=False):
         self.name = name

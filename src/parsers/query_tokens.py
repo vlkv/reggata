@@ -34,6 +34,7 @@ PATH_KEYWORD = tr('path')
 #Зарезервированные слова и соответствующие им типы токенов
 #Я хочу, чтобы операции and, or, not и др. были в нескольких вариантах.
 #Например, чтобы and можно было записать как and, And, AND
+#В словаре reserved: ключ - это зарезервированное слово, а значение - это тип токена
 reserved = dict()
 for tuple in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'), 
               (USER_KEYWORD, 'USER'), (PATH_KEYWORD, 'PATH')]:
@@ -45,12 +46,20 @@ for tuple in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'),
 #Но работает, как мне хочется.
 
 
-#Список типов токенов
+#Типы токенов
 tokens = [
    'STRING', #Строка, которая либо отдельное слово, либо в двойных кавычках все что угодно
-   'LPAREN', #Открывающая круглая скобка ) 
+   'LPAREN', #Открывающая круглая скобка )
    'RPAREN', #Закрывающая круглая скобка )
    'COLON', #Двоеточие : (ставится после ключевых слов user и после path)
+   
+   #Операции, которые могут быть между именем поля и его значением:
+   'EQUAL',
+   'GREATER',
+   'GREATER_EQ',
+   'LESS',
+   'LESS_EQ',
+   'LIKE',
 ] + list(reserved.values())
 
 # Строка. Если содержит пробелы или двойные кавычки или обратный слеш, то
@@ -70,10 +79,18 @@ def t_STRING(t):
     return t
 
 
-
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
 t_COLON = r':'
+
+#Эти токены нужно внести в регэксп токена STRING...
+t_EQUAL = r'='
+t_GREATER = r'>'
+t_GREATER_EQ = r'>='
+t_LESS = r'<'
+t_LESS_EQ = r'<='
+t_LIKE = r'~'
+
 
 
 # A string containing ignored characters (spaces and tabs)

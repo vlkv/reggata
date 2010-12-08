@@ -23,7 +23,8 @@ Created on 24.10.2010
 '''
 
 
-from parsers.query_tree_nodes import TagsConjunction, Tag, Extras
+from parsers.query_tree_nodes import TagsConjunction, Tag, Extras, FieldOpVal,\
+    FieldsConjunction
 
 
 import ply.yacc as yacc
@@ -42,8 +43,9 @@ def p_compound_expression(p):
 
 #Простое выражение, для выполнения которого достаточно одного SQL запроса
 def p_simple_expression(p):
-    '''simple_expression : tags_conjunction
-                         | tags_conjunction extras'''
+    '''simple_expression : tags_conjunction                         
+                         | tags_conjunction extras
+                         | fields_conjunction '''
     if len(p) == 2:        
         p[0] = p[1]
     elif len(p) == 3:
@@ -98,6 +100,37 @@ def p_tag_not_tag(p):
 def p_tag(p):
     'tag : STRING'
     p[0] = Tag(p[1])
+    
+    
+def p_fields_conjunction(p):
+    '''fields_conjunction : field_op_value fields_conjunction'''
+    p[2].add_field_op_val(p[1])
+    p[0] = p[2]
+
+def p_fields_conjunction_empty(p):
+    '''fields_conjunction : '''
+    p[0] = FieldsConjunction()
+
+def p_field_op_value(p):
+    '''field_op_value : field_name field_op field_value '''
+    p[0] = FieldOpVal(p[1], p[2], p[3])
+    
+def p_field_name(p):
+    '''field_name : STRING '''
+    p[0] = p[1]
+    
+def p_field_op(p):
+    '''field_op : EQUAL
+                | GREATER
+                | GREATER_EQ
+                | LESS
+                | LESS_EQ  '''
+    p[0] = p[1]
+
+def p_field_value(p):
+    '''field_value : STRING '''
+    p[0] = p[1]
+    
 
 # Error rule for syntax errors
 def p_error(p):
@@ -119,22 +152,27 @@ def parse(text):
 if __name__ == '__main__':
 ##############################
     # Test data
-    data = r'''
+    data_0 = r'''
     Tag1 "Slash\\ quote\" end" and "tag 2" user : "asdf"
     '''
+    
+    data_1 = r'''
+    Field = abc
+    '''
+    
+    data = data_1
     
 ##############################
         
     lexer.input(data)
-    
-    # Tokenize
+        
     while True:
         tok = lexer.token()
         if not tok: break      # No more input
         print(tok)
 ##############################    
-#    result = parser.parse(data)
-#    print(result.interpret())
+    result = parser.parse(data)
+    print(result.interpret())
 
 
 #    print(need_quote("abc"))
