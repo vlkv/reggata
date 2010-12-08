@@ -22,36 +22,41 @@ Created on 24.10.2010
 Модуль содержит продукции грамматики языка запросов.
 '''
 
-
 from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, FieldOpVal,\
     FieldsConjunction, CompoundQuery
-
-
 import ply.yacc as yacc
 from parsers.query_tokens import *
 
- 
 
 def p_query(p):
     '''query : simple_query
              | compound_query '''
     p[0] = p[1]
 
+
+# Составное выражение, представляющее собой несколько SQL запросов, соединенных
+# операциями INTERSECT, UNION, EXCEPT.
 def p_compound_query(p):
     '''compound_query : LPAREN simple_query RPAREN'''
     p[0] = CompoundQuery(p[2])
     
-def p_compound_query_1(p):
-    '''compound_query : compound_query AND LPAREN simple_query RPAREN '''
-    p[1].and_elem(p[4])
+def p_compound_query_and(p):
+    '''compound_query : compound_query AND LPAREN simple_query RPAREN
+                      | compound_query LPAREN simple_query RPAREN '''
+    if len(p) == 6:        
+        p[1].and_elem(p[4])
+    elif len(p) == 5:
+        p[1].and_elem(p[3])
+    else:
+        raise ValueError(tr("len(p) has incorrect value."))
     p[0] = p[1]
 
-def p_compound_query_2(p):
+def p_compound_query_or(p):
     '''compound_query : compound_query OR LPAREN simple_query RPAREN ''' 
     p[1].or_elem(p[4])
     p[0] = p[1]
 
-def p_compound_query_3(p):
+def p_compound_query_and_not(p):
     '''compound_query : compound_query AND NOT LPAREN simple_query RPAREN '''
     p[1].and_not_elem(p[5])
     p[0] = p[1]
@@ -60,9 +65,10 @@ def p_compound_query_3(p):
 #Простое выражение, для выполнения которого достаточно одного SQL запроса
 def p_simple_query(p):
     '''simple_query : tags_conjunction
+                    | tags_conjunction extra_clause 
                     | fields_conjunction
-                    | tags_conjunction extra_clause '''
-                    
+                    | fields_conjunction extra_clause 
+    ''' 
     if len(p) == 2:        
         p[0] = p[1]
     elif len(p) == 3:

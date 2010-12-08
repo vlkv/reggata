@@ -139,12 +139,34 @@ class FieldsConjunction(QueryExpression):
     
     def __init__(self):
         self.field_op_vals = []
+        
+        #Список дополнительных условий USER и PATH
+        self.extra_paths = []
+        self.extra_users = []
+    
+    def add_extra_clause(self, ext):
+        if ext.type == 'USER':
+            self.extra_users.append(ext)
+        elif ext.type == 'PATH':
+            self.extra_paths.append(ext)
+        else:
+            raise Exception(tr("Unexpected type of extra_clause {}").format(str(ext.type)))
     
     def interpret(self):
+        
+        #extra_users_str
+        if len(self.extra_users) > 0:
+            users_comma_list = helpers.to_commalist(self.extra_users, lambda x: "'" + x.interpret() + "'", ", ") 
+        else:
+            users_comma_list = None
+            
         from_parts = []
         where_parts = []
         i = 1
         for field_op_val in self.field_op_vals:
+            
+            extra_users_str = "and if{0}.user_login IN ({1})".format(i, users_comma_list) if users_comma_list else ""
+            
             from_part = '''
             inner join items_fields if{0} on if{0}.item_id = i.id
             inner join fields f{0} on f{0}.id = if{0}.field_id '''.format(str(i))
@@ -152,15 +174,26 @@ class FieldsConjunction(QueryExpression):
                 from_part = from_part + ''' and if{0}.field_id <> if{1}.field_id '''.format(i-1, i)
             from_parts.append(from_part)
             
-            where_part = '''f{0}.name = '{1}' and {2} '''.format(i, field_op_val.name, field_op_val.interpret(i))
+            where_part = '''f{0}.name = '{1}' and {2} {3}'''.format(i, field_op_val.name, field_op_val.interpret(i), extra_users_str)
             where_parts.append(where_part)
             i = i + 1
         
+        #from_str
         from_str = ""
         for from_part in from_parts:
             from_str = from_str + from_part
             
+        #where_str
         where_str = to_commalist(where_parts, lambda x: x, " and \n")
+        
+        
+        
+        #extra_paths_str
+        if len(self.extra_paths) > 0:
+            extra_paths_str = helpers.to_commalist( \
+                self.extra_paths, lambda x: "data_refs.url LIKE '" + x.interpret() + "%'", " OR ")
+        else:
+            extra_paths_str = " 1 "
         
         s = '''
         --FieldsConjunction.interpret()
@@ -170,7 +203,9 @@ class FieldsConjunction(QueryExpression):
         from items i
         ''' + from_str + '''             
         left join data_refs on data_refs.id = i.data_ref_id
-            where ''' + where_str            
+            where (''' + where_str + ''')
+            and (''' + extra_paths_str + ''') 
+        '''            
         return s
         
     def add_field_op_val(self, field_op_val):
@@ -293,7 +328,7 @@ class TagsConjunction(QueryExpression):
         elif ext.type == 'PATH':
             self.extras_paths.append(ext)
         else:
-            raise Exception(tr("Unexpected type of extras {}").format(str(ext.type)))
+            raise Exception(tr("Unexpected type of extra_clause {}").format(str(ext.type)))
         
         
         
