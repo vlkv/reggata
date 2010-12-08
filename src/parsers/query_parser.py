@@ -51,6 +51,10 @@ def p_simple_expression(p):
             p[1].add_extras(e)
         p[0] = p[1]
 
+#Выражения user:<логин> ограничивают выборку только по объектам ItemTag или ItemField
+#Но никак не сравниваются с владельцами объектов Item или DataRef.
+#Таким образом, если пользователь прикрепил свой тег к чужому Item-у, то он 
+#будет его видеть в своих запросах. 
 def p_extras_user(p):
     '''extras : USER COLON STRING extras'''
     e = Extras('USER', p[3])
