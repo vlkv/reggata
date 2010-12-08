@@ -26,7 +26,7 @@ import consts
 import helpers
 from user_config import UserConfig
 import db_schema
-from helpers import tr
+from helpers import tr, to_commalist
 
 
 class QueryExpression(object):
@@ -45,24 +45,100 @@ class FieldOpVal(QueryExpression):
         self.op = op
         self.value = value
         
+    def interpret(self, i=0):
+        
+        #Пробуем преобразовать value в число
+        value = self.value
+        ok = False
+        try:
+            value = int(self.value)
+            ok = True
+        except:
+            pass
+    
+        if not ok:
+            try:
+                value = float(self.value)
+            except:
+                pass
+        
+        #Теперь value может иметь тип str, int или float
+        if self.op in ['=', '>', '>=', '<', '<='] and type(value) in [int, float]:
+            return """ CAST(if{0}.field_value as REAL) {1} {2} """.format(i, self.op, value)
+        elif self.op == '~':
+            return """ if{0}.field_value LIKE '{1}' """.format(i, value)
+        else:
+            return """ if{0}.field_value {1} '{2}' """.format(i, self.op, value)
+        
     
 class FieldsConjunction(QueryExpression):
     '''
     Конъюнкция объектов FieldOpVal.
     
-    --Выборка по полям: Поле1=знач1 И Поле2=знач2
-    select * 
+    --Выборка по полям: Поле1=знач1 И Поле2=знач2 И Поле3=значе3
+    select 
+        i.id, i.title,
+        if1.item_id as if1_i, if1.field_id as if1_f, f1.name as f1_name, if1.field_value as if1_fv,  
+        if2.item_id as if2_i, if2.field_id as if2_f, f2.name as f2_name, if2.field_value as if2_fv,
+        if3.item_id as if3_i, if3.field_id as if3_f, f3.name as f3_name, if3.field_value as if3_fv
     from items i
-    join items_fields i_f1 on i_f1.item_id = i.id
-    join items_fields i_f2 on i_f2.item_id = i.id and i_f1.field_id < i_f2.field_id
+        inner join items_fields if1 on if1.item_id = i.id
+        inner join fields f1 on f1.id = if1.field_id
+        inner join items_fields if2 on if2.item_id = i.id and if1.field_id <> if2.field_id
+        inner join fields f2 on f2.id = if2.field_id    
+        inner join items_fields if3 on if3.item_id = i.id and if2.field_id <> if3.field_id
+        inner join fields f3 on f3.id = if3.field_id    
     where 
-            i_f1.field_id = 1 and i_f1.field_value LIKE '%Эккель%' --Автор
-        and i_f2.field_id = 2 and CAST(i_f2.field_value as REAL) >= 5 --Рейтинг
-        --Очень важно, чтобы id-шники полей следовали по возрастанию (в том же порядке, как склеивались таблицы)
+            f2.name = 'Автор' and if2.field_value LIKE 'Васькин'
+        and f1.name = 'Рейтинг' and CAST(if1.field_value as REAL) < 5
+        and f3.name = 'Год' and if3.field_value = '2010'
+        --Вот такому запросу неважно, в каком порядке следуют запрашиваемые поля.
+        --Однако, мне кажется он будет выполняться медленно!
     '''
+    
+    #TODO Может быть тут поставить в join-ах еще доп. условие вида
+    # ... and if1.field_id <> if2.field_id
+    # ... and if2.field_id <> if3.field_id and if1.field_id <> if3.field_id
+    # ... и т.д.? 
     
     def __init__(self):
         self.field_op_vals = []
+    
+    def interpret(self):
+        
+        from_parts = []
+        where_parts = []
+        i = 1
+        for field_op_val in self.field_op_vals:
+            from_part = '''
+            inner join items_fields if{0} on if{0}.item_id = i.id
+            inner join fields f{0} on f{0}.id = if{0}.field_id '''.format(str(i))
+            if i > 1:
+                from_part = from_part + ''' and if{0}.field_id <> if{1}.field_id '''.format(i-1, i)
+            from_parts.append(from_part)
+            
+            where_part = '''f{0}.name = '{1}' and {2} '''.format(i, field_op_val.name, field_op_val.interpret(i))
+            where_parts.append(where_part)
+            i = i + 1
+        
+        from_str = ""
+        for from_part in from_parts:
+            from_str = from_str + from_part
+            
+        where_str = to_commalist(where_parts, lambda x: x, " and ")
+        
+        
+        s = '''
+        --FieldsConjunction.interpret()
+        select distinct 
+            i.*, 
+            ''' + db_schema.DataRef._sql_from() + '''
+        from items i
+        ''' + from_str + '''             
+        left join data_refs on data_refs.id = i.data_ref_id
+            where ''' + where_str            
+        return s
+        
     
     def add_field_op_val(self, field_op_val):
         self.field_op_vals.append(field_op_val)
@@ -152,7 +228,7 @@ class TagsConjunction(QueryExpression):
             no_tags_str = " 1 "
         
         s = '''
-        --TagsConjunction.interpret() function
+        --TagsConjunction.interpret()
         select distinct 
             i.*, 
             ''' + db_schema.DataRef._sql_from() + '''

@@ -163,7 +163,7 @@ if __name__ == '__main__':
     '''
     
     data_1 = r'''
-    FieldA >= abc FieldB~2010
+    FieldA >= 10 FieldB~2010% and some = sdfsdf
     '''
     
     data = data_1
@@ -176,7 +176,7 @@ if __name__ == '__main__':
         tok = lexer.token()
         if not tok: break      # No more input
         print(tok)
-##############################    
+##############################
     result = parser.parse(data)
     print(result.interpret())
 
