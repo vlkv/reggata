@@ -30,9 +30,18 @@ from parsers.query_tokens import *
 
 def p_query(p):
     '''query : simple_query
-             | compound_query '''
-    p[0] = p[1]
-
+             | compound_query 
+             | compound_query extra_clause
+    '''
+    if len(p) == 2:
+        p[0] = p[1]
+    elif len(p) == 3:
+        for e in p[2]:
+            p[1].add_extra_clause(e)            
+        p[0] = p[1]
+    else:
+        raise ValueError(tr("len(p) has incorrect value."))
+        
 
 # Составное выражение, представляющее собой несколько SQL запросов, соединенных
 # операциями INTERSECT, UNION, EXCEPT.
@@ -69,7 +78,7 @@ def p_simple_query(p):
                     | fields_conjunction
                     | fields_conjunction extra_clause 
     ''' 
-    if len(p) == 2:        
+    if len(p) == 2:
         p[0] = p[1]
     elif len(p) == 3:
         for e in p[2]:

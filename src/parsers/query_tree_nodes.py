@@ -59,6 +59,11 @@ class CompoundQuery(QueryExpression):
         self.elems.append("\n EXCEPT \n")
         self.elems.append(elem)
     
+    def add_extra_clause(self, ext):
+        for elem in self.elems:
+            if isinstance(elem, SimpleQuery):
+                elem.add_extra_clause(ext)
+
     
         
     def interpret(self):
@@ -105,9 +110,27 @@ class FieldOpVal(QueryExpression):
             return """ if{0}.field_value LIKE '{1}' """.format(i, value)
         else:
             return """ if{0}.field_value {1} '{2}' """.format(i, self.op, value)
+
+
+class SimpleQuery(QueryExpression):
+    '''
+    Базовый класс для всех простых выражений (которые представляют собой один SQL запрос).
+    '''
+    def __init__(self):
+        #Список дополнительных условий USER и PATH
+        self.extra_paths = []
+        self.extra_users = []
+    
+    def add_extra_clause(self, ext):
+        if ext.type == 'USER':
+            self.extra_users.append(ext)
+        elif ext.type == 'PATH':
+            self.extra_paths.append(ext)
+        else:
+            raise Exception(tr("Unexpected type of extra_clause {}").format(str(ext.type)))
         
     
-class FieldsConjunction(QueryExpression):
+class FieldsConjunction(SimpleQuery):
     '''
     Конъюнкция объектов FieldOpVal.
     
@@ -138,19 +161,13 @@ class FieldsConjunction(QueryExpression):
     # ... и т.д.? 
     
     def __init__(self):
+        super(FieldsConjunction, self).__init__()
+        
         self.field_op_vals = []
         
-        #Список дополнительных условий USER и PATH
-        self.extra_paths = []
-        self.extra_users = []
+        
     
-    def add_extra_clause(self, ext):
-        if ext.type == 'USER':
-            self.extra_users.append(ext)
-        elif ext.type == 'PATH':
-            self.extra_paths.append(ext)
-        else:
-            raise Exception(tr("Unexpected type of extra_clause {}").format(str(ext.type)))
+    
     
     def interpret(self):
         
@@ -231,7 +248,7 @@ class Tag(QueryExpression):
 
 
 
-class TagsConjunction(QueryExpression):
+class TagsConjunction(SimpleQuery):
     '''
     Конъюнкция тегов или их отрицаний, например:
     "Книга И Программирование И НЕ Проектирование"
@@ -253,13 +270,13 @@ class TagsConjunction(QueryExpression):
     '''    
     
     def __init__(self):
+        super(TagsConjunction, self).__init__()
+        
         #Списки для хранения тегов
         self.yes_tags = []
         self.no_tags = []
         
-        #Список дополнительных условий USER и PATH
-        self.extras_paths = []
-        self.extras_users = []
+        
     
     def interpret(self):
         #yes_tags_str, group_by_having
@@ -272,19 +289,19 @@ class TagsConjunction(QueryExpression):
         else:
             yes_tags_str = " 1 "
             
-        #extras_users_str
-        if len(self.extras_users) > 0:
-            comma_list = helpers.to_commalist(self.extras_users, lambda x: "'" + x.interpret() + "'", ", ") 
-            extras_users_str = " it.user_login IN (" + comma_list + ") "
+        #extra_users_str
+        if len(self.extra_users) > 0:
+            comma_list = helpers.to_commalist(self.extra_users, lambda x: "'" + x.interpret() + "'", ", ") 
+            extra_users_str = " it.user_login IN (" + comma_list + ") "
         else:
-            extras_users_str = " 1 "
+            extra_users_str = " 1 "
         
-        #extras_paths_str
-        if len(self.extras_paths) > 0:
-            extras_paths_str = helpers.to_commalist( \
-                self.extras_paths, lambda x: "data_refs.url LIKE '" + x.interpret() + "%'", " OR ")
+        #extra_paths_str
+        if len(self.extra_paths) > 0:
+            extra_paths_str = helpers.to_commalist( \
+                self.extra_paths, lambda x: "data_refs.url LIKE '" + x.interpret() + "%'", " OR ")
         else:
-            extras_paths_str = " 1 "
+            extra_paths_str = " 1 "
             
         
         #no_tags_str
@@ -306,9 +323,9 @@ class TagsConjunction(QueryExpression):
         left join tags t on t.id = it.tag_id
         left join data_refs on data_refs.id = i.data_ref_id
             where (''' + yes_tags_str + ''') 
-            and (''' + extras_users_str + ''') 
+            and (''' + extra_users_str + ''') 
             and (''' + no_tags_str + ''')
-            and (''' + extras_paths_str + ''')
+            and (''' + extra_paths_str + ''')
             ''' + group_by_having            
         return s
     
@@ -321,15 +338,6 @@ class TagsConjunction(QueryExpression):
             self.no_tags.append(tag)
         else:
             self.yes_tags.append(tag)
-            
-    def add_extra_clause(self, ext):
-        if ext.type == 'USER':
-            self.extras_users.append(ext)
-        elif ext.type == 'PATH':
-            self.extras_paths.append(ext)
-        else:
-            raise Exception(tr("Unexpected type of extra_clause {}").format(str(ext.type)))
-        
         
         
 class ExtraClause(QueryExpression):
