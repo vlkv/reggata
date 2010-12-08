@@ -23,7 +23,7 @@ Created on 24.10.2010
 '''
 
 
-from parsers.query_tree_nodes import TagsConjunction, Tag, Extras, FieldOpVal,\
+from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, FieldOpVal,\
     FieldsConjunction
 
 
@@ -32,50 +32,50 @@ from parsers.query_tokens import *
 
  
 
-def p_query_expression(p):
-    '''query_expression : simple_expression
-                        | compound_expression'''
+def p_query(p):
+    '''query : simple_query
+             | compound_query '''
     p[0] = p[1]
 
-def p_compound_expression(p):
-    '''compound_expression : LPAREN simple_expression RPAREN'''
+def p_compound_query(p):
+    '''compound_query : LPAREN simple_query RPAREN'''
     p[0] = p[2]
     
-def p_compound_expression_1(p):
-    '''compound_expression : LPAREN simple_expression RPAREN AND compound_expression
-                           | LPAREN simple_expression RPAREN OR compound_expression 
-                           | LPAREN simple_expression RPAREN AND NOT compound_expression '''
+def p_compound_query_1(p):
+    '''compound_query : LPAREN simple_query RPAREN AND compound_query
+                           | LPAREN simple_query RPAREN OR compound_query 
+                           | LPAREN simple_query RPAREN AND NOT compound_query '''
     if len(p) == 6:
         p[0] = p[2]
         #TODO...
 
 #Простое выражение, для выполнения которого достаточно одного SQL запроса
-def p_simple_expression(p):
-    '''simple_expression : tags_conjunction
-                         | tags_conjunction extras
+def p_simple_query(p):
+    '''simple_query : tags_conjunction
+                         | tags_conjunction extra_clause
                          | fields_conjunction '''
     if len(p) == 2:        
         p[0] = p[1]
     elif len(p) == 3:
         for e in p[2]:
-            p[1].add_extras(e)
+            p[1].add_extra_clause(e)
         p[0] = p[1]
 
-def p_extras_user(p):
-    '''extras : USER COLON STRING extras'''
-    e = Extras('USER', p[3])
+def p_extra_clause_user(p):
+    '''extra_clause : USER COLON STRING extra_clause'''
+    e = ExtraClause('USER', p[3])
     p[4].append(e)
     p[0] = p[4]
 
     
-def p_extras_path(p):
-    '''extras : PATH COLON STRING extras'''
-    e = Extras('PATH', p[3])
+def p_extra_clause_path(p):
+    '''extra_clause : PATH COLON STRING extra_clause'''
+    e = ExtraClause('PATH', p[3])
     p[4].append(e)
     p[0] = p[4]
     
-def p_extras_empty(p):
-    '''extras : '''    
+def p_extra_clause_empty(p):
+    '''extra_clause : '''    
     p[0] = []
     
     

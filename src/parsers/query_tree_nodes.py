@@ -35,7 +35,8 @@ class QueryExpression(object):
     def interpret(self):
         raise NotImplementedError(tr('This is an abstract method.'))
 
-class CompoundExp(QueryExpression):
+
+class CompoundQuery(QueryExpression):
     '''
     '''
     #TODO
@@ -109,7 +110,6 @@ class FieldsConjunction(QueryExpression):
         self.field_op_vals = []
     
     def interpret(self):
-        
         from_parts = []
         where_parts = []
         i = 1
@@ -131,7 +131,6 @@ class FieldsConjunction(QueryExpression):
             
         where_str = to_commalist(where_parts, lambda x: x, " and ")
         
-        
         s = '''
         --FieldsConjunction.interpret()
         select distinct 
@@ -143,9 +142,10 @@ class FieldsConjunction(QueryExpression):
             where ''' + where_str            
         return s
         
-    
     def add_field_op_val(self, field_op_val):
         self.field_op_vals.append(field_op_val)
+
+
 
 class Tag(QueryExpression):
     '''Узел синтаксического дерева для представления тегов.'''    
@@ -162,6 +162,8 @@ class Tag(QueryExpression):
     
     def __str__(self):
         return self.name
+
+
 
 class TagsConjunction(QueryExpression):
     '''
@@ -193,10 +195,7 @@ class TagsConjunction(QueryExpression):
         self.extras_paths = []
         self.extras_users = []
     
-    
-            
     def interpret(self):
-        
         #yes_tags_str, group_by_having
         group_by_having = ""
         if len(self.yes_tags) > 0:
@@ -247,7 +246,6 @@ class TagsConjunction(QueryExpression):
             ''' + group_by_having            
         return s
     
-    
     @property
     def tags(self):
         return self.yes_tags + self.no_tags
@@ -258,7 +256,7 @@ class TagsConjunction(QueryExpression):
         else:
             self.yes_tags.append(tag)
             
-    def add_extras(self, ext):
+    def add_extra_clause(self, ext):
         if ext.type == 'USER':
             self.extras_users.append(ext)
         elif ext.type == 'PATH':
@@ -268,7 +266,15 @@ class TagsConjunction(QueryExpression):
         
         
         
-class Extras(QueryExpression):
+class ExtraClause(QueryExpression):
+    '''
+    Дополнительные условия в запросе, определяющие ограничения на пользователей и на 
+    физическое расположение файлов, привязанных к элементу.
+    
+    Например: "user:vlkv user:sunshine path:music/favorite/new"
+    Это будет означать запрос элементов, принадлежащих vlkv ИЛИ sunshine И 
+    физически размещенных в поддиректории хранилища music/favorite/new. 
+    '''
 
     def __init__(self, type=None, value=None):
         self.type = type #'USER' или 'PATH'
