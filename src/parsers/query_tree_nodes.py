@@ -38,8 +38,21 @@ class QueryExpression(object):
 
 class CompoundQuery(QueryExpression):
     '''
+    Узел, представляющий составное выражение запроса. 
     '''
-    #TODO
+    
+    def __init__(self, elem=None):
+        if elem:
+            self.elems = [elem]
+        else:
+            self.elems = []
+        
+    def add_elem(self, elem):
+        self.elems.append(elem)
+        
+    def interpret(self):
+        #TODO
+        pass
 
 class FieldOpVal(QueryExpression):
     '''

@@ -24,7 +24,7 @@ Created on 24.10.2010
 
 
 from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, FieldOpVal,\
-    FieldsConjunction
+    FieldsConjunction, CompoundQuery
 
 
 import ply.yacc as yacc
@@ -39,21 +39,26 @@ def p_query(p):
 
 def p_compound_query(p):
     '''compound_query : LPAREN simple_query RPAREN'''
-    p[0] = p[2]
+    p[0] = CompoundQuery(p[2])
     
 def p_compound_query_1(p):
-    '''compound_query : LPAREN simple_query RPAREN AND compound_query
-                           | LPAREN simple_query RPAREN OR compound_query 
-                           | LPAREN simple_query RPAREN AND NOT compound_query '''
+    '''compound_query : compound_query AND LPAREN simple_query RPAREN
+                      | compound_query OR LPAREN simple_query RPAREN 
+                      | compound_query AND NOT LPAREN simple_query RPAREN '''
     if len(p) == 6:
-        p[0] = p[2]
-        #TODO...
+        p[1].add_elem(p[2].type)
+        p[1].add_elem(p[4])
+    elif len(p) == 7:
+        p[1].add_elem(p[2].type + " " + p[3].type)
+        p[1].add_elem(p[5])
+    p[0] = p[1]
 
 #Простое выражение, для выполнения которого достаточно одного SQL запроса
 def p_simple_query(p):
     '''simple_query : tags_conjunction
-                         | tags_conjunction extra_clause
-                         | fields_conjunction '''
+                    | fields_conjunction
+                    | tags_conjunction extra_clause '''
+                    
     if len(p) == 2:        
         p[0] = p[1]
     elif len(p) == 3:
