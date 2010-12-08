@@ -47,12 +47,30 @@ class CompoundQuery(QueryExpression):
         else:
             self.elems = []
         
-    def add_elem(self, elem):
+    def and_elem(self, elem):
+        self.elems.append("\n INTERSECT \n")
         self.elems.append(elem)
+    
+    def or_elem(self, elem):
+        self.elems.append("\n UNION \n")
+        self.elems.append(elem)
+    
+    def and_not_elem(self, elem):
+        self.elems.append("\n EXCEPT \n")
+        self.elems.append(elem)
+    
+    
         
     def interpret(self):
-        #TODO
-        pass
+        s = ""
+        for elem in self.elems:
+                            
+            if isinstance(elem, QueryExpression):
+                s = s + elem.interpret()
+            else:                
+                s = s + elem
+        return s
+                 
 
 class FieldOpVal(QueryExpression):
     '''
@@ -142,7 +160,7 @@ class FieldsConjunction(QueryExpression):
         for from_part in from_parts:
             from_str = from_str + from_part
             
-        where_str = to_commalist(where_parts, lambda x: x, " and ")
+        where_str = to_commalist(where_parts, lambda x: x, " and \n")
         
         s = '''
         --FieldsConjunction.interpret()

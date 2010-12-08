@@ -42,16 +42,20 @@ def p_compound_query(p):
     p[0] = CompoundQuery(p[2])
     
 def p_compound_query_1(p):
-    '''compound_query : compound_query AND LPAREN simple_query RPAREN
-                      | compound_query OR LPAREN simple_query RPAREN 
-                      | compound_query AND NOT LPAREN simple_query RPAREN '''
-    if len(p) == 6:
-        p[1].add_elem(p[2].type)
-        p[1].add_elem(p[4])
-    elif len(p) == 7:
-        p[1].add_elem(p[2].type + " " + p[3].type)
-        p[1].add_elem(p[5])
+    '''compound_query : compound_query AND LPAREN simple_query RPAREN '''
+    p[1].and_elem(p[4])
     p[0] = p[1]
+
+def p_compound_query_2(p):
+    '''compound_query : compound_query OR LPAREN simple_query RPAREN ''' 
+    p[1].or_elem(p[4])
+    p[0] = p[1]
+
+def p_compound_query_3(p):
+    '''compound_query : compound_query AND NOT LPAREN simple_query RPAREN '''
+    p[1].and_not_elem(p[5])
+    p[0] = p[1]
+    
 
 #Простое выражение, для выполнения которого достаточно одного SQL запроса
 def p_simple_query(p):
@@ -116,18 +120,20 @@ def p_tag(p):
     
     
 def p_fields_conjunction(p):
-    '''fields_conjunction : field_op_value fields_conjunction
-                          | field_op_value AND fields_conjunction '''
+    '''fields_conjunction : fields_conjunction field_op_value
+                          | fields_conjunction AND field_op_value'''
     if len(p) == 3:
-        p[2].add_field_op_val(p[1])
-        p[0] = p[2]
+        p[1].add_field_op_val(p[2])
     elif len(p) == 4:
-        p[3].add_field_op_val(p[1])
-        p[0] = p[3]
+        p[1].add_field_op_val(p[3])
+    p[0] = p[1]
 
 def p_fields_conjunction_empty(p):
-    '''fields_conjunction : '''
-    p[0] = FieldsConjunction()
+    '''fields_conjunction : field_op_value'''
+    fc = FieldsConjunction()
+    fc.add_field_op_val(p[1])
+    p[0] = fc
+    
 
 def p_field_op_value(p):
     '''field_op_value : field_name field_op field_value '''
@@ -180,10 +186,14 @@ if __name__ == '__main__':
     '''
     
     data_2 = r'''
-    FieldA >= 10
+    (FieldA >= 10)
     '''
     
-    data = data_2
+    data_3 = r'''
+    (Log AND Tag) AND (Author = James Rating > 5)
+    '''
+    
+    data = data_3
     
 ##############################
         
