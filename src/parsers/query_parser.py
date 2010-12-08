@@ -103,9 +103,14 @@ def p_tag(p):
     
     
 def p_fields_conjunction(p):
-    '''fields_conjunction : field_op_value fields_conjunction'''
-    p[2].add_field_op_val(p[1])
-    p[0] = p[2]
+    '''fields_conjunction : field_op_value fields_conjunction
+                          | field_op_value AND fields_conjunction '''
+    if len(p) == 3:
+        p[2].add_field_op_val(p[1])
+        p[0] = p[2]
+    elif len(p) == 4:
+        p[3].add_field_op_val(p[1])
+        p[0] = p[3]
 
 def p_fields_conjunction_empty(p):
     '''fields_conjunction : '''
@@ -124,7 +129,8 @@ def p_field_op(p):
                 | GREATER
                 | GREATER_EQ
                 | LESS
-                | LESS_EQ  '''
+                | LESS_EQ
+                | LIKE  '''
     p[0] = p[1]
 
 def p_field_value(p):
@@ -157,7 +163,7 @@ if __name__ == '__main__':
     '''
     
     data_1 = r'''
-    Field = abc
+    FieldA >= abc FieldB~2010
     '''
     
     data = data_1

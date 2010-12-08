@@ -26,6 +26,7 @@ import consts
 import helpers
 from user_config import UserConfig
 import db_schema
+from helpers import tr
 
 
 class QueryExpression(object):
