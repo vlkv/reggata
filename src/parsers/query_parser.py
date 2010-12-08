@@ -19,7 +19,7 @@ along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 
 Created on 24.10.2010
 
-@author: vlkv
+Модуль содержит продукции грамматики языка запросов.
 '''
 
 
@@ -30,20 +30,28 @@ from parsers.query_tree_nodes import TagsConjunction, Tag, Extras, FieldOpVal,\
 import ply.yacc as yacc
 from parsers.query_tokens import *
 
-#Далее следуют продукции грамматики языка запросов 
+ 
 
 def p_query_expression(p):
     '''query_expression : simple_expression
                         | compound_expression'''
     p[0] = p[1]
-                    
+
 def p_compound_expression(p):
     '''compound_expression : LPAREN simple_expression RPAREN'''
     p[0] = p[2]
+    
+def p_compound_expression_1(p):
+    '''compound_expression : LPAREN simple_expression RPAREN AND compound_expression
+                           | LPAREN simple_expression RPAREN OR compound_expression 
+                           | LPAREN simple_expression RPAREN AND NOT compound_expression '''
+    if len(p) == 6:
+        p[0] = p[2]
+        #TODO...
 
 #Простое выражение, для выполнения которого достаточно одного SQL запроса
 def p_simple_expression(p):
-    '''simple_expression : tags_conjunction                         
+    '''simple_expression : tags_conjunction
                          | tags_conjunction extras
                          | fields_conjunction '''
     if len(p) == 2:        
@@ -166,7 +174,11 @@ if __name__ == '__main__':
     FieldA >= 10 FieldB~2010% and some = sdfsdf
     '''
     
-    data = data_1
+    data_2 = r'''
+    FieldA >= 10
+    '''
+    
+    data = data_2
     
 ##############################
         

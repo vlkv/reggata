@@ -35,6 +35,11 @@ class QueryExpression(object):
     def interpret(self):
         raise NotImplementedError(tr('This is an abstract method.'))
 
+class CompoundExp(QueryExpression):
+    '''
+    '''
+    #TODO
+
 class FieldOpVal(QueryExpression):
     '''
     Узел синт. дерева для представления тройки (ИмяПоля,Операция,Значение).
@@ -46,7 +51,6 @@ class FieldOpVal(QueryExpression):
         self.value = value
         
     def interpret(self, i=0):
-        
         #Пробуем преобразовать value в число
         value = self.value
         ok = False

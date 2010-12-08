@@ -19,6 +19,7 @@ along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 
 Created on 27.11.2010
 
+Модуль содержит лексический анализатор языка запросов.
 '''
 import ply.lex as lex
 import re
