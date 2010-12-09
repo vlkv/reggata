@@ -791,14 +791,18 @@ if __name__ == '__main__':
 	print("qt_version = {}".format(QtCore.QT_VERSION_STR))
 	
 	app = QtGui.QApplication(sys.argv)
-	
-	#TODO Сделать выбор языка либо через конфиг файл reggata.conf, либо через Меню->Опции->Язык
+		
 	qtr = QtCore.QTranslator()
-	if qtr.load("reggata_ru.qm", ".."):
-		app.installTranslator(qtr)
-	else:
-		print("Cannot find translation files.")
+	language = UserConfig().get("language")
+	if language:
+		qm_filename = "reggata_{}.qm".format(language)
+		if qtr.load(qm_filename, ".") or qtr.load(qm_filename, ".."):
+			app.installTranslator(qtr)
+		else:
+			print("Cannot find translation file {}.".format(qm_filename))
 	
 	form = MainWindow()
 	form.show()
 	app.exec_()
+
+
