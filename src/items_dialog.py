@@ -19,16 +19,14 @@ class CustomTextEdit(QtGui.QTextEdit):
     '''Немного модифицированный QTextEdit, который отображает весь вводимый 
     пользователем текст выделяющимся шрифтом (вне зависимости от текущего 
     формата редактируемого текста).'''
+    #Так как я реализовал сейчас ItemsDialog, вообще не нужно редактировать текст на CustomTextEdit-ах
+    #Для ввода текста я сделал отдельные виджеты. Поэтому в __init__() стоит self.setReadOnly(True)
+        
     def __init__(self, parent=None):
         super(CustomTextEdit, self).__init__(parent)
-        
-    def currentCharFormatChanged(self, fmt):
-        print("currentCharFormatChanged()")
-        old_fmt = self.currentCharFormat()
-        self.setCurrentCharFormat(old_fmt)
+        self.setReadOnly(True)
     
     def event(self, e):
-        print(str(e))
         if e.type() == QtCore.QEvent.KeyPress:
             #Делаем ввод нового текста синим шрифтом
             f = QtGui.QTextCharFormat()
@@ -36,9 +34,6 @@ class CustomTextEdit(QtGui.QTextEdit):
             self.setTextColor(Qt.blue)
         return super(CustomTextEdit, self).event(e)
     
-    #TODO так как я реализовал сейчас, вообще не нужно редактировать текст на CustomTextEdit-ах
-    #Для ввода текста я сделал отдельные виджеты.
-        
 
 class ItemsDialog(QtGui.QDialog):
     '''
@@ -105,7 +100,7 @@ class ItemsDialog(QtGui.QDialog):
         elif mode == DialogMode.EDIT:
             pass
         else:
-            raise ValueError(self.tr("ItemsDialog does not support DialogMode = {}").format(mode))
+            raise ValueError(self.tr("ItemsDialog does not support DialogMode = {}.").format(mode))
         self.mode = mode    
     
     def write(self):
@@ -191,6 +186,8 @@ class ItemsDialog(QtGui.QDialog):
         выводить только те поля-значения, которые есть у всех элементов (причем, 
         совпадают и имя поля и значение.'''
         
+        diff_values_html = self.tr("&lt;diff. values&gt;")
+        
         if not (len(self.items) > 1):
             return
     
@@ -239,12 +236,11 @@ class ItemsDialog(QtGui.QDialog):
                             
                     seen_fields.add(field_name)
                     if all_have_field_value:
-                        fields_str = fields_str + "<b>" + field_name + ": " + field_value + "</b> "
+                        fields_str = fields_str + "<b>" + field_name + ": " + field_value + "</b><br/>"
                     elif all_have_field:
-                        fields_str = fields_str + '<b>' + field_name + "</b>: ### "
-                        #TODO Могут быть проблемы, если значением тега реально будет строка '###'
+                        fields_str = fields_str + '<b>' + field_name + "</b>: " + diff_values_html + "<br/>"
                     else:
-                        fields_str = fields_str + '<font color="grey">' + field_name + "</font>: ### "
+                        fields_str = fields_str + '<font color="grey">' + field_name + ": " + diff_values_html + "</font><br/>"
             self.ui.textEdit_fields.setText(fields_str)
     
     
@@ -254,7 +250,7 @@ class ItemsDialog(QtGui.QDialog):
             for i in range(len(self.items)):
                 #При подсчете не учитываются объекты DataRef имеющие тип URL (или любой отличный от FILE)
                 #Также не учитываются элементы, которые не связаны с DataRef-объектами
-                if self.items[i].data_ref is None or self.items[i].data_ref.type != 'FILE':
+                if self.items[i].data_ref is None or self.items[i].data_ref.type != DataRef.FILE:
                     continue
                 
                 if self.dst_path is None:

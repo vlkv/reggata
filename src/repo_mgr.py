@@ -490,7 +490,7 @@ class UnitOfWork(object):
                 item_0.data_ref = data_ref
                 need_file_operation = "copy"
                 
-        elif item.data_ref.type == 'FILE' and not is_none_or_empty(item.data_ref.dst_path):
+        elif item.data_ref.type == DataRef.FILE and not is_none_or_empty(item.data_ref.dst_path):
             #У элемента не меняется его привязка к DataRef объекту
             #Но, возможно, было задано поле data_ref.dst_path и data_ref нужно
             #ПЕРЕМЕСТИТЬ в другую директорию хранилища

@@ -41,9 +41,12 @@ class User(Base):
     '''
     __tablename__ = "users"
     
+    USER = 'USER'
+    ADMIN = 'ADMIN'
+    
     login = sqa.Column(sqa.String, primary_key=True)
     password = sqa.Column(sqa.String)
-    group = sqa.Column(sqa.Enum("USER", "ADMIN"), nullable=False, default="USER")
+    group = sqa.Column(sqa.Enum(USER, ADMIN), nullable=False, default=USER)
     date_created = sqa.Column(sqa.DateTime)
     
     def check_valid(self):

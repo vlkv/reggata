@@ -604,8 +604,7 @@ class MainWindow(QtGui.QMainWindow):
 					if dlg.exec_():						
 						thread = UpdateGroupOfItemsThread(self, self.active_repo, sel_items)
 						self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
-												
-						#TODO Тут надо отображать WaitDialog
+																		
 						wd = WaitDialog(self)
 						self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
 						self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
