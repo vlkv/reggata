@@ -19,6 +19,7 @@ along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 
 Created on 27.11.2010
 
+Модуль содержит лексический анализатор языка запросов.
 '''
 import ply.lex as lex
 import re
@@ -34,6 +35,7 @@ PATH_KEYWORD = tr('path')
 #Зарезервированные слова и соответствующие им типы токенов
 #Я хочу, чтобы операции and, or, not и др. были в нескольких вариантах.
 #Например, чтобы and можно было записать как and, And, AND
+#В словаре reserved: ключ - это зарезервированное слово, а значение - это тип токена
 reserved = dict()
 for tuple in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'), 
               (USER_KEYWORD, 'USER'), (PATH_KEYWORD, 'PATH')]:
@@ -45,13 +47,23 @@ for tuple in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'),
 #Но работает, как мне хочется.
 
 
-#Список типов токенов
+#Типы токенов
 tokens = [
    'STRING', #Строка, которая либо отдельное слово, либо в двойных кавычках все что угодно
-   'LPAREN', #Открывающая круглая скобка ) 
+   'LPAREN', #Открывающая круглая скобка )
    'RPAREN', #Закрывающая круглая скобка )
    'COLON', #Двоеточие : (ставится после ключевых слов user и после path)
+   
+   #Операции, которые могут быть между именем поля и его значением:
+   'EQUAL',
+   'GREATER',
+   'GREATER_EQ',
+   'LESS',
+   'LESS_EQ',
+   'LIKE',
 ] + list(reserved.values())
+
+
 
 # Строка. Если содержит пробелы или двойные кавычки или обратный слеш, то
 # должна быть в двойных кавычках. Для строки в кавычках есть две escape 
@@ -61,7 +73,8 @@ tokens = [
 # Если строка содержит :, то ее тоже нужно заключать в двойные кавычки
 def t_STRING(t):
     #r'''"(\\["\\]|[^"\\])*"|[\w]+''' #Тут пробелы лишние нельзя ставить!!!
-    r'"(\\["\\]|[^"\\])*"|[^\s:"\\]+' #Тут пробелы лишние нельзя ставить!!!
+    #r'"(\\["\\]|[^"\\])*"|[^\s:"\\]+' #Тут пробелы лишние нельзя ставить!!!
+    r'"(\\["\\]|[^"\\])*"|([^\s():=><~"\\])+' #Тут пробелы лишние нельзя ставить!!!
     t.type = reserved.get(t.value, 'STRING')
     if t.type == 'STRING' and t.value.startswith('"') and t.value.endswith('"') and not t.value.endswith(r'\"'):
         t.value = t.value.replace(r"\\", "\\") #Заменяем \\ на \
@@ -70,10 +83,19 @@ def t_STRING(t):
     return t
 
 
-
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
 t_COLON = r':'
+
+#Эти токены нужно внести в регэксп токена STRING...
+t_EQUAL = r'='
+t_GREATER = r'>'
+t_GREATER_EQ = r'>='
+t_LESS = r'<'
+t_LESS_EQ = r'<='
+t_LIKE = r'~'
+
+
 
 
 # A string containing ignored characters (spaces and tabs)
