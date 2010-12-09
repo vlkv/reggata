@@ -27,7 +27,7 @@ import PyQt4.QtCore as QtCore
 from db_schema import User
 import ui_userdialog
 from helpers import show_exc_info, tr, DialogMode
-from exceptions import UnsupportedDialogModeError
+from exceptions import UnsupportedDialogModeError, MsgException
 import hashlib
 
 class UserDialog(QtGui.QDialog):
@@ -39,32 +39,48 @@ class UserDialog(QtGui.QDialog):
         self.user = user
         self.ui = ui_userdialog.Ui_UserDialog()
         self.ui.setupUi(self)
+        
+        #TODO Пока что поле group не используется, поэтому пока что спрячем
+        self.ui.label_group.setVisible(False)
+        self.ui.comboBox_group.setVisible(False)
+        
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.button_ok)        
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.button_cancel)
         
         self.setMode(mode)
         
+        self.read()
 
     
     def setMode(self, mode):
         if mode == DialogMode.CREATE:
-            #TODO
             pass
+            
         elif mode == DialogMode.LOGIN:
+            self.ui.label_password_repeat.setVisible(False)
+            self.ui.lineEdit_password_repeat.setVisible(False)
+            
             self.ui.label_group.setVisible(False)
-            self.ui.comboBox_group.setVisible(False)                        
+            self.ui.comboBox_group.setVisible(False)
         else:
             raise UnsupportedDialogModeError(self.tr("DialogMode={} is not supported by this dialog.").format(mode))
-        
+    
+    def read(self):
+        #TODO
+        pass    
     
     def write(self):
         '''Запись введенной в элементы gui информации в поля объекта.'''
         self.user.login = self.ui.lineEdit_login.text()
+        if self.ui.lineEdit_password.text() != self.ui.lineEdit_password_repeat.text():
+            raise MsgException(self.tr("Entered passwords do not match."))        
+        
         bytes = self.ui.lineEdit_password.text().encode("utf-8")
         self.user.password = hashlib.sha1(bytes).hexdigest()
                 
         self.user.group = self.ui.comboBox_group.currentText()
-        print(self.user.group)
+        
+        
         
     def button_ok(self):
         try:

@@ -22,6 +22,8 @@ Created on 28.11.2010
 Парсер списка пар <поле:значение>.
 '''
 
+#TODO!!! Мне кажется нужно объединить два парсера: tags_def_tokens и fields_def_tokens в один.
+
 import ply.yacc as yacc
 from parsers.fields_def_tokens import *
 

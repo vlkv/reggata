@@ -21,6 +21,9 @@ Created on 27.11.2010
 
 Токены для парсера tags_def_parser.
 '''
+
+#TODO!!! Мне кажется нужно объединить два парсера: tags_def_tokens и fields_def_tokens в один.
+
 from ply import lex
 import re
 

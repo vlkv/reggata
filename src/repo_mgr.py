@@ -343,6 +343,7 @@ class UnitOfWork(object):
     def save_new_user(self, user):
         self._session.add(user)
         self._session.commit()
+        self._session.refresh(user)
         self._session.expunge(user)
 
 

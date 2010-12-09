@@ -25,7 +25,7 @@ Created on 27.11.2010
 import ply.yacc as yacc
 from parsers.tags_def_tokens import *
 
-
+#TODO!!! Мне кажется нужно объединить два парсера: tags_def_tokens и fields_def_tokens в один. 
 
 #Далее следуют продукции грамматики языка 
 

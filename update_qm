@@ -1,0 +1,3 @@
+#!/bin/bash
+
+lrelease reggata_ru.ts
