@@ -1,4 +1,3 @@
 *.pyc
-/*.qm
 /parsetab.py
 /parser.out
