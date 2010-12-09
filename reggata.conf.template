@@ -1,0 +1,21 @@
+#
+#Чтв Дек 09 19:50:55 MSK 2010
+main_window.width=920
+main_window.height=683
+tag_cloud.height=143
+tag_cloud.width=920
+tag_cloud.dock_area=4
+recent_repo.base_path=/home/vlkv/_reggata_test_repo/
+recent_user.login=vlkv
+recent_user.password=da39a3ee5e6b4b0d3255bfef95601890afd80709
+ext_app_mgr.file_types=['images', 'pdf', 'audio']
+ext_app_mgr.images.extensions=['.jpg', '.png', '.gif', '.bmp']
+ext_app_mgr.images.command=gqview {}
+ext_app_mgr.pdf.extensions=['.pdf']
+ext_app_mgr.pdf.command=xpdf {}
+ext_app_mgr.audio.extensions=['.mp3', '.ogg', '.flac', '.wav']
+ext_app_mgr.audio.command=vlc {}
+language = ru
+sqlalchemy.engine_echo = True
+thumbnail_size = 100
+tag_cloud.tag_background_color = Beige

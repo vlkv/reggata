@@ -38,23 +38,23 @@ class ExtAppMgr(object):
     
     Пример фрагмента reggata.conf:
     
-    ExtAppMgr.file_types = ['images', 'pdf', 'audio']
-    ExtAppMgr.images.extensions = ['.jpg', '.png', '.gif', '.bmp']
-    ExtAppMgr.images.command = gqview {}
-    ExtAppMgr.pdf.extensions = ['.pdf']
-    ExtAppMgr.pdf.command = xpdf {}
-    ExtAppMgr.audio.extensions = ['.mp3', '.ogg', '.flac', '.wav']
-    ExtAppMgr.audio.command = vlc {}
+    ext_app_mgr.file_types = ['images', 'pdf', 'audio']
+    ext_app_mgr.images.extensions = ['.jpg', '.png', '.gif', '.bmp']
+    ext_app_mgr.images.command = gqview {}
+    ext_app_mgr.pdf.extensions = ['.pdf']
+    ext_app_mgr.pdf.command = xpdf {}
+    ext_app_mgr.audio.extensions = ['.mp3', '.ogg', '.flac', '.wav']
+    ext_app_mgr.audio.command = vlc {}
     '''
 
     def __init__(self):
 
-        file_types_list = eval(UserConfig().get('ExtAppMgr.file_types', "[]"))
+        file_types_list = eval(UserConfig().get('ext_app_mgr.file_types', "[]"))
         
         #Ключ - название группы файлов, значение - список расширений файлов
         self.file_types = dict()
         for file_type in file_types_list:
-            self.file_types[file_type] = eval(UserConfig().get('ExtAppMgr.{}.extensions'.format(file_type)))
+            self.file_types[file_type] = eval(UserConfig().get('ext_app_mgr.{}.extensions'.format(file_type)))
             
         #Ключ - расширение файла (в нижнем регистре), значение - название группы файлов
         self.extensions = dict()
@@ -73,7 +73,7 @@ class ExtAppMgr(object):
         if not file_type:
             raise Exception(tr("File type is not defined for {0} file extension. Edit your {1} file.").format(ext, consts.USER_CONFIG_FILE))
         
-        command = UserConfig().get("ExtAppMgr.{}.command".format(file_type))
+        command = UserConfig().get("ext_app_mgr.{}.command".format(file_type))
         if not command:
             raise Exception(tr("Command for file_type {0} not found. Edit your {1} file.").format(file_type, consts.USER_CONFIG_FILE))
 

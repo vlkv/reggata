@@ -140,10 +140,10 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_main_window_state)
 		
 		#Восстанавливаем размер облака тегов
-		self.ui.tag_cloud.hint_height = int(UserConfig().get("main_window.tag_cloud.height", 100))
-		self.ui.tag_cloud.hint_width = int(UserConfig().get("main_window.tag_cloud.width", 100))
+		self.ui.tag_cloud.hint_height = int(UserConfig().get("tag_cloud.height", 100))
+		self.ui.tag_cloud.hint_width = int(UserConfig().get("tag_cloud.width", 100))
 		self.connect(self.ui.tag_cloud, QtCore.SIGNAL("maySaveSize"), self.save_main_window_state)
-		dock_area = int(UserConfig().get("main_window.tag_cloud.dock_area", QtCore.Qt.TopDockWidgetArea))
+		dock_area = int(UserConfig().get("tag_cloud.dock_area", QtCore.Qt.TopDockWidgetArea))
 		self.removeDockWidget(self.ui.dockWidget_tag_cloud)
 		self.addDockWidget(dock_area if dock_area != Qt.NoDockWidgetArea else QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
 		self.ui.dockWidget_tag_cloud.show()
@@ -174,10 +174,10 @@ class MainWindow(QtGui.QMainWindow):
 		UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
 		
 		#Размер облака тегов
-		UserConfig().storeAll({"main_window.tag_cloud.width":self.ui.tag_cloud.hint_width, "main_window.tag_cloud.height":self.ui.tag_cloud.hint_height})
+		UserConfig().storeAll({"tag_cloud.width":self.ui.tag_cloud.hint_width, "tag_cloud.height":self.ui.tag_cloud.hint_height})
 		
 		#Расположение облака тегов
-		UserConfig().store("main_window.tag_cloud.dock_area", str(self.dockWidgetArea(self.ui.dockWidget_tag_cloud)))
+		UserConfig().store("tag_cloud.dock_area", str(self.dockWidgetArea(self.ui.dockWidget_tag_cloud)))
 		
 		self.ui.statusbar.showMessage(self.tr("Main window state has saved."), 5000)
 		
@@ -756,10 +756,10 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 					pixmap = QtGui.QPixmap.fromImage(image)
 					if (pixmap.height() > pixmap.width()):
 						pixmap = pixmap.scaledToHeight(\
-                        int(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)))
+                        int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
 					else:
 						pixmap = pixmap.scaledToWidth(\
-                        int(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)))
+                        int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
 					
 					#Запоминаем в ОП
 					self.thumbs[item.data_ref.id] = pixmap

@@ -49,16 +49,10 @@ class UserConfig(object):
                 #Создаем файл
                 #os.mknod(consts.USER_CONFIG_FILE) #По всей видимости os.mknod() недоступна под Windows!
                 
-                #Записываем в этот файл шаблон конфигурации
-                reggata_conf = \
-'''
-ExtAppMgr.file_types = ['images', 'pdf', 'audio']
-ExtAppMgr.images.extensions = ['.jpg', '.png', '.gif', '.bmp']
-ExtAppMgr.images.command = "gqview" {}
-ExtAppMgr.pdf.extensions = ['.pdf']
-ExtAppMgr.pdf.command = xpdf {}
-ExtAppMgr.audio.extensions = ['.mp3', '.ogg', '.flac', '.wav']
-ExtAppMgr.audio.command = vlc {}
+                #Записываем в этот файл комментарий
+                reggata_conf = '''
+# This is Reggata configuration file "reggata.conf".
+# See "reggata.conf.template" for example of configuration.
 '''
                 #Файл будет создан, если его еще нет
                 f = codecs.open(consts.USER_CONFIG_FILE, "w", "utf-8")

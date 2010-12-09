@@ -55,10 +55,13 @@ class RepoMgr(object):
         if not os.path.exists(self.base_path + os.sep + consts.METADATA_DIR):
             raise Exception(tr("Directory {} is not a repository base path.").format(self.base_path))
         
+        engine_echo = bool(UserConfig().get("sqlalchemy.engine_echo") in ["True", "true", "TRUE", "1", "Yes", "yes", "YES"]) 
+        
         #self.__engine --- Соединение с базой метаданных
         self.__engine = sqa.create_engine(\
             "sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE, \
-            echo=True)
+            echo=engine_echo)
+        
         
         #Класс сессии
         self.Session = sessionmaker(bind=self.__engine) #expire_on_commit=False
@@ -224,7 +227,7 @@ class UnitOfWork(object):
         return item
     
     def get_untagged_items(self):
-        thumbnail_default_size = UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)
+        thumbnail_default_size = UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)
         
         sql = '''
         select sub.*, ''' + \
@@ -272,7 +275,7 @@ class UnitOfWork(object):
         left join items_tags on sub.id = items_tags.item_id
         left join tags on tags.id = items_tags.tag_id
         left join thumbnails on thumbnails.data_ref_id = sub.data_refs_id and 
-                  thumbnails.size = ''' + str(UserConfig().get("thumbnails.size", consts.THUMBNAIL_DEFAULT_SIZE)) + '''
+                  thumbnails.size = ''' + str(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)) + '''
         '''
         
         items = self._session.query(Item)\
