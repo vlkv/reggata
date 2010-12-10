@@ -121,7 +121,10 @@ class ItemsDialog(QtGui.QDialog):
                 if self.same_dst_path:
                     item.data_ref.dst_path = self.dst_path
                 else:
-                    item.data_ref.dst_path = os.path.normpath(os.path.join(self.dst_path, item.data_ref.dst_subpath))
+                    if self.dst_path:
+                        item.data_ref.dst_path = os.path.normpath(os.path.join(self.dst_path, item.data_ref.dst_subpath))
+                    else:
+                        item.data_ref.dst_path = os.path.normpath(item.data_ref.dst_subpath)
                 
                  
         
