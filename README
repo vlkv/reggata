@@ -1,8 +1,6 @@
 == About Reggata ==
 
-Reggata - is a program for tagging user files on local computer. 
-The project is not ready to use yet, because there are a lot of functions 
-need to be implemented.
+Reggata - is a program for tagging user files on local computer.
 
 === Alike projects ===
 I would like Reggata to be like Delicious (http://www.delicious.com), but for tagging local files (and URL bookmarks also though) and storing all information in local database, not remote server.
