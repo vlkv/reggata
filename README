@@ -8,6 +8,8 @@ Like Calibre (http://calibre-ebook.com/ which is for electronic books) or JBrout
 Like Tag2Find (http://www.tag2find.com/ which is for windows only as I know) but cross-platform.
 Also, in the future I would like Reggata to have repository clone/merge features like Git (http://git-scm.com/), but without storing every previous version state but only the last one.
 
+=== Screenshots ===
+Visit reggata home page http://vlkv.github.com/reggata/
 
 == Reggata dependencies ==
 
@@ -46,3 +48,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
+
+== Need more information? ==
+Visit Reggata wiki pages https://github.com/vlkv/reggata/wiki
+
+
