@@ -31,7 +31,7 @@ from sqlalchemy.orm import sessionmaker, joinedload, contains_eager,\
     joinedload_all
 from db_schema import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
     Thumbnail
-from exceptions import LoginError, AccessError
+from exceptions import LoginError, AccessError, FileAlreadyExistsError
 import shutil
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
@@ -542,6 +542,8 @@ class UnitOfWork(object):
             if is_internal(dr.url, self._repo_base_path):
                 #Файл уже внутри
                 #Делаем путь dr.url относительным и всё
+                #Если dr.dst_path имеет непустое значение --- оно игнорируется!
+                #TODO Как сделать, чтобы в GUI это было понятно пользователю?
                 dr.url = os.path.relpath(dr.url, self._repo_base_path)
             else:
                 #Файл снаружи                
@@ -575,7 +577,7 @@ class UnitOfWork(object):
         #Предварительная обработка объекта Item
         item.user_login = user_login
         
-        #Путь происхождения добавляемого файла. Именно отсюда от будет скопирован внутрь хранилища
+        #Путь происхождения добавляемого файла. Именно отсюда файл будет скопирован внутрь хранилища
         data_ref_original_url = None
         
         #Предварительная обработка объекта DataRef
@@ -634,19 +636,25 @@ class UnitOfWork(object):
         self._session.flush()
                 
         #Если все сохранилось в БД, то копируем файл, связанный с DataRef
-        if item.data_ref is not None:
+        if item.data_ref and item.data_ref.type == DataRef.FILE:
             dr = item.data_ref
-            if dr.type == DataRef.FILE:
-                #Копируем, только если пути src и dst не совпадают, иначе это один и тот же файл!
-                #Если файл dst существует, то он перезапишется
-                abs_dst_path = os.path.join(self._repo_base_path, dr.url)
-                if data_ref_original_url != abs_dst_path:                    
-                    try:
-                        head, tail = os.path.split(abs_dst_path)
-                        os.makedirs(head)
-                    except:
-                        pass
-                    shutil.copy(data_ref_original_url, abs_dst_path)
+            #Копируем, только если пути src и dst не совпадают, иначе это один и тот же файл!            
+            abs_dst_path = os.path.join(self._repo_base_path, dr.url)
+            if data_ref_original_url != abs_dst_path:
+
+                #Если файл dst существует, то вылетает исключение                
+                if os.path.exists(abs_dst_path):
+                    raise FileAlreadyExistsError(tr("File {} already exists. Operation cancelled."))
+                
+                try:
+                    head, tail = os.path.split(abs_dst_path)
+                    os.makedirs(head)
+                except:
+                    pass
+                shutil.copy(data_ref_original_url, abs_dst_path)
+            else:
+                #Это один и тот же файл, копировать не нужно ничего 
+                pass
 
         self._session.commit()
         

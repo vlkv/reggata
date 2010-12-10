@@ -40,4 +40,11 @@ class MsgException(Exception):
     def __init__(self, msg):
         super(MsgException, self).__init__(msg)
         
+class FileAlreadyExistsError(Exception):
+    def __init__(self, msg):
+        super(FileAlreadyExistsError, self).__init__(msg)
+        
+        
+        
+        
         
