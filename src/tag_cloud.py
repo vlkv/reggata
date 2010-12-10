@@ -30,6 +30,8 @@ import parsers
 from exceptions import MsgException
 from user_config import UserConfig
 
+#TODO Сделать по Ctr+F поиск тега в облаке (т.к. в хранилище обычно очень много тегов)
+
 class TagCloud(QtGui.QTextEdit):
     '''
     Виджет для отображения облака тегов.
@@ -124,6 +126,9 @@ class TagCloud(QtGui.QTextEdit):
                 
                 text = ""
                 for tag in tags:
+                    #TODO Переделать scale_value, чтобы размер определялся не пропорционально, а в порядке
+                    #очередности по количеству элементов, связанным с тегом (т.е. первое место --- тег
+                    #у которого больше всех элементов, второе место --- у которого чуть меньше и т.д.)
                     font_size = int(scale_value(tag.c, (min, max), (0, 5)))
                     #Тут как раз НЕ нужно escape-ить имена тегов!
                     bg_color = UserConfig().get("tag_cloud.tag_background_color", "Beige")

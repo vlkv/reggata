@@ -52,6 +52,10 @@ from ext_app_mgr import ExtAppMgr
 #TODO Сделать новый тип объекта DataRef для сохранения ссылок на директории. Тогда можно будет привязывать теги и поля к директориям внутри хранилища. Надо еще подумать, стоит ли такое реализовывать или нет.
 #TODO Сделать встроенный просмотрщик графических файлов.
 #TODO Сделать функцию: выделить несколько Item-ов и передать их все во внешнюю программу. Правда не знаю как, и еще это зависит от внешней программы
+#TODO Сделать контекстное меню в главной таблице, отображающей элементы
+#TODO Реализовать удаление элементов
+#TODO Сделать всплывающие подсказки на элементах GUI
+
 
 class MainWindow(QtGui.QMainWindow):
 	'''
@@ -88,7 +92,8 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
 		self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
 		self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
-		self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view) 
+		self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view)
+		self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete) 
 		
 		self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
 		self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
@@ -337,6 +342,15 @@ class MainWindow(QtGui.QMainWindow):
 			show_exc_info(self, ex)
 	
 
+	def action_item_delete(self):
+		try:
+			raise NotImplementedError(self.tr("Will be implemented soon."))
+			#TODO реализовать
+			
+		except Exception as ex:
+			show_exc_info(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 			
 	def action_item_view(self):
 		try:

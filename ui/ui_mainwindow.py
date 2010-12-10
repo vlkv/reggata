@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Thu Dec  9 21:47:49 2010
+# Created: Fri Dec 10 15:21:45 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -98,6 +98,8 @@ class Ui_MainWindow(object):
         self.action_item_view.setObjectName(_fromUtf8("action_item_view"))
         self.action_item_add_many_rec = QtGui.QAction(MainWindow)
         self.action_item_add_many_rec.setObjectName(_fromUtf8("action_item_add_many_rec"))
+        self.action_item_delete = QtGui.QAction(MainWindow)
+        self.action_item_delete.setObjectName(_fromUtf8("action_item_delete"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -110,6 +112,7 @@ class Ui_MainWindow(object):
         self.menuItem.addAction(self.action_item_add_many_rec)
         self.menuItem.addAction(self.action_item_edit)
         self.menuItem.addAction(self.action_item_view)
+        self.menuItem.addAction(self.action_item_delete)
         self.menuTools.addAction(self.action_tools_tag_cloud)
         self.menubar.addAction(self.menu_repo.menuAction())
         self.menubar.addAction(self.menu.menuAction())
@@ -142,4 +145,5 @@ class Ui_MainWindow(object):
         self.action_tools_tag_cloud.setText(QtGui.QApplication.translate("MainWindow", "Tag &cloud", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_view.setText(QtGui.QApplication.translate("MainWindow", "&View with external app", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_add_many_rec.setText(QtGui.QApplication.translate("MainWindow", "Add many &recursively", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_delete.setText(QtGui.QApplication.translate("MainWindow", "&Delete", None, QtGui.QApplication.UnicodeUTF8))
 

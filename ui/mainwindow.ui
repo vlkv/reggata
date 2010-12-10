@@ -88,6 +88,7 @@
     <addaction name="action_item_add_many_rec" />
     <addaction name="action_item_edit" />
     <addaction name="action_item_view" />
+    <addaction name="action_item_delete" />
    </widget>
    <widget class="QMenu" name="menuTools" >
     <property name="title" >
@@ -188,6 +189,11 @@
   <action name="action_item_add_many_rec" >
    <property name="text" >
     <string>Add many &amp;recursively</string>
+   </property>
+  </action>
+  <action name="action_item_delete" >
+   <property name="text" >
+    <string>&amp;Delete</string>
    </property>
   </action>
  </widget>
