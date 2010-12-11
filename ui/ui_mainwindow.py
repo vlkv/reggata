@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Dec 10 15:21:45 2010
+# Created: Sun Dec 12 01:16:56 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -111,8 +111,8 @@ class Ui_MainWindow(object):
         self.menuItem.addAction(self.action_item_add_many)
         self.menuItem.addAction(self.action_item_add_many_rec)
         self.menuItem.addAction(self.action_item_edit)
-        self.menuItem.addAction(self.action_item_view)
         self.menuItem.addAction(self.action_item_delete)
+        self.menuItem.addAction(self.action_item_view)
         self.menuTools.addAction(self.action_tools_tag_cloud)
         self.menubar.addAction(self.menu_repo.menuAction())
         self.menubar.addAction(self.menu.menuAction())

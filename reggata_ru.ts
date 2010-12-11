@@ -74,17 +74,17 @@
         <translation type="obsolete">Вы должны были выбрать существующую директорию. Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/db_schema.py" line="51"/>
+        <location filename="src/db_schema.py" line="54"/>
         <source>Attribute User.login shouldn&apos;t be empty.</source>
         <translation>Атрибут User.login не должен быть пустым.</translation>
     </message>
     <message>
-        <location filename="src/db_schema.py" line="167"/>
+        <location filename="src/db_schema.py" line="182"/>
         <source>Attribute Item.title shouldn&apos;t be empty.</source>
         <translation>Атрибут Item.title не должен быть пустым.</translation>
     </message>
     <message>
-        <location filename="src/helpers.py" line="84"/>
+        <location filename="src/main_window.py" line="387"/>
         <source>Information</source>
         <translation>Информация</translation>
     </message>
@@ -104,17 +104,17 @@
         <translation>Похоже, что директория {} уже содержит хранилище.</translation>
     </message>
     <message>
-        <location filename="src/repo_mgr.py" line="358"/>
+        <location filename="src/repo_mgr.py" line="359"/>
         <source>User {} doesn&apos;t exist.</source>
         <translation>Пользователя {} не существует.</translation>
     </message>
     <message>
-        <location filename="src/repo_mgr.py" line="360"/>
+        <location filename="src/repo_mgr.py" line="361"/>
         <source>Password incorrect.</source>
         <translation>Неверный пароль.</translation>
     </message>
     <message>
-        <location filename="src/repo_mgr.py" line="615"/>
+        <location filename="src/repo_mgr.py" line="674"/>
         <source>DataRef instance with url={}, already in database. Operation cancelled.</source>
         <translation>Экземпляр класса DataRef с атрибутом url={} уже присутствует в базе данных. Операция отменена.</translation>
     </message>
@@ -184,22 +184,22 @@
         <translation>Пожалуйста, подождите...</translation>
     </message>
     <message>
-        <location filename="src/repo_mgr.py" line="355"/>
+        <location filename="src/repo_mgr.py" line="356"/>
         <source>User login cannot be empty.</source>
         <translation>Логин пользователя не должен быть пустым.</translation>
     </message>
     <message>
-        <location filename="src/repo_mgr.py" line="507"/>
+        <location filename="src/repo_mgr.py" line="508"/>
         <source>File {} not found!</source>
         <translation>Файл {} не найден!</translation>
     </message>
     <message>
-        <location filename="src/repo_mgr.py" line="512"/>
+        <location filename="src/repo_mgr.py" line="513"/>
         <source>Pathname {1} already exists. File {0} would not be moved.</source>
         <translation>Путь {1} уже существует. Файл {0} не будет перемещен.</translation>
     </message>
     <message>
-        <location filename="src/repo_mgr.py" line="571"/>
+        <location filename="src/repo_mgr.py" line="630"/>
         <source>Argument user_login shouldn&apos;t be null or empty.</source>
         <translation>Аргумент user_login не должен быть пустым.</translation>
     </message>
@@ -217,6 +217,26 @@
         <location filename="src/parsers/query_tree_nodes.py" line="130"/>
         <source>Unexpected type of extra_clause {}</source>
         <translation>Неожиданый тип {} для extra_clause.</translation>
+    </message>
+    <message>
+        <location filename="src/repo_mgr.py" line="576"/>
+        <source>Cannot delete item id={0} because it is owned by another user {1}.</source>
+        <translation>Нельзя удалить элемент id={0}, т.к. его владельцем является другой пользователь {1}.</translation>
+    </message>
+    <message>
+        <location filename="src/repo_mgr.py" line="579"/>
+        <source>Cannot delete item id={0} because another user tagged it.</source>
+        <translation>Нельзя удалить элемент id={0}, т.к. другой пользователь прикрепил к нему тег(и).</translation>
+    </message>
+    <message>
+        <location filename="src/repo_mgr.py" line="582"/>
+        <source>Cannot delete item id={0} because another user attached a field to it.</source>
+        <translation>Нельзя удалить элемент id={0}, т.к. другой пользователь прикрепил к нему поле.</translation>
+    </message>
+    <message>
+        <location filename="src/repo_mgr.py" line="703"/>
+        <source>File {} already exists. Operation cancelled.</source>
+        <translation>Файл {} уже существует. Операция отменена.</translation>
     </message>
 </context>
 <context>
@@ -405,55 +425,65 @@
         <translation>Удалить теги:</translation>
     </message>
     <message>
-        <location filename="src/items_dialog.py" line="71"/>
+        <location filename="src/items_dialog.py" line="66"/>
         <source>ItemsDialog cannot operate with one or zero Item objects.</source>
         <translation>Диалог ItemsDialog может работать только с двумя и более объектами Item.</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="108"/>
         <source>ItemsDialog does not support DialogMode = {}</source>
-        <translation>Диалог ItemDialog не поддерживает режим DialogMode = {}.</translation>
+        <translation type="obsolete">Диалог ItemDialog не поддерживает режим DialogMode = {}.</translation>
     </message>
     <message>
-        <location filename="src/items_dialog.py" line="154"/>
+        <location filename="src/items_dialog.py" line="152"/>
         <source>Tags {} cannot be in both add and remove lists.</source>
         <translation>Теги {} не могут присутствовать одновременно в списке добавления и удаления.</translation>
     </message>
     <message>
-        <location filename="src/items_dialog.py" line="162"/>
+        <location filename="src/items_dialog.py" line="160"/>
         <source>Fields {} cannot be in both add and remove lists.</source>
         <translation>Поля {} не могут присутствовать одновременно в списках добавления и удаления.</translation>
     </message>
     <message>
-        <location filename="src/items_dialog.py" line="272"/>
+        <location filename="src/items_dialog.py" line="271"/>
         <source>&lt;not applicable&gt;</source>
         <translation>&lt;не применимо&gt;</translation>
     </message>
     <message>
-        <location filename="src/items_dialog.py" line="281"/>
+        <location filename="src/items_dialog.py" line="280"/>
         <source>&lt;different values&gt;</source>
         <translation>&lt;разл. знач.&gt;</translation>
     </message>
     <message>
-        <location filename="src/items_dialog.py" line="291"/>
+        <location filename="src/items_dialog.py" line="290"/>
         <source>Selected group of items doesn&apos;t reference any physical files on filesysem.</source>
         <translation>Выбранная группа элементов не ссылается на физические файлы.</translation>
     </message>
     <message>
-        <location filename="src/items_dialog.py" line="293"/>
+        <location filename="src/items_dialog.py" line="292"/>
         <source>Select destination path within repository</source>
         <translation>Выберите путь назначения внутри хранилища</translation>
     </message>
     <message>
-        <location filename="src/items_dialog.py" line="299"/>
+        <location filename="src/items_dialog.py" line="298"/>
         <source>Chosen directory is out of active repository.</source>
         <translation>Выбраная директория находится вне активного хранилища.</translation>
+    </message>
+    <message>
+        <location filename="src/items_dialog.py" line="103"/>
+        <source>ItemsDialog does not support DialogMode = {}.</source>
+        <translation>Диалог ItemsDialog не поддерживает режим {}.</translation>
+    </message>
+    <message>
+        <location filename="src/items_dialog.py" line="192"/>
+        <source>&amp;lt;diff. values&amp;gt;</source>
+        <translation>&amp;lt;разл. знач.&amp;gt;</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="src/main_window.py" line="102"/>
+        <location filename="src/main_window.py" line="108"/>
         <source>User:</source>
         <translation>Пользователь:</translation>
     </message>
@@ -518,52 +548,52 @@
         <translation type="obsolete">Выход</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="100"/>
+        <location filename="src/main_window.py" line="106"/>
         <source>Repository:</source>
         <translation>Хранилище:</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="229"/>
+        <location filename="src/main_window.py" line="235"/>
         <source>Argument must be an instance of User class.</source>
         <translation>Аргумент должен иметь тип User.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="259"/>
+        <location filename="src/main_window.py" line="265"/>
         <source>Argument must be of RepoMgr class.</source>
         <translation>Аргумент должен иметь тип RepoMgr.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="278"/>
+        <location filename="src/main_window.py" line="284"/>
         <source>Opened repository from {}.</source>
         <translation>Открыто хранилище по адресу {}.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="296"/>
+        <location filename="src/main_window.py" line="302"/>
         <source>Choose a base path for new repository</source>
         <translation>Выберите базовую директорию хранилища</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="318"/>
+        <location filename="src/main_window.py" line="324"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
         <translation>Вы должны были выбрать существующую директорию. Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="308"/>
+        <location filename="src/main_window.py" line="314"/>
         <source>There is no opened repository.</source>
         <translation>Нет открытых хранилищ.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="316"/>
+        <location filename="src/main_window.py" line="322"/>
         <source>Choose a repository base path</source>
         <translation>Выберите базовую директорию хранилища</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="579"/>
+        <location filename="src/main_window.py" line="638"/>
         <source>Open a repository first.</source>
         <translation>Сначала откройте хранилище.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="582"/>
+        <location filename="src/main_window.py" line="641"/>
         <source>Login to a repository first.</source>
         <translation>Сначала выполните вход в хранилище.</translation>
     </message>
@@ -578,7 +608,7 @@
         <translation type="obsolete">Элемент</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="112"/>
+        <location filename="ui/mainwindow.ui" line="113"/>
         <source>Tag cloud</source>
         <translation>Облако тегов</translation>
     </message>
@@ -608,150 +638,170 @@
         <translation>&amp;Элемент</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="94"/>
+        <location filename="ui/mainwindow.ui" line="95"/>
         <source>&amp;Tools</source>
         <translation>&amp;Инструменты</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="121"/>
+        <location filename="ui/mainwindow.ui" line="122"/>
         <source>&amp;New</source>
         <translation>&amp;Создать</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="126"/>
+        <location filename="ui/mainwindow.ui" line="127"/>
         <source>&amp;Open</source>
         <translation>&amp;Открыть</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="131"/>
+        <location filename="ui/mainwindow.ui" line="132"/>
         <source>&amp;Close</source>
         <translation>&amp;Закрыть</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="136"/>
+        <location filename="ui/mainwindow.ui" line="137"/>
         <source>Add &amp;one</source>
         <translation>&amp;Добавить один</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="141"/>
+        <location filename="ui/mainwindow.ui" line="142"/>
         <source>&amp;Create</source>
         <translation>&amp;Создать</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="146"/>
+        <location filename="ui/mainwindow.ui" line="147"/>
         <source>&amp;Login</source>
         <translation>&amp;Войти</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="151"/>
+        <location filename="ui/mainwindow.ui" line="152"/>
         <source>Log&amp;out</source>
         <translation>В&amp;ыйти</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="156"/>
+        <location filename="ui/mainwindow.ui" line="157"/>
         <source>&amp;Edit</source>
         <translation>&amp;Редактировать</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="161"/>
+        <location filename="ui/mainwindow.ui" line="162"/>
         <source>Add &amp;many</source>
         <translation>Добавить &amp;несколько</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="166"/>
+        <location filename="ui/mainwindow.ui" line="167"/>
         <source>Change &amp;password</source>
         <translation>Изменить &amp;пароль</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="180"/>
+        <location filename="ui/mainwindow.ui" line="181"/>
         <source>Tag &amp;cloud</source>
         <translation>&amp;Облако тегов</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="185"/>
+        <location filename="ui/mainwindow.ui" line="186"/>
         <source>&amp;View with external app</source>
         <translation>Открыть &amp;внешним приложением</translation>
     </message>
     <message>
-        <location filename="ui/mainwindow.ui" line="190"/>
+        <location filename="ui/mainwindow.ui" line="191"/>
         <source>Add many &amp;recursively</source>
         <translation>Добавить &amp;рекурсивно</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="120"/>
+        <location filename="src/main_window.py" line="126"/>
         <source>Cannot open/login recent repository.</source>
         <translation>Не удалось отрыть/войти в последнее хранилище.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="182"/>
+        <location filename="src/main_window.py" line="188"/>
         <source>Main window state has saved.</source>
         <translation>Состояние главного окна сохранено.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="213"/>
+        <location filename="src/main_window.py" line="219"/>
         <source>You cannot login because there is no opened repo.</source>
         <translation>Нельзя выполнить вход, потому что нет открытых хранилищ.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="345"/>
+        <location filename="src/main_window.py" line="404"/>
         <source>Select only one item, please.</source>
         <translation>Выберите только один элемент, пожалуйста.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="351"/>
+        <location filename="src/main_window.py" line="410"/>
         <source>Action &apos;View item&apos; can be applied only to items linked with files.</source>
         <translation>Действие &apos;Просмотр элемента&apos; может применяться только к элементам, с которыми связаны физические файлы.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="645"/>
+        <location filename="src/main_window.py" line="703"/>
         <source>Operation completed.</source>
         <translation>Операция выполнена.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="379"/>
+        <location filename="src/main_window.py" line="438"/>
         <source>Select one directory</source>
         <translation>Выберите одну директорию</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="381"/>
+        <location filename="src/main_window.py" line="440"/>
         <source>Directory is not chosen. Operation cancelled.</source>
         <translation>Директория не выбрана. Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="492"/>
+        <location filename="src/main_window.py" line="551"/>
         <source>Select file to add</source>
         <translation>Выберите файл для добавления</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="445"/>
+        <location filename="src/main_window.py" line="504"/>
         <source>No files chosen. Operation cancelled.</source>
         <translation>Нет выбранных файлов. Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="590"/>
+        <location filename="src/main_window.py" line="649"/>
         <source>There are no selected items.</source>
         <translation>Не выбрано ни одного элемента.</translation>
+    </message>
+    <message>
+        <location filename="ui/mainwindow.ui" line="196"/>
+        <source>&amp;Delete</source>
+        <translation>&amp;Удалить</translation>
+    </message>
+    <message>
+        <location filename="src/main_window.py" line="364"/>
+        <source>Do you really want to delete {} selected file(s)?</source>
+        <translation>Удалить выбранные элементы ({} шт)?</translation>
+    </message>
+    <message>
+        <location filename="src/main_window.py" line="388"/>
+        <source>There were {0} errors.</source>
+        <translation>При выполнении операции возникли ошибки ({0} шт)</translation>
+    </message>
+    <message>
+        <location filename="src/main_window.py" line="393"/>
+        <source>Cancelled.</source>
+        <translation>Отменено.</translation>
     </message>
 </context>
 <context>
     <name>RepoItemTableModel</name>
     <message>
-        <location filename="src/main_window.py" line="714"/>
+        <location filename="src/main_window.py" line="772"/>
         <source>Id</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="716"/>
+        <location filename="src/main_window.py" line="774"/>
         <source>Title</source>
         <translation>Название</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="718"/>
+        <location filename="src/main_window.py" line="776"/>
         <source>Thumbnail</source>
         <translation>Миниатюра</translation>
     </message>
     <message>
-        <location filename="src/main_window.py" line="720"/>
+        <location filename="src/main_window.py" line="778"/>
         <source>Tags</source>
         <translation>Теги</translation>
     </message>
@@ -759,17 +809,17 @@
 <context>
     <name>TagCloud</name>
     <message>
-        <location filename="src/tag_cloud.py" line="186"/>
+        <location filename="src/tag_cloud.py" line="191"/>
         <source>There is no selected text in tag cloud.</source>
         <translation>На облаке тегов нет выделенного текста.</translation>
     </message>
     <message>
-        <location filename="src/tag_cloud.py" line="199"/>
+        <location filename="src/tag_cloud.py" line="204"/>
         <source>AND Tag</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="src/tag_cloud.py" line="201"/>
+        <location filename="src/tag_cloud.py" line="206"/>
         <source>AND NOT Tag</source>
         <translation></translation>
     </message>
@@ -812,9 +862,19 @@
         <translation>Аргумент user должен принадлежать классу User.</translation>
     </message>
     <message>
-        <location filename="src/user_dialog.py" line="57"/>
+        <location filename="src/user_dialog.py" line="67"/>
         <source>DialogMode={} is not supported by this dialog.</source>
         <translation>DialogMode={} не поддерживается данным диалогом.</translation>
+    </message>
+    <message>
+        <location filename="ui/userdialog.ui" line="69"/>
+        <source>Repeat password:</source>
+        <translation>Повторить пароль:</translation>
+    </message>
+    <message>
+        <location filename="src/user_dialog.py" line="78"/>
+        <source>Entered passwords do not match.</source>
+        <translation>Введенные пароли не совпадают.</translation>
     </message>
 </context>
 </TS>
