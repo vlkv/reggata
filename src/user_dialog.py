@@ -39,6 +39,7 @@ class UserDialog(QtGui.QDialog):
         self.user = user
         self.ui = ui_userdialog.Ui_UserDialog()
         self.ui.setupUi(self)
+        self.mode = None
         
         #TODO Пока что поле group не используется, поэтому пока что спрячем
         self.ui.label_group.setVisible(False)
@@ -64,6 +65,7 @@ class UserDialog(QtGui.QDialog):
             self.ui.comboBox_group.setVisible(False)
         else:
             raise UnsupportedDialogModeError(self.tr("DialogMode={} is not supported by this dialog.").format(mode))
+        self.mode = mode
     
     def read(self):
         #TODO
@@ -72,7 +74,7 @@ class UserDialog(QtGui.QDialog):
     def write(self):
         '''Запись введенной в элементы gui информации в поля объекта.'''
         self.user.login = self.ui.lineEdit_login.text()
-        if self.ui.lineEdit_password.text() != self.ui.lineEdit_password_repeat.text():
+        if self.mode == DialogMode.CREATE and self.ui.lineEdit_password.text() != self.ui.lineEdit_password_repeat.text():
             raise MsgException(self.tr("Entered passwords do not match."))        
         
         bytes = self.ui.lineEdit_password.text().encode("utf-8")
