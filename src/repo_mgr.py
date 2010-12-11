@@ -566,6 +566,62 @@ class UnitOfWork(object):
         
         #Делаем путь относительным, относительно корня хранилища
         _prepare_data_ref_url(data_ref)
+    
+    def delete_item(self, item_id, user_login, delete_physical_file=True):
+        
+        #TODO Если user_login является админом, то ему можно удалять любые файлы
+        
+        item = self._session.query(Item).get(item_id)
+        if item.user_login != user_login:
+            raise AccessError(tr("Cannot delete item id={0} because it is owned by another user {1}.").format(item_id, item.user_login))
+        
+        if item.has_tags_except_of(user_login):
+            raise AccessError(tr("Cannot delete item id={0} because another user tagged it.").format(item_id))
+        
+        if item.has_fields_except_of(user_login):
+            raise AccessError(tr("Cannot delete item id={0} because another user attached a field to it.").format(item_id))
+        
+        #TODO Можно сделать и так, что если удаляешь элемент, а к нему прикреплен тег
+        #другого пользователя, то элемент просто переходит во владение к этому пользователю
+        #и у элемента удаляются все теги/поля первого пользователя.
+        
+        #Запоминаем объект
+        data_ref = item.data_ref
+        
+        self._session.delete(item)
+        self._session.flush()
+        #По идее будут удалены все связанные ItemTag и ItemField объекты
+        #data_ref удаляться автоматически не должен
+        
+        delete_data_ref = True
+        #Нужно узнать, принадлежит ли data_ref пользователю user_login
+        #Если нет, то удалять data_ref нельзя
+        if data_ref.user_login != user_login:
+            delete_data_ref = False
+            
+        if delete_data_ref:
+            #Нужно узнать, есть ли другие элементы, которые ссылаются на данный data_ref
+            #Если есть, то data_ref и файл удалять нельзя
+            another_item = self._session.query(Item).filter(Item.data_ref==data_ref).first()
+            if another_item:
+                delete_data_ref = False
+        
+        if delete_data_ref:
+            #Запоминаем кое-что
+            is_file = data_ref.type == DataRef.FILE
+            abs_path = os.path.join(self._repo_base_path, data_ref.url)
+            
+            #Удаляем data_ref из БД
+            self._session.delete(data_ref)
+            self._session.flush()
+            
+            #Теперь пробуем удалить физический файл
+            if is_file and delete_physical_file and os.path.exists(abs_path):
+                os.remove(abs_path)
+
+        #Если все получилось --- завершаем транзакцию                
+        self._session.commit()
+        
         
     
     def save_new_item(self, item, user_login):
@@ -657,8 +713,40 @@ class UnitOfWork(object):
                 pass
 
         self._session.commit()
+       
+class DeleteGroupOfItemsThread(QtCore.QThread):
+    def __init__(self, parent, repo, item_ids, user_login):
+        super(DeleteGroupOfItemsThread, self).__init__(parent)
+        self.repo = repo
+        self.item_ids = item_ids
+        self.user_login = user_login
+        self.errors = 0
+        self.detailed_message = None
         
-        
+    def run(self):
+        self.errors = 0
+        self.detailed_message = ""
+        uow = self.repo.create_unit_of_work()
+        try:
+            i = 0
+            for id in self.item_ids:
+                #Удаляем каждый item по одному
+                try:
+                    uow.delete_item(id, self.user_login)
+                except AccessError as ex:
+                    #У пользователя self.user_login нет прав удалять данный элемент
+                    self.errors += 1
+                    self.detailed_message += str(ex) + os.linesep
+                    
+                i = i + 1
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.item_ids)))
+                        
+        except Exception as ex:
+            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
+            print(traceback.format_exc())
+        finally:
+            self.emit(QtCore.SIGNAL("finished"))
+            uow.close()
         
 class CreateGroupIfItemsThread(QtCore.QThread):
     def __init__(self, parent, repo, items):

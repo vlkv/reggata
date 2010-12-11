@@ -29,7 +29,7 @@ from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread,\
-	CreateGroupIfItemsThread
+	CreateGroupIfItemsThread, DeleteGroupOfItemsThread
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
 	WaitDialog, raise_exc
 from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
@@ -41,6 +41,7 @@ from tag_cloud import TagCloud
 import consts
 from items_dialog import ItemsDialog
 from ext_app_mgr import ExtAppMgr
+import helpers
 
 
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
@@ -344,8 +345,52 @@ class MainWindow(QtGui.QMainWindow):
 
 	def action_item_delete(self):
 		try:
-			raise NotImplementedError(self.tr("Will be implemented soon."))
-			#TODO реализовать
+			if self.active_repo is None:
+				raise MsgException(self.tr("Open a repository first."))
+			
+			if self.active_user is None:
+				raise MsgException(self.tr("Login to a repository first."))
+			
+			#Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
+			rows = set()
+			for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
+				rows.add(idx.row())
+			
+			if len(rows) == 0:
+				raise MsgException(self.tr("There are no selected items."))
+			
+			#TODO Нужно сделать свой диалог, содержащий checkbox "Удалить связанные физические файлы"
+			mb = QtGui.QMessageBox()
+			mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(rows)))
+			mb.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+			if mb.exec_() == QtGui.QMessageBox.Yes:
+				#Получаем id всех объектов, которые будем удалять
+				item_ids = []
+				for row in rows:
+					item_ids.append(self.model.items[row].id)
+				
+				thread = DeleteGroupOfItemsThread(self, self.active_repo, item_ids, self.active_user.login)
+				self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+										
+				wd = WaitDialog(self)
+				self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+				self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+				self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+				
+				thread.start()
+				thread.wait(1000)
+				if thread.isRunning():
+					wd.exec_()
+					
+				if thread.errors > 0:
+					mb = helpers.MyMessageBox(self)
+					mb.setWindowTitle(tr("Information"))
+					mb.setText(self.tr("There were {0} errors.").format(thread.errors))					
+					mb.setDetailedText(thread.detailed_message)
+					mb.exec_()
+				
+			else:
+				self.ui.statusbar.showMessage(self.tr("Cancelled."), 5000)
 			
 		except Exception as ex:
 			show_exc_info(self, ex)
