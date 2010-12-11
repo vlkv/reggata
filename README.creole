@@ -1,6 +1,17 @@
 == About Reggata
 Reggata - is a program for tagging user files on local computer.
 
+=== Features
+
+* You can assosiate with your files any number of arbitrary tags
+(or keywords) and fields (<name>:<value> pairs).
+
+* Then you can quickly find files by tags and field values.
+Reggata has a tag cloud (for querying files by mouse) and a powerful text query
+language (for more complex queries).
+
+* Reggata is under active development and new features are added constantly. 
+
 === Alike projects
 I would like Reggata to be like Delicious (http://www.delicious.com), but for tagging local files (and URL bookmarks also though) and storing all information in local database, not remote server.
 Like Calibre (http://calibre-ebook.com/ which is for electronic books) or JBrout (http://jbrout.manatlan.com/ which is for digital photos) but for files of any type.
