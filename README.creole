@@ -2,14 +2,11 @@
 Reggata - is a program for tagging user files on local computer.
 
 === Features
-
 * You can assosiate with your files any number of arbitrary tags
 (or keywords) and fields (<name>:<value> pairs).
-
 * Then you can quickly find files by tags and field values.
 Reggata has a tag cloud (for querying files by mouse) and a powerful text query
 language (for more complex queries).
-
 * Reggata is under active development and new features are added constantly. 
 
 === Alike projects
