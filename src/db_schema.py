@@ -80,10 +80,10 @@ class Item(Base):
     data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"))
     
     #пользователь-владелец данного элемента
-    user = relationship(User, cascade="save-update, merge, expunge, refresh-expire")
+    user = relationship(User, cascade="merge, expunge, refresh-expire")
     
     #связанный файл/ссылка_URL
-    data_ref = relationship("DataRef", cascade="all")
+    data_ref = relationship("DataRef", cascade="merge, expunge, refresh-expire") #TODO Ведь не нужен тут save-update?
     
     #tags - список связанных тегов
     item_tags = relationship("Item_Tag", cascade="all, delete-orphan")
@@ -99,6 +99,18 @@ class Item(Base):
             self.date_created = date_created
         else:
             self.date_created = datetime.datetime.today()
+    
+    def has_tags_except_of(self, user_login):
+        for item_tag in self.item_tags:
+            if item_tag.user_login != user_login:
+                return True
+        return False
+    
+    def has_fields_except_of(self, user_login):
+        for item_field in self.item_fields:
+            if item_field.user_login != user_login:
+                return True
+        return False
     
     def add_tag(self, name, user_login=None):
         tag = Tag(name)
