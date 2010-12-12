@@ -690,8 +690,22 @@ class UnitOfWork(object):
         #Добавляем в item существующие поля
         for if_ in existing_item_fields:
             item.item_fields.append(if_)
-                              
+            
         self._session.flush()
+        
+        
+        #Сохраняем в БД data_ref объект
+        if item.data_ref:          
+            #Сохраняем data_ref в БД  
+            self._session.add(item.data_ref)
+            self._session.flush()
+            
+            #Привязываем к элементу            
+            item.data_ref_id = item.data_ref.id
+            self._session.flush()
+            
+            
+            
                 
         #Если все сохранилось в БД, то копируем файл, связанный с DataRef
         if item.data_ref and item.data_ref.type == DataRef.FILE:
