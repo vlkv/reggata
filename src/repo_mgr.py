@@ -593,10 +593,12 @@ class UnitOfWork(object):
         #По идее будут удалены все связанные ItemTag и ItemField объекты
         #data_ref удаляться автоматически не должен
         
-        delete_data_ref = True
+        #Пытаться удалять data_ref нужно только если он имеется
+        delete_data_ref = data_ref is not None
+        
         #Нужно узнать, принадлежит ли data_ref пользователю user_login
         #Если нет, то удалять data_ref нельзя
-        if data_ref.user_login != user_login:
+        if delete_data_ref and data_ref.user_login != user_login:
             delete_data_ref = False
             
         if delete_data_ref:
