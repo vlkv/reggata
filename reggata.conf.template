@@ -30,3 +30,5 @@ sqlalchemy.engine_echo = True
 
 thumbnail_size = 100
 
+tmp_dir = /tmp
+
