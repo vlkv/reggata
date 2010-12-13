@@ -79,8 +79,17 @@ class MainWindow(QtGui.QMainWindow):
 		#Модель таблицы для отображения элементов хранилища
 		self.model = None
 		
+		#Контекстное меню
+		self.menu = QtGui.QMenu()
+		self.menu.addAction(self.ui.action_item_view)		
+		self.menu.addAction(self.ui.action_item_view_m3u)
+		self.menu.addAction(self.ui.action_item_view_image_viewer)
+		self.menu.addAction(self.ui.action_item_edit)		
+		self.menu.addAction(self.ui.action_item_delete)
 		
-
+		self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
+		self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
+		
 				
 		self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
 		self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
@@ -168,6 +177,10 @@ class MainWindow(QtGui.QMainWindow):
 		elif e.type() == QtCore.QEvent.KeyRelease and e.key() == Qt.Key_Control:
 			self.ui.tag_cloud.control_pressed = False
 		return super(MainWindow, self).event(e)
+
+	def showContextMenu(self, pos):
+		print("sdfsdf")
+		self.menu.exec_(self.ui.tableView_items.mapToGlobal(pos))
 
 	def reset_tag_cloud(self):
 		self.ui.tag_cloud.reset()
