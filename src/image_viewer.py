@@ -104,6 +104,9 @@ class Canvas(QtGui.QWidget):
         self._abs_path = path
         self.original = QtGui.QPixmap()
         self.scaled = QtGui.QPixmap()
+        
+        #TODO Может тут лучше послать сигнал?
+        self.parent().ui.statusbar.showMessage(self._abs_path)
     
     def mouseMoveEvent(self, ev):
         self.x += (ev.pos().x() - self.press_x)/2
@@ -173,11 +176,9 @@ class ImageViewer(QtGui.QMainWindow):
         self.save_state_timer.setSingleShot(True)
         self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_window_state)
         
-    def save_window_state(self):
-        #Тут нужно сохранить в конфиге пользователя размер окна
+    def save_window_state(self):        
         UserConfig().storeAll({"image_viewer.width":self.width(), "image_viewer.height":self.height()})
-        
-        self.ui.statusbar.showMessage(self.tr("Window state has saved."), 5000)
+                
     
     def resizeEvent(self, resize_event):
         self.save_state_timer.start(3000) #Повторный вызов start() делает перезапуск таймера        
@@ -210,7 +211,6 @@ class ImageViewer(QtGui.QMainWindow):
                 self.i_current = 0
             
             self.ui.canvas.abs_path = self.abs_paths[self.i_current]
-            self.ui.statusbar.showMessage(self.abs_paths[self.i_current])
             self.update()
             
         except Exception as ex:
@@ -222,8 +222,7 @@ class ImageViewer(QtGui.QMainWindow):
             if self.i_current < 0:
                 self.i_current = len(self.abs_paths) - 1
             
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
-            self.ui.statusbar.showMessage(self.abs_paths[self.i_current])
+            self.ui.canvas.abs_path = self.abs_paths[self.i_current]            
             self.update()
             
         except Exception as ex:
