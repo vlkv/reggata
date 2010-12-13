@@ -25,6 +25,7 @@ from PyQt4 import QtGui, QtCore
 import ui_imageviewer
 from helpers import show_exc_info
 from exceptions import MsgException
+from user_config import UserConfig
 
 class Canvas(QtGui.QWidget):
     '''
@@ -158,7 +159,29 @@ class ImageViewer(QtGui.QMainWindow):
         self.connect(self.ui.action_fit_window, QtCore.SIGNAL("triggered(bool)"), self.action_fit_window)
         
         self.connect(self.ui.canvas, QtCore.SIGNAL("fit_window_changed"), lambda x: self.ui.action_fit_window.setChecked(x))
-            
+        
+        #Пытаемся восстанавливить размер окна, как был при последнем запуске
+        try:
+            width = int(UserConfig().get("image_viewer.width", 640))
+            height = int(UserConfig().get("image_viewer.height", 480))
+            self.resize(width, height)
+        except:
+            pass
+        
+        #Делаем так, чтобы размер окна сохранялся при изменении
+        self.save_state_timer = QtCore.QTimer(self)
+        self.save_state_timer.setSingleShot(True)
+        self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_window_state)
+        
+    def save_window_state(self):
+        #Тут нужно сохранить в конфиге пользователя размер окна
+        UserConfig().storeAll({"image_viewer.width":self.width(), "image_viewer.height":self.height()})
+        
+        self.ui.statusbar.showMessage(self.tr("Window state has saved."), 5000)
+    
+    def resizeEvent(self, resize_event):
+        self.save_state_timer.start(3000) #Повторный вызов start() делает перезапуск таймера        
+    
     def action_zoom_in(self):
         try:            
             self.ui.canvas.scale = self.ui.canvas.scale*1.5 
@@ -187,6 +210,7 @@ class ImageViewer(QtGui.QMainWindow):
                 self.i_current = 0
             
             self.ui.canvas.abs_path = self.abs_paths[self.i_current]
+            self.ui.statusbar.showMessage(self.abs_paths[self.i_current])
             self.update()
             
         except Exception as ex:
@@ -198,7 +222,8 @@ class ImageViewer(QtGui.QMainWindow):
             if self.i_current < 0:
                 self.i_current = len(self.abs_paths) - 1
             
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]            
+            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
+            self.ui.statusbar.showMessage(self.abs_paths[self.i_current])
             self.update()
             
         except Exception as ex:
