@@ -27,10 +27,13 @@ from helpers import show_exc_info
 from exceptions import MsgException
 
 class Canvas(QtGui.QWidget):
+    '''
+    Виджет, для отображения изображений, с функциями зуммирования, панорамирования и т.п.
+    '''
     
     def __init__(self, parent=None):
         super(Canvas, self).__init__(parent)
-        self.pixmap = QtGui.QPixmap()
+        self.original = QtGui.QPixmap()
         self.scaled = QtGui.QPixmap()
         self._abs_path = None
         self.x = 0
@@ -39,31 +42,31 @@ class Canvas(QtGui.QWidget):
         self._scale = 1.0
         self._fit_window = True
     
-    def _scale_pixmap(self):
+    def _scale_original(self):
         
-        if self.pixmap.isNull():
+        if self.original.isNull():
             return
         
         if self.fit_window:
-            scale_x = float(self.width())/self.pixmap.width() 
-            scale_y = float(self.height())/self.pixmap.height()
+            scale_x = float(self.width())/self.original.width() 
+            scale_y = float(self.height())/self.original.height()
             scale = scale_x if scale_x < scale_y else scale_y
             self._scale = scale
             self.scaled = QtGui.QPixmap()
             
-        self.scaled = self.pixmap.scaled(int(self.pixmap.width()*self.scale), \
-                                             int(self.pixmap.height()*self.scale), \
+        self.scaled = self.original.scaled(int(self.original.width()*self.scale), \
+                                             int(self.original.height()*self.scale), \
                                              Qt.KeepAspectRatio)
     
     def paintEvent(self, paint_event):
 
-        if self.pixmap.isNull():
-            if not self.pixmap.load(self.abs_path):
+        if self.original.isNull():
+            if not self.original.load(self.abs_path):
                 #self.ui.statusbar.showMessage(self.tr("Cannot load image {0}.").format(self.abs_paths[self.i_current]))
                 return
             
-        if self.scaled.isNull() and not self.pixmap.isNull():
-            self._scale_pixmap()
+        if self.scaled.isNull() and not self.original.isNull():
+            self._scale_original()
             
         painter = QtGui.QPainter()
         painter.begin(self)
@@ -77,7 +80,7 @@ class Canvas(QtGui.QWidget):
     @fit_window.setter
     def fit_window(self, value):
         self._fit_window = value
-        self._scale_pixmap()
+        self._scale_original()
             
 
     @property
@@ -89,7 +92,7 @@ class Canvas(QtGui.QWidget):
         self._fit_window = False
         self.emit(QtCore.SIGNAL("fit_window_changed"), False)
         self._scale = value
-        self._scale_pixmap()
+        self._scale_original()
 
     @property
     def abs_path(self):
@@ -98,7 +101,7 @@ class Canvas(QtGui.QWidget):
     @abs_path.setter
     def abs_path(self, path):
         self._abs_path = path
-        self.pixmap = QtGui.QPixmap()
+        self.original = QtGui.QPixmap()
         self.scaled = QtGui.QPixmap()
     
     def mouseMoveEvent(self, ev):
@@ -115,7 +118,7 @@ class Canvas(QtGui.QWidget):
         self.update()
         
     def resizeEvent(self, ev):
-        self._scale_pixmap()
+        self._scale_original()
         
     def mousePressEvent(self, ev):
         self.press_x = ev.pos().x()
@@ -125,7 +128,7 @@ class Canvas(QtGui.QWidget):
     def mouseReleaseEvent(self, ev):
         self.update()
         print("canvas={}x{} scaled={}x{}".format(self.width(), self.height(), self.scaled.width(), self.scaled.height()))
-        print("pixmap={}x{}".format(self.pixmap.width(), self.pixmap.height()))
+        print("original={}x{}".format(self.original.width(), self.original.height()))
     
 
 class ImageViewer(QtGui.QMainWindow):
@@ -173,11 +176,6 @@ class ImageViewer(QtGui.QMainWindow):
     def action_fit_window(self, checked):
         try:
             self.ui.canvas.fit_window = checked
-            
-#            scale_x = float(self.ui.canvas.width())/self.ui.canvas.pixmap.width() 
-#            scale_y = float(self.ui.canvas.height())/self.ui.canvas.pixmap.height()
-#            scale = scale_x if scale_x < scale_y else scale_y
-#            self.ui.canvas.scale = scale 
             self.update()
         except Exception as ex:
             show_exc_info(self, ex)
