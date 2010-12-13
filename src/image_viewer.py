@@ -12,7 +12,7 @@ class Canvas(QtGui.QWidget):
     
     def __init__(self, parent=None):
         super(Canvas, self).__init__(parent)
-        self.pixmap = None
+        self.pixmap = QtGui.QPixmap()
         self._abs_path = None
     
     def paintEvent(self, paint_event):
@@ -20,9 +20,6 @@ class Canvas(QtGui.QWidget):
             #self.ui.statusbar.showMessage(self.tr("There is no images."))
             return
         
-        if self.pixmap is None:
-            self.pixmap = QtGui.QPixmap()
-            
         if self.pixmap.isNull():            
             if not self.pixmap.load(self.abs_path):
                 #self.ui.statusbar.showMessage(self.tr("Cannot load image {0}.").format(self.abs_paths[self.i_current]))
@@ -40,6 +37,7 @@ class Canvas(QtGui.QWidget):
     @abs_path.setter
     def abs_path(self, path):
         self._abs_path = path
+        self.pixmap = QtGui.QPixmap()
     
     
 
