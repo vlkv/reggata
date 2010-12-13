@@ -744,7 +744,10 @@ class MainWindow(QtGui.QMainWindow):
 
 #			raise NotImplementedError(self.tr('Скоро тут будет диалог "О программе"'))
 
-			iv = ImageViewer(self, ["/home/vlkv/images/wallpapers/01.jpg", "/home/vlkv/images/wallpapers/05.jpg", "/home/vlkv/images/wallpapers/06.jpg", "/home/vlkv/images/wallpapers/01sdfsdf.jpg"])
+			iv = ImageViewer(self, ["/home/vlkv/images/wallpapers/01.jpg", 
+                                    "/home/vlkv/images/wallpapers/02.jpg", 
+                                    "/home/vlkv/images/wallpapers/02_2.jpg", 
+                                    "/home/vlkv/images/wallpapers/sdfsdf.jpg"])
 			iv.setWindowModality(Qt.WindowModal)
 			iv.show()
 			
