@@ -43,6 +43,7 @@ from items_dialog import ItemsDialog
 from ext_app_mgr import ExtAppMgr
 import helpers
 import time
+from image_viewer import ImageViewer
 
 
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
@@ -57,7 +58,7 @@ import time
 #TODO Сделать контекстное меню в главной таблице, отображающей элементы
 #TODO Реализовать удаление элементов
 #TODO Сделать всплывающие подсказки на элементах GUI
-
+#TODO Надо решить проблему, если запрос вернет ОЧЕНЬ много элементов, то как их по частям отображать  
 
 class MainWindow(QtGui.QMainWindow):
 	'''
@@ -79,7 +80,8 @@ class MainWindow(QtGui.QMainWindow):
 		self.model = None
 		
 		
-		
+
+				
 		self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
 		self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
 		self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
@@ -94,10 +96,12 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
 		self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
 		self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
+		self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)
 		self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view)
 		self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
 		self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u) 
 		
+		self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
 		
 		self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
 		self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
@@ -420,6 +424,36 @@ class MainWindow(QtGui.QMainWindow):
 		else:
 			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 
+	def action_item_view_image_viewer(self):
+		try:
+			if self.active_repo is None:
+				raise MsgException(self.tr("Open a repository first."))
+			
+			if self.active_user is None:
+				raise MsgException(self.tr("Login to a repository first."))
+			
+			#Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
+			rows = set()
+			for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
+				rows.add(idx.row())
+			
+			if len(rows) == 0:
+				raise MsgException(self.tr("There are no selected items."))
+			
+			abs_paths = []
+			for row in rows:
+				abs_paths.append(os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url))
+				
+														
+			iv = ImageViewer(self, abs_paths)
+			iv.setWindowModality(Qt.WindowModal)
+			iv.show()
+			
+			
+		except Exception as ex:
+			show_exc_info(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 
 	def action_item_view_m3u(self):
 		try:
@@ -726,6 +760,28 @@ class MainWindow(QtGui.QMainWindow):
 						uow.update_existing_item(item_dialog.item, self.active_user.login)						
 				finally:
 					uow.close()					
+			
+		except Exception as ex:
+			show_exc_info(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+	
+	def action_help_about(self):
+		try:
+			#TODO Отображать тут диалог "О программе"
+			
+#			mw = QtGui.QMainWindow(self)
+#			mw.setWindowModality(Qt.WindowModal)
+#			mw.show()
+
+			raise NotImplementedError(self.tr('Скоро тут будет диалог "О программе"'))
+
+#			iv = ImageViewer(self, ["/home/vlkv/images/wallpapers/01.jpg", 
+#                                    "/home/vlkv/images/wallpapers/02.jpg", 
+#                                    "/home/vlkv/images/wallpapers/02_2.jpg", 
+#                                    "/home/vlkv/images/wallpapers/sdfsdf.jpg"])
+#			iv.setWindowModality(Qt.WindowModal)
+#			iv.show()
 			
 		except Exception as ex:
 			show_exc_info(self, ex)

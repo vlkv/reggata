@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="icons" >
+    <file>icons/fit_window.png</file>
+    <file>icons/go-next.png</file>
+    <file>icons/go-previous.png</file>
+    <file>icons/zoom_out.png</file>
+    <file>icons/zoom_in.png</file>
+  </qresource>
+</RCC>

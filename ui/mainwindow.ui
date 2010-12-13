@@ -59,7 +59,7 @@
      <x>0</x>
      <y>0</y>
      <width>659</width>
-     <height>26</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_repo" >
@@ -89,6 +89,7 @@
     <addaction name="action_item_edit" />
     <addaction name="action_item_delete" />
     <addaction name="action_item_view" />
+    <addaction name="action_item_view_image_viewer" />
     <addaction name="action_item_view_m3u" />
    </widget>
    <widget class="QMenu" name="menuTools" >
@@ -97,10 +98,17 @@
     </property>
     <addaction name="action_tools_tag_cloud" />
    </widget>
+   <widget class="QMenu" name="menuHelp" >
+    <property name="title" >
+     <string>Help</string>
+    </property>
+    <addaction name="action_help_about" />
+   </widget>
    <addaction name="menu_repo" />
    <addaction name="menu" />
    <addaction name="menuItem" />
    <addaction name="menuTools" />
+   <addaction name="menuHelp" />
   </widget>
   <widget class="QStatusBar" name="statusbar" />
   <widget class="QDockWidget" name="dockWidget_tag_cloud" >
@@ -200,6 +208,16 @@
   <action name="action_item_view_m3u" >
    <property name="text" >
     <string>Create m3u playlist and open it</string>
+   </property>
+  </action>
+  <action name="action_help_about" >
+   <property name="text" >
+    <string>About Reggata</string>
+   </property>
+  </action>
+  <action name="action_item_view_image_viewer" >
+   <property name="text" >
+    <string>View images with built-in viewer</string>
    </property>
   </action>
  </widget>
