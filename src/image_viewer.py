@@ -109,8 +109,12 @@ class Canvas(QtGui.QWidget):
         self.parent().ui.statusbar.showMessage(self._abs_path)
     
     def mouseMoveEvent(self, ev):
-        self.x += (ev.pos().x() - self.press_x)/2
-        self.y += (ev.pos().y() - self.press_y)/2        
+        self.x += (ev.pos().x() - self.press_x)
+        self.y += (ev.pos().y() - self.press_y)
+        
+        self.press_x = ev.pos().x()
+        self.press_y = ev.pos().y()
+                
         if self.x < -self.scaled.width() + self.width():
             self.x = -self.scaled.width() + self.width()
         if self.y < -self.scaled.height() + self.height():
@@ -119,7 +123,7 @@ class Canvas(QtGui.QWidget):
             self.x = 0
         if self.y > 0:
             self.y = 0
-        self.update()
+        self.update()        
         
     def resizeEvent(self, ev):
         self._scale_original()
