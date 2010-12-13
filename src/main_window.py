@@ -420,8 +420,8 @@ class MainWindow(QtGui.QMainWindow):
 	def action_item_view(self):
 		try:
 			sel_indexes = self.ui.tableView_items.selectionModel().selectedIndexes()
-			if len(sel_indexes) > 1:
-				raise MsgException(self.tr("Select only one item, please."))
+			if len(sel_indexes) != 1:
+				raise MsgException(self.tr("Select one item, please."))
 			
 			sel_row = sel_indexes[0].row()			
 			data_ref = self.model.items[sel_row].data_ref
