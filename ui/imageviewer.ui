@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
+ <class>ImageViewer</class>
+ <widget class="QMainWindow" name="ImageViewer" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>MainWindow</string>
+   <string>ImageViewer</string>
   </property>
   <widget class="QWidget" name="centralwidget" />
   <widget class="QMenuBar" name="menubar" >
@@ -36,17 +36,17 @@
    </attribute>
    <addaction name="action_prev" />
    <addaction name="action_next" />
-   <addaction name="action_zoom_In" />
+   <addaction name="action_zoom_in" />
    <addaction name="action_zoom_out" />
-   <addaction name="action_fit_Window" />
+   <addaction name="action_fit_window" />
   </widget>
   <action name="action_prev" >
    <property name="enabled" >
     <bool>true</bool>
    </property>
    <property name="icon" >
-    <iconset>
-     <normaloff>../../../images/icons/tango-icon-theme-0.8.90/22x22/actions/go-previous.png</normaloff>../../../images/icons/tango-icon-theme-0.8.90/22x22/actions/go-previous.png</iconset>
+    <iconset resource="resources/resources.qrc" >
+     <normaloff>:/icons/icons/go-previous.png</normaloff>:/icons/icons/go-previous.png</iconset>
    </property>
    <property name="text" >
     <string>Previous</string>
@@ -60,29 +60,46 @@
   </action>
   <action name="action_next" >
    <property name="icon" >
-    <iconset>
-     <normaloff>../../../images/icons/tango-icon-theme-0.8.90/22x22/actions/go-next.png</normaloff>../../../images/icons/tango-icon-theme-0.8.90/22x22/actions/go-next.png</iconset>
+    <iconset resource="resources/resources.qrc" >
+     <normaloff>:/icons/icons/go-next.png</normaloff>:/icons/icons/go-next.png</iconset>
    </property>
    <property name="text" >
     <string>Next</string>
    </property>
   </action>
-  <action name="action_zoom_In" >
+  <action name="action_zoom_in" >
+   <property name="icon" >
+    <iconset resource="resources/resources.qrc" >
+     <normaloff>:/icons/icons/zoom_in.png</normaloff>:/icons/icons/zoom_in.png</iconset>
+   </property>
    <property name="text" >
     <string>Zoom In</string>
    </property>
   </action>
   <action name="action_zoom_out" >
+   <property name="icon" >
+    <iconset resource="resources/resources.qrc" >
+     <normaloff>:/icons/icons/zoom_out.png</normaloff>:/icons/icons/zoom_out.png</iconset>
+   </property>
    <property name="text" >
     <string>Zoom Out</string>
    </property>
   </action>
-  <action name="action_fit_Window" >
+  <action name="action_fit_window" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="resources/resources.qrc" >
+     <normaloff>:/icons/icons/fit_window.png</normaloff>:/icons/icons/fit_window.png</iconset>
+   </property>
    <property name="text" >
     <string>Fit Window</string>
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources/resources.qrc" />
+ </resources>
  <connections/>
 </ui>

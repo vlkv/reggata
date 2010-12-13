@@ -80,7 +80,8 @@ class MainWindow(QtGui.QMainWindow):
 		self.model = None
 		
 		
-		
+
+				
 		self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
 		self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
 		self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
@@ -95,6 +96,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
 		self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
 		self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
+		self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)
 		self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view)
 		self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
 		self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u) 
@@ -422,6 +424,36 @@ class MainWindow(QtGui.QMainWindow):
 		else:
 			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 
+	def action_item_view_image_viewer(self):
+		try:
+			if self.active_repo is None:
+				raise MsgException(self.tr("Open a repository first."))
+			
+			if self.active_user is None:
+				raise MsgException(self.tr("Login to a repository first."))
+			
+			#Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
+			rows = set()
+			for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
+				rows.add(idx.row())
+			
+			if len(rows) == 0:
+				raise MsgException(self.tr("There are no selected items."))
+			
+			abs_paths = []
+			for row in rows:
+				abs_paths.append(os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url))
+				
+														
+			iv = ImageViewer(self, abs_paths)
+			iv.setWindowModality(Qt.WindowModal)
+			iv.show()
+			
+			
+		except Exception as ex:
+			show_exc_info(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 
 	def action_item_view_m3u(self):
 		try:
@@ -742,14 +774,14 @@ class MainWindow(QtGui.QMainWindow):
 #			mw.setWindowModality(Qt.WindowModal)
 #			mw.show()
 
-#			raise NotImplementedError(self.tr('Скоро тут будет диалог "О программе"'))
+			raise NotImplementedError(self.tr('Скоро тут будет диалог "О программе"'))
 
-			iv = ImageViewer(self, ["/home/vlkv/images/wallpapers/01.jpg", 
-                                    "/home/vlkv/images/wallpapers/02.jpg", 
-                                    "/home/vlkv/images/wallpapers/02_2.jpg", 
-                                    "/home/vlkv/images/wallpapers/sdfsdf.jpg"])
-			iv.setWindowModality(Qt.WindowModal)
-			iv.show()
+#			iv = ImageViewer(self, ["/home/vlkv/images/wallpapers/01.jpg", 
+#                                    "/home/vlkv/images/wallpapers/02.jpg", 
+#                                    "/home/vlkv/images/wallpapers/02_2.jpg", 
+#                                    "/home/vlkv/images/wallpapers/sdfsdf.jpg"])
+#			iv.setWindowModality(Qt.WindowModal)
+#			iv.show()
 			
 		except Exception as ex:
 			show_exc_info(self, ex)

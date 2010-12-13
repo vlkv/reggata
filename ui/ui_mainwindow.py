@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Dec 13 17:28:53 2010
+# Created: Mon Dec 13 20:28:05 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -47,7 +47,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.frame)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 29))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName(_fromUtf8("menu_repo"))
@@ -106,6 +106,8 @@ class Ui_MainWindow(object):
         self.action_item_view_m3u.setObjectName(_fromUtf8("action_item_view_m3u"))
         self.action_help_about = QtGui.QAction(MainWindow)
         self.action_help_about.setObjectName(_fromUtf8("action_help_about"))
+        self.action_item_view_image_viewer = QtGui.QAction(MainWindow)
+        self.action_item_view_image_viewer.setObjectName(_fromUtf8("action_item_view_image_viewer"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -119,6 +121,7 @@ class Ui_MainWindow(object):
         self.menuItem.addAction(self.action_item_edit)
         self.menuItem.addAction(self.action_item_delete)
         self.menuItem.addAction(self.action_item_view)
+        self.menuItem.addAction(self.action_item_view_image_viewer)
         self.menuItem.addAction(self.action_item_view_m3u)
         self.menuTools.addAction(self.action_tools_tag_cloud)
         self.menuHelp.addAction(self.action_help_about)
@@ -158,4 +161,5 @@ class Ui_MainWindow(object):
         self.action_item_delete.setText(QtGui.QApplication.translate("MainWindow", "&Delete", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_view_m3u.setText(QtGui.QApplication.translate("MainWindow", "Create m3u playlist and open it", None, QtGui.QApplication.UnicodeUTF8))
         self.action_help_about.setText(QtGui.QApplication.translate("MainWindow", "About Reggata", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_view_image_viewer.setText(QtGui.QApplication.translate("MainWindow", "View images with built-in viewer", None, QtGui.QApplication.UnicodeUTF8))
 
