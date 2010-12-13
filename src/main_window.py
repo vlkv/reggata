@@ -44,6 +44,7 @@ from ext_app_mgr import ExtAppMgr
 import helpers
 import time
 from image_viewer import ImageViewer
+import ui_aboutdialog
 
 
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
@@ -779,13 +780,18 @@ class MainWindow(QtGui.QMainWindow):
     
     def action_help_about(self):
         try:
+            
+            
+            
+            ad = AboutDialog(self)
+            ad.exec_()
             #TODO Отображать тут диалог "О программе"
             
 #            mw = QtGui.QMainWindow(self)
 #            mw.setWindowModality(Qt.WindowModal)
 #            mw.show()
 
-            raise NotImplementedError(self.tr('Скоро тут будет диалог "О программе"'))
+#            raise NotImplementedError(self.tr('Скоро тут будет диалог "О программе"'))
 
 #            iv = ImageViewer(self, ["/home/vlkv/images/wallpapers/01.jpg", 
 #                                    "/home/vlkv/images/wallpapers/02.jpg", 
@@ -946,7 +952,15 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         
         #Во всех остальных случаях возвращаем None    
         return None
-        
+
+class AboutDialog(QtGui.QDialog):
+    
+    #TODO Надо как-то автоматически выводит информацию о версии Reggata
+    
+    def __init__(self, parent=None):
+        super(AboutDialog, self).__init__(parent)
+        self.ui = ui_aboutdialog.Ui_AboutDialog()
+        self.ui.setupUi(self) 
         
 
 

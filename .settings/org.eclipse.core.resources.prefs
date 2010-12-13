@@ -1,4 +1,4 @@
-#Mon Dec 13 16:50:54 MSK 2010
+#Mon Dec 13 23:01:07 MSK 2010
 eclipse.preferences.version=1
 encoding//src/consts.py=utf-8
 encoding//src/db_model.py=utf-8
@@ -22,6 +22,7 @@ encoding//src/repo_mgr.py=utf-8
 encoding//src/tag_cloud.py=utf-8
 encoding//src/user_config.py=utf-8
 encoding//src/user_dialog.py=utf-8
+encoding//ui/ui_aboutdialog.py=utf-8
 encoding//ui/ui_itemdialog.py=utf-8
 encoding//ui/ui_mainwindow.py=utf-8
 encoding//ui/ui_userdialog.py=utf-8
