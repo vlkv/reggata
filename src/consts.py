@@ -31,4 +31,6 @@ DB_FILE = "database.sqlite3"
 USER_CONFIG_DIR = os.path.expanduser("~") + os.sep + ".config" + os.sep + "reggata"
 USER_CONFIG_FILE = USER_CONFIG_DIR + os.sep + "reggata.conf"
 THUMBNAIL_DEFAULT_SIZE = 100
+
+#TODO Нужно бы иногда чистить tmp директорию, а то накопится много хлама там
 DEFAULT_TMP_DIR = USER_CONFIG_DIR + os.sep + "tmp"
