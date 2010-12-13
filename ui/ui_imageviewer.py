@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'imageviewer.ui'
 #
-# Created: Mon Dec 13 12:20:31 2010
+# Created: Mon Dec 13 17:28:52 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -22,7 +22,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 562, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 562, 29))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
@@ -44,8 +44,17 @@ class Ui_MainWindow(object):
         icon1.addPixmap(QtGui.QPixmap(_fromUtf8("../../../images/icons/tango-icon-theme-0.8.90/22x22/actions/go-next.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.action_next.setIcon(icon1)
         self.action_next.setObjectName(_fromUtf8("action_next"))
+        self.action_zoom_In = QtGui.QAction(MainWindow)
+        self.action_zoom_In.setObjectName(_fromUtf8("action_zoom_In"))
+        self.action_zoom_out = QtGui.QAction(MainWindow)
+        self.action_zoom_out.setObjectName(_fromUtf8("action_zoom_out"))
+        self.action_fit_Window = QtGui.QAction(MainWindow)
+        self.action_fit_Window.setObjectName(_fromUtf8("action_fit_Window"))
         self.toolBar.addAction(self.action_prev)
         self.toolBar.addAction(self.action_next)
+        self.toolBar.addAction(self.action_zoom_In)
+        self.toolBar.addAction(self.action_zoom_out)
+        self.toolBar.addAction(self.action_fit_Window)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -55,4 +64,7 @@ class Ui_MainWindow(object):
         self.toolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "ImageViewer", None, QtGui.QApplication.UnicodeUTF8))
         self.action_prev.setText(QtGui.QApplication.translate("MainWindow", "Previous", None, QtGui.QApplication.UnicodeUTF8))
         self.action_next.setText(QtGui.QApplication.translate("MainWindow", "Next", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_zoom_In.setText(QtGui.QApplication.translate("MainWindow", "Zoom In", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_zoom_out.setText(QtGui.QApplication.translate("MainWindow", "Zoom Out", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_fit_Window.setText(QtGui.QApplication.translate("MainWindow", "Fit Window", None, QtGui.QApplication.UnicodeUTF8))
 

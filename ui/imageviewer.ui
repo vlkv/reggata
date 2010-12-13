@@ -19,7 +19,7 @@
      <x>0</x>
      <y>0</y>
      <width>562</width>
-     <height>26</height>
+     <height>29</height>
     </rect>
    </property>
   </widget>
@@ -36,6 +36,9 @@
    </attribute>
    <addaction name="action_prev" />
    <addaction name="action_next" />
+   <addaction name="action_zoom_In" />
+   <addaction name="action_zoom_out" />
+   <addaction name="action_fit_Window" />
   </widget>
   <action name="action_prev" >
    <property name="enabled" >
@@ -62,6 +65,21 @@
    </property>
    <property name="text" >
     <string>Next</string>
+   </property>
+  </action>
+  <action name="action_zoom_In" >
+   <property name="text" >
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="action_zoom_out" >
+   <property name="text" >
+    <string>Zoom Out</string>
+   </property>
+  </action>
+  <action name="action_fit_Window" >
+   <property name="text" >
+    <string>Fit Window</string>
    </property>
   </action>
  </widget>

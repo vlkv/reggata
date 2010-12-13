@@ -20,6 +20,7 @@ along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 Created on 13.12.2010
 '''
 
+from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
 import ui_imageviewer
 from helpers import show_exc_info
@@ -30,10 +31,12 @@ class Canvas(QtGui.QWidget):
     def __init__(self, parent=None):
         super(Canvas, self).__init__(parent)
         self.pixmap = QtGui.QPixmap()
+        self.scaled = QtGui.QPixmap()
         self._abs_path = None
         self.x = 0
         self.y = 0
         self.setMouseTracking(False)
+        self._scale = 1.0
     
     def paintEvent(self, paint_event):
 
@@ -41,11 +44,26 @@ class Canvas(QtGui.QWidget):
             if not self.pixmap.load(self.abs_path):
                 #self.ui.statusbar.showMessage(self.tr("Cannot load image {0}.").format(self.abs_paths[self.i_current]))
                 return
+            
+        if self.scaled.isNull() and not self.pixmap.isNull():
+            self.scaled = self.pixmap.scaled(int(self.pixmap.width()*self.scale), \
+                                             int(self.pixmap.height()*self.scale), \
+                                             Qt.KeepAspectRatio)
+            
         
         painter = QtGui.QPainter()
         painter.begin(self)
-        painter.drawPixmap(self.x, self.y, self.pixmap)
+        painter.drawPixmap(self.x, self.y, self.scaled)
         painter.end()
+
+    @property
+    def scale(self):
+        return self._scale
+    
+    @scale.setter
+    def scale(self, value):
+        self._scale = value
+        self.scaled = QtGui.QPixmap()
 
     @property
     def abs_path(self):
@@ -55,14 +73,15 @@ class Canvas(QtGui.QWidget):
     def abs_path(self, path):
         self._abs_path = path
         self.pixmap = QtGui.QPixmap()
+        self.scaled = QtGui.QPixmap()
     
     def mouseMoveEvent(self, ev):
         self.x -= ev.pos().x() - self.press_x
         self.y -= ev.pos().y() - self.press_y        
-        if self.x < -self.pixmap.width() + self.width():
-            self.x = -self.pixmap.width() + self.width()
-        if self.y < -self.pixmap.height() + self.height():
-            self.y = -self.pixmap.height() + self.height()
+        if self.x < -self.scaled.width() + self.width():
+            self.x = -self.scaled.width() + self.width()
+        if self.y < -self.scaled.height() + self.height():
+            self.y = -self.scaled.height() + self.height()
         if self.x > 0:
             self.x = 0
         if self.y > 0:
@@ -77,7 +96,8 @@ class Canvas(QtGui.QWidget):
         
     def mouseReleaseEvent(self, ev):
         self.update()
-        print("canvas={}x{} pixmap={}x{}".format(self.width(), self.height(), self.pixmap.width(), self.pixmap.height()))
+        print("canvas={}x{} scaled={}x{}".format(self.width(), self.height(), self.scaled.width(), self.scaled.height()))
+        print("pixmap={}x{}".format(self.pixmap.width(), self.pixmap.height()))
     
 
 class ImageViewer(QtGui.QMainWindow):
@@ -101,39 +121,33 @@ class ImageViewer(QtGui.QMainWindow):
         
         self.connect(self.ui.action_prev, QtCore.SIGNAL("triggered()"), self.action_prev)
         self.connect(self.ui.action_next, QtCore.SIGNAL("triggered()"), self.action_next)        
+        self.connect(self.ui.action_zoom_In, QtCore.SIGNAL("triggered()"), self.action_zoom_in)
+        self.connect(self.ui.action_zoom_out, QtCore.SIGNAL("triggered()"), self.action_zoom_out)
+        self.connect(self.ui.action_fit_Window, QtCore.SIGNAL("triggered()"), self.action_fit_window)
             
-#    def paintEvent(self, paint_event):
-##        try:
-#        if self.i_current is None:
-#            self.ui.statusbar.showMessage(self.tr("There is no images."))
-#            return
-#        
-#        pm = QtGui.QPixmap()
-#        if not pm.load(self.abs_paths[self.i_current]):
-#            self.ui.statusbar.showMessage(self.tr("Cannot load image {0}.").format(self.abs_paths[self.i_current]))
-#            return
-#        
-#        print(1)
-#        painter = QtGui.QPainter()
-#        print(2)
-#        painter.begin(self)
-#        print(3)
-#        painter.drawPixmap(0, 0, pm)
-#        print(4)
-#        painter.end()
-#        print(5)
-#            
-#            
-##        except Exception as ex:
-##            self.ui.statusbar.showMessage(self.tr("Exception {0} is raised. Message: {1}.").format(str(ex.__class__.__name__), str(ex)))
-##        else:
-##            self.ui.statusbar.showMessage(self.tr("Image {0}").format(str(self.abs_paths[self.i_current])))
-##            
-            
-            
+    def action_zoom_in(self):
+        try:
+            self.ui.canvas.scale = self.ui.canvas.scale*1.5 
+            self.update()
+        except Exception as ex:
+            show_exc_info(self, ex)
     
-
+    def action_zoom_out(self):
+        try:
+            self.ui.canvas.scale = self.ui.canvas.scale/1.5 
+            self.update()
+        except Exception as ex:
+            show_exc_info(self, ex)
     
+    def action_fit_window(self):
+        try:
+            scale_x = float(self.ui.canvas.width())/self.ui.canvas.pixmap.width() 
+            scale_y = float(self.ui.canvas.height())/self.ui.canvas.pixmap.height()
+            scale = scale_x if scale_x < scale_y else scale_y
+            self.ui.canvas.scale = scale 
+            self.update()
+        except Exception as ex:
+            show_exc_info(self, ex)
     
     def action_next(self):
         try:
