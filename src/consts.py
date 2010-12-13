@@ -31,3 +31,4 @@ DB_FILE = "database.sqlite3"
 USER_CONFIG_DIR = os.path.expanduser("~") + os.sep + ".config" + os.sep + "reggata"
 USER_CONFIG_FILE = USER_CONFIG_DIR + os.sep + "reggata.conf"
 THUMBNAIL_DEFAULT_SIZE = 100
+DEFAULT_TMP_DIR = USER_CONFIG_DIR + os.sep + "tmp"

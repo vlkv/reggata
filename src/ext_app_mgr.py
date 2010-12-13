@@ -43,8 +43,8 @@ class ExtAppMgr(object):
     ext_app_mgr.images.command = gqview {}
     ext_app_mgr.pdf.extensions = ['.pdf']
     ext_app_mgr.pdf.command = xpdf {}
-    ext_app_mgr.audio.extensions = ['.mp3', '.ogg', '.flac', '.wav']
-    ext_app_mgr.audio.command = vlc {}
+    ext_app_mgr.audio.extensions = ['.mp3', '.ogg', '.flac', '.wav', '.m3u']
+    ext_app_mgr.audio.command = vlc {}    
     '''
 
     def __init__(self):
