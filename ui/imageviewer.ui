@@ -1,0 +1,70 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>562</width>
+    <height>407</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" />
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>562</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QToolBar" name="toolBar" >
+   <property name="windowTitle" >
+    <string>ImageViewer</string>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_prev" />
+   <addaction name="action_next" />
+  </widget>
+  <action name="action_prev" >
+   <property name="enabled" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset>
+     <normaloff>../../../images/icons/tango-icon-theme-0.8.90/22x22/actions/go-previous.png</normaloff>../../../images/icons/tango-icon-theme-0.8.90/22x22/actions/go-previous.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Previous</string>
+   </property>
+   <property name="visible" >
+    <bool>true</bool>
+   </property>
+   <property name="iconVisibleInMenu" >
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="action_next" >
+   <property name="icon" >
+    <iconset>
+     <normaloff>../../../images/icons/tango-icon-theme-0.8.90/22x22/actions/go-next.png</normaloff>../../../images/icons/tango-icon-theme-0.8.90/22x22/actions/go-next.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Next</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

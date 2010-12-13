@@ -43,6 +43,7 @@ from items_dialog import ItemsDialog
 from ext_app_mgr import ExtAppMgr
 import helpers
 import time
+from image_viewer import ImageViewer
 
 
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
@@ -57,7 +58,7 @@ import time
 #TODO Сделать контекстное меню в главной таблице, отображающей элементы
 #TODO Реализовать удаление элементов
 #TODO Сделать всплывающие подсказки на элементах GUI
-
+#TODO Надо решить проблему, если запрос вернет ОЧЕНЬ много элементов, то как их по частям отображать  
 
 class MainWindow(QtGui.QMainWindow):
 	'''
@@ -98,6 +99,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
 		self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u) 
 		
+		self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
 		
 		self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
 		self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
@@ -726,6 +728,25 @@ class MainWindow(QtGui.QMainWindow):
 						uow.update_existing_item(item_dialog.item, self.active_user.login)						
 				finally:
 					uow.close()					
+			
+		except Exception as ex:
+			show_exc_info(self, ex)
+		else:
+			self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+	
+	def action_help_about(self):
+		try:
+			#TODO Отображать тут диалог "О программе"
+			
+#			mw = QtGui.QMainWindow(self)
+#			mw.setWindowModality(Qt.WindowModal)
+#			mw.show()
+
+#			raise NotImplementedError(self.tr('Скоро тут будет диалог "О программе"'))
+
+			iv = ImageViewer(self, ["/home/vlkv/images/wallpapers/01.jpg", "/home/vlkv/images/wallpapers/05.jpg", "/home/vlkv/images/wallpapers/06.jpg", "/home/vlkv/images/wallpapers/01sdfsdf.jpg"])
+			iv.setWindowModality(Qt.WindowModal)
+			iv.show()
 			
 		except Exception as ex:
 			show_exc_info(self, ex)
