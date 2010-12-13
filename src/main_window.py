@@ -79,7 +79,7 @@ class MainWindow(QtGui.QMainWindow):
 		
 		#Контекстное меню
 		self.menu = QtGui.QMenu()
-		self.menu.addAction(self.ui.action_item_view)		
+		self.menu.addAction(self.ui.action_item_view)
 		self.menu.addAction(self.ui.action_item_view_m3u)
 		self.menu.addAction(self.ui.action_item_view_image_viewer)
 		self.menu.addAction(self.ui.action_item_edit)		
@@ -838,6 +838,8 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 	IMAGE_THUMB = 2
 	LIST_OF_TAGS = 3
 	
+	#TODO Возможно в будущем тут нужно будет делать буферизованное чтение данных из БД
+
 	def __init__(self, repo):
 		super(RepoItemTableModel, self).__init__()
 		self.repo = repo
