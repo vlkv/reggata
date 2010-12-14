@@ -27,6 +27,8 @@ import os
 import codecs
 from helpers import tr
 
+
+#TODO Кстати, можно было бы использовать класс QSettings
 class UserConfig(object):
     '''
     Класс для упрощения доступа к содержимому конфиг-файла в домашней директории пользователя.

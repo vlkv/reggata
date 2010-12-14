@@ -74,6 +74,24 @@ class Canvas(QtGui.QWidget):
         painter.drawPixmap(self.x, self.y, self.scaled)
         painter.end()
 
+    def zoom_in(self, koeff=1.5):
+        self.scale = self.scale * koeff
+        self.update()
+    
+    def zoom_out(self, koeff=1.5):
+        self.scale = self.scale / koeff
+        self.update()
+
+    def wheelEvent(self, event):
+        if event.delta() > 0:
+            self.zoom_in()
+            self.x -= (event.pos().x() - self.x)/2
+            self.y -= (event.pos().y() - self.y)/2            
+        else:
+            self.zoom_out()
+            self.x += (event.pos().x() - self.x)/2
+            self.y += (event.pos().y() - self.y)/2
+
     @property
     def fit_window(self):
         return self._fit_window
@@ -186,6 +204,19 @@ class ImageViewer(QtGui.QMainWindow):
         self.save_state_timer.setSingleShot(True)
         self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_window_state)
         
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Plus:
+            self.ui.canvas.zoom_in()
+        elif event.key() == Qt.Key_Minus:
+            self.ui.canvas.zoom_out()
+        elif event.key() == Qt.Key_Space or event.key() == Qt.Key_Right:
+            self.action_next()
+        elif event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Left:
+            self.action_prev()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
+        
+        
     def save_window_state(self):        
         UserConfig().storeAll({"image_viewer.width":self.width(), "image_viewer.height":self.height()})
                 
@@ -195,15 +226,13 @@ class ImageViewer(QtGui.QMainWindow):
     
     def action_zoom_in(self):
         try:            
-            self.ui.canvas.scale = self.ui.canvas.scale*1.5 
-            self.update()
+            self.ui.canvas.zoom_in()
         except Exception as ex:
             show_exc_info(self, ex)
     
     def action_zoom_out(self):
         try:
-            self.ui.canvas.scale = self.ui.canvas.scale/1.5 
-            self.update()
+            self.ui.canvas.zoom_out()
         except Exception as ex:
             show_exc_info(self, ex)
     
