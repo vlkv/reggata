@@ -339,9 +339,6 @@ class Thumbnail(Base):
     #Размер в пикселях миниатюры (это величина наибольшей размерности)
     size = sqa.Column(sqa.Integer, primary_key=True)
     
-    #Размерность (ширина или высота), размер которой записан в size
-    dimension = sqa.Column(sqa.Enum("WIDTH", "HEIGHT"), nullable=False)
-    
     #Двоичные данные изображения миниатюры
     data = sqa.Column(sqa.LargeBinary)
     
@@ -365,8 +362,7 @@ class Thumbnail(Base):
     def _sql_from():
         return '''
         thumbnails.data_ref_id AS thumbnails_data_ref_id, 
-        thumbnails.size AS thumbnails_size, 
-        thumbnails.dimension AS thumbnails_dimension, 
+        thumbnails.size AS thumbnails_size,
         thumbnails.data AS thumbnails_data, 
         thumbnails.date_created AS thumbnails_date_created '''
     

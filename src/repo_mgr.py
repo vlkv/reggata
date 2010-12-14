@@ -754,6 +754,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
         self.interrupt = False
 
     def run(self):
+        #TODO Какой-то тут код... надо подумать, что улучшить тут
         uow = self.repo.create_unit_of_work()
         try:
             thumbnail_size = int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE))
@@ -771,6 +772,10 @@ class ThumbnailBuilderThread(QtCore.QThread):
                     continue
                 
                 pixmap = QtGui.QImage(os.path.join(self.repo.base_path, item.data_ref.url))
+                if pixmap.isNull():
+                    continue
+                
+                #Масштабируем изображение
                 if (pixmap.height() > pixmap.width()):
                     pixmap = pixmap.scaledToHeight(thumbnail_size)
                 else:
@@ -785,23 +790,27 @@ class ThumbnailBuilderThread(QtCore.QThread):
                     th = Thumbnail()
                     th.data = buffer.buffer().data()
                     th.data_ref_id = item.data_ref.id
-                    th.size = thumbnail_size
-                    th.dimension = "WIDTH" if pixmap.width() > pixmap.height() else "HEIGHT"
+                    th.size = thumbnail_size                    
                     item.data_ref.thumbnails.append(th)
-                    print("Generated thumbnail of " + item.data_ref.url)                    
+                except:
+                    print("Cannot generate thumbnail for " + item.data_ref.url)
+                    continue
+                else:
+                    self.emit(QtCore.SIGNAL("one_more_thumbnail_ready"))
+                    print("Generated thumbnail of " + item.data_ref.url)
                 finally:
                     self.lock.unlock()
-                                    
-                #TODO сохранить миниатюру в БД
-                uow.save_thumbnail(item.data_ref.id, th)
                 
-                self.emit(QtCore.SIGNAL("one_more_thumbnail_ready"))
-              
-        except Exception as ex:
-            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
+                try:
+                    #Сохраняем миниатюру в БД
+                    uow.save_thumbnail(item.data_ref.id, th)
+                except:
+                    #Если не получилось сохранить, то все равно данный поток не прерываем пока 
+                    print("Cannot save in DB thumbnail for image " + item.data_ref.url)
+                    
+        except:
             print(traceback.format_exc())
         finally:
-            self.emit(QtCore.SIGNAL("finished"))
             uow.close()
             print("ThumbnailBuilderThread done.")
 
