@@ -730,6 +730,65 @@ class UnitOfWork(object):
 
         self._session.commit()
        
+
+class ThumbnailBuilderThread(QtCore.QThread):
+    
+    def __init__(self, parent, repo, items, lock):
+        super(ThumbnailBuilderThread, self).__init__(parent)
+        self.repo = repo
+        self.items = items
+        self.lock = lock
+        self.interrupt = False
+
+    def run(self):
+        try:
+            thumbnail_size = int(UserConfig().get("thumbnail.size", consts.THUMBNAIL_DEFAULT_SIZE))
+                    
+            for item in self.items:
+                
+                if self.interrupt:
+                    print("ThumbnailBuilderThread interrupted!")
+                    break
+                
+                if len(item.data_ref.thumbnails) > 0:
+                    continue
+            
+                if not item.data_ref.is_image():
+                    continue
+                
+                pixmap = QtGui.QImage(os.path.join(self.repo.base_path, item.data_ref.url))
+                if (pixmap.height() > pixmap.width()):
+                    pixmap = pixmap.scaledToHeight(thumbnail_size)
+                else:
+                    pixmap = pixmap.scaledToWidth(thumbnail_size)
+                
+                buffer = QtCore.QBuffer()
+                buffer.open(QtCore.QIODevice.WriteOnly);
+                pixmap.save(buffer, "JPG")
+                
+                try:
+                    self.lock.lockForWrite()
+                    th = Thumbnail()
+                    th.data = buffer.buffer().data()
+                    th.data_ref_id = item.data_ref.id
+                    th.size = thumbnail_size
+                    item.data_ref.thumbnails.append(th)
+                    print("Generated thumbnail of " + item.data_ref.url)                    
+                finally:
+                    self.lock.unlock()
+                                    
+                #TODO сохранить миниатюру в БД
+                
+                self.emit(QtCore.SIGNAL("one_more_thumbnail_ready"))
+              
+        except Exception as ex:
+            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
+            print(traceback.format_exc())
+        finally:
+            self.emit(QtCore.SIGNAL("finished"))
+            print("ThumbnailBuilderThread done.")
+
+       
 class DeleteGroupOfItemsThread(QtCore.QThread):
     def __init__(self, parent, repo, item_ids, user_login):
         super(DeleteGroupOfItemsThread, self).__init__(parent)

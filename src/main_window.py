@@ -29,7 +29,7 @@ from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread,\
-	CreateGroupIfItemsThread, DeleteGroupOfItemsThread
+	CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
 	WaitDialog, raise_exc
 from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
@@ -44,6 +44,7 @@ from ext_app_mgr import ExtAppMgr
 import helpers
 import time
 from image_viewer import ImageViewer
+import traceback
 
 
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
@@ -291,6 +292,8 @@ class MainWindow(QtGui.QMainWindow):
 			#Строим новую модель для таблицы
 			self.model = RepoItemTableModel(repo)
 			self.ui.tableView_items.setModel(self.model)
+			self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
+			self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
 		else:
 			self.ui.label_repo.setText("")
 			self.model = None
@@ -798,25 +801,43 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 		self.items = []
 		self.thumbs = dict()
 		
+		#Это поток, который генерирует миниатюры в фоне
+		self.thread = None
+		
+		#Это замок, который нужен для синхронизации доступа к списку self.items
+		self.lock = QtCore.QReadWriteLock()
+
+	
 	def query(self, query_text):
 		'''Выполняет извлечение элементов из хранилища.'''
-		
-		if query_text is None or query_text.strip()=="":
-			#Если запрос пустой, тогда извлекаем элементы не имеющие тегов
-			uow = self.repo.create_unit_of_work()
-			try:
+				
+		uow = self.repo.create_unit_of_work()
+		try:
+			#Нужно остановить поток (запущенный от предыдущего запроса), если будет выполнен новый запрос (этот)
+			if self.thread is not None and self.thread.isRunning():
+				#Нужно остановить поток, если будет выполнен другой запрос
+				self.thread.interrupt = True
+				self.thread.wait(5*1000) #TODO Тут может надо ждать бесконечно?
+						
+			if query_text is None or query_text.strip()=="":
+				#Если запрос пустой, тогда извлекаем элементы не имеющие тегов
 				self.items = uow.get_untagged_items()
-				self.reset()
-			finally:
-				uow.close()
-		else:
-			uow = self.repo.create_unit_of_work()
-			try:
+			else:
 				query_tree = query_parser.parse(query_text)
 				self.items = uow.query_items_by_tree(query_tree)
-				self.reset()
-			finally:
-				uow.close()
+			
+			#Нужно запустить поток, который будет генерировать миниатюры
+			self.thread = ThumbnailBuilderThread(self, self.repo, self.items, self.lock)
+			self.connect(self.thread, QtCore.SIGNAL("one_more_thumbnail_ready"), self.reset)
+			self.thread.start()
+				
+			self.reset()
+		finally:
+			uow.close()
+	
+		
+				
+		
 	
 	def rowCount(self, index=QtCore.QModelIndex()):
 		return len(self.items)
@@ -868,18 +889,29 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 					return self.thumbs.get(item.data_ref.id)
 				
 				elif item.data_ref.is_image():
-					#Загружаем изображение в ОП и масштабируем его до размера миниатюры
-					image = QtGui.QImage(self.repo.base_path + os.sep + item.data_ref.url)
-					pixmap = QtGui.QPixmap.fromImage(image)
-					if (pixmap.height() > pixmap.width()):
-						pixmap = pixmap.scaledToHeight(\
-                        int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-					else:
-						pixmap = pixmap.scaledToWidth(\
-                        int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-					
-					#Запоминаем в ОП
-					self.thumbs[item.data_ref.id] = pixmap
+#					#Загружаем изображение в ОП и масштабируем его до размера миниатюры
+#					image = QtGui.QImage(self.repo.base_path + os.sep + item.data_ref.url)
+#					pixmap = QtGui.QPixmap.fromImage(image)
+#					if (pixmap.height() > pixmap.width()):
+#						pixmap = pixmap.scaledToHeight(\
+#                        int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
+#					else:
+#						pixmap = pixmap.scaledToWidth(\
+#                        int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
+#					
+#					#Запоминаем в ОП
+#					self.thumbs[item.data_ref.id] = pixmap
+					pixmap = QtGui.QPixmap()
+					try:					
+						self.lock.lockForRead()
+						if len(item.data_ref.thumbnails) > 0:
+							pixmap.loadFromData(item.data_ref.thumbnails[0].data)
+							#print(str(item.data_ref.thumbnails[0].data) + os.linesep)
+							
+					except Exception as ex:
+						traceback.format_exc()
+					finally:
+						self.lock.unlock()
 					
 					#TODO Надо бы еще сохранять миниатюру в БД..
 					#Потому, что если результат запроса будет содержать много элементов (графических файлов)
