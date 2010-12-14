@@ -856,7 +856,14 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         
         #Это замок, который нужен для синхронизации доступа к списку self.items
         self.lock = QtCore.QReadWriteLock()
+        
+        self.timer = QtCore.QTimer(self)
+        self.timer.setSingleShot(True)
+        self.connect(self.timer, QtCore.SIGNAL("timeout()"), self.reset)
 
+    def deferred_reset(self):
+        if not self.timer.isActive():
+            self.timer.start(1000)
     
     def query(self, query_text):
         '''Выполняет извлечение элементов из хранилища.'''
@@ -878,7 +885,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             
             #Нужно запустить поток, который будет генерировать миниатюры
             self.thread = ThumbnailBuilderThread(self, self.repo, self.items, self.lock)
-            self.connect(self.thread, QtCore.SIGNAL("one_more_thumbnail_ready"), self.reset)
+            self.connect(self.thread, QtCore.SIGNAL("one_more_thumbnail_ready"), self.deferred_reset)
             self.thread.start()
                 
             self.reset()

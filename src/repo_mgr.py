@@ -807,6 +807,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
                 except:
                     #Если не получилось сохранить, то все равно данный поток не прерываем пока 
                     print("Cannot save in DB thumbnail for image " + item.data_ref.url)
+                    print(traceback.format_exc())
                     
         except:
             print(traceback.format_exc())
