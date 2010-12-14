@@ -81,6 +81,9 @@ class Canvas(QtGui.QWidget):
     @fit_window.setter
     def fit_window(self, value):
         self._fit_window = value
+        if value:
+            self.x = 0
+            self.y = 0
         self._scale_original()
             
 
