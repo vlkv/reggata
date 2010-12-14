@@ -190,6 +190,7 @@ class WaitDialog(QtGui.QDialog):
     def __init__(self, parent=None, message=tr("Please, wait..."), indeterminate=False, minimum=0, maximum=100):
         super(WaitDialog, self).__init__(parent)
         self.setModal(True)
+        self.setWindowTitle("Reggata")
         
         vbox = QtGui.QVBoxLayout()
         
