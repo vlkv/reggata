@@ -134,6 +134,19 @@ class UnitOfWork(object):
         
     #TODO Надо подумать про rollback()...
         
+    def save_thumbnail(self, data_ref_id, thumbnail):
+        data_ref = self._session.query(DataRef).get(data_ref_id)
+        self._session.add(thumbnail)
+        self._session.flush()
+        data_ref.thumbnails.append(thumbnail)
+        self._session.commit()
+        
+        self._session.refresh(thumbnail)
+        self._session.expunge(thumbnail)
+        self._session.expunge(data_ref)
+        
+        
+        
     def get_related_tags(self, tag_names=[], user_logins=[]):
         ''' Возвращает список related тегов для тегов из списка tag_names.
         Если tag_names пустой список, возращает все теги.
@@ -741,8 +754,9 @@ class ThumbnailBuilderThread(QtCore.QThread):
         self.interrupt = False
 
     def run(self):
+        uow = self.repo.create_unit_of_work()
         try:
-            thumbnail_size = int(UserConfig().get("thumbnail.size", consts.THUMBNAIL_DEFAULT_SIZE))
+            thumbnail_size = int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE))
                     
             for item in self.items:
                 
@@ -772,12 +786,14 @@ class ThumbnailBuilderThread(QtCore.QThread):
                     th.data = buffer.buffer().data()
                     th.data_ref_id = item.data_ref.id
                     th.size = thumbnail_size
+                    th.dimension = "WIDTH" if pixmap.width() > pixmap.height() else "HEIGHT"
                     item.data_ref.thumbnails.append(th)
                     print("Generated thumbnail of " + item.data_ref.url)                    
                 finally:
                     self.lock.unlock()
                                     
                 #TODO сохранить миниатюру в БД
+                uow.save_thumbnail(item.data_ref.id, th)
                 
                 self.emit(QtCore.SIGNAL("one_more_thumbnail_ready"))
               
@@ -786,6 +802,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
             print(traceback.format_exc())
         finally:
             self.emit(QtCore.SIGNAL("finished"))
+            uow.close()
             print("ThumbnailBuilderThread done.")
 
        

@@ -358,6 +358,7 @@ class Thumbnail(Base):
         self.data_ref_id = None
         self.size = None        
         self.data = None
+        self.date_created = datetime.datetime.today()
         
     
     @staticmethod
