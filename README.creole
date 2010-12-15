@@ -40,7 +40,7 @@ Notes for Windows users:
   # You don't have to install SQLite3 as a separate package because it
 is included in standard Python distribution for Windows.
   # PyQt4 binary installer for Windows is available at Riverbank Computing Ltd. 
-official site (http://www.riverbankcomputing.co.uk/software/pyqt/download).
+official site ([[http://www.riverbankcomputing.co.uk/software/pyqt/download]]).
 This installer contains Qt4, SIP and PyQt4.
 
 
