@@ -30,7 +30,7 @@ import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker, joinedload, contains_eager,\
     joinedload_all
 from db_schema import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
-    Thumbnail
+    Thumbnail, HistoryRec
 from exceptions import LoginError, AccessError, FileAlreadyExistsError
 import shutil
 import PyQt4.QtGui as QtGui
@@ -717,9 +717,6 @@ class UnitOfWork(object):
             item.data_ref_id = item.data_ref.id
             self._session.flush()
             
-            
-            
-                
         #Если все сохранилось в БД, то копируем файл, связанный с DataRef
         if item.data_ref and item.data_ref.type == DataRef.FILE:
             dr = item.data_ref
@@ -740,6 +737,20 @@ class UnitOfWork(object):
             else:
                 #Это один и тот же файл, копировать не нужно ничего 
                 pass
+            
+        
+        #Если все уже готово, тогда сохраняем запись в историю
+        hr = HistoryRec()
+        hr.operation = HistoryRec.CREATE
+        hr.item_id = item.id
+        hr.item_hash = item.hash()
+        if item.data_ref is not None:
+            hr.data_ref_hash = item.data_ref.hash
+            hr.data_ref_url = item.data_ref.url
+        hr.user_login = user_login
+        self._session.add(hr)
+        #Если вдруг при сохранении записи hr вылетит исключение, то транзакция откатится, но 
+        #файлы уже будут скопированы внутрь хранилищз!
 
         self._session.commit()
        
@@ -911,6 +922,7 @@ class BackgrThread(QtCore.QThread):
             self.callable(*self.args)
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
+            print(traceback.format_exc())
         finally:
             self.emit(QtCore.SIGNAL("finished"))
             

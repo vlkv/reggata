@@ -73,10 +73,10 @@ class HistoryRec(Base):
     '''
     __tablename__ = "history_recs"
     
-    __table_args__ = (
-        UniqueConstraint(["item_hash", "data_ref_hash", "data_ref_url"]),
-        {}
-    )
+#    __table_args__ = (
+#        UniqueConstraint("item_hash", "data_ref_hash", "data_ref_url"),
+#        {}
+#    )
     
     CREATE = "CREATE"
     UPDATE = "UPDATE"
@@ -136,7 +136,7 @@ class Item(Base):
         tag_names = []
         for item_tag in self.item_tags:
             tag_names.append(item_tag.tag.name)
-        tag_names = tag_names.sort()
+        tag_names.sort()
         
         for tag_name in tag_names:
             text += tag_name        
@@ -145,7 +145,7 @@ class Item(Base):
         field_vals = []
         for item_field in self.item_fields:
             field_vals.append(item_field.field.name + str(item_field.value))
-        field_vals = field_vals.sort()
+        field_vals.sort()
         
         for field_val in field_vals:
             text += field_val
