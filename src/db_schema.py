@@ -30,6 +30,7 @@ from helpers import tr, is_none_or_empty
 import datetime
 import os
 import platform
+from sqlalchemy.schema import UniqueConstraint
 
 
 Base = declarative_base()
@@ -64,6 +65,37 @@ class User(Base):
 #    ForeignKeyConstraint(['tag_name', 'tag_user_login'], ['tags.name', 'tags.user_login'])
 #)
 
+
+class HistoryRec(Base):
+    '''
+    Запись об одном элементе в истории изменения хранилища.
+    '''
+    __tablename__ = "history_recs"
+    
+    __table_args__ = (
+        UniqueConstraint(["item_hash", "data_ref_hash", "data_ref_url"]),
+        {}
+    )
+    
+    CREATE = "CREATE"
+    UPDATE = "UPDATE"
+    DELETE = "DELETE"
+    MERGE = "MERGE"
+    
+    id = sqa.Column(sqa.Integer, primary_key=True)
+    parent1_id = sqa.Column(sqa.Integer, ForeignKey("history_recs.id"))
+    parent2_id = sqa.Column(sqa.Integer, ForeignKey("history_recs.id"))
+    item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"))
+    item_hash = sqa.Column(sqa.String)
+    data_ref_hash = sqa.Column(sqa.String)
+    data_ref_url = sqa.Column(sqa.String)
+    operation = sqa.Column(sqa.Enum(CREATE, UPDATE, DELETE, MERGE))
+    user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
+    
+    #TODO Сюда можно сохранять и дату/время, однако, на эти данные нельзя полагаться
+    #на разных машинах может быть разное время (плюс минус погрешность или вообще неверное)
+    
+    
 
 
 class Item(Base):
