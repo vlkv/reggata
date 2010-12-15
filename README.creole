@@ -26,13 +26,13 @@ Visit reggata home page http://vlkv.github.com/reggata/
 Reggata is tested under GNU/Linux and Windows XP.
 
 To run reggata you need to manually install:
-  # Python 3.1.1 or newer.
-  # Qt-4.4.3 (or newer).
-  # SIP (4.11.2-1).
-  # PyQt4 (4.8.1-1).
-  # SQLAlchemy-0.6.5 (http://www.sqlalchemy.org/).
-  # SQLite3 (v3.5.9 or newer) as a database backend for SQLAlchemy.
-  # Ply-3.3 (you can get it from http://www.dabeaz.com/ply/).
+  # Python 3.1.1 or newer ([[http://www.python.org/]]).
+  # Qt-4.4.3 or newer ([[http://qt.nokia.com/]]).
+  # SIP 4.11.2 ([[http://www.riverbankcomputing.co.uk/software/sip/download]]).
+  # PyQt4 4.8.1 ([[http://www.riverbankcomputing.co.uk/software/pyqt/download]]).
+  # SQLAlchemy-0.6.5 ([[http://www.sqlalchemy.org/]]).
+  # SQLite3 (v3.5.9 or newer) as a database backend for SQLAlchemy ([[http://www.sqlite.org/]]).
+  # Ply-3.3 (you can get it from [[http://www.dabeaz.com/ply/]]).
 
 Download Reggata source tree, unpack it and execute script "reggata" (or "reggata.bat" on Windows).
 
