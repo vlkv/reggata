@@ -31,6 +31,7 @@ import datetime
 import os
 import platform
 from sqlalchemy.schema import UniqueConstraint
+import hashlib
 
 
 Base = declarative_base()
@@ -122,6 +123,34 @@ class Item(Base):
     
     #field_vals - список связанных полей
     item_fields = relationship("Item_Field", cascade="all, delete-orphan")
+
+    def hash(self):
+        '''
+        Метод вычисляет и возвращает хеш от данного элемента.
+        '''
+        
+        #Собственные поля объекта Item
+        text = self.title + self.notes + self.user_login + str(self.date_created)
+        
+        #Связанные теги
+        tag_names = []
+        for item_tag in self.item_tags:
+            tag_names.append(item_tag.tag.name)
+        tag_names = tag_names.sort()
+        
+        for tag_name in tag_names:
+            text += tag_name        
+        
+        #Связанные поля:значения
+        field_vals = []
+        for item_field in self.item_fields:
+            field_vals.append(item_field.field.name + str(item_field.value))
+        field_vals = field_vals.sort()
+        
+        for field_val in field_vals:
+            text += field_val
+        
+        return hashlib.sha1(text.encode("utf-8")).hexdigest()
 
     def __init__(self, user_login=None, title=None, notes=None, date_created=None):
         self.user_login = user_login
