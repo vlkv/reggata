@@ -105,6 +105,8 @@ class HistoryRec(Base):
         self.data_ref_url = data_ref_url
         self.operation = operation
         self.user_login = user_login
+        self.parent1_id = parent1_id 
+        self.parent2_id = parent2_id
         
 
 
