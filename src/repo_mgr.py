@@ -376,6 +376,43 @@ class UnitOfWork(object):
         self._session.expunge(user)
         return user
 
+    @staticmethod
+    def _find_item_latest_history_rec(session, item_0):
+        '''
+        Возвращает последнюю запись из истории, относящуюся к элементу item_0.
+        Либо возвращает None, если не удалось найти такую запись.
+        '''
+        data_ref_hash = None
+        data_ref_url = None
+        if item_0.data_ref is not None:
+            data_ref_hash = item_0.data_ref.hash
+            data_ref_url = item_0.data_ref.url
+        parent_hr = session.query(HistoryRec).filter(HistoryRec.item_id==item_0.id)\
+                .filter(HistoryRec.item_hash==item_0.hash())\
+                .filter(HistoryRec.data_ref_hash==data_ref_hash)\
+                .filter(HistoryRec.data_ref_url==data_ref_url)\
+                .order_by(HistoryRec.id.desc()).first()
+        return parent_hr
+    
+    @staticmethod
+    def _save_history_rec(session, item_0, user_login, operation, parent1_id=None, parent2_id=None):
+        
+        if operation is None:
+            raise ValueError(tr("Argument operation cannot be None."))
+        
+        if operation != HistoryRec.CREATE and parent1_id is None:
+            raise ValueError(tr("Argument parent1_id cannot be None in CREATE operation."))
+        
+        #Сохраняем историю изменения данного элемента
+        hr = HistoryRec(item_id = item_0.id, item_hash=item_0.hash(), \
+                        operation=operation, \
+                        user_login=user_login, \
+                        parent1_id = parent1_id, parent2_id = parent2_id)
+        if item_0.data_ref is not None:
+            hr.data_ref_hash = item_0.data_ref.hash
+            hr.data_ref_url = item_0.data_ref.url
+        session.add(hr)
+        
         
     def update_existing_item(self, item, user_login):
         '''Изменяет состояние существующего элемента хранилища. Поскольку в принципе, пользователь
@@ -402,16 +439,7 @@ class UnitOfWork(object):
         item_0 = self._session.query(Item).get(item.id)
         
         #Нужно взять из истории запись, соответствующую состоянию объекта item_0
-        data_ref_hash = None
-        data_ref_url = None
-        if item_0.data_ref is not None:
-            data_ref_hash = item_0.data_ref.hash
-            data_ref_url = item_0.data_ref.url
-        parent_hr = self._session.query(HistoryRec).filter(HistoryRec.item_id==item_0.id)\
-                .filter(HistoryRec.item_hash==item_0.hash())\
-                .filter(HistoryRec.data_ref_hash==data_ref_hash)\
-                .filter(HistoryRec.data_ref_url==data_ref_url)\
-                .order_by(HistoryRec.id.desc()).first()
+        parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, item_0)
         if parent_hr is None:
             raise Exception(tr("HistoryRec for Item object id={0} not found.").format(item_0.id))
             #TODO Пользователю нужно сказать, чтобы он вызывал функцию проверки целостности и исправления ошибок
@@ -543,13 +571,8 @@ class UnitOfWork(object):
         self._session.flush()
         
         #Сохраняем историю изменения данного элемента
-        hr = HistoryRec(item_id = item_0.id, item_hash=item_0.hash(), \
-                        operation=HistoryRec.UPDATE, \
-                        user_login=user_login, parent1_id = parent_hr.id)
-        if item_0.data_ref is not None:
-            hr.data_ref_hash = item_0.data_ref.hash
-            hr.data_ref_url = item_0.data_ref.url
-        self._session.add(hr)
+        UnitOfWork._save_history_rec(self._session, item_0, operation=HistoryRec.UPDATE, \
+                                     parent1_id = parent_hr.id, user_login=user_login)
         self._session.flush()
                 
         #Копируем или перемещаем файл (если необходимо, конечно)
@@ -606,6 +629,10 @@ class UnitOfWork(object):
     
     def delete_item(self, item_id, user_login, delete_physical_file=True):
         
+        #TODO Нужно учесть, что при удалении элемента Item, в таблице HistoryRec
+        #остаются висячие ссылки! Что делать? Может не удалять Item, а только помечать его как удаленный?
+        #чтобы значение Item.id оставалось занятым. 
+        
         #TODO Если user_login является админом, то ему можно удалять любые файлы
         
         item = self._session.query(Item).get(item_id)
@@ -622,6 +649,11 @@ class UnitOfWork(object):
         #другого пользователя, то элемент просто переходит во владение к этому пользователю
         #и у элемента удаляются все теги/поля первого пользователя.
         
+        #Нужно взять из истории запись, соответствующую состоянию удаляемого объекта item
+        parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, item)
+        #Если parent_hr равен None, то сохранять информацию об удалении может не надо?            
+        
+        
         #Запоминаем объект
         data_ref = item.data_ref
         
@@ -629,6 +661,9 @@ class UnitOfWork(object):
         self._session.flush()
         #По идее будут удалены все связанные ItemTag и ItemField объекты
         #data_ref удаляться автоматически не должен
+        
+        #Сохраняем в историю запись о совершенной операции
+        hr = HistoryRec()
         
         #Пытаться удалять data_ref нужно только если он имеется
         delete_data_ref = data_ref is not None
@@ -681,8 +716,6 @@ class UnitOfWork(object):
             self._prepare_data_ref(item.data_ref, user_login)
             
                                                 
-        
-        
         item_tags_copy = item.item_tags[:] #Копируем список
         existing_item_tags = []
         for item_tag in item_tags_copy:
@@ -740,6 +773,12 @@ class UnitOfWork(object):
             #Привязываем к элементу            
             item.data_ref_id = item.data_ref.id
             self._session.flush()
+        
+        
+        #Сохраняем запись о совершенной операции в историю
+        UnitOfWork._save_history_rec(self._session, item, operation=HistoryRec.CREATE, \
+                                     user_login=user_login)
+        self._session.flush()
             
         #Если все сохранилось в БД, то копируем файл, связанный с DataRef
         if item.data_ref and item.data_ref.type == DataRef.FILE:
@@ -762,20 +801,6 @@ class UnitOfWork(object):
                 #Это один и тот же файл, копировать не нужно ничего 
                 pass
             
-        
-        #Если все уже готово, тогда сохраняем запись в историю
-        hr = HistoryRec()
-        hr.operation = HistoryRec.CREATE
-        hr.item_id = item.id
-        hr.item_hash = item.hash()
-        if item.data_ref is not None:
-            hr.data_ref_hash = item.data_ref.hash
-            hr.data_ref_url = item.data_ref.url
-        hr.user_login = user_login
-        self._session.add(hr)
-        #Если вдруг при сохранении записи hr вылетит исключение, то транзакция откатится, но 
-        #файлы уже будут скопированы внутрь хранилищз! Надо обернуть все это в try..except
-
         self._session.commit()
        
 

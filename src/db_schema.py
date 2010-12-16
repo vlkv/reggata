@@ -24,13 +24,12 @@ Created on 11.10.2010
 
 import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy import ForeignKey, ForeignKeyConstraint, orm
+from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, orm
 from helpers import tr, is_none_or_empty
 import datetime
 import os
 import platform
-from sqlalchemy.schema import UniqueConstraint
 import hashlib
 
 
@@ -86,7 +85,7 @@ class HistoryRec(Base):
     id = sqa.Column(sqa.Integer, primary_key=True)
     parent1_id = sqa.Column(sqa.Integer, ForeignKey("history_recs.id"))
     parent2_id = sqa.Column(sqa.Integer, ForeignKey("history_recs.id"))
-    item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"))
+    item_id = sqa.Column(sqa.Integer) #Это просто сохраненный id элемента, а не внешний ключ
     item_hash = sqa.Column(sqa.String)
     data_ref_hash = sqa.Column(sqa.String)
     data_ref_url = sqa.Column(sqa.String)
