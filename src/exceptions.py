@@ -29,7 +29,7 @@ class LoginError(Exception):
 class AccessError(Exception):
     def __init__(self, msg):
         super(AccessError, self).__init__(msg)
-        
+              
 class UnsupportedDialogModeError(Exception):
     def __init__(self, msg):
         super(LoginError, self).__init__(msg)

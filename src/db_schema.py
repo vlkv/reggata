@@ -96,7 +96,16 @@ class HistoryRec(Base):
     #TODO Сюда можно сохранять и дату/время, однако, на эти данные нельзя полагаться
     #на разных машинах может быть разное время (плюс минус погрешность или вообще неверное)
     
-    
+    def __init__(self, item_id=None, item_hash=None, data_ref_hash=None, \
+                 data_ref_url=None, operation=None, user_login=None, \
+                 parent1_id=None, parent2_id=None):
+        self.item_id = item_id
+        self.item_hash = item_hash
+        self.data_ref_hash = data_ref_hash
+        self.data_ref_url = data_ref_url
+        self.operation = operation
+        self.user_login = user_login
+        
 
 
 class Item(Base):
@@ -144,7 +153,7 @@ class Item(Base):
         #Связанные поля:значения
         field_vals = []
         for item_field in self.item_fields:
-            field_vals.append(item_field.field.name + str(item_field.value))
+            field_vals.append(item_field.field.name + str(item_field.field_value))
         field_vals.sort()
         
         for field_val in field_vals:

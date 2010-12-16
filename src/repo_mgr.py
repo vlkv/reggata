@@ -402,6 +402,23 @@ class UnitOfWork(object):
         #item_0 это объект, который принадлежит текущей сессии
         item_0 = self._session.query(Item).get(item.id)
         
+        #Нужно взять из истории запись, соответствующую состоянию объекта item_0
+        parent_hr = None
+        if item_0.data_ref is not None:
+            parent_hr = self._session.query(HistoryRec).filter(HistoryRec.item_id==item_0.id)\
+                .filter(HistoryRec.item_hash==item_0.hash())\
+                .filter(HistoryRec.data_ref_hash==item_0.data_ref.hash)\
+                .filter(HistoryRec.data_ref_url==item_0.data_ref.url)\
+                .order_by(HistoryRec.id.desc()).first()
+        else:
+            parent_hr = self._session.query(HistoryRec).filter(HistoryRec.item_id==item_0.id)\
+                .filter(HistoryRec.item_hash==item_0.hash())\
+                .filter(HistoryRec.data_ref_hash==None)\
+                .filter(HistoryRec.data_ref_url==None)\
+                .order_by(HistoryRec.id.desc()).first()
+        if parent_hr is None:
+            raise Exception(tr("HistoryRec for Item object not found."))
+        
         #Редактирование полей, которые можно редактировать (вообще у item-а есть еще и другие поля).
         item_0.title = item.title
         item_0.notes = item.notes
@@ -535,6 +552,16 @@ class UnitOfWork(object):
         elif need_file_operation == "move":
             #Теперь начинаем перемещение файла
             shutil.move(abs_src_path, abs_dst_path)
+            
+        
+        #Сохраняем в историю
+        hr = HistoryRec(item_id = item_0.id, item_hash=item_0.hash(), \
+                        operation=HistoryRec.UPDATE, \
+                        user_login=user_login, parent1_id = parent_hr.id)
+        if item_0.data_ref is not None:
+            hr.data_ref_hash = item_0.data_ref.hash
+            hr.data_ref_url = item_0.data_ref.url
+        self._session.add(hr)
                 
         self._session.commit()
         
@@ -750,7 +777,7 @@ class UnitOfWork(object):
         hr.user_login = user_login
         self._session.add(hr)
         #Если вдруг при сохранении записи hr вылетит исключение, то транзакция откатится, но 
-        #файлы уже будут скопированы внутрь хранилищз!
+        #файлы уже будут скопированы внутрь хранилищз! Надо обернуть все это в try..except
 
         self._session.commit()
        

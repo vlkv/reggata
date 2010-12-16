@@ -655,7 +655,7 @@ class MainWindow(QtGui.QMainWindow):
                     thread.wait(1000)
                     if thread.isRunning():
                         wd.exec_()
-                                        
+            
                 finally:
                     uow.close()
                 
