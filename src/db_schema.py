@@ -85,7 +85,7 @@ class HistoryRec(Base):
     id = sqa.Column(sqa.Integer, primary_key=True)
     parent1_id = sqa.Column(sqa.Integer, ForeignKey("history_recs.id"))
     parent2_id = sqa.Column(sqa.Integer, ForeignKey("history_recs.id"))
-    item_id = sqa.Column(sqa.Integer) #Это просто сохраненный id элемента, а не внешний ключ
+    item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"))
     item_hash = sqa.Column(sqa.String)
     data_ref_hash = sqa.Column(sqa.String)
     data_ref_url = sqa.Column(sqa.String)
@@ -116,11 +116,20 @@ class Item(Base):
     __tablename__ = "items"
     
     id = sqa.Column(sqa.Integer, primary_key=True)
+    
     title = sqa.Column(sqa.String, nullable=False)
+    
     notes = sqa.Column(sqa.String)
+    
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
+    
     date_created = sqa.Column(sqa.DateTime)
+    
     data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"))
+    
+    #Удаляемые элементы, не будут удаляться из базы, им просто будет установлено значение alive=False
+    alive = sqa.Column(sqa.Boolean, default=True)
+        
     
     #пользователь-владелец данного элемента
     user = relationship(User, cascade="merge, expunge, refresh-expire")
