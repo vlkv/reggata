@@ -171,7 +171,8 @@ class Item(Base):
         
         return hashlib.sha1(text.encode("utf-8")).hexdigest()
 
-    def __init__(self, user_login=None, title=None, notes=None, date_created=None):
+    def __init__(self, user_login=None, title=None, notes=None, date_created=None, alive=True):
+        self.alive = alive
         self.user_login = user_login
         self.title = title
         self.notes = notes
