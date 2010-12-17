@@ -33,6 +33,7 @@ import platform
 import hashlib
 
 
+
 Base = declarative_base()
 
 
@@ -148,8 +149,19 @@ class Item(Base):
         Метод вычисляет и возвращает хеш от данного элемента.
         '''
         
-        #Собственные поля объекта Item
-        text = self.title + self.notes + self.user_login + str(self.date_created)
+        text = ""
+        
+        if not is_none_or_empty(self.title):
+            text += self.title
+        
+        if not is_none_or_empty(self.notes):
+            text += self.notes
+        
+        if not is_none_or_empty(self.user_login):
+            text += self.user_login
+        
+        if self.date_created is not None:
+            text += str(self.date_created)
         
         #Связанные теги
         tag_names = []
