@@ -652,18 +652,25 @@ class UnitOfWork(object):
         #Нужно взять из истории запись, соответствующую состоянию удаляемого объекта item
         parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, item)
         #Если parent_hr равен None, то сохранять информацию об удалении может не надо?            
-        
+        if parent_hr is None:
+            #Лучше выкинуть исключение
+            raise Exception(tr("Cannot find corresponding history record for item id={0}.").fotmat(item.id))
         
         #Запоминаем объект
         data_ref = item.data_ref
         
-        self._session.delete(item)
+        #Отвязываем элемент от data_ref-объекта (потому, что data_ref объект возможно надо будет удалить) 
+        #и помечаем элемент как удаленный
+        item.data_ref = None
+        item.data_ref_id = None
+        item.alive = False
         self._session.flush()
-        #По идее будут удалены все связанные ItemTag и ItemField объекты
-        #data_ref удаляться автоматически не должен
+        #Все связанные ItemTag и ItemField объекты тоже остаются в базе
         
         #Сохраняем в историю запись о совершенной операции
-        hr = HistoryRec()
+        UnitOfWork._save_history_rec(self._session, item, user_login, HistoryRec.DELETE, parent_hr.id)
+        
+        #Если на data_ref больше нет ссылок, то его будем удалять
         
         #Пытаться удалять data_ref нужно только если он имеется
         delete_data_ref = data_ref is not None
