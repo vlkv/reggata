@@ -116,6 +116,12 @@ class Item(Base):
     '''
     __tablename__ = "items"
     
+    ERROR_OK = 0 #Это не ошибка, была проведена проверка, все хорошо
+    ERROR_FILE_NOT_FOUND = 1
+    ERROR_FILE_HASH_MISMATCH = 2
+    ERROR_FILE_SIZE_MISMATCH = 3
+    ERROR_HISTORY_REC_NOT_FOUND = 4
+    
     id = sqa.Column(sqa.Integer, primary_key=True)
     
     title = sqa.Column(sqa.String, nullable=False)
@@ -143,6 +149,25 @@ class Item(Base):
     
     #field_vals - список связанных полей
     item_fields = relationship("Item_Field", cascade="all, delete-orphan")
+
+    def __init__(self, user_login=None, title=None, notes=None, date_created=None, alive=True):
+        self.alive = alive
+        self.user_login = user_login
+        self.title = title
+        self.notes = notes
+        if date_created is not None:
+            self.date_created = date_created
+        else:
+            self.date_created = datetime.datetime.today()
+                    
+        self.error = None
+        self.error_msg = None
+            
+    @orm.reconstructor
+    def __init_on_load__(self):
+        self.error = None #Если error равен None, то проверку целостности просто не проводили
+        self.error_msg = None
+        
 
     def hash(self):
         '''
@@ -182,16 +207,7 @@ class Item(Base):
             text += field_val
         
         return hashlib.sha1(text.encode("utf-8")).hexdigest()
-
-    def __init__(self, user_login=None, title=None, notes=None, date_created=None, alive=True):
-        self.alive = alive
-        self.user_login = user_login
-        self.title = title
-        self.notes = notes
-        if date_created is not None:
-            self.date_created = date_created
-        else:
-            self.date_created = datetime.datetime.today()
+    
     
     def has_tags_except_of(self, user_login):
         for item_tag in self.item_tags:

@@ -42,6 +42,7 @@ from user_config import UserConfig
 import db_schema
 import traceback
 import os
+import helpers
 
 class RepoMgr(object):
     '''Менеджер управления хранилищем в целом.'''
@@ -132,7 +133,10 @@ class UnitOfWork(object):
         self._session.expunge_all()
         self._session.close()
         
-    
+    @property
+    def session(self):
+        return self._session
+        
         
     def save_thumbnail(self, data_ref_id, thumbnail):
         data_ref = self._session.query(DataRef).get(data_ref_id)
@@ -829,9 +833,77 @@ class UnitOfWork(object):
             
         self._session.commit()
        
+class ItemIntegrityCheckerThread(QtCore.QThread):
+    '''
+    Поток, выполняющий в фоне проверку целостности группы элементов (обычно 
+    результатов поискового запроса). 
+    
+    Нужно сделать функцию, чтобы запускать данный поток для выделенной группы элементов. 
+    Для всех элементов хранилища тоже надо бы (но это потом может быть сделаю). 
+    '''
+    def __init__(self, parent, repo, items, lock):
+        super(ThumbnailBuilderThread, self).__init__(parent)
+        self.repo = repo
+        self.items = items
+        self.lock = lock
+        self.interrupt = False
+    
+    def run(self):        
+        uow = self.repo.create_unit_of_work()
+        try:
+            #Список self.items должен содержать только что извлеченные из БД элементы
+            #(вместе с data_ref объектами).
+            for item in self.items:
+                
+                error_set = set()
+                #Нужно проверить, есть ли запись в истории
+                hr = UnitOfWork._find_item_latest_history_rec(uow.session, item)
+                if hr is None:
+                    error_set.add(Item.ERROR_HISTORY_REC_NOT_FOUND)
+                
+                #Если есть связанный DataRef объект типа FILE,
+                if item.data_ref is not None and item.data_ref.type == DataRef.FILE:                    
+                    #    нужно проверить есть ли файл
+                    abs_path = os.path.join(self.repo.base_path, item.data_ref.url)
+                    if not os.path.exists(abs_path):
+                        error_set.add(Item.ERROR_FILE_NOT_FOUND)
+                                        
+                    #    нужно проверить, совпадает ли хеш файла со значением DataRef.hash
+                    hash = helpers.compute_hash(abs_path)
+                    if item.data_ref.hash != hash:
+                        error_set.add(Item.ERROR_FILE_HASH_MISMATCH)
+                    
+                    #    можно проверить, если size не совпадает, то hash тоже совпадать не должен будет
+                    size = os.path.getsize(abs_path)
+                    if item.data_ref.size != size:
+                        error_set.add(Item.ERROR_FILE_SIZE_MISMATCH)                    
+                
+                try:
+                    self.lock.lockForWrite()
+                    #Сохраняем результат
+                    if len(error_set) > 0:
+                        item.error = error_set
+                    else:
+                        item.error = set([Item.ERROR_OK])
+                    self.emit(QtCore.SIGNAL("item_checked"))
+                finally:
+                    self.lock.unlock()
+                
+                    
+        except:
+            print(traceback.format_exc())
+        finally:
+            uow.close()
+            print("ItemIntegrityCheckerThread done.")
+
 
 class ThumbnailBuilderThread(QtCore.QThread):
+    '''
+    Поток, выполняющий построение миниатюр изображений и сохранение их в БД.
     
+    Данный поток автоматически запускается после выполнение любого запроса элементов 
+    (т.к. в результате любого запроса могут оказаться изображения.
+    '''
     def __init__(self, parent, repo, items, lock):
         super(ThumbnailBuilderThread, self).__init__(parent)
         self.repo = repo
