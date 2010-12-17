@@ -132,7 +132,7 @@ class UnitOfWork(object):
         self._session.expunge_all()
         self._session.close()
         
-    #TODO Надо подумать про rollback()...
+    
         
     def save_thumbnail(self, data_ref_id, thumbnail):
         data_ref = self._session.query(DataRef).get(data_ref_id)
@@ -149,7 +149,7 @@ class UnitOfWork(object):
         
     def get_related_tags(self, tag_names=[], user_logins=[]):
         ''' Возвращает список related тегов для тегов из списка tag_names.
-        Если tag_names пустой список, возращает все теги.
+        Если tag_names - пустой список, возращает все теги.
         Поиск ведется среди тегов пользователей из списка user_logins.
         Если user_logins пустой, то поиск среди всех тегов в БД.
         '''
@@ -158,14 +158,15 @@ class UnitOfWork(object):
         
         if len(tag_names) == 0:
             sql = '''
-            --Related tags query №1 from get_related_tags()
+            --get_related_tags() запрос, извлекающий все теги и кол-во связанных с каждым тегом ЖИВЫХ элементов
             select t.name as name, count(*) as c
-                from tags t
-                join items_tags it on it.tag_id = t.id
+               from items i, tags t
+               join items_tags it on it.tag_id = t.id and it.item_id = i.id and i.alive   
             where
                 1
             group by t.name
-            ORDER BY t.name'''
+            ORDER BY t.name
+            '''
             
             #Здесь пришлось вставлять этот try..except, т.к. иначе пустой список (если нет связанных тегов)
             #не возвращается, а вылетает ResourceClosedError. Не очень удобно, однако. 
@@ -185,8 +186,6 @@ class UnitOfWork(object):
             tag_ids = []
             for tag in tags:
                 tag_ids.append(tag.id)
-            
-            print("tag_ids=" + str(tag_ids))
             
             sub_from = ""
             for i in range(len(tag_ids)):
@@ -211,17 +210,19 @@ class UnitOfWork(object):
                 where = where + \
                 " AND t.id <> {0} ".format(tag_ids[i])
             
-            sql = '''--Related tags query №2 from get_related_tags()
+            sql = '''--get_related_tags() запрос, извлекающий родственные теги для выбранных тегов
             select t.name as name, count(*) as c
                 from tags t
                 join items_tags it on it.tag_id = t.id
+                join items i on i.id = it.item_id
             where
                 it.item_id IN (
                     select it1.item_id
                         from ''' + sub_from + '''
                     where ''' + sub_where + '''                     
-                ) ''' + where + '''            
-                --Важно, чтобы эти id-шники следовали по возрастанию
+                ) ''' + where + '''
+                AND i.alive            
+                --Важно, чтобы эти id-шники следовали по возрастанию                
             group by t.name
             ORDER BY t.name'''
             try:            
@@ -240,9 +241,13 @@ class UnitOfWork(object):
         return item
     
     def get_untagged_items(self):
+        '''
+        Извлекает из БД все ЖИВЫЕ элементы, с которыми не связано ни одного тега.
+        '''
+        
         thumbnail_default_size = UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)
         
-        sql = '''
+        sql = '''--Извлекает все элементы, с которыми не связано ни одного тега
         select sub.*, ''' + \
         Item_Tag._sql_from() + ", " + \
         Tag._sql_from() + \
@@ -255,20 +260,27 @@ class UnitOfWork(object):
             left join items_tags it on i.id = it.item_id
             left join data_refs on i.data_ref_id = data_refs.id
             left join thumbnails on data_refs.id = thumbnails.data_ref_id and thumbnails.size = {} 
-            where it.item_id is null 
+            where 
+                it.item_id is null
+                AND i.alive 
         ) as sub
         left join items_tags on sub.id = items_tags.item_id
         left join tags on tags.id = items_tags.tag_id 
         '''.format(thumbnail_default_size)
-        
-        items = self._session.query(Item)\
+                
+        items = []
+        try:
+            items = self._session.query(Item)\
             .options(contains_eager("data_ref"), \
                      contains_eager("data_ref.thumbnails"), \
                      contains_eager("item_tags"), \
                      contains_eager("item_tags.tag"))\
-            .from_statement(sql).all()        
-            
-        self._session.expunge_all()
+            .from_statement(sql).all()
+            for item in items:
+                self._session.expunge(item)
+                            
+        except ResourceClosedError:
+                pass
                 
         return items
     
@@ -289,68 +301,75 @@ class UnitOfWork(object):
         left join tags on tags.id = items_tags.tag_id
         left join thumbnails on thumbnails.data_ref_id = sub.data_refs_id and 
                   thumbnails.size = ''' + str(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)) + '''
+        where sub.alive
         '''
         
-        items = self._session.query(Item)\
+        items = []
+        try:
+            items = self._session.query(Item)\
             .options(contains_eager("data_ref"), \
                      contains_eager("data_ref.thumbnails"), \
                      contains_eager("item_tags"), \
                      contains_eager("item_tags.tag"))\
             .from_statement(sql).all()
     
-        for item in items:
-            self._session.expunge(item)
+            for item in items:
+                self._session.expunge(item)
         
+        except ResourceClosedError:
+                pass
+                
         return items
-    
-    def query_items_by_sql(self, sql):
-        '''
-        Внимание! sql должен извлекать не только item-ы, но также и связанные (при помощи left join)
-        элементы data_refs и thumbnails.
-        '''
         
-#Это так для примера: как я задавал alias
-#        data_refs = Base.metadata.tables[DataRef.__tablename__]
-#        thumbnails = Base.metadata.tables[Thumbnail.__tablename__]        
-#        eager_columns = select([
-#                    data_refs.c.id.label('dr_id'),
-#                    data_refs.c.url.label('dr_url'),
-#                    data_refs.c.type.label('dr_type'),
-#                    data_refs.c.hash.label('dr_hash'),
-#                    data_refs.c.date_hashed.label('dr_date_hashed'),
-#                    data_refs.c.size.label('dr_size'),
-#                    data_refs.c.date_created.label('dr_date_created'),
-#                    data_refs.c.user_login.label('dr_user_login'),
-#                    thumbnails.c.data_ref_id.label('th_data_ref_id'),
-#                    thumbnails.c.size.label('th_size'),
-#                    thumbnails.c.dimension.label('th_dimension'),
-#                    thumbnails.c.data.label('th_data'),
-#                    thumbnails.c.date_created.label('th_date_created'),
-#                    ])                    
-#        items = self._session.query(Item).\
-#            options(contains_eager("data_ref", alias=eager_columns), \                    
-#                    contains_eager("data_ref.thumbnails", alias=eager_columns)).\
-#            from_statement(sql).all()
-
-        items = self._session.query(Item)\
-            .options(contains_eager("data_ref"), \
-                     contains_eager("data_ref.thumbnails"), \
-                     contains_eager("item_tags"), \
-                     contains_eager("item_tags.tag"))\
-            .from_statement(sql).all()
-            
-        #Выше использовался joinedload, поэтому по идее следующий цикл
-        #не должен порождать новые SQL запросы
+    
+#    def query_items_by_sql(self, sql):
+#        '''
+#        Внимание! sql должен извлекать не только item-ы, но также и связанные (при помощи left join)
+#        элементы data_refs и thumbnails.
+#        '''
+#        
+##Это так для примера: как я задавал alias
+##        data_refs = Base.metadata.tables[DataRef.__tablename__]
+##        thumbnails = Base.metadata.tables[Thumbnail.__tablename__]        
+##        eager_columns = select([
+##                    data_refs.c.id.label('dr_id'),
+##                    data_refs.c.url.label('dr_url'),
+##                    data_refs.c.type.label('dr_type'),
+##                    data_refs.c.hash.label('dr_hash'),
+##                    data_refs.c.date_hashed.label('dr_date_hashed'),
+##                    data_refs.c.size.label('dr_size'),
+##                    data_refs.c.date_created.label('dr_date_created'),
+##                    data_refs.c.user_login.label('dr_user_login'),
+##                    thumbnails.c.data_ref_id.label('th_data_ref_id'),
+##                    thumbnails.c.size.label('th_size'),
+##                    thumbnails.c.dimension.label('th_dimension'),
+##                    thumbnails.c.data.label('th_data'),
+##                    thumbnails.c.date_created.label('th_date_created'),
+##                    ])                    
+##        items = self._session.query(Item).\
+##            options(contains_eager("data_ref", alias=eager_columns), \                    
+##                    contains_eager("data_ref.thumbnails", alias=eager_columns)).\
+##            from_statement(sql).all()
+#
+#        items = self._session.query(Item)\
+#            .options(contains_eager("data_ref"), \
+#                     contains_eager("data_ref.thumbnails"), \
+#                     contains_eager("item_tags"), \
+#                     contains_eager("item_tags.tag"))\
+#            .from_statement(sql).all()
+#            
+#        #Выше использовался joinedload, поэтому по идее следующий цикл
+#        #не должен порождать новые SQL запросы
+##        for item in items:
+##            item.data_ref
+##            for thumbnail in item.data_ref.thumbnails:
+##                thumbnail
+#
 #        for item in items:
-#            item.data_ref
-#            for thumbnail in item.data_ref.thumbnails:
-#                thumbnail
-
-        for item in items:
-            self._session.expunge(item)
-        
-        return items
-    
+#            self._session.expunge(item)
+#        
+#        return items
+#    
     
     
     def save_new_user(self, user):

@@ -650,7 +650,7 @@ class MainWindow(QtGui.QMainWindow):
                     wd = WaitDialog(self, indeterminate=True)
                     self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
                     self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                                        
+                    
                     thread.start()
                     thread.wait(1000)
                     if thread.isRunning():
