@@ -417,6 +417,8 @@ class MainWindow(QtGui.QMainWindow):
             show_exc_info(self, ex)
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.query_exec()
+            self.ui.tag_cloud.refresh()
             
     def action_item_view(self):
         try:
@@ -556,7 +558,7 @@ class MainWindow(QtGui.QMainWindow):
             show_exc_info(self, ex)
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
-            #TODO refresh
+            self.query_exec()
             
             
         
@@ -616,7 +618,7 @@ class MainWindow(QtGui.QMainWindow):
             show_exc_info(self, ex)
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
-            #TODO refresh
+            self.query_exec()
         
         
     def action_item_add(self):
@@ -664,7 +666,7 @@ class MainWindow(QtGui.QMainWindow):
             show_exc_info(self, ex)
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
-            #TODO refresh
+            self.query_exec()
     
     def action_user_create(self):
         try:
@@ -779,6 +781,8 @@ class MainWindow(QtGui.QMainWindow):
             show_exc_info(self, ex)
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.query_exec()
+            self.ui.tag_cloud.refresh()
     
     def action_help_about(self):
         try:
