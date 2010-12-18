@@ -258,7 +258,9 @@ class UnitOfWork(object):
         sql = '''--Извлекает все элементы, с которыми не связано ни одного тега
         select sub.*, ''' + \
         Item_Tag._sql_from() + ", " + \
-        Tag._sql_from() + \
+        Tag._sql_from() + ", " + \
+        Item_Field._sql_from() + ", " + \
+        Field._sql_from() + \
         '''
         from (select i.*, ''' + \
             DataRef._sql_from() + ", " + \
@@ -273,7 +275,9 @@ class UnitOfWork(object):
                 AND i.alive 
         ) as sub
         left join items_tags on sub.id = items_tags.item_id
-        left join tags on tags.id = items_tags.tag_id 
+        left join tags on tags.id = items_tags.tag_id
+        left join items_fields on sub.id = items_fields.item_id
+        left join fields on fields.id = items_fields.field_id 
         '''.format(thumbnail_default_size)
                 
         items = []
@@ -282,7 +286,9 @@ class UnitOfWork(object):
             .options(contains_eager("data_ref"), \
                      contains_eager("data_ref.thumbnails"), \
                      contains_eager("item_tags"), \
-                     contains_eager("item_tags.tag"))\
+                     contains_eager("item_tags.tag"), \
+                     contains_eager("item_fields"),\
+                     contains_eager("item_fields.field"))\
             .from_statement(sql).all()
             for item in items:
                 self._session.expunge(item)
@@ -303,10 +309,14 @@ class UnitOfWork(object):
         select sub.*, 
         ''' + db_schema.Item_Tag._sql_from() + ''', 
         ''' + db_schema.Tag._sql_from() + ''',
-        ''' + db_schema.Thumbnail._sql_from() + '''
+        ''' + db_schema.Thumbnail._sql_from() + ''',
+        ''' + db_schema.Item_Field._sql_from() + ''',
+        ''' + db_schema.Field._sql_from() + '''        
         from (''' + sub_sql + ''') as sub
         left join items_tags on sub.id = items_tags.item_id
         left join tags on tags.id = items_tags.tag_id
+        left join items_fields on sub.id = items_fields.item_id
+        left join fields on fields.id = items_fields.field_id
         left join thumbnails on thumbnails.data_ref_id = sub.data_refs_id and 
                   thumbnails.size = ''' + str(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)) + '''
         where sub.alive
@@ -318,7 +328,9 @@ class UnitOfWork(object):
             .options(contains_eager("data_ref"), \
                      contains_eager("data_ref.thumbnails"), \
                      contains_eager("item_tags"), \
-                     contains_eager("item_tags.tag"))\
+                     contains_eager("item_tags.tag"), \
+                     contains_eager("item_fields"),\
+                     contains_eager("item_fields.field"))\
             .from_statement(sql).all()
     
             for item in items:

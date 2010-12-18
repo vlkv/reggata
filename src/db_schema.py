@@ -536,7 +536,13 @@ class Field(Base):
         self.id = None
         self.name = name
         self.synonym_code = None
-        
+    
+    @staticmethod
+    def _sql_from():
+        return '''
+        fields.id as fields_id,
+        fields.name as fields_name,
+        fields.synonym_code as fields_synonym_code '''
     
 
 class Item_Field(Base):
@@ -565,6 +571,13 @@ class Item_Field(Base):
         self.field_value = value
         self.user_login = user_login
                     
+    @staticmethod
+    def _sql_from():
+        return '''
+        items_fields.item_id as items_fields_item_id, 
+        items_fields.field_id as items_fields_field_id, 
+        items_fields.user_login as items_fields_user_login, 
+        items_fields.field_value as items_fields_field_value '''
         
 #TODO сделать классы для групп полей и тегов
 
