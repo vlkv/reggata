@@ -486,6 +486,12 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 
     def action_item_check_integrity(self):
+        
+        def refresh(percent):
+            self.ui.statusbar.showMessage(self.tr("Integrity check {0}% done.").format(percent))
+            self.model.reset()
+            
+        
         try:
             if self.active_repo is None:
                 raise MsgException(self.tr("Open a repository first."))
@@ -508,7 +514,7 @@ class MainWindow(QtGui.QMainWindow):
             thread = ItemIntegrityCheckerThread(self, self.active_repo, items, self.items_lock)
             self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
             self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Integrity check is done.")))            
-            self.connect(thread, QtCore.SIGNAL("progress"), lambda percent: self.ui.statusbar.showMessage(self.tr("Integrity check {0}% done.").format(percent)))
+            self.connect(thread, QtCore.SIGNAL("progress"), refresh)
             thread.start()
             
         except Exception as ex:
@@ -894,12 +900,13 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
     TITLE = 1
     IMAGE_THUMB = 2
     LIST_OF_TAGS = 3
+    STATE = 4 #Состояние элемента (в смысле целостности его данных)
     
     def __init__(self, repo, items_lock):
         super(RepoItemTableModel, self).__init__()
         self.repo = repo
         self.items = []
-        self.thumbs = dict()
+        
         
         #Это поток, который генерирует миниатюры в фоне
         self.thread = None
@@ -950,7 +957,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         return len(self.items)
     
     def columnCount(self, index=QtCore.QModelIndex()):
-        return 4
+        return 5
     
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal:
@@ -963,6 +970,8 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                     return self.tr("Thumbnail")
                 elif section == self.LIST_OF_TAGS:
                     return self.tr("Tags")
+                elif section == self.STATE:
+                    return self.tr("State")
             else:
                 return None
         elif orientation == Qt.Vertical and role == Qt.DisplayRole:
@@ -987,41 +996,29 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             
             elif column == self.LIST_OF_TAGS:
                 return item.get_list_of_tags()
+            
+            elif column == self.STATE:
+                try:
+                    self.lock.lockForRead()
+                    return str(item.error)
+                except Exception:
+                    traceback.format_exc()
+                finally:
+                    self.lock.unlock()
 
         #Данная роль используется для отображения миниатюр графических файлов
         elif role == QtCore.Qt.UserRole:
             if column == self.IMAGE_THUMB and item.data_ref is not None:
-                if self.thumbs.get(item.data_ref.id):
-                    #Если в ОП уже загружена миниатюра
-                    return self.thumbs.get(item.data_ref.id)
-                
-                elif item.data_ref.is_image():
-#                    #Загружаем изображение в ОП и масштабируем его до размера миниатюры
-#                    image = QtGui.QImage(self.repo.base_path + os.sep + item.data_ref.url)
-#                    pixmap = QtGui.QPixmap.fromImage(image)
-#                    if (pixmap.height() > pixmap.width()):
-#                        pixmap = pixmap.scaledToHeight(\
-#                        int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-#                    else:
-#                        pixmap = pixmap.scaledToWidth(\
-#                        int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-#                    
-#                    #Запоминаем в ОП
-#                    self.thumbs[item.data_ref.id] = pixmap
+                if item.data_ref.is_image():
                     pixmap = QtGui.QPixmap()
                     try:                    
                         self.lock.lockForRead()
                         if len(item.data_ref.thumbnails) > 0:
                             pixmap.loadFromData(item.data_ref.thumbnails[0].data)
-                    except Exception as ex:
+                    except Exception:
                         traceback.format_exc()
                     finally:
                         self.lock.unlock()
-                    
-                    #TODO Надо бы еще сохранять миниатюру в БД..
-                    #Потому, что если результат запроса будет содержать много элементов (графических файлов)
-                    #то будет жутко тормозить каждый раз
-                                        
                     return pixmap
         
 
