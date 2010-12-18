@@ -31,6 +31,7 @@ import datetime
 import os
 import platform
 import hashlib
+import helpers
 
 
 
@@ -168,6 +169,42 @@ class Item(Base):
         self.error = None #Если error равен None, то проверку целостности просто не проводили
         self.error_msg = None
         
+    
+    @staticmethod
+    def format_error_set(error_set):
+        
+        if error_set is not None:
+            s = ""
+            for error in error_set:
+                if error == Item.ERROR_OK:
+                    s += tr("No errors") + os.linesep
+                elif error == Item.ERROR_FILE_HASH_MISMATCH:
+                    s += tr("{0}. Physical file has changed (hash mismatch)").format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
+                elif error == Item.ERROR_FILE_NOT_FOUND:
+                    s += tr("{0}. Physical file not found").format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
+                elif error == Item.ERROR_FILE_SIZE_MISMATCH:
+                    s += tr("{0}. Size of physical file has changed").format(Item.ERROR_FILE_SIZE_MISMATCH) + os.linesep
+                elif error == Item.ERROR_HISTORY_REC_NOT_FOUND:
+                    s += tr("{0}. There is no corresponding history record for this item").format(Item.ERROR_HISTORY_REC_NOT_FOUND) + os.linesep
+            if s.endswith(os.linesep):
+                s = s[:-1]
+        else:
+            s = "Item integrity isn't checked yet"
+            
+        return s
+    
+    @staticmethod
+    def format_error_set_short(error_set):
+
+        if error_set is None:
+            return ""
+        if Item.ERROR_OK in error_set and len(error_set) == 1:
+            return 'OK'
+        elif len(error_set) > 0:
+            err_nums = helpers.to_commalist(error_set)
+            return 'Errors: {0}'.format(err_nums)    
+        return ""
+
 
     def hash(self):
         '''

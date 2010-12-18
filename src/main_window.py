@@ -964,7 +964,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 
     def reset_single_row(self, row):
         topL = self.createIndex(row, self.ID)
-        bottomR = self.createIndex(row, self.STATE)        
+        bottomR = self.createIndex(row, self.STATE)
         self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
 
     
@@ -976,8 +976,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             #if not self.timer.isActive():
             #    self.timer.start(1000)
             self.reset_single_row(row)
-            QtCore.QCoreApplication.processEvents()
-            #TODO Нужно ресайзить строки по одной!
+            QtCore.QCoreApplication.processEvents()           
                 
         uow = self.repo.create_unit_of_work()
         try:
@@ -1054,9 +1053,15 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             elif column == self.STATE:
                 try:
                     self.lock.lockForRead()
-                    return str(item.error)
-                except Exception:
-                    traceback.format_exc()
+                    return Item.format_error_set_short(item.error)
+                finally:
+                    self.lock.unlock()
+        
+        elif role == Qt.ToolTipRole:            
+            if column == self.STATE:
+                try:
+                    self.lock.lockForRead()
+                    return Item.format_error_set(item.error)                
                 finally:
                     self.lock.unlock()
 
