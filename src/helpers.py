@@ -101,13 +101,16 @@ def to_commalist(seq, apply_each=repr, sep=","):
     Для последовательности seq (например, списка list) возвращает строку, содержащую
     элементы через запятую. При этому к каждому элементу применяется функция apply_each()
     для возможно необходимых преобразований формата элементов.
+    
+    В качестве seq можно также передавать множество set.
     '''
     s = ""
-    for i in range(len(seq)):
-        item = seq[i]
+    i = 0
+    for item in seq:
         s = s + apply_each(item)
         if i != len(seq) - 1:
             s = s + sep
+        i += 1
     return s
         
 def scale_value(value, src_range, dst_range):
