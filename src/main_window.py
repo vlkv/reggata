@@ -551,6 +551,8 @@ class MainWindow(QtGui.QMainWindow):
             
             items = []
             for row in rows:
+                #Нужно в элементе сохранить номер строки таблицы, откуда взят элемент
+                self.model.items[row].table_row = row
                 items.append(self.model.items[row])
              
             thread = ItemIntegrityCheckerThread(self, self.active_repo, items, self.items_lock)

@@ -886,25 +886,23 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                     abs_path = os.path.join(self.repo.base_path, item.data_ref.url)
                     if not os.path.exists(abs_path):
                         error_set.add(Item.ERROR_FILE_NOT_FOUND)
-                                        
-                    #    нужно проверить, совпадает ли хеш файла со значением DataRef.hash
-                    hash = helpers.compute_hash(abs_path)
-                    if item.data_ref.hash != hash:
-                        error_set.add(Item.ERROR_FILE_HASH_MISMATCH)
-                    
-                    #    можно проверить, если size не совпадает, то hash тоже совпадать не должен будет
-                    size = os.path.getsize(abs_path)
-                    if item.data_ref.size != size:
-                        error_set.add(Item.ERROR_FILE_SIZE_MISMATCH)
+                    else:                                            
+                        #    нужно проверить, совпадает ли хеш файла со значением DataRef.hash
+                        hash = helpers.compute_hash(abs_path)
+                        if item.data_ref.hash != hash:
+                            error_set.add(Item.ERROR_FILE_HASH_MISMATCH)
+                        
+                        #    можно проверить, если size не совпадает, то hash тоже совпадать не должен будет
+                        size = os.path.getsize(abs_path)
+                        if item.data_ref.size != size:
+                            error_set.add(Item.ERROR_FILE_SIZE_MISMATCH)
                 
                 try:
                     self.lock.lockForWrite()
                     #Сохраняем результат
                     item.error = error_set if len(error_set) > 0 else set([Item.ERROR_OK])
                     
-                    #TODO Тут неправильно! i не обязательно будет равен номеру строки!!!
-                    i += 1
-                    self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), i)
+                    self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
                     
                 finally:
                     self.lock.unlock()
