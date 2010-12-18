@@ -933,6 +933,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
         try:
             thumbnail_size = int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE))
                     
+            i = 0
             for item in self.items:
                 
                 if self.interrupt:
@@ -970,7 +971,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
                     print("Cannot generate thumbnail for " + item.data_ref.url)
                     continue
                 else:
-                    self.emit(QtCore.SIGNAL("one_more_thumbnail_ready"))
+                    self.emit(QtCore.SIGNAL("one_more_thumbnail_ready"), i)
                     print("Generated thumbnail of " + item.data_ref.url)
                 finally:
                     self.lock.unlock()

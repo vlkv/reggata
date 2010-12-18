@@ -515,7 +515,7 @@ class MainWindow(QtGui.QMainWindow):
         def refresh(percent, row=None):
             self.ui.statusbar.showMessage(self.tr("Integrity check {0}% done.").format(percent))
             if row:
-                self.model.resetSingleRow(row)
+                self.model.reset_single_row(row)
             else:
                 self.model.reset()
             QtCore.QCoreApplication.processEvents()
@@ -942,21 +942,26 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         #Это замок, который нужен для синхронизации доступа к списку self.items
         self.lock = items_lock
         
-        self.timer = QtCore.QTimer(self)
-        self.timer.setSingleShot(True)
-        self.connect(self.timer, QtCore.SIGNAL("timeout()"), self.reset)
+#        self.timer = QtCore.QTimer(self)
+#        self.timer.setSingleShot(True)
+#        self.connect(self.timer, QtCore.SIGNAL("timeout()"), self.reset)
 
-    def resetSingleRow(self, row):
+    def reset_single_row(self, row):
         topL = self.createIndex(row, self.ID)
         bottomR = self.createIndex(row, self.STATE)        
         self.emit(QtCore.SIGNAL("dataChanged (const QModelIndex&, const QModelIndex&)"), topL, bottomR)
 
-    def deferred_reset(self):
-        if not self.timer.isActive():
-            self.timer.start(1000)
+    
     
     def query(self, query_text):
         '''Выполняет извлечение элементов из хранилища.'''
+        
+        def reset_row(row):
+            #if not self.timer.isActive():
+            #    self.timer.start(1000)
+            self.reset_single_row(row)
+            QtCore.QCoreApplication.processEvents()
+            #TODO Нужно ресайзить строки по одной!
                 
         uow = self.repo.create_unit_of_work()
         try:
@@ -975,7 +980,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             
             #Нужно запустить поток, который будет генерировать миниатюры
             self.thread = ThumbnailBuilderThread(self, self.repo, self.items, self.lock)
-            self.connect(self.thread, QtCore.SIGNAL("one_more_thumbnail_ready"), self.deferred_reset)
+            self.connect(self.thread, QtCore.SIGNAL("one_more_thumbnail_ready"), reset_row)
             self.thread.start()
                 
             self.reset()
