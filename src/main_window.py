@@ -526,13 +526,10 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_item_check_integrity(self):
         
-        def refresh(percent, row=None):
-            self.ui.statusbar.showMessage(self.tr("Integrity check {0}% done.").format(percent))
-            if row:
-                self.model.reset_single_row(row)
-            else:
-                self.model.reset()
-            QtCore.QCoreApplication.processEvents()
+        def refresh(percent, row):
+            self.ui.statusbar.showMessage(self.tr("Integrity check {0}% done.").format(percent))            
+            self.model.reset_single_row(row)            
+            #QtCore.QCoreApplication.processEvents()
         
         try:
             if self.active_repo is None:
@@ -558,7 +555,7 @@ class MainWindow(QtGui.QMainWindow):
             thread = ItemIntegrityCheckerThread(self, self.active_repo, items, self.items_lock)
             self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
             self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Integrity check is done.")))            
-            self.connect(thread, QtCore.SIGNAL("progress"), refresh)
+            self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
             thread.start()
             
         except Exception as ex:
