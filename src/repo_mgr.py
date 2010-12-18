@@ -144,8 +144,10 @@ class UnitOfWork(object):
         
     def save_thumbnail(self, data_ref_id, thumbnail):
         data_ref = self._session.query(DataRef).get(data_ref_id)
+        
         self._session.add(thumbnail)
         self._session.flush()
+        
         data_ref.thumbnails.append(thumbnail)
         self._session.commit()
         
@@ -864,7 +866,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
         self.lock = lock
         self.interrupt = False
     
-    def run(self):        
+    def run(self):
         uow = self.repo.create_unit_of_work()
         try:
             i = 0
@@ -900,8 +902,10 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                     #Сохраняем результат
                     item.error = error_set if len(error_set) > 0 else set([Item.ERROR_OK])
                     
+                    #TODO Тут неправильно! i не обязательно будет равен номеру строки!!!
                     i += 1
                     self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), i)
+                    
                 finally:
                     self.lock.unlock()
                     
@@ -932,9 +936,9 @@ class ThumbnailBuilderThread(QtCore.QThread):
         uow = self.repo.create_unit_of_work()
         try:
             thumbnail_size = int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE))
-                    
-            i = 0
-            for item in self.items:
+            
+            for i in range(len(self.items)):
+                item = self.items[i]
                 
                 if self.interrupt:
                     print("ThumbnailBuilderThread interrupted!")
@@ -965,8 +969,17 @@ class ThumbnailBuilderThread(QtCore.QThread):
                     th = Thumbnail()
                     th.data = buffer.buffer().data()
                     th.data_ref_id = item.data_ref.id
-                    th.size = thumbnail_size                    
+                    th.size = thumbnail_size
                     item.data_ref.thumbnails.append(th)
+                    
+                    try:
+                        #Сохраняем миниатюру в БД
+                        uow.save_thumbnail(item.data_ref.id, th)
+                    except:
+                        #Если не получилось сохранить, то все равно данный поток не прерываем 
+                        print("Cannot save in DB thumbnail for image " + item.data_ref.url)
+                        print(traceback.format_exc())
+                    
                 except:
                     print("Cannot generate thumbnail for " + item.data_ref.url)
                     continue
@@ -976,13 +989,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
                 finally:
                     self.lock.unlock()
                 
-                try:
-                    #Сохраняем миниатюру в БД
-                    uow.save_thumbnail(item.data_ref.id, th)
-                except:
-                    #Если не получилось сохранить, то все равно данный поток не прерываем пока 
-                    print("Cannot save in DB thumbnail for image " + item.data_ref.url)
-                    print(traceback.format_exc())
+                
                     
         except:
             print(traceback.format_exc())

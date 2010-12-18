@@ -160,6 +160,7 @@ class MainWindow(QtGui.QMainWindow):
         #В третьей колонке отображаем миниатюры изображений
         self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate())         
         #Работает в PyQt начиная с 4.8.1. В PyQt 4.7.3 не работает!
+                
         
         #Ширина колонок в таблице
         self.ui.tableView_items.setColumnWidth(RepoItemTableModel.ID, int(UserConfig().get("items_table.ID.width", 50)))
@@ -196,8 +197,19 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.dockWidget_tag_cloud.show()
 
     def _table_columns_resized(self, col, old_size, new_size):
+        '''Обработчик события, которое возникает, когда изменяется ширина колонок таблицы.'''
         self.save_state_timer.start(1000)
-        
+    
+    def _resize_row_to_contents(self, top_left, bottom_right):
+        '''Обработчик сигнала, который посылает модель RepoItemTableModel, когда просит обновить 
+        часть ячеек таблицы. Данный обработчик подгоняет высоту строк под новое содержимое.'''        
+        if top_left.row() == bottom_right.row():
+            self.ui.tableView_items.resizeRowToContents(top_left.row())
+            print("resizing row={}".format(top_left.row()))
+        elif top_left.row() < bottom_right.row():
+            for row in range(top_left.row(), bottom_right.row()):
+                self.ui.tableView_items.resizeRowToContents(row)
+                print("resizing row={}".format(row))
 
     def event(self, e):
         #Информация о нажатии Control-а передается облаку тегов
@@ -344,6 +356,8 @@ class MainWindow(QtGui.QMainWindow):
                 self.ui.tableView_items.setModel(self.model)
                 self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
                 #self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
+                self.connect(self.model, QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), self._resize_row_to_contents)
+                
             else:
                 self.ui.label_repo.setText("")
                 self.model = None
@@ -949,7 +963,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
     def reset_single_row(self, row):
         topL = self.createIndex(row, self.ID)
         bottomR = self.createIndex(row, self.STATE)        
-        self.emit(QtCore.SIGNAL("dataChanged (const QModelIndex&, const QModelIndex&)"), topL, bottomR)
+        self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
 
     
     
