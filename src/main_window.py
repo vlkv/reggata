@@ -87,9 +87,13 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addAction(self.ui.action_item_view)
         self.menu.addAction(self.ui.action_item_view_m3u)
         self.menu.addAction(self.ui.action_item_view_image_viewer)
-        self.menu.addAction(self.ui.action_item_edit)        
+        self.menu.addSeparator()
+        self.menu.addAction(self.ui.action_item_edit)
+        self.menu.addSeparator()        
         self.menu.addAction(self.ui.action_item_delete)
-        
+        self.menu.addSeparator()
+        self.menu.addAction(self.ui.action_item_check_integrity)
+        #Добавляем его к таблице 
         self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
         self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
         
@@ -119,6 +123,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
         self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
         self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)        
+
 
         #Добавляем на статус бар поля для отображения текущего хранилища и пользователя
         self.ui.label_repo = QtGui.QLabel()
@@ -155,8 +160,17 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate())         
         #Работает в PyQt начиная с 4.8.1. В PyQt 4.7.3 не работает!
         
+        #Ширина колонок в таблице
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.ID, int(UserConfig().get("items_table.ID.width", 50)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 250)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", 50)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 50)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 50)))
+        self.connect(self.ui.tableView_items.horizontalHeader(), QtCore.SIGNAL("sectionResized(int, int, int)"), self._table_columns_resized)
+        
+        
         #Для старых версий PyQt задаем его для всей таблицы:
-#        self.ui.tableView_items.setItemDelegate(ImageThumbDelegate()) 
+#        self.ui.tableView_items.setItemDelegate(ImageThumbDelegate())
         
         #Пытаемся восстанавливить размер окна, как был при последнем запуске
         try:
@@ -180,6 +194,10 @@ class MainWindow(QtGui.QMainWindow):
         self.addDockWidget(dock_area if dock_area != Qt.NoDockWidgetArea else QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
         self.ui.dockWidget_tag_cloud.show()
 
+    def _table_columns_resized(self, col, old_size, new_size):
+        self.save_state_timer.start(1000)
+        
+
     def event(self, e):
         #Информация о нажатии Control-а передается облаку тегов
         if e.type() == QtCore.QEvent.KeyPress and e.key() == Qt.Key_Control:
@@ -189,7 +207,6 @@ class MainWindow(QtGui.QMainWindow):
         return super(MainWindow, self).event(e)
 
     def showContextMenu(self, pos):
-        print("sdfsdf")
         self.menu.exec_(self.ui.tableView_items.mapToGlobal(pos))
 
     def reset_tag_cloud(self):
@@ -215,6 +232,12 @@ class MainWindow(QtGui.QMainWindow):
         #Расположение облака тегов
         UserConfig().store("tag_cloud.dock_area", str(self.dockWidgetArea(self.ui.dockWidget_tag_cloud)))
         
+        #Ширина колонок таблицы
+        UserConfig().store("items_table.ID.width", str(self.ui.tableView_items.columnWidth(RepoItemTableModel.ID)))
+        UserConfig().store("items_table.TITLE.width", str(self.ui.tableView_items.columnWidth(RepoItemTableModel.TITLE)))
+        UserConfig().store("items_table.LIST_OF_TAGS.width", str(self.ui.tableView_items.columnWidth(RepoItemTableModel.LIST_OF_TAGS)))
+        UserConfig().store("items_table.STATE.width", str(self.ui.tableView_items.columnWidth(RepoItemTableModel.STATE)))
+        
         self.ui.statusbar.showMessage(self.tr("Main window state has saved."), 5000)
         
     def resizeEvent(self, resize_event):
@@ -234,8 +257,9 @@ class MainWindow(QtGui.QMainWindow):
                 raise MsgException(self.tr("Open a repository first."))
             query_text = self.ui.lineEdit_query.text()
             self.model.query(query_text)
-            self.ui.tableView_items.resizeColumnsToContents()
+            #self.ui.tableView_items.resizeColumnsToContents()            
             self.ui.tableView_items.resizeRowsToContents()
+            
         except Exception as ex:
             show_exc_info(self, ex)
         
@@ -318,7 +342,7 @@ class MainWindow(QtGui.QMainWindow):
                 self.model = RepoItemTableModel(repo, self.items_lock)
                 self.ui.tableView_items.setModel(self.model)
                 self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
-                self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
+                #self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
             else:
                 self.ui.label_repo.setText("")
                 self.model = None
