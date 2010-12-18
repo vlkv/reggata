@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Dec 13 23:07:01 2010
+# Created: Sat Dec 18 14:41:05 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -108,6 +108,8 @@ class Ui_MainWindow(object):
         self.action_help_about.setObjectName(_fromUtf8("action_help_about"))
         self.action_item_view_image_viewer = QtGui.QAction(MainWindow)
         self.action_item_view_image_viewer.setObjectName(_fromUtf8("action_item_view_image_viewer"))
+        self.action_item_check_integrity = QtGui.QAction(MainWindow)
+        self.action_item_check_integrity.setObjectName(_fromUtf8("action_item_check_integrity"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -118,11 +120,16 @@ class Ui_MainWindow(object):
         self.menuItem.addAction(self.action_item_add)
         self.menuItem.addAction(self.action_item_add_many)
         self.menuItem.addAction(self.action_item_add_many_rec)
+        self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_edit)
+        self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_delete)
+        self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_view)
         self.menuItem.addAction(self.action_item_view_image_viewer)
         self.menuItem.addAction(self.action_item_view_m3u)
+        self.menuItem.addSeparator()
+        self.menuItem.addAction(self.action_item_check_integrity)
         self.menuTools.addAction(self.action_tools_tag_cloud)
         self.menuHelp.addAction(self.action_help_about)
         self.menubar.addAction(self.menu_repo.menuAction())
@@ -162,4 +169,5 @@ class Ui_MainWindow(object):
         self.action_item_view_m3u.setText(QtGui.QApplication.translate("MainWindow", "Create m3u playlist and open it", None, QtGui.QApplication.UnicodeUTF8))
         self.action_help_about.setText(QtGui.QApplication.translate("MainWindow", "About Reggata", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_view_image_viewer.setText(QtGui.QApplication.translate("MainWindow", "View images with built-in viewer", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_check_integrity.setText(QtGui.QApplication.translate("MainWindow", "Check &integrity", None, QtGui.QApplication.UnicodeUTF8))
 

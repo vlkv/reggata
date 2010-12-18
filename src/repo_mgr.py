@@ -31,7 +31,8 @@ from sqlalchemy.orm import sessionmaker, joinedload, contains_eager,\
     joinedload_all
 from db_schema import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
     Thumbnail, HistoryRec
-from exceptions import LoginError, AccessError, FileAlreadyExistsError
+from exceptions import LoginError, AccessError, FileAlreadyExistsError,\
+    CannotOpenRepoError
 import shutil
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
@@ -51,21 +52,24 @@ class RepoMgr(object):
         '''Открывает хранилище по адресу path_to_repo. 
         Делает некторые проверки того, что хранилище корректно.'''
         
-        #self._base_path --- Абсолютный путь к корню хранилища
-        self._base_path = path_to_repo
-        if not os.path.exists(self.base_path + os.sep + consts.METADATA_DIR):
-            raise Exception(tr("Directory {} is not a repository base path.").format(self.base_path))
-        
-        engine_echo = bool(UserConfig().get("sqlalchemy.engine_echo") in ["True", "true", "TRUE", "1", "Yes", "yes", "YES"]) 
-        
-        #self.__engine --- Соединение с базой метаданных
-        self.__engine = sqa.create_engine(\
-            "sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE, \
-            echo=engine_echo)
-        
-        
-        #Класс сессии
-        self.Session = sessionmaker(bind=self.__engine) #expire_on_commit=False
+        try:
+            #self._base_path --- Абсолютный путь к корню хранилища
+            self._base_path = path_to_repo
+            if not os.path.exists(self.base_path + os.sep + consts.METADATA_DIR):
+                raise Exception(tr("Directory {} is not a repository base path.").format(self.base_path))
+            
+            engine_echo = bool(UserConfig().get("sqlalchemy.engine_echo") in ["True", "true", "TRUE", "1", "Yes", "yes", "YES"]) 
+            
+            #self.__engine --- Соединение с базой метаданных
+            self.__engine = sqa.create_engine(\
+                "sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE, \
+                echo=engine_echo)
+            
+            
+            #Класс сессии
+            self.Session = sessionmaker(bind=self.__engine) #expire_on_commit=False
+        except Exception as ex:
+            raise CannotOpenRepoError(ex)
         
     def __del__(self):
         pass
@@ -842,7 +846,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
     Для всех элементов хранилища тоже надо бы (но это потом может быть сделаю). 
     '''
     def __init__(self, parent, repo, items, lock):
-        super(ThumbnailBuilderThread, self).__init__(parent)
+        super(ItemIntegrityCheckerThread, self).__init__(parent)
         self.repo = repo
         self.items = items
         self.lock = lock
@@ -851,6 +855,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
     def run(self):        
         uow = self.repo.create_unit_of_work()
         try:
+            i = 0
             #Список self.items должен содержать только что извлеченные из БД элементы
             #(вместе с data_ref объектами).
             for item in self.items:
@@ -876,23 +881,22 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                     #    можно проверить, если size не совпадает, то hash тоже совпадать не должен будет
                     size = os.path.getsize(abs_path)
                     if item.data_ref.size != size:
-                        error_set.add(Item.ERROR_FILE_SIZE_MISMATCH)                    
+                        error_set.add(Item.ERROR_FILE_SIZE_MISMATCH)
                 
                 try:
                     self.lock.lockForWrite()
                     #Сохраняем результат
-                    if len(error_set) > 0:
-                        item.error = error_set
-                    else:
-                        item.error = set([Item.ERROR_OK])
-                    self.emit(QtCore.SIGNAL("item_checked"))
+                    item.error = error_set if len(error_set) > 0 else set([Item.ERROR_OK])
+                    
+                    i += 1
+                    self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
                 finally:
                     self.lock.unlock()
-                
                     
         except:
             print(traceback.format_exc())
         finally:
+            self.emit(QtCore.SIGNAL("finished"))
             uow.close()
             print("ItemIntegrityCheckerThread done.")
 

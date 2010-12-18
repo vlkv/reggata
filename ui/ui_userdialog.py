@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'userdialog.ui'
 #
-# Created: Mon Dec 13 23:07:01 2010
+# Created: Sat Dec 18 14:41:05 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!

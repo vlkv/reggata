@@ -44,7 +44,10 @@ class FileAlreadyExistsError(Exception):
     def __init__(self, msg):
         super(FileAlreadyExistsError, self).__init__(msg)
         
-        
+class CannotOpenRepoError(Exception):
+    def __init__(self, msg, cause=None):
+        super(CannotOpenRepoError, self).__init__(msg)
+        self.cause = cause
         
         
         

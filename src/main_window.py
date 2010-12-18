@@ -28,13 +28,14 @@ import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread, CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread
+from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread, CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
+    ItemIntegrityCheckerThread
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
     WaitDialog, raise_exc
 from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
-from exceptions import LoginError, MsgException
+from exceptions import LoginError, MsgException, CannotOpenRepoError
 from parsers import query_parser
 from tag_cloud import TagCloud
 import consts
@@ -78,6 +79,9 @@ class MainWindow(QtGui.QMainWindow):
         #Модель таблицы для отображения элементов хранилища
         self.model = None
         
+        #Это замок, который нужен для синхронизации доступа к списку элементов (результатов поиска)
+        self.items_lock = QtCore.QReadWriteLock()
+        
         #Контекстное меню
         self.menu = QtGui.QMenu()
         self.menu.addAction(self.ui.action_item_view)
@@ -108,6 +112,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view)
         self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
         self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u) 
+        self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
         
         self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
         
@@ -137,7 +142,13 @@ class MainWindow(QtGui.QMainWindow):
             tmp = UserConfig()["recent_repo.base_path"]
             self.active_repo = RepoMgr(tmp)
             self._login_recent_user()
-        except:
+        except CannotOpenRepoError:
+            self.ui.statusbar.showMessage(self.tr("Cannot open recent repository."), 5000)
+            self.active_repo = None
+        except LoginError:
+            self.ui.statusbar.showMessage(self.tr("Cannot login recent repository."), 5000)
+            self.active_user = None
+        except Exception as ex:
             self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), 5000)
         
         #В третьей колонке отображаем миниатюры изображений
@@ -283,34 +294,37 @@ class MainWindow(QtGui.QMainWindow):
         if not isinstance(repo, RepoMgr) and not repo is None:
             raise TypeError(self.tr("Argument must be of RepoMgr class."))
     
-        self.__active_repo = repo
-        
-        #Передаем новое хранилище виджету "облако тегов"
-        self.ui.tag_cloud.repo = repo
-        
-        if repo is not None:
-            #Запоминаем путь к хранилищу
-            UserConfig().store("recent_repo.base_path", repo.base_path)
+        try:
+            self.__active_repo = repo
+            
+            #Передаем новое хранилище виджету "облако тегов"
+            self.ui.tag_cloud.repo = repo
+            
+            if repo is not None:
+                #Запоминаем путь к хранилищу
+                UserConfig().store("recent_repo.base_path", repo.base_path)
+                    
+                #Отображаем в статус-баре имя хранилища
+                #Если путь оканчивается на os.sep то os.path.split() возвращает ""
+                (head, tail) = os.path.split(repo.base_path)
+                while tail == "" and head != "":
+                    (head, tail) = os.path.split(head)
+                self.ui.label_repo.setText("<b>" + tail + "</b>")
                 
-            #Отображаем в статус-баре имя хранилища
-            #Если путь оканчивается на os.sep то os.path.split() возвращает ""
-            (head, tail) = os.path.split(repo.base_path)
-            while tail == "" and head != "":
-                (head, tail) = os.path.split(head)
-            self.ui.label_repo.setText("<b>" + tail + "</b>")
-            
-            #Выводим сообщение
-            self.ui.statusbar.showMessage(self.tr("Opened repository from {}.").format(repo.base_path), 5000)
-            
-            #Строим новую модель для таблицы
-            self.model = RepoItemTableModel(repo)
-            self.ui.tableView_items.setModel(self.model)
-            self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
-            self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
-        else:
-            self.ui.label_repo.setText("")
-            self.model = None
-            self.ui.tableView_items.setModel(None)
+                #Выводим сообщение
+                self.ui.statusbar.showMessage(self.tr("Opened repository from {}.").format(repo.base_path), 5000)
+                
+                #Строим новую модель для таблицы
+                self.model = RepoItemTableModel(repo, self.items_lock)
+                self.ui.tableView_items.setModel(self.model)
+                self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
+                self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
+            else:
+                self.ui.label_repo.setText("")
+                self.model = None
+                self.ui.tableView_items.setModel(None)
+        except Exception as ex:
+            raise CannotOpenRepoError(str(ex), ex)
                 
     def _get_active_repo(self):
         return self.__active_repo
@@ -470,6 +484,38 @@ class MainWindow(QtGui.QMainWindow):
             show_exc_info(self, ex)
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+
+    def action_item_check_integrity(self):
+        try:
+            if self.active_repo is None:
+                raise MsgException(self.tr("Open a repository first."))
+            
+            if self.active_user is None:
+                raise MsgException(self.tr("Login to a repository first."))
+            
+            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
+            rows = set()
+            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
+                rows.add(idx.row())
+            
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            items = []
+            for row in rows:
+                items.append(self.model.items[row])
+             
+            thread = ItemIntegrityCheckerThread(self, self.active_repo, items, self.items_lock)
+            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+            self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Integrity check is done.")))            
+            self.connect(thread, QtCore.SIGNAL("progress"), lambda percent: self.ui.statusbar.showMessage(self.tr("Integrity check {0}% done.").format(percent)))
+            thread.start()
+            
+        except Exception as ex:
+            show_exc_info(self, ex)
+        else:
+            pass
+
 
     def action_item_view_m3u(self):
         try:
@@ -849,7 +895,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
     IMAGE_THUMB = 2
     LIST_OF_TAGS = 3
     
-    def __init__(self, repo):
+    def __init__(self, repo, items_lock):
         super(RepoItemTableModel, self).__init__()
         self.repo = repo
         self.items = []
@@ -859,7 +905,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         self.thread = None
         
         #Это замок, который нужен для синхронизации доступа к списку self.items
-        self.lock = QtCore.QReadWriteLock()
+        self.lock = items_lock
         
         self.timer = QtCore.QTimer(self)
         self.timer.setSingleShot(True)
