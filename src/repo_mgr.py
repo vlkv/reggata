@@ -901,7 +901,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                     item.error = error_set if len(error_set) > 0 else set([Item.ERROR_OK])
                     
                     i += 1
-                    self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
+                    self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), i)
                 finally:
                     self.lock.unlock()
                     

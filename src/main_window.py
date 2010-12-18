@@ -48,6 +48,7 @@ import traceback
 import ui_aboutdialog
 
 
+
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
 #TODO Добавить поиск Item-ов, DataRef которых ссылается на несуществующий файл
 #TODO Реализовать до конца грамматику языка запросов (прежде всего фильтрацию по директориям и пользователям)
@@ -511,10 +512,13 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_item_check_integrity(self):
         
-        def refresh(percent):
+        def refresh(percent, row=None):
             self.ui.statusbar.showMessage(self.tr("Integrity check {0}% done.").format(percent))
-            self.model.reset()
-            
+            if row:
+                self.model.resetSingleRow(row)
+            else:
+                self.model.reset()
+            QtCore.QCoreApplication.processEvents()
         
         try:
             if self.active_repo is None:
@@ -941,6 +945,11 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         self.timer = QtCore.QTimer(self)
         self.timer.setSingleShot(True)
         self.connect(self.timer, QtCore.SIGNAL("timeout()"), self.reset)
+
+    def resetSingleRow(self, row):
+        topL = self.createIndex(row, self.ID)
+        bottomR = self.createIndex(row, self.STATE)        
+        self.emit(QtCore.SIGNAL("dataChanged (const QModelIndex&, const QModelIndex&)"), topL, bottomR)
 
     def deferred_reset(self):
         if not self.timer.isActive():
