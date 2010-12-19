@@ -49,6 +49,7 @@ import ui_aboutdialog
 
 
 
+
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
 #TODO Добавить поиск Item-ов, DataRef которых ссылается на несуществующий файл
 #TODO Реализовать до конца грамматику языка запросов (прежде всего фильтрацию по директориям и пользователям)
@@ -527,9 +528,9 @@ class MainWindow(QtGui.QMainWindow):
     def action_item_check_integrity(self):
         
         def refresh(percent, row):
-            self.ui.statusbar.showMessage(self.tr("Integrity check {0}% done.").format(percent))            
+            self.ui.statusbar.showMessage(self.tr("Integrity check {0}%").format(percent))            
             self.model.reset_single_row(row)            
-            #QtCore.QCoreApplication.processEvents()
+            QtCore.QCoreApplication.processEvents()
         
         try:
             if self.active_repo is None:
@@ -554,7 +555,7 @@ class MainWindow(QtGui.QMainWindow):
              
             thread = ItemIntegrityCheckerThread(self, self.active_repo, items, self.items_lock)
             self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
-            self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Integrity check is done.")))            
+            self.connect(thread, QtCore.SIGNAL("finished"), lambda error_count: self.ui.statusbar.showMessage(self.tr("Integrity check is done. {0} Items with errors.").format(error_count)))            
             self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
             thread.start()
             

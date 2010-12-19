@@ -867,12 +867,13 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
         self.interrupt = False
     
     def run(self):
+        error_count = 0
         uow = self.repo.create_unit_of_work()
         try:
-            i = 0
             #Список self.items должен содержать только что извлеченные из БД элементы
             #(вместе с data_ref объектами).
-            for item in self.items:
+            for i in range(len(self.items)):
+                item = self.items[i]
                 
                 error_set = set()
                 #Нужно проверить, есть ли запись в истории
@@ -900,7 +901,11 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                 try:
                     self.lock.lockForWrite()
                     #Сохраняем результат
-                    item.error = error_set if len(error_set) > 0 else set([Item.ERROR_OK])
+                    if len(error_set) > 0:
+                        item.error = error_set
+                        error_count += 1  
+                    else:
+                        item.error = set([Item.ERROR_OK])
                     
                     self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
                     
@@ -910,7 +915,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
         except:
             print(traceback.format_exc())
         finally:
-            self.emit(QtCore.SIGNAL("finished"))
+            self.emit(QtCore.SIGNAL("finished"), error_count)
             uow.close()
             print("ItemIntegrityCheckerThread done.")
 
