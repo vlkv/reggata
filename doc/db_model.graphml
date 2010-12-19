@@ -253,16 +253,39 @@ url_1="адрес 1", url_2="адрес 2" и т.п.</y:NodeLabel>
       <data key="d2"><![CDATA[UMLClass]]></data>
       <data key="d3">
         <y:UMLClassNode>
-          <y:Geometry height="112.70353822838285" width="174.15807999999993" x="1162.5031219710577" y="316.79243572999945"/>
+          <y:Geometry height="99.28010978206703" width="174.15807999999993" x="1162.5031219710577" y="316.79243572999945"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="75.89990234375" x="49.129088828124964" y="3.0">Thumbnail</y:NodeLabel>
           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
             <y:AttributeLabel>data_ref_id (PK)
 size (PK)
-dimension
 data
 date_created</y:AttributeLabel>
+            <y:MethodLabel/>
+          </y:UML>
+        </y:UMLClassNode>
+      </data>
+    </node>
+    <node id="n13">
+      <data key="d1"/>
+      <data key="d2"><![CDATA[UMLClass]]></data>
+      <data key="d3">
+        <y:UMLClassNode>
+          <y:Geometry height="170.43233684210534" width="311.7578105263158" x="1612.1209572153684" y="-184.58929185051923"/>
+          <y:Fill color="#FFCC00" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.12646484375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="76.287109375" x="117.73535057565789" y="3.0">HistoryRec</y:NodeLabel>
+          <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
+            <y:AttributeLabel>id (PK)
+parent1_id (внешний ключ "history_recs.id")
+parent2_id (внешний ключ "history_recs.id")
+item_id
+item_hash
+data_ref_hash
+data_ref_url
+operation Enum{CREATE, UPDATE, DELETE, MERGE}
+user_login</y:AttributeLabel>
             <y:MethodLabel/>
           </y:UML>
         </y:UMLClassNode>
@@ -451,13 +474,39 @@ date_created</y:AttributeLabel>
     <edge id="e17" source="n3" target="n12">
       <data key="d7">
         <y:BezierEdge>
-          <y:Path sx="0.0" sy="0.0" tx="17.707771928942066" ty="-17.690923930191502"/>
+          <y:Path sx="0.0" sy="0.0" tx="17.707771928942066" ty="-15.583866287999943"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="diamond" target="none"/>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="shead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="11.587890625" x="-14.7677587181106" y="10.114982733005434">1</y:EdgeLabel>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="69.267578125" x="1.574976644710432" y="10.114982733005434">thumbnails</y:EdgeLabel>
-          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="thead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="24.96484375" x="-29.462211278141694" y="41.46725567628852">0..*</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="shead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="11.587890625" x="-14.796702610599368" y="10.092064031833559">1</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="stail" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="69.267578125" x="1.5651935670794046" y="10.092064031833559">thumbnails</y:EdgeLabel>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="six_pos" modelPosition="thead" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="24.96484375" x="-29.524598290102404" y="41.44433697511664">0..*</y:EdgeLabel>
         </y:BezierEdge>
+      </data>
+    </edge>
+    <edge id="e18" source="n13" target="n13">
+      <data key="d6"/>
+      <data key="d7">
+        <y:ArcEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
+            <y:Point x="1767.9998779296875" y="-99.37312316894531"/>
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="standard"/>
+          <y:Arc height="0.0" ratio="1.0" type="fixedRatio"/>
+        </y:ArcEdge>
+      </data>
+    </edge>
+    <edge id="e19" source="n13" target="n1">
+      <data key="d6"/>
+      <data key="d7">
+        <y:SplineEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
+            <y:Point x="1578.0638203732628" y="-55.73286305326326"/>
+            <y:Point x="1449.4965782679997" y="9.811221157263049"/>
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="none"/>
+        </y:SplineEdge>
       </data>
     </edge>
   </graph>
