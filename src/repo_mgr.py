@@ -421,9 +421,12 @@ class UnitOfWork(object):
     def _check_item_integrity(session, item, repo_base_path):
         '''Возвращает множество целых чисел (кодов ошибок). Коды ошибок (константы)
         объявлены как статические члены класса Item.
+        
+        Если ошибок нет, то возвращает пустое множество.
         '''
         
         error_set = set()
+        
         #Нужно проверить, есть ли запись в истории
         hr = UnitOfWork._find_item_latest_history_rec(session, item)
         if hr is None:
@@ -446,7 +449,7 @@ class UnitOfWork(object):
                 if item.data_ref.size != size:
                     error_set.add(Item.ERROR_FILE_SIZE_MISMATCH)
         
-        return error_set if len(error_set) > 0 else set([Item.ERROR_OK])
+        return error_set
 
     @staticmethod
     def _find_item_latest_history_rec(session, item_0):
@@ -1081,7 +1084,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                     #Сохраняем результат
                     item.error = error_set
                     
-                    if Item.ERROR_OK not in error_set or len(error_set) > 1:                        
+                    if len(error_set) > 0:                        
                         error_count += 1  
                     
                     self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)

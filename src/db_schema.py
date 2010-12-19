@@ -116,8 +116,7 @@ class Item(Base):
     Элемент (запись, объект) хранилища.
     '''
     __tablename__ = "items"
-    
-    ERROR_OK = 0 #Это не ошибка, была проведена проверка, все хорошо
+        
     ERROR_FILE_NOT_FOUND = 1
     ERROR_FILE_HASH_MISMATCH = 2
     ERROR_FILE_SIZE_MISMATCH = 3
@@ -173,21 +172,22 @@ class Item(Base):
     @staticmethod
     def format_error_set(error_set):
         
-        if error_set is not None:
-            s = ""
-            for error in error_set:
-                if error == Item.ERROR_OK:
-                    s += tr("No errors") + os.linesep
-                elif error == Item.ERROR_FILE_HASH_MISMATCH:
-                    s += tr("{0}. Physical file has changed (hash mismatch)").format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
-                elif error == Item.ERROR_FILE_NOT_FOUND:
-                    s += tr("{0}. Physical file not found").format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
-                elif error == Item.ERROR_FILE_SIZE_MISMATCH:
-                    s += tr("{0}. Size of physical file has changed").format(Item.ERROR_FILE_SIZE_MISMATCH) + os.linesep
-                elif error == Item.ERROR_HISTORY_REC_NOT_FOUND:
-                    s += tr("{0}. There is no corresponding history record for this item").format(Item.ERROR_HISTORY_REC_NOT_FOUND) + os.linesep
-            if s.endswith(os.linesep):
-                s = s[:-1]
+        if error_set is not None:            
+            if len(error_set) == 0:
+                s = tr("No errors")
+            else:
+                s = ""
+                for error in error_set:
+                    if error == Item.ERROR_FILE_HASH_MISMATCH:
+                        s += tr("{0}. Physical file has changed (hash mismatch)").format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
+                    elif error == Item.ERROR_FILE_NOT_FOUND:
+                        s += tr("{0}. Physical file not found").format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
+                    elif error == Item.ERROR_FILE_SIZE_MISMATCH:
+                        s += tr("{0}. Size of physical file has changed").format(Item.ERROR_FILE_SIZE_MISMATCH) + os.linesep
+                    elif error == Item.ERROR_HISTORY_REC_NOT_FOUND:
+                        s += tr("{0}. There is no corresponding history record for this item").format(Item.ERROR_HISTORY_REC_NOT_FOUND) + os.linesep
+                if s.endswith(os.linesep):
+                    s = s[:-1]
         else:
             s = "Item integrity isn't checked yet"
             
@@ -199,14 +199,15 @@ class Item(Base):
         if error_set is None:
             #Целостность не проверялась
             return ""
-        if (Item.ERROR_OK in error_set and len(error_set) == 1) or len(error_set) == 0:
+        if len(error_set) <= 0:
             #Ошибок нет, целостность в порядке
             return 'OK'
         elif len(error_set) > 0:
             #Есть ошибки
             err_nums = helpers.to_commalist(error_set)
             return 'Errors: {0}'.format(err_nums)
-        return ""
+        
+        
 
 
     def hash(self):
