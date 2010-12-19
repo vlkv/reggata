@@ -162,12 +162,12 @@ class Item(Base):
             self.date_created = datetime.datetime.today()
                     
         self.error = None
-        self.error_msg = None
+        
             
     @orm.reconstructor
     def __init_on_load__(self):
         self.error = None #Если error равен None, то проверку целостности просто не проводили
-        self.error_msg = None
+        
         
     
     @staticmethod
