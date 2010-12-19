@@ -891,12 +891,15 @@ class ItemIntegrityFixerThread(QtCore.QThread):
     Нужно сделать функцию, чтобы запускать данный поток для выделенной группы элементов. 
     Для всех элементов хранилища тоже надо бы (но это потом может быть сделаю). 
     '''
-    def __init__(self, parent, repo, items, lock):
+    def __init__(self, parent, repo, items, lock, strategy):
         super(ItemIntegrityFixerThread, self).__init__(parent)
         self.repo = repo
         self.items = items
         self.lock = lock
         self.interrupt = False
+        
+        #Это словарь, в котором ключи - это коды ошибок, а значения - способ исправления данной ошибки
+        self.strategy = strategy
     
     def run(self):
         
@@ -908,6 +911,23 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                 item = self.items[i]
                 
                 #TODO
+                
+                #ERROR_OK  #Это не ошибка, делать ничего не нужно
+                
+                #ERROR_FILE_NOT_FOUND 
+                #Файл либо перемещен, либо удален (или изменен и перемещен, 
+                #это в данном случае эквивалентно удалению)
+                # 1) Искать файл внутри хранилища по его хешу, если найден, привязать к элементу
+                # 2) Также искать файл, и если не найден, то удалить "висячий" DataRef объект
+                 
+                #ERROR_FILE_HASH_MISMATCH #Файл изменился (возможно очень сильно).
+                # 1) перепривязать элемент к новому файлу и сохранить новый хеш.
+                # 2) провести поиск в хранилище файла по хешу.
+                
+                #ERROR_FILE_SIZE_MISMATCH Фактически, это эквивалентно ERROR_FILE_HASH_MISMATCH 
+                
+                #ERROR_HISTORY_REC_NOT_FOUND В таком случае можно сделать запись CREATE в истории, как будто 
+                #элемент был создан только что
                 
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
                     
