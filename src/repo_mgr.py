@@ -418,6 +418,37 @@ class UnitOfWork(object):
         return user
 
     @staticmethod
+    def _check_item_integrity(session, item, repo_base_path):
+        '''Возвращает множество целых чисел (кодов ошибок). Коды ошибок (константы)
+        объявлены как статические члены класса Item.
+        '''
+        
+        error_set = set()
+        #Нужно проверить, есть ли запись в истории
+        hr = UnitOfWork._find_item_latest_history_rec(session, item)
+        if hr is None:
+            error_set.add(Item.ERROR_HISTORY_REC_NOT_FOUND)
+        
+        #Если есть связанный DataRef объект типа FILE,
+        if item.data_ref is not None and item.data_ref.type == DataRef.FILE:                    
+            #    нужно проверить есть ли файл
+            abs_path = os.path.join(repo_base_path, item.data_ref.url)
+            if not os.path.exists(abs_path):
+                error_set.add(Item.ERROR_FILE_NOT_FOUND)
+            else:                                            
+                #    нужно проверить, совпадает ли хеш файла со значением DataRef.hash
+                hash = helpers.compute_hash(abs_path)
+                if item.data_ref.hash != hash:
+                    error_set.add(Item.ERROR_FILE_HASH_MISMATCH)
+                
+                #    можно проверить, если size не совпадает, то hash тоже совпадать не должен будет
+                size = os.path.getsize(abs_path)
+                if item.data_ref.size != size:
+                    error_set.add(Item.ERROR_FILE_SIZE_MISMATCH)
+        
+        return error_set if len(error_set) > 0 else set([Item.ERROR_OK])
+
+    @staticmethod
     def _find_item_latest_history_rec(session, item_0):
         '''
         Возвращает последнюю запись из истории, относящуюся к элементу item_0.
@@ -850,6 +881,44 @@ class UnitOfWork(object):
                 pass
             
         self._session.commit()
+    
+
+class ItemIntegrityFixerThread(QtCore.QThread):
+    '''
+    Поток, выполняющий исправление целостности выбранной группы элементов (обычно из 
+    результатов поискового запроса). 
+    
+    Нужно сделать функцию, чтобы запускать данный поток для выделенной группы элементов. 
+    Для всех элементов хранилища тоже надо бы (но это потом может быть сделаю). 
+    '''
+    def __init__(self, parent, repo, items, lock):
+        super(ItemIntegrityFixerThread, self).__init__(parent)
+        self.repo = repo
+        self.items = items
+        self.lock = lock
+        self.interrupt = False
+    
+    def run(self):
+        
+        uow = self.repo.create_unit_of_work()
+        try:
+            #Список self.items должен содержать только что извлеченные из БД элементы
+            #(вместе с data_ref объектами).
+            for i in range(len(self.items)):
+                item = self.items[i]
+                
+                #TODO
+                
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
+                    
+        except:
+            print(traceback.format_exc())
+        finally:
+            self.emit(QtCore.SIGNAL("finished"))
+            uow.close()
+            print("ItemIntegrityFixerThread done.")
+
+
        
 class ItemIntegrityCheckerThread(QtCore.QThread):
     '''
@@ -875,37 +944,16 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
             for i in range(len(self.items)):
                 item = self.items[i]
                 
-                error_set = set()
-                #Нужно проверить, есть ли запись в истории
-                hr = UnitOfWork._find_item_latest_history_rec(uow.session, item)
-                if hr is None:
-                    error_set.add(Item.ERROR_HISTORY_REC_NOT_FOUND)
-                
-                #Если есть связанный DataRef объект типа FILE,
-                if item.data_ref is not None and item.data_ref.type == DataRef.FILE:                    
-                    #    нужно проверить есть ли файл
-                    abs_path = os.path.join(self.repo.base_path, item.data_ref.url)
-                    if not os.path.exists(abs_path):
-                        error_set.add(Item.ERROR_FILE_NOT_FOUND)
-                    else:                                            
-                        #    нужно проверить, совпадает ли хеш файла со значением DataRef.hash
-                        hash = helpers.compute_hash(abs_path)
-                        if item.data_ref.hash != hash:
-                            error_set.add(Item.ERROR_FILE_HASH_MISMATCH)
-                        
-                        #    можно проверить, если size не совпадает, то hash тоже совпадать не должен будет
-                        size = os.path.getsize(abs_path)
-                        if item.data_ref.size != size:
-                            error_set.add(Item.ERROR_FILE_SIZE_MISMATCH)
+                error_set = UnitOfWork._check_item_integrity(uow.session, item, self.repo._base_path)
                 
                 try:
                     self.lock.lockForWrite()
+                    
                     #Сохраняем результат
-                    if len(error_set) > 0:
-                        item.error = error_set
+                    item.error = error_set
+                    
+                    if Item.ERROR_OK not in error_set or len(error_set) > 1:                        
                         error_count += 1  
-                    else:
-                        item.error = set([Item.ERROR_OK])
                     
                     self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
                     
