@@ -197,12 +197,15 @@ class Item(Base):
     def format_error_set_short(error_set):
 
         if error_set is None:
+            #Целостность не проверялась
             return ""
-        if Item.ERROR_OK in error_set and len(error_set) == 1:
+        if (Item.ERROR_OK in error_set and len(error_set) == 1) or len(error_set) == 0:
+            #Ошибок нет, целостность в порядке
             return 'OK'
         elif len(error_set) > 0:
+            #Есть ошибки
             err_nums = helpers.to_commalist(error_set)
-            return 'Errors: {0}'.format(err_nums)    
+            return 'Errors: {0}'.format(err_nums)
         return ""
 
 

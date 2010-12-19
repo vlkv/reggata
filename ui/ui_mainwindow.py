@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Dec 18 14:41:05 2010
+# Created: Mon Dec 20 00:11:11 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -47,7 +47,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.frame)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 26))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName(_fromUtf8("menu_repo"))
@@ -110,6 +110,8 @@ class Ui_MainWindow(object):
         self.action_item_view_image_viewer.setObjectName(_fromUtf8("action_item_view_image_viewer"))
         self.action_item_check_integrity = QtGui.QAction(MainWindow)
         self.action_item_check_integrity.setObjectName(_fromUtf8("action_item_check_integrity"))
+        self.action_item_fix_history_rec_error = QtGui.QAction(MainWindow)
+        self.action_item_fix_history_rec_error.setObjectName(_fromUtf8("action_item_fix_history_rec_error"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -130,6 +132,7 @@ class Ui_MainWindow(object):
         self.menuItem.addAction(self.action_item_view_m3u)
         self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_check_integrity)
+        self.menuItem.addAction(self.action_item_fix_history_rec_error)
         self.menuTools.addAction(self.action_tools_tag_cloud)
         self.menuHelp.addAction(self.action_help_about)
         self.menubar.addAction(self.menu_repo.menuAction())
@@ -170,4 +173,5 @@ class Ui_MainWindow(object):
         self.action_help_about.setText(QtGui.QApplication.translate("MainWindow", "About Reggata", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_view_image_viewer.setText(QtGui.QApplication.translate("MainWindow", "View images with built-in viewer", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_check_integrity.setText(QtGui.QApplication.translate("MainWindow", "Check &integrity", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_fix_history_rec_error.setText(QtGui.QApplication.translate("MainWindow", "Fix history rec error", None, QtGui.QApplication.UnicodeUTF8))
 

@@ -29,7 +29,8 @@ from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread, CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
-    ItemIntegrityCheckerThread
+    ItemIntegrityCheckerThread, ItemIntegrityFixerThread,\
+    HistoryRecNotFoundFixer
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
     WaitDialog, raise_exc
 from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
@@ -95,6 +96,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addAction(self.ui.action_item_delete)
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_check_integrity)
+        self.menu.addAction(self.ui.action_item_fix_history_rec_error)
         #Добавляем его к таблице 
         self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
         self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
@@ -119,6 +121,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
         self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u) 
         self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
+        self.connect(self.ui.action_item_fix_history_rec_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
         
         self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
         
@@ -524,6 +527,51 @@ class MainWindow(QtGui.QMainWindow):
             show_exc_info(self, ex)
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+
+    def action_item_fix_history_rec_error(self):
+        
+        def refresh(percent, row):
+            self.ui.statusbar.showMessage(self.tr("Integrity fix {0}%").format(percent))
+            self.model.reset_single_row(row)
+            QtCore.QCoreApplication.processEvents()
+        
+        try:
+            if self.active_repo is None:
+                raise MsgException(self.tr("Open a repository first."))
+            
+            if self.active_user is None:
+                raise MsgException(self.tr("Login to a repository first."))
+            
+            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
+            rows = set()
+            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
+                rows.add(idx.row())
+            
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            items = []
+            for row in rows:
+                #Нужно в элементе сохранить номер строки таблицы, откуда взят элемент
+                self.model.items[row].table_row = row
+                items.append(self.model.items[row])
+            
+            strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
+            thread = ItemIntegrityFixerThread(self, self.active_repo, items, self.items_lock, strategy)
+            
+            #TODO
+            
+            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+            self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Integrity fixing is done.")))
+            self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
+            thread.start()
+            
+            
+            
+        except Exception as ex:
+            show_exc_info(self, ex)
+        else:
+            pass
 
     def action_item_check_integrity(self):
         

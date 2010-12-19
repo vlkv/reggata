@@ -59,7 +59,7 @@
      <x>0</x>
      <y>0</y>
      <width>659</width>
-     <height>29</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_repo" >
@@ -96,6 +96,7 @@
     <addaction name="action_item_view_m3u" />
     <addaction name="separator" />
     <addaction name="action_item_check_integrity" />
+    <addaction name="action_item_fix_history_rec_error" />
    </widget>
    <widget class="QMenu" name="menuTools" >
     <property name="title" >
@@ -228,6 +229,11 @@
   <action name="action_item_check_integrity" >
    <property name="text" >
     <string>Check &amp;integrity</string>
+   </property>
+  </action>
+  <action name="action_item_fix_history_rec_error" >
+   <property name="text" >
+    <string>Fix history rec error</string>
    </property>
   </action>
  </widget>
