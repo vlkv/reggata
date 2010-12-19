@@ -883,6 +883,69 @@ class UnitOfWork(object):
         self._session.commit()
     
 
+class IntegrityFixer(object):
+    
+    @staticmethod
+    def create_fixer(code, strategy, uow):
+        if code == IntegrityFixer.ERROR_FILE_NOT_FOUND:
+            return FileNotFoundFixer(strategy, uow)
+        elif code == IntegrityFixer.ERROR_FILE_HASH_MISMATCH:
+            return FileHashMismatchFixer(strategy, uow)
+        elif code == IntegrityFixer.ERROR_HISTORY_REC_NOT_FOUND:
+            return HistoryRecNotFoundFixer(strategy, uow)
+        else
+            raise Exception(tr("There is no fixer class for item integrity error code {0}").format(code))
+
+    def code(self):
+        raise NotImplementedError(tr("This is an abstract class."))
+    
+class FileNotFoundFixer(IntegrityFixer):
+    TRY_FIND = 0 #Искать оригинальный файл
+    TRY_FIND_ELSE_DELETE = 1 #Искать оригинальный файл, если не найден, то удалить DataRef объект
+    DELETE = 2 #Удалить DataRef объект
+    
+    def __init__(self, strategy, uow):
+        if strategy not in [self.TRY_FIND, self.TRY_FIND_ELSE_DELETE, self.DELETE]:
+            raise Exception(tr("Wrong strategy value {0}").format(strategy))
+        self.strategy = strategy
+        self.uow = uow
+    
+    def code(self):
+        return Item.ERROR_FILE_NOT_FOUND
+        
+
+class FileHashMismatchFixer(IntegrityFixer):
+    TRY_FIND_FILE = 0 #Искать оригинальный файл
+    UPDATE_HASH = 1 #Записать новое значение хеша в объект DataRef
+    
+    def __init__(self, strategy, uow):
+        if strategy not in [self.UPDATE_HASH, self.TRY_FIND_FILE]:
+            raise Exception(tr("Wrong strategy value {0}").format(strategy))
+        self.strategy = strategy
+        self.uow = uow
+        
+    def code(self):
+        return Item.ERROR_FILE_HASH_MISMATCH
+    
+
+class FileSizeMismatchFixer(FileHashMismatchFixer):
+    #Класс по сути ничем не отличается от FileHashMismatchFixer 
+    def code(self):
+        return Item.ERROR_FILE_SIZE_MISMATCH
+
+class HistoryRecNotFoundFixer(IntegrityFixer):
+    TRY_PROCEED = 0 #Попытаться найти историю элемента и привязаться к ней
+    TRY_PROCEED_ELSE_RENEW = 1 #Попытаться найти историю элемента и привязаться к ней, если не получится, то создать новую запись CREATE в истории
+    
+    def __init__(self, strategy, uow):
+        if strategy not in [self.TRY_PROCEED, self.TRY_PROCEED_ELSE_RENEW]:
+            raise Exception(tr("Wrong strategy value {0}").format(strategy))
+        self.strategy = strategy
+        self.uow = uow
+    
+    def code(self):
+        return Item.ERROR_HISTORY_REC_NOT_FOUND
+
 class ItemIntegrityFixerThread(QtCore.QThread):
     '''
     Поток, выполняющий исправление целостности выбранной группы элементов (обычно из 
@@ -900,6 +963,8 @@ class ItemIntegrityFixerThread(QtCore.QThread):
         
         #Это словарь, в котором ключи - это коды ошибок, а значения - способ исправления данной ошибки
         self.strategy = strategy
+        #Задавать стратегию исправления ошибок хотелось бы несложным образом:
+        #strategy = {ERROR_FILE_NOT_FOUND: STRATEGY_1, ERROR_FILE_SIZE_MISMATCH: STRATEGY_2} и т.п.
     
     def run(self):
         
@@ -912,22 +977,38 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                 
                 #TODO
                 
+                #Сначала смотрим, проверялся ли item на целостность данных?
+                #Если нет, то проверяем
+                
+                #Смотрим, есть ли у item-а ошибки
+                #Для каждой ошибки item-а нужно
+                #глянуть, есть ли стратегия исправления в поле self.strategy для данной ошибки?                
+                #если нет, то пропускаем, ничего не делаем
+                #если есть, то выполняем исправление ошибки
+                #сообщаем, что элемент нужно обновить
+                
+                
                 #ERROR_OK  #Это не ошибка, делать ничего не нужно
                 
                 #ERROR_FILE_NOT_FOUND 
                 #Файл либо перемещен, либо удален (или изменен и перемещен, 
                 #это в данном случае эквивалентно удалению)
-                # 1) Искать файл внутри хранилища по его хешу, если найден, привязать к элементу
-                # 2) Также искать файл, и если не найден, то удалить "висячий" DataRef объект
+                # 1) Искать файл внутри хранилища по его хешу, если найден, привязать к элементу. Если не найден, ничего не делать.
+                # 2) Также искать файл, и, если не найден, то удалить "висячий" DataRef объект
                  
                 #ERROR_FILE_HASH_MISMATCH #Файл изменился (возможно очень сильно).
                 # 1) перепривязать элемент к новому файлу и сохранить новый хеш.
-                # 2) провести поиск в хранилище файла по хешу.
+                # 2) провести поиск в хранилище файла по хешу. Если нужный файл не найден, то ничего не менять.
                 
                 #ERROR_FILE_SIZE_MISMATCH Фактически, это эквивалентно ERROR_FILE_HASH_MISMATCH 
+                #Поэтому те же действия
                 
-                #ERROR_HISTORY_REC_NOT_FOUND В таком случае можно сделать запись CREATE в истории, как будто 
+                #ERROR_HISTORY_REC_NOT_FOUND В таком случае можно 
+                #1) сделать запись CREATE в истории, как будто 
                 #элемент был создан только что
+                #2) Попробовать найти в истории последнюю запись для данного элемента (по Item.id).
+                #Если такая запись найдется, то создать очередную запись UPDATE.
+                #Если не найдется, то либо 2a) ничего не делать, либо 2б) создать запись CREATE как в первом пункте
                 
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
                     
