@@ -32,7 +32,7 @@ from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread
     ItemIntegrityCheckerThread, ItemIntegrityFixerThread,\
     HistoryRecNotFoundFixer
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
-    WaitDialog, raise_exc
+    WaitDialog, raise_exc, format_exc_info
 from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
@@ -559,14 +559,10 @@ class MainWindow(QtGui.QMainWindow):
             strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
             thread = ItemIntegrityFixerThread(self, self.active_repo, items, self.items_lock, strategy, self.active_user.login)
             
-            #TODO
-            
-            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+            self.connect(thread, QtCore.SIGNAL("exception"), lambda exc_info: show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
             self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Integrity fixing is done.")))
             self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
             thread.start()
-            
-            
             
         except Exception as ex:
             show_exc_info(self, ex)

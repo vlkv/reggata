@@ -75,19 +75,32 @@ class MyMessageBox(QtGui.QMessageBox):
             
         return result
 
-def show_exc_info(parent, ex, tracebk=True):
+def show_exc_info(parent, ex, tracebk=True, details=None, title=None):
     '''
     Если traceback задать равным False, то окно не содержит раздел DetailedText
     с информацией о stack trace (как это по русски сказать?).
+    
+    Если задать details, то данный текст выводится в разделе DetailedText, причем
+    неважно чему при этом равен tracebk (он игнорируется).
+    
+    Параметр title позволяет задать другой заголовок окна.
     '''
+    
+    #if tracebk and not is_none_or_empty(details):
+    #    raise ValueError(tr("details cannot be not None or empty if tracebk is True."))
+    
     mb = MyMessageBox(parent)
-    mb.setWindowTitle(tr("Information"))
+    mb.setWindowTitle(tr("Information") if title is None else title)
     mb.setText(str(ex))
-    if tracebk:
+    if not is_none_or_empty(details):
+        mb.setDetailedText(details)
+    elif tracebk:
         mb.setDetailedText(traceback.format_exc())
+    
     mb.exec_()
     
-    
+def format_exc_info(type, value, tb):    
+    return ''.join(traceback.format_exception(type, value, tb))
 
 class DialogMode(object):
     CREATE = 0
