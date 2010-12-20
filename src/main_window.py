@@ -557,7 +557,7 @@ class MainWindow(QtGui.QMainWindow):
                 items.append(self.model.items[row])
             
             strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
-            thread = ItemIntegrityFixerThread(self, self.active_repo, items, self.items_lock, strategy)
+            thread = ItemIntegrityFixerThread(self, self.active_repo, items, self.items_lock, strategy, self.active_user.login)
             
             #TODO
             

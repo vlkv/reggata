@@ -889,13 +889,13 @@ class UnitOfWork(object):
 class IntegrityFixer(object):
     
     @staticmethod
-    def create_fixer(code, strategy, uow):
+    def create_fixer(code, strategy, uow, repo_base_path):
         if code == Item.ERROR_FILE_NOT_FOUND:
-            return FileNotFoundFixer(strategy, uow)
+            return FileNotFoundFixer(strategy, uow, repo_base_path)
         elif code == Item.ERROR_FILE_HASH_MISMATCH:
-            return FileHashMismatchFixer(strategy, uow)
+            return FileHashMismatchFixer(strategy, uow, repo_base_path)
         elif code == Item.ERROR_HISTORY_REC_NOT_FOUND:
-            return HistoryRecNotFoundFixer(strategy, uow)
+            return HistoryRecNotFoundFixer(strategy, uow, repo_base_path)
         else:
             raise Exception(tr("There is no fixer class for item integrity error code {0}").format(code))
 
@@ -907,11 +907,12 @@ class FileNotFoundFixer(IntegrityFixer):
     TRY_FIND_ELSE_DELETE = 1 #Искать оригинальный файл, если не найден, то удалить DataRef объект
     DELETE = 2 #Удалить DataRef объект
     
-    def __init__(self, strategy, uow):
+    def __init__(self, strategy, uow, repo_base_path):
         if strategy not in [self.TRY_FIND, self.TRY_FIND_ELSE_DELETE, self.DELETE]:
             raise Exception(tr("Wrong strategy value {0}").format(strategy))
         self.strategy = strategy
         self.uow = uow
+        self.repo_base_path = repo_base_path
     
     def code(self):
         return Item.ERROR_FILE_NOT_FOUND
@@ -921,11 +922,12 @@ class FileHashMismatchFixer(IntegrityFixer):
     TRY_FIND_FILE = 0 #Искать оригинальный файл
     UPDATE_HASH = 1 #Записать новое значение хеша в объект DataRef
     
-    def __init__(self, strategy, uow):
+    def __init__(self, strategy, uow, repo_base_path):
         if strategy not in [self.UPDATE_HASH, self.TRY_FIND_FILE]:
             raise Exception(tr("Wrong strategy value {0}").format(strategy))
         self.strategy = strategy
         self.uow = uow
+        self.repo_base_path = repo_base_path
         
     def code(self):
         return Item.ERROR_FILE_HASH_MISMATCH
@@ -940,7 +942,7 @@ class HistoryRecNotFoundFixer(IntegrityFixer):
     TRY_PROCEED = 0 #Попытаться найти историю элемента и привязаться к ней
     TRY_PROCEED_ELSE_RENEW = 1 #Попытаться найти историю элемента и привязаться к ней, если не получится, то создать новую запись CREATE в истории
     
-    def __init__(self, strategy, uow):
+    def __init__(self, strategy, uow, repo_base_path):
         if strategy not in [self.TRY_PROCEED, self.TRY_PROCEED_ELSE_RENEW]:
             raise Exception(tr("Wrong strategy value {0}").format(strategy))
         self.strategy = strategy
@@ -949,7 +951,7 @@ class HistoryRecNotFoundFixer(IntegrityFixer):
     def code(self):
         return Item.ERROR_HISTORY_REC_NOT_FOUND
     
-    def fix_error(self, item):
+    def fix_error(self, item, user_login):
         hr = UnitOfWork._find_item_latest_history_rec(self.uow.session, item)
         if hr is not None:
             raise Exception(tr("Item is already ok."))
@@ -961,7 +963,7 @@ class HistoryRecNotFoundFixer(IntegrityFixer):
             hr.data_ref_hash = item.data_ref.hash
             hr.data_ref_url = item.data_ref.url
         hr.operation = HistoryRec.CREATE
-        #TODO сохранять user_login
+        hr.user_login = user_login
         self.uow.session.add(hr)
         self.uow.session.flush()
         
@@ -974,7 +976,7 @@ class ItemIntegrityFixerThread(QtCore.QThread):
     Нужно сделать функцию, чтобы запускать данный поток для выделенной группы элементов. 
     Для всех элементов хранилища тоже надо бы (но это потом может быть сделаю). 
     '''
-    def __init__(self, parent, repo, items, lock, strategy):
+    def __init__(self, parent, repo, items, lock, strategy, user_login):
         super(ItemIntegrityFixerThread, self).__init__(parent)
         self.repo = repo
         self.items = items
@@ -986,6 +988,8 @@ class ItemIntegrityFixerThread(QtCore.QThread):
         #Задавать стратегию исправления ошибок хотелось бы несложным образом:
         #strategy = {ERROR_FILE_NOT_FOUND: STRATEGY_1, ERROR_FILE_SIZE_MISMATCH: STRATEGY_2} и т.п.
         
+        self.user_login = user_login
+        
     
     def run(self):
         
@@ -993,7 +997,7 @@ class ItemIntegrityFixerThread(QtCore.QThread):
         
         fixers = dict()
         for error_code, strategy in self.strategy.items():
-            fixers[error_code] = IntegrityFixer.create_fixer(error_code, strategy, uow)
+            fixers[error_code] = IntegrityFixer.create_fixer(error_code, strategy, uow, self.repo.base_path)
         
         try:
             #Список self.items должен содержать только что извлеченные из БД элементы
@@ -1023,7 +1027,7 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                     #сообщаем, что элемент нужно обновить
                     fixer = fixers.get(error_code)
                     if fixer is not None:
-                        fixer.fix_error(item)
+                        fixer.fix_error(item, self.user_login)
                         
                         #Сохраняем
                         uow.session.commit()
