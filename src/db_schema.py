@@ -108,8 +108,33 @@ class HistoryRec(Base):
         self.user_login = user_login
         self.parent1_id = parent1_id 
         self.parent2_id = parent2_id
-        
 
+    def __eq__(self, obj):
+        '''Проверка на равенство. Значения HistoryRec.id могут быть разными 
+        (они не учитываются при сравнении. Также не учитываются поля parent1_id и parent2_id.
+        Также не учитывается operation.
+        Однако значения HistoryRec.item_id должны быть одинаковыми.        
+        '''
+        if self.item_id != obj.item_id:
+            return False
+        if self.item_hash != obj.item_hash:
+            return False
+        if self.data_ref_hash != obj.data_ref_hash:
+            return False
+        if self.data_ref_url != obj.data_ref_url:
+            return False        
+        if self.user_login != obj.user_login:
+            return False
+        
+        return True
+        
+    def __ne__(self, obj):
+        return not self.__eq__(obj)
+
+    def __str__(self):
+        s = "item_id={}, item_hash={}, data_ref_hash={}, data_ref_url={}, operation={}, user_login={}, parent1_id={}, parent2_id={}"\
+            .format(self.item_id, self.item_hash, self.data_ref_hash, self.data_ref_url, self.operation, self.user_login, self.parent1_id, self.parent2_id)
+        return s
 
 class Item(Base):
     '''

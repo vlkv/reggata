@@ -647,10 +647,27 @@ class UnitOfWork(object):
         
         #TODO Если элемент реально не изменился, сохранять в историю ничего не нужно!!!
         #Сохраняем историю изменения данного элемента
-        UnitOfWork._save_history_rec(self._session, item_0, operation=HistoryRec.UPDATE, \
-                                     parent1_id = parent_hr.id, user_login=user_login)
+        #UnitOfWork._save_history_rec(self._session, item_0, operation=HistoryRec.UPDATE, \
+        #                             parent1_id = parent_hr.id, user_login=user_login)
+        
+        self._session.refresh(item_0)
+        
+        hr = HistoryRec(item_id = item_0.id, item_hash=item_0.hash(), \
+                        operation=HistoryRec.UPDATE, \
+                        user_login=user_login, \
+                        parent1_id=parent_hr.id)
+        if item_0.data_ref is not None:
+            hr.data_ref_hash = item_0.data_ref.hash
+            hr.data_ref_url = item_0.data_ref.url    
+        if parent_hr != hr:
+            self._session.add(hr)
+        
         self._session.flush()
+        
+        print(str(parent_hr))
+        print(str(hr))
                 
+        
         #Копируем или перемещаем файл (если необходимо, конечно)
         if need_file_operation == "copy" and item_0.data_ref.type == DataRef.FILE:
             if abs_src_path != os.path.join(self._repo_base_path, item_0.data_ref.url):
@@ -735,6 +752,9 @@ class UnitOfWork(object):
         #Запоминаем объект
         data_ref = item.data_ref
         
+        #Сохраняем в историю запись о совершенной операции (если что не так, то rollback откатит все назад)
+        UnitOfWork._save_history_rec(self._session, item, user_login, HistoryRec.DELETE, parent_hr.id)
+        
         #Отвязываем элемент от data_ref-объекта (потому, что data_ref объект возможно надо будет удалить) 
         #и помечаем элемент как удаленный
         item.data_ref = None
@@ -743,8 +763,7 @@ class UnitOfWork(object):
         self._session.flush()
         #Все связанные ItemTag и ItemField объекты тоже остаются в базе
         
-        #Сохраняем в историю запись о совершенной операции
-        UnitOfWork._save_history_rec(self._session, item, user_login, HistoryRec.DELETE, parent_hr.id)
+        #Если сохранять запись в историю операций тут, то не сохраняется путь и хеш файла!!!
         
         #Если на data_ref больше нет ссылок, то его будем удалять
         
