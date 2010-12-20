@@ -97,6 +97,7 @@
     <addaction name="separator" />
     <addaction name="action_item_check_integrity" />
     <addaction name="action_item_fix_history_rec_error" />
+    <addaction name="action_item_fix_hash_error" />
    </widget>
    <widget class="QMenu" name="menuTools" >
     <property name="title" >
@@ -234,6 +235,11 @@
   <action name="action_item_fix_history_rec_error" >
    <property name="text" >
     <string>Fix history rec error</string>
+   </property>
+  </action>
+  <action name="action_item_fix_hash_error" >
+   <property name="text" >
+    <string>Fix hash mismatch error</string>
    </property>
   </action>
  </widget>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Dec 20 00:11:11 2010
+# Created: Mon Dec 20 21:29:32 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -112,6 +112,8 @@ class Ui_MainWindow(object):
         self.action_item_check_integrity.setObjectName(_fromUtf8("action_item_check_integrity"))
         self.action_item_fix_history_rec_error = QtGui.QAction(MainWindow)
         self.action_item_fix_history_rec_error.setObjectName(_fromUtf8("action_item_fix_history_rec_error"))
+        self.action_item_fix_hash_error = QtGui.QAction(MainWindow)
+        self.action_item_fix_hash_error.setObjectName(_fromUtf8("action_item_fix_hash_error"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -133,6 +135,7 @@ class Ui_MainWindow(object):
         self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_check_integrity)
         self.menuItem.addAction(self.action_item_fix_history_rec_error)
+        self.menuItem.addAction(self.action_item_fix_hash_error)
         self.menuTools.addAction(self.action_tools_tag_cloud)
         self.menuHelp.addAction(self.action_help_about)
         self.menubar.addAction(self.menu_repo.menuAction())
@@ -174,4 +177,5 @@ class Ui_MainWindow(object):
         self.action_item_view_image_viewer.setText(QtGui.QApplication.translate("MainWindow", "View images with built-in viewer", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_check_integrity.setText(QtGui.QApplication.translate("MainWindow", "Check &integrity", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_fix_history_rec_error.setText(QtGui.QApplication.translate("MainWindow", "Fix history rec error", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_fix_hash_error.setText(QtGui.QApplication.translate("MainWindow", "Fix hash mismatch error", None, QtGui.QApplication.UnicodeUTF8))
 

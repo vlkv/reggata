@@ -923,7 +923,10 @@ class ItemIntegrityFixerThread(QtCore.QThread):
         super(ItemIntegrityFixerThread, self).__init__(parent)
         self.repo = repo
         self.items = items
+        
+        #Замок, для того, чтобы поток смог изменять передаваемые ему объекты, содержащиеся в списке items
         self.lock = lock
+        
         self.interrupt = False
         
         #Это словарь, в котором ключи - это коды ошибок, а значения - способ исправления данной ошибки
@@ -940,7 +943,7 @@ class ItemIntegrityFixerThread(QtCore.QThread):
         
         fixers = dict()
         for error_code, strategy in self.strategy.items():
-            fixers[error_code] = IntegrityFixer.create_fixer(error_code, strategy, uow, self.repo.base_path)
+            fixers[error_code] = IntegrityFixer.create_fixer(error_code, strategy, uow, self.repo.base_path, self.lock)
         
         try:
             #Список self.items должен содержать только что извлеченные из БД элементы

@@ -46,7 +46,7 @@ import time
 from image_viewer import ImageViewer
 import traceback
 import ui_aboutdialog
-from integrity_fixer import HistoryRecNotFoundFixer
+from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer
 
 
 
@@ -97,6 +97,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_check_integrity)
         self.menu.addAction(self.ui.action_item_fix_history_rec_error)
+        self.menu.addAction(self.ui.action_item_fix_hash_error)
         #Добавляем его к таблице 
         self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
         self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
@@ -122,6 +123,8 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u) 
         self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
         self.connect(self.ui.action_item_fix_history_rec_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
+        self.connect(self.ui.action_item_fix_hash_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
+        
         
         self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
         
@@ -528,7 +531,15 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 
+    def action_item_fix_hash_error(self):
+        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
+        self._fix_integrity_error(strategy)
+    
     def action_item_fix_history_rec_error(self):
+        strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
+        self._fix_integrity_error(strategy)
+    
+    def _fix_integrity_error(self, strategy):
         
         def refresh(percent, row):
             self.ui.statusbar.showMessage(self.tr("Integrity fix {0}%").format(percent))
@@ -555,8 +566,7 @@ class MainWindow(QtGui.QMainWindow):
                 #Нужно в элементе сохранить номер строки таблицы, откуда взят элемент
                 self.model.items[row].table_row = row
                 items.append(self.model.items[row])
-            
-            strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
+                        
             thread = ItemIntegrityFixerThread(self, self.active_repo, items, self.items_lock, strategy, self.active_user.login)
             
             self.connect(thread, QtCore.SIGNAL("exception"), lambda exc_info: show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
@@ -568,6 +578,47 @@ class MainWindow(QtGui.QMainWindow):
             show_exc_info(self, ex)
         else:
             pass
+
+    
+        
+#        def refresh(percent, row):
+#            self.ui.statusbar.showMessage(self.tr("Integrity fix {0}%").format(percent))
+#            self.model.reset_single_row(row)
+#            QtCore.QCoreApplication.processEvents()
+#        
+#        try:
+#            if self.active_repo is None:
+#                raise MsgException(self.tr("Open a repository first."))
+#            
+#            if self.active_user is None:
+#                raise MsgException(self.tr("Login to a repository first."))
+#            
+#            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
+#            rows = set()
+#            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
+#                rows.add(idx.row())
+#            
+#            if len(rows) == 0:
+#                raise MsgException(self.tr("There are no selected items."))
+#            
+#            items = []
+#            for row in rows:
+#                #Нужно в элементе сохранить номер строки таблицы, откуда взят элемент
+#                self.model.items[row].table_row = row
+#                items.append(self.model.items[row])
+#            
+#            strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
+#            thread = ItemIntegrityFixerThread(self, self.active_repo, items, self.items_lock, strategy, self.active_user.login)
+#            
+#            self.connect(thread, QtCore.SIGNAL("exception"), lambda exc_info: show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
+#            self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Integrity fixing is done.")))
+#            self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
+#            thread.start()
+#            
+#        except Exception as ex:
+#            show_exc_info(self, ex)
+#        else:
+#            pass
 
     def action_item_check_integrity(self):
         
