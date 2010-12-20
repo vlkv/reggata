@@ -29,8 +29,7 @@ from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread, CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
-    ItemIntegrityCheckerThread, ItemIntegrityFixerThread,\
-    HistoryRecNotFoundFixer
+    ItemIntegrityCheckerThread, ItemIntegrityFixerThread
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
     WaitDialog, raise_exc, format_exc_info
 from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
@@ -47,6 +46,7 @@ import time
 from image_viewer import ImageViewer
 import traceback
 import ui_aboutdialog
+from integrity_fixer import HistoryRecNotFoundFixer
 
 
 
