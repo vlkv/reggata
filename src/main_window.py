@@ -532,7 +532,7 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 
     def action_item_fix_hash_error(self):
-        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
+        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
         self._fix_integrity_error(strategy)
     
     def action_item_fix_history_rec_error(self):

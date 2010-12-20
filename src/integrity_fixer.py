@@ -82,52 +82,69 @@ class FileHashMismatchFixer(IntegrityFixer):
     def code(self):
         return Item.ERROR_FILE_HASH_MISMATCH
     
+    def _try_find_file(self, item, user_login):
+        #Пытаемся найти внутри хранилища файл, хеш которого совпадает с item.data_ref.hash
+        #Если нашли, то привязываем item к найденному файлу. 
+        #При этом либо придется отредактировать url у существующего data_ref объекта, либо 
+        #привязаться к другому data_ref объекту.
+        
+        #Пока что делаем по простому, без кеширования и проч. Будет медленно. Но улучшать алгоритм буду потом.
+        for root, dirs, files in os.walk(self.repo_base_path):
+            for file in files:
+                hash = compute_hash(os.path.join(root, file)
+                #TODO реализовать...
+             
+    
+    def _update_hash(self, item, user_login):
+        #Вычисляем новый хеш и размер файла
+        filename = os.path.join(self.repo_base_path, item.data_ref.url)
+        new_hash = compute_hash(filename)
+        new_size = os.path.getsize(filename)
+        new_date_hashed = datetime.datetime.today()
+        
+        #Извлекаем копию data_ref из БД, данный объект будет принадлежать текущей сессии
+        data_ref = self.uow.session.query(DataRef).get(item.data_ref.id)
+        if data_ref.hash == new_hash and data_ref.size == new_size:
+            raise Exception(tr("This item.data_ref already has correct hash and size values."))
+        #Меняем только эти три поля!
+        data_ref.hash = new_hash
+        data_ref.size = new_size
+        data_ref.date_hashed = new_date_hashed 
+        self.uow.session.flush()
+        
+        #Сохраняем в историю изменений запись о том, что data_ref был модифицирован
+        parent_hr = repo_mgr.UnitOfWork._find_item_latest_history_rec(self.uow.session, item)
+        if parent_hr is None:
+            raise Exception(tr("Please fix history rec error first."))
+        hr = HistoryRec()
+        hr.item_id = item.id
+        hr.item_hash = item.hash()
+        hr.parent1_id = parent_hr.id
+        if item.data_ref is not None:
+            hr.data_ref_hash = new_hash
+            hr.data_ref_url = item.data_ref.url
+            hr.operation = HistoryRec.UPDATE
+            hr.user_login = user_login
+        self.uow.session.add(hr)
+        self.uow.session.flush()
+        
+        try:
+            self.lock.lockForWrite()
+            item.data_ref.hash = new_hash
+            item.data_ref.size = new_size
+            item.data_ref.date_hashed = new_date_hashed
+        finally:
+            self.lock.unlock()   
+    
     def fix_error(self, item, user_login):
         
         if item.data_ref is None:
             raise Exception(tr("This item has no related files."))
         
         if self.strategy == self.UPDATE_HASH:
-            
-            #Вычисляем новый хеш и размер файла
-            filename = os.path.join(self.repo_base_path, item.data_ref.url)
-            new_hash = compute_hash(filename)
-            new_size = os.path.getsize(filename)
-            new_date_hashed = datetime.datetime.today()
-            
-            #Извлекаем копию data_ref из БД, данный объект будет принадлежать текущей сессии
-            data_ref = self.uow.session.query(DataRef).get(item.data_ref.id)
-            if data_ref.hash == new_hash and data_ref.size == new_size:
-                raise Exception(tr("This item.data_ref already has correct hash and size values."))
-            #Меняем только эти три поля!
-            data_ref.hash = new_hash
-            data_ref.size = new_size
-            data_ref.date_hashed = new_date_hashed 
-            self.uow.session.flush()
-            
-            #Сохраняем в историю изменений запись о том, что data_ref был модифицирован
-            parent_hr = repo_mgr.UnitOfWork._find_item_latest_history_rec(self.uow.session, item)
-            if parent_hr is None:
-                raise Exception(tr("Please fix history rec error first."))
-            hr = HistoryRec()
-            hr.item_id = item.id
-            hr.item_hash = item.hash()
-            hr.parent1_id = parent_hr.id
-            if item.data_ref is not None:
-                hr.data_ref_hash = new_hash
-                hr.data_ref_url = item.data_ref.url
-                hr.operation = HistoryRec.UPDATE
-                hr.user_login = user_login
-            self.uow.session.add(hr)
-            self.uow.session.flush()
-            
-            try:
-                self.lock.lockForWrite()
-                item.data_ref.hash = new_hash
-                item.data_ref.size = new_size
-                item.data_ref.date_hashed = new_date_hashed
-            finally:
-                self.lock.unlock()            
+            self._update_hash(item, user_login)
+        elif self.strategy == self.TRY_FIND_FILE:
+            self._try_find_file(item, user_login)
         else:
             raise Exception(tr("Not supported strategy = {0}.").format(self.strategy))
     

@@ -953,8 +953,6 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                 
                 print("fixing item " + str(item.id))
                 
-                #TODO
-                
                 #Сначала смотрим, проверялся ли item на целостность данных?
                 if item.error is None:
                     try:
