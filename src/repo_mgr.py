@@ -645,6 +645,7 @@ class UnitOfWork(object):
                     
         self._session.flush()
         
+        #TODO Если элемент реально не изменился, сохранять в историю ничего не нужно!!!
         #Сохраняем историю изменения данного элемента
         UnitOfWork._save_history_rec(self._session, item_0, operation=HistoryRec.UPDATE, \
                                      parent1_id = parent_hr.id, user_login=user_login)
@@ -729,7 +730,7 @@ class UnitOfWork(object):
         #Если parent_hr равен None, то сохранять информацию об удалении может не надо?            
         if parent_hr is None:
             #Лучше выкинуть исключение
-            raise Exception(tr("Cannot find corresponding history record for item id={0}.").fotmat(item.id))
+            raise Exception(tr("Cannot find corresponding history record for item id={0}.").format(item.id))
         
         #Запоминаем объект
         data_ref = item.data_ref
