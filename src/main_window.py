@@ -46,7 +46,8 @@ import time
 from image_viewer import ImageViewer
 import traceback
 import ui_aboutdialog
-from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer
+from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
+    FileNotFoundFixer
 
 
 
@@ -125,6 +126,9 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_item_fix_history_rec_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
         self.connect(self.ui.action_item_fix_hash_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
         self.connect(self.ui.action_item_update_file_hash, QtCore.SIGNAL("triggered()"), self.action_item_update_file_hash)
+        self.connect(self.ui.action_fix_file_not_found_try_find, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find)
+        self.connect(self.ui.action_fix_file_not_found_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
+        self.connect(self.ui.action_fix_file_not_found_try_find_else_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find_else_delete)
         
         
         self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
@@ -539,6 +543,18 @@ class MainWindow(QtGui.QMainWindow):
             show_exc_info(self, ex)
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+
+    def action_fix_file_not_found_try_find(self):
+        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
+        self._fix_integrity_error(strategy)
+        
+    def action_fix_file_not_found_delete(self):
+        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
+        self._fix_integrity_error(strategy)
+        
+    def action_fix_file_not_found_try_find_else_delete(self):
+        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND_ELSE_DELETE}
+        self._fix_integrity_error(strategy)
 
     def action_item_update_file_hash(self):
         strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Dec 21 08:38:07 2010
+# Created: Tue Dec 21 09:06:56 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -59,6 +59,8 @@ class Ui_MainWindow(object):
         self.menuFix_integrity_errors.setObjectName(_fromUtf8("menuFix_integrity_errors"))
         self.menuFix_hash_mismatch_error = QtGui.QMenu(self.menuFix_integrity_errors)
         self.menuFix_hash_mismatch_error.setObjectName(_fromUtf8("menuFix_hash_mismatch_error"))
+        self.menuFix_file_not_found_error = QtGui.QMenu(self.menuFix_integrity_errors)
+        self.menuFix_file_not_found_error.setObjectName(_fromUtf8("menuFix_file_not_found_error"))
         self.menuTools = QtGui.QMenu(self.menubar)
         self.menuTools.setObjectName(_fromUtf8("menuTools"))
         self.menuHelp = QtGui.QMenu(self.menubar)
@@ -120,6 +122,12 @@ class Ui_MainWindow(object):
         self.action_item_fix_hash_error.setObjectName(_fromUtf8("action_item_fix_hash_error"))
         self.action_item_update_file_hash = QtGui.QAction(MainWindow)
         self.action_item_update_file_hash.setObjectName(_fromUtf8("action_item_update_file_hash"))
+        self.action_fix_file_not_found_try_find = QtGui.QAction(MainWindow)
+        self.action_fix_file_not_found_try_find.setObjectName(_fromUtf8("action_fix_file_not_found_try_find"))
+        self.action_fix_file_not_found_delete = QtGui.QAction(MainWindow)
+        self.action_fix_file_not_found_delete.setObjectName(_fromUtf8("action_fix_file_not_found_delete"))
+        self.action_fix_file_not_found_try_find_else_delete = QtGui.QAction(MainWindow)
+        self.action_fix_file_not_found_try_find_else_delete.setObjectName(_fromUtf8("action_fix_file_not_found_try_find_else_delete"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -129,8 +137,12 @@ class Ui_MainWindow(object):
         self.menu.addAction(self.action_user_change_pass)
         self.menuFix_hash_mismatch_error.addAction(self.action_item_fix_hash_error)
         self.menuFix_hash_mismatch_error.addAction(self.action_item_update_file_hash)
+        self.menuFix_file_not_found_error.addAction(self.action_fix_file_not_found_try_find)
+        self.menuFix_file_not_found_error.addAction(self.action_fix_file_not_found_delete)
+        self.menuFix_file_not_found_error.addAction(self.action_fix_file_not_found_try_find_else_delete)
         self.menuFix_integrity_errors.addAction(self.menuFix_hash_mismatch_error.menuAction())
         self.menuFix_integrity_errors.addAction(self.action_item_fix_history_rec_error)
+        self.menuFix_integrity_errors.addAction(self.menuFix_file_not_found_error.menuAction())
         self.menuItem.addAction(self.action_item_add)
         self.menuItem.addAction(self.action_item_add_many)
         self.menuItem.addAction(self.action_item_add_many_rec)
@@ -166,6 +178,7 @@ class Ui_MainWindow(object):
         self.menuItem.setTitle(QtGui.QApplication.translate("MainWindow", "&Item", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFix_integrity_errors.setTitle(QtGui.QApplication.translate("MainWindow", "Fix integrity errors", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFix_hash_mismatch_error.setTitle(QtGui.QApplication.translate("MainWindow", "Fix hash mismatch error", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuFix_file_not_found_error.setTitle(QtGui.QApplication.translate("MainWindow", "Fix file not found error", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.dockWidget_tag_cloud.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Tag cloud", None, QtGui.QApplication.UnicodeUTF8))
@@ -190,4 +203,7 @@ class Ui_MainWindow(object):
         self.action_item_fix_history_rec_error.setText(QtGui.QApplication.translate("MainWindow", "Fix history rec error", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_fix_hash_error.setText(QtGui.QApplication.translate("MainWindow", "Try find file", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_update_file_hash.setText(QtGui.QApplication.translate("MainWindow", "Update hash", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_fix_file_not_found_try_find.setText(QtGui.QApplication.translate("MainWindow", "Try find file", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_fix_file_not_found_delete.setText(QtGui.QApplication.translate("MainWindow", "Delete link", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_fix_file_not_found_try_find_else_delete.setText(QtGui.QApplication.translate("MainWindow", "Try find file else delete link", None, QtGui.QApplication.UnicodeUTF8))
 
