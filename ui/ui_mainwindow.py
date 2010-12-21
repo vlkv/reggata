@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Dec 20 21:29:32 2010
+# Created: Tue Dec 21 08:38:07 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -55,6 +55,10 @@ class Ui_MainWindow(object):
         self.menu.setObjectName(_fromUtf8("menu"))
         self.menuItem = QtGui.QMenu(self.menubar)
         self.menuItem.setObjectName(_fromUtf8("menuItem"))
+        self.menuFix_integrity_errors = QtGui.QMenu(self.menuItem)
+        self.menuFix_integrity_errors.setObjectName(_fromUtf8("menuFix_integrity_errors"))
+        self.menuFix_hash_mismatch_error = QtGui.QMenu(self.menuFix_integrity_errors)
+        self.menuFix_hash_mismatch_error.setObjectName(_fromUtf8("menuFix_hash_mismatch_error"))
         self.menuTools = QtGui.QMenu(self.menubar)
         self.menuTools.setObjectName(_fromUtf8("menuTools"))
         self.menuHelp = QtGui.QMenu(self.menubar)
@@ -114,6 +118,8 @@ class Ui_MainWindow(object):
         self.action_item_fix_history_rec_error.setObjectName(_fromUtf8("action_item_fix_history_rec_error"))
         self.action_item_fix_hash_error = QtGui.QAction(MainWindow)
         self.action_item_fix_hash_error.setObjectName(_fromUtf8("action_item_fix_hash_error"))
+        self.action_item_update_file_hash = QtGui.QAction(MainWindow)
+        self.action_item_update_file_hash.setObjectName(_fromUtf8("action_item_update_file_hash"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -121,6 +127,10 @@ class Ui_MainWindow(object):
         self.menu.addAction(self.action_user_login)
         self.menu.addAction(self.action_user_logout)
         self.menu.addAction(self.action_user_change_pass)
+        self.menuFix_hash_mismatch_error.addAction(self.action_item_fix_hash_error)
+        self.menuFix_hash_mismatch_error.addAction(self.action_item_update_file_hash)
+        self.menuFix_integrity_errors.addAction(self.menuFix_hash_mismatch_error.menuAction())
+        self.menuFix_integrity_errors.addAction(self.action_item_fix_history_rec_error)
         self.menuItem.addAction(self.action_item_add)
         self.menuItem.addAction(self.action_item_add_many)
         self.menuItem.addAction(self.action_item_add_many_rec)
@@ -134,8 +144,7 @@ class Ui_MainWindow(object):
         self.menuItem.addAction(self.action_item_view_m3u)
         self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_check_integrity)
-        self.menuItem.addAction(self.action_item_fix_history_rec_error)
-        self.menuItem.addAction(self.action_item_fix_hash_error)
+        self.menuItem.addAction(self.menuFix_integrity_errors.menuAction())
         self.menuTools.addAction(self.action_tools_tag_cloud)
         self.menuHelp.addAction(self.action_help_about)
         self.menubar.addAction(self.menu_repo.menuAction())
@@ -155,6 +164,8 @@ class Ui_MainWindow(object):
         self.menu_repo.setTitle(QtGui.QApplication.translate("MainWindow", "&Repository", None, QtGui.QApplication.UnicodeUTF8))
         self.menu.setTitle(QtGui.QApplication.translate("MainWindow", "&User", None, QtGui.QApplication.UnicodeUTF8))
         self.menuItem.setTitle(QtGui.QApplication.translate("MainWindow", "&Item", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuFix_integrity_errors.setTitle(QtGui.QApplication.translate("MainWindow", "Fix integrity errors", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuFix_hash_mismatch_error.setTitle(QtGui.QApplication.translate("MainWindow", "Fix hash mismatch error", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.dockWidget_tag_cloud.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Tag cloud", None, QtGui.QApplication.UnicodeUTF8))
@@ -177,5 +188,6 @@ class Ui_MainWindow(object):
         self.action_item_view_image_viewer.setText(QtGui.QApplication.translate("MainWindow", "View images with built-in viewer", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_check_integrity.setText(QtGui.QApplication.translate("MainWindow", "Check &integrity", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_fix_history_rec_error.setText(QtGui.QApplication.translate("MainWindow", "Fix history rec error", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_fix_hash_error.setText(QtGui.QApplication.translate("MainWindow", "Fix hash mismatch error", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_fix_hash_error.setText(QtGui.QApplication.translate("MainWindow", "Try find file", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_update_file_hash.setText(QtGui.QApplication.translate("MainWindow", "Update hash", None, QtGui.QApplication.UnicodeUTF8))
 

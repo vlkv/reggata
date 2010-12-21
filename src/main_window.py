@@ -96,8 +96,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addAction(self.ui.action_item_delete)
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_check_integrity)
-        self.menu.addAction(self.ui.action_item_fix_history_rec_error)
-        self.menu.addAction(self.ui.action_item_fix_hash_error)
+        self.menu.addMenu(self.ui.menuFix_integrity_errors)        
         #Добавляем его к таблице 
         self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
         self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
@@ -124,6 +123,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
         self.connect(self.ui.action_item_fix_history_rec_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
         self.connect(self.ui.action_item_fix_hash_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
+        self.connect(self.ui.action_item_update_file_hash, QtCore.SIGNAL("triggered()"), self.action_item_update_file_hash)
         
         
         self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
@@ -253,10 +253,18 @@ class MainWindow(QtGui.QMainWindow):
         UserConfig().store("tag_cloud.dock_area", str(self.dockWidgetArea(self.ui.dockWidget_tag_cloud)))
         
         #Ширина колонок таблицы
-        UserConfig().store("items_table.ID.width", str(self.ui.tableView_items.columnWidth(RepoItemTableModel.ID)))
-        UserConfig().store("items_table.TITLE.width", str(self.ui.tableView_items.columnWidth(RepoItemTableModel.TITLE)))
-        UserConfig().store("items_table.LIST_OF_TAGS.width", str(self.ui.tableView_items.columnWidth(RepoItemTableModel.LIST_OF_TAGS)))
-        UserConfig().store("items_table.STATE.width", str(self.ui.tableView_items.columnWidth(RepoItemTableModel.STATE)))
+        width_id = self.ui.tableView_items.columnWidth(RepoItemTableModel.ID)
+        width_title = self.ui.tableView_items.columnWidth(RepoItemTableModel.TITLE)
+        width_list_of_tags = self.ui.tableView_items.columnWidth(RepoItemTableModel.LIST_OF_TAGS)
+        width_state = self.ui.tableView_items.columnWidth(RepoItemTableModel.STATE)
+        if width_id > 0:
+            UserConfig().store("items_table.ID.width", str(width_id))
+        if width_title > 0:
+            UserConfig().store("items_table.TITLE.width", str(width_title))
+        if width_list_of_tags > 0:
+            UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
+        if width_state > 0:
+            UserConfig().store("items_table.STATE.width", str(width_state))
         
         self.ui.statusbar.showMessage(self.tr("Main window state has saved."), 5000)
         
@@ -530,6 +538,10 @@ class MainWindow(QtGui.QMainWindow):
             show_exc_info(self, ex)
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+
+    def action_item_update_file_hash(self):
+        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
+        self._fix_integrity_error(strategy)
 
     def action_item_fix_hash_error(self):
         strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}

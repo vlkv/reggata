@@ -33,6 +33,7 @@ class IntegrityFixer(object):
     
     @staticmethod
     def create_fixer(code, strategy, uow, repo_base_path, items_lock):
+        '''Фабричный метод для конструирования подклассов. '''
         if code == Item.ERROR_FILE_NOT_FOUND:
             return FileNotFoundFixer(strategy, uow, repo_base_path, items_lock)
         elif code == Item.ERROR_FILE_HASH_MISMATCH:
@@ -78,6 +79,7 @@ class FileHashMismatchFixer(IntegrityFixer):
         self.uow = uow
         self.repo_base_path = repo_base_path
         self.lock = items_lock
+        self.seen_files = dict()
         
     def code(self):
         return Item.ERROR_FILE_HASH_MISMATCH
@@ -88,11 +90,92 @@ class FileHashMismatchFixer(IntegrityFixer):
         #При этом либо придется отредактировать url у существующего data_ref объекта, либо 
         #привязаться к другому data_ref объекту.
         
-        #Пока что делаем по простому, без кеширования и проч. Будет медленно. Но улучшать алгоритм буду потом.
+        delete_old_dr = False
+        bind_new_dr_to_item = False
+        new_dr = None
+        
+        #Сначала имеет смысл поискать среди имеющихся DataRef объектов. Потому что один и тот же
+        #файл может присутствовать в хранилище дважды (но по разным путям)
+        print(type(item.data_ref.url))
+        print(item.data_ref.url)
+        other_dr = self.uow.session.query(DataRef).filter(DataRef.hash==item.data_ref.hash)\
+            .filter(DataRef.url_raw != item.data_ref.url).first()
+        if other_dr is not None:
+            #Вычисляем хеш для найденного файла и сравниваем, а то вдруг этот файл тоже с ошибкой?
+            hash = compute_hash(os.path.join(self.repo_base_path, other_dr.url))
+            self.seen_files[os.path.join(self.repo_base_path, other_dr.url)] = hash
+            if hash == item.data_ref.hash and hash == other_dr.hash:
+                delete_old_dr = True
+                bind_new_dr_to_item = True
+                new_dr = other_dr
+        
+        need_break = False
         for root, dirs, files in os.walk(self.repo_base_path):
             for file in files:
-                hash = compute_hash(os.path.join(root, file)
-                #TODO реализовать...
+                #Сначала смотрим хеш в кеше
+                hash = self.seen_files.get(os.path.join(root, file))
+                if hash is None:
+                    hash = compute_hash(os.path.join(root, file))
+                    self.seen_files[os.path.join(root, file)] = hash
+                if hash == item.data_ref.hash:
+                    #Нужно создать новый data_ref
+                    new_url = os.path.relpath(os.path.join(root, file), self.repo_base_path)
+                    new_dr = DataRef(url=new_url, date_created=datetime.datetime.today(), type=DataRef.FILE)
+                    new_dr.hash = hash
+                    new_dr.size = os.path.getsize(os.path.join(root, file))
+                    self.uow.session.add(new_dr)
+                    self.uow.session.flush()
+                    #Удалить item.data_ref
+                    #Привязать новый data_ref к item
+                    delete_old_dr = True
+                    bind_new_dr_to_item = True
+                    
+                    need_break = True
+                    break
+            if need_break:
+                break
+        
+        if delete_old_dr:
+            rows = self.uow.session.query(DataRef).filter(DataRef.id==item.data_ref.id)\
+                .delete(synchronize_session=False)
+            if rows == 0:
+                raise Exception(tr("Cannot delete data_ref object."))
+            elif rows > 1:
+                raise Exception(tr("The query deleted {} data_ref objects (only one needed to)."))
+                    
+        if bind_new_dr_to_item and new_dr is not None:
+            item_0 = self.uow.session.query(Item).filter(Item.id==item.id).one()
+            item_0.data_ref_id = new_dr.id
+            item_0.data_ref = new_dr
+            self.uow.session.flush()
+            
+            #Сохраняем в историю изменений запись о том, что data_ref был модифицирован
+            parent_hr = repo_mgr.UnitOfWork._find_item_latest_history_rec(self.uow.session, item)
+            if parent_hr is None:
+                raise Exception(tr("Please fix history rec error first."))
+            hr = HistoryRec()
+            hr.item_id = item.id
+            hr.item_hash = item.hash()
+            hr.parent1_id = parent_hr.id
+            if item.data_ref is not None:                
+                hr.data_ref_url = new_dr.url
+                hr.operation = HistoryRec.UPDATE
+                hr.user_login = user_login
+            self.uow.session.add(hr)
+            self.uow.session.flush()
+            
+            try:
+                self.uow.session.expunge(item_0)
+                self.uow.session.expunge(new_dr)
+            except:
+                pass
+            
+            try:
+                self.lock.lockForWrite()
+                item.data_ref = new_dr
+            finally:
+                self.lock.unlock()
+                
              
     
     def _update_hash(self, item, user_login):

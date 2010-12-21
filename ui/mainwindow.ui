@@ -83,6 +83,20 @@
     <property name="title" >
      <string>&amp;Item</string>
     </property>
+    <widget class="QMenu" name="menuFix_integrity_errors" >
+     <property name="title" >
+      <string>Fix integrity errors</string>
+     </property>
+     <widget class="QMenu" name="menuFix_hash_mismatch_error" >
+      <property name="title" >
+       <string>Fix hash mismatch error</string>
+      </property>
+      <addaction name="action_item_fix_hash_error" />
+      <addaction name="action_item_update_file_hash" />
+     </widget>
+     <addaction name="menuFix_hash_mismatch_error" />
+     <addaction name="action_item_fix_history_rec_error" />
+    </widget>
     <addaction name="action_item_add" />
     <addaction name="action_item_add_many" />
     <addaction name="action_item_add_many_rec" />
@@ -96,8 +110,7 @@
     <addaction name="action_item_view_m3u" />
     <addaction name="separator" />
     <addaction name="action_item_check_integrity" />
-    <addaction name="action_item_fix_history_rec_error" />
-    <addaction name="action_item_fix_hash_error" />
+    <addaction name="menuFix_integrity_errors" />
    </widget>
    <widget class="QMenu" name="menuTools" >
     <property name="title" >
@@ -239,7 +252,12 @@
   </action>
   <action name="action_item_fix_hash_error" >
    <property name="text" >
-    <string>Fix hash mismatch error</string>
+    <string>Try find file</string>
+   </property>
+  </action>
+  <action name="action_item_update_file_hash" >
+   <property name="text" >
+    <string>Update hash</string>
    </property>
   </action>
  </widget>
