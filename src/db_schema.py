@@ -297,11 +297,21 @@ class Item(Base):
         item_field = Item_Field(field, value, user_login)
         self.item_fields.append(item_field)
             
-    def get_list_of_tags(self):
+    def format_field_vals(self):
+        s = ""
+        for item_field in self.item_fields:
+            s += item_field.field.name + ": " + item_field.field_value + os.linesep
+        if s:
+            s = s[0:-1]
+        return s
+        
+    def format_tags(self):
         '''Возвращает строку, содержащую список всех тегов элемента.'''
         s = ""
         for item_tag in self.item_tags:
-            s = s + item_tag.tag.name + " "
+            s += item_tag.tag.name + " "
+        if s:
+            s = s[0:-1]
         return s
     
     def remove_tag(self, tag_name):

@@ -1170,7 +1170,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                 return item.title
             
             elif column == self.LIST_OF_TAGS:
-                return item.get_list_of_tags()
+                return item.format_tags()
             
             elif column == self.STATE:
                 try:
@@ -1180,12 +1180,17 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                     self.lock.unlock()
         
         elif role == Qt.ToolTipRole:            
-            if column == self.STATE:
+            if column == self.TITLE:
+                return item.data_ref.url if item.data_ref else None
+            elif column == self.LIST_OF_TAGS:
+                return item.format_field_vals()
+            elif column == self.STATE:
                 try:
                     self.lock.lockForRead()
                     return Item.format_error_set(item.error)                
                 finally:
                     self.lock.unlock()
+            
 
         #Данная роль используется для отображения миниатюр графических файлов
         elif role == QtCore.Qt.UserRole:
