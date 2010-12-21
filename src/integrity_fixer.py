@@ -164,11 +164,12 @@ class FileHashMismatchFixer(IntegrityFixer):
             self.uow.session.add(hr)
             self.uow.session.flush()
             
-            try:
+            if item_0 in self.uow.session:
                 self.uow.session.expunge(item_0)
+            
+            if new_dr in self.uow.session:
                 self.uow.session.expunge(new_dr)
-            except:
-                pass
+            
             
             try:
                 self.lock.lockForWrite()
