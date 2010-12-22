@@ -34,6 +34,7 @@ import hashlib
 import time
 from PyQt4 import QtCore
 from exceptions import MsgException
+import platform
 
 
 def tr(text):
@@ -107,6 +108,31 @@ class DialogMode(object):
     EDIT = 1
     VIEW = 2
     LOGIN = 3
+
+def to_db_format(path):
+    '''Преобразует путь path из формата данной ОС в формат UNIX (в котором хранятся
+    пути в БД.'''
+    if platform.system() == "Windows":
+        return path.replace(os.sep, "/")
+    else:
+        #В случае Linux или Mac OS преобразовывать не нужно
+        return path
+    
+def from_db_format(path):
+    '''Преобразует путь path из формата UNIX (в данном формате все пути хранятся в БД) 
+    в формат, принятый на конкретной ОС. path должен быть относительным путем. 
+    Вобщем-то заменяются только слеши: / на \
+    '''
+    if platform.system() == "Windows":
+        #TODO Перед сохранением файла, необходимо запрещать, чтобы файл содержал 
+        #в своем ИМЕНИ символ обратного слеша. Иначе будут проблемы под Windows.
+        return path.replace("/", os.sep)
+    else:
+        #В случае Linux или Mac OS преобразовывать не нужно
+        return path
+
+def to_os_format(path):
+    return from_db_format(path)
     
     
 def to_commalist(seq, apply_each=repr, sep=","):
