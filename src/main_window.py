@@ -53,14 +53,12 @@ from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
 
 
 #TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
-#TODO Добавить поиск Item-ов, DataRef которых ссылается на несуществующий файл
 #TODO Реализовать до конца грамматику языка запросов (прежде всего фильтрацию по директориям и пользователям)
 #TODO Сделать функции экспорта результатов поиска во внешнюю директорию
 #TODO Сделать проект механизма клонирования/синхронизации хранилищ
 #TODO Сделать возможность привязывать несколько файлов к одному Item-у при помощи архивирования их на лету (при помощи zip, например)
 #TODO Сделать новый тип объекта DataRef для сохранения ссылок на директории. Тогда можно будет привязывать теги и поля к директориям внутри хранилища. Надо еще подумать, стоит ли такое реализовывать или нет.
 #TODO Довести до ума встроенный просмотрщик графических файлов.
-#TODO Сделать функцию: выделить несколько Item-ов и передать их все во внешнюю программу. Правда не знаю как, и еще это зависит от внешней программы
 #TODO Сделать всплывающие подсказки на элементах GUI
 #TODO Надо решить проблему, если запрос вернет ОЧЕНЬ много элементов, то как их по частям отображать
 #TODO Нужна функция в контекстном меню: rebuild thumbnail  
@@ -761,7 +759,6 @@ class MainWindow(QtGui.QMainWindow):
                 thread = CreateGroupIfItemsThread(self, self.active_repo, items)
                 self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
                                         
-                #TODO Тут надо отображать WaitDialog
                 wd = WaitDialog(self)
                 self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
                 self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
@@ -792,17 +789,6 @@ class MainWindow(QtGui.QMainWindow):
             if self.active_user is None:
                 raise MsgException(self.tr("Login to a repository first."))
             
-            #Просим пользователя выбрать файлы
-#            file_dialog = QtGui.QFileDialog(self, self.tr("Select files and directories to add"))
-#            file_dialog.setFileMode(QtGui.QFileDialog.Directory)
-#            if file_dialog.exec_() == QtGui.QDialog.Accepted:
-#                files = file_dialog.selectedFiles()
-#                for file in files:
-#                    print(file)
-
-            #TODO Надо сделать функцию рекурсивного добавления множества файлов из директории
-                
-                    
             files = QtGui.QFileDialog.getOpenFileNames(self, self.tr("Select file to add"))
             if len(files) == 0:
                 raise MsgException(self.tr("No files chosen. Operation cancelled."))
@@ -821,7 +807,6 @@ class MainWindow(QtGui.QMainWindow):
                 thread = CreateGroupIfItemsThread(self, self.active_repo, items)
                 self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
                                         
-                #TODO Тут надо отображать WaitDialog
                 wd = WaitDialog(self)
                 self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
                 self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
@@ -1004,25 +989,8 @@ class MainWindow(QtGui.QMainWindow):
     
     def action_help_about(self):
         try:
-            
-            
-            
             ad = AboutDialog(self)
             ad.exec_()
-            #TODO Отображать тут диалог "О программе"
-            
-#            mw = QtGui.QMainWindow(self)
-#            mw.setWindowModality(Qt.WindowModal)
-#            mw.show()
-
-#            raise NotImplementedError(self.tr('Скоро тут будет диалог "О программе"'))
-
-#            iv = ImageViewer(self, ["/home/vlkv/images/wallpapers/01.jpg", 
-#                                    "/home/vlkv/images/wallpapers/02.jpg", 
-#                                    "/home/vlkv/images/wallpapers/02_2.jpg", 
-#                                    "/home/vlkv/images/wallpapers/sdfsdf.jpg"])
-#            iv.setWindowModality(Qt.WindowModal)
-#            iv.show()
             
         except Exception as ex:
             show_exc_info(self, ex)
@@ -1223,7 +1191,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 
 class AboutDialog(QtGui.QDialog):
     
-    #TODO Надо как-то автоматически выводит информацию о версии Reggata
+    #TODO Надо как-то автоматически выводить информацию о версии Reggata
     
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)

@@ -114,13 +114,6 @@ class RepoMgr(object):
         RepoMgr.init_new_repo(base_path)
         return RepoMgr(base_path)
         
-        
-    def check_integrity(self, path):
-        '''Выполняет проверку целостности хранилища в поддиректории хранилища path.
-        Что должен возвращать данный метод?
-        '''
-        #TODO
-        raise NotImplementedError()
 
     def create_unit_of_work(self):
         return UnitOfWork(self)
@@ -649,10 +642,7 @@ class UnitOfWork(object):
         self._session.flush()
         
         #TODO Если элемент реально не изменился, сохранять в историю ничего не нужно!!!
-        #Сохраняем историю изменения данного элемента
-        #UnitOfWork._save_history_rec(self._session, item_0, operation=HistoryRec.UPDATE, \
-        #                             parent1_id = parent_hr.id, user_login=user_login)
-        
+                
         self._session.refresh(item_0)
         
         hr = HistoryRec(item_id = item_0.id, item_hash=item_0.hash(), \
@@ -725,8 +715,8 @@ class UnitOfWork(object):
     
     def delete_item(self, item_id, user_login, delete_physical_file=True):
         
-        #TODO Нужно учесть, что при удалении элемента Item, в таблице HistoryRec
-        #остаются висячие ссылки! Что делать? Может не удалять Item, а только помечать его как удаленный?
+        #При удалении элемента Item, в таблице HistoryRec
+        #остаются висячие ссылки! Поэтому нужно не удалять Item, а только помечать его как удаленный.
         #чтобы значение Item.id оставалось занятым. 
         
         #TODO Если user_login является админом, то ему можно удалять любые файлы
@@ -741,9 +731,6 @@ class UnitOfWork(object):
         if item.has_fields_except_of(user_login):
             raise AccessError(tr("Cannot delete item id={0} because another user attached a field to it.").format(item_id))
         
-        #TODO Можно сделать и так, что если удаляешь элемент, а к нему прикреплен тег
-        #другого пользователя, то элемент просто переходит во владение к этому пользователю
-        #и у элемента удаляются все теги/поля первого пользователя.
         
         #Нужно взять из истории запись, соответствующую состоянию удаляемого объекта item
         parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, item)
@@ -851,8 +838,8 @@ class UnitOfWork(object):
                 raise Exception(tr("DataRef instance with url={}, "
                                    "already in database. "
                                    "Operation cancelled.").format(item.data_ref.url))
-                #TODO Не выкидывать исключение, а привязывать к существующему объекту?
-                #А вдруг имена совпадают, но содержимое файлов разное?
+                #Тут нельзя привязывать к существующему объекту. Т.к.
+                # вдруг имена совпадают, но содержимое файлов разное?
 
         #Сохраняем item пока что только с новыми тегами и новыми полями
         self._session.add(item)
@@ -1065,7 +1052,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
         self.interrupt = False
 
     def run(self):
-        #TODO Какой-то тут код... надо подумать, что улучшить тут
+        
         uow = self.repo.create_unit_of_work()
         try:
             thumbnail_size = int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE))
