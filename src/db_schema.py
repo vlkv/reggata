@@ -115,12 +115,20 @@ class HistoryRec(Base):
         self.parent2_id = parent2_id
 
     def _get_data_ref_url(self):
-        return self.data_ref_url_raw
+        if not is_none_or_empty(self.data_ref_hash):
+            #Если хеш непустой, то DataRef связан с физическим файлом
+            return helpers.from_db_format(self.url_raw)
+        else:
+            return self.data_ref_url_raw
     
     def _set_data_ref_url(self, value):
-        #TODO сохранять в БД этот url и  DataRef.url нужно всегда в формате Unix (т.е. с прямыми слешами) 
-        self.data_ref_url_raw = value
-        
+        if not is_none_or_empty(self.data_ref_hash):
+            #Если хеш непустой, то DataRef связан с физическим файлом
+            #Сохранять в БД этот url и  DataRef.url нужно всегда в формате Unix (т.е. с прямыми слешами) 
+            self.data_ref_url_raw = helpers.to_db_format(value)
+        else:
+            self.data_ref_url_raw = value
+      
     data_ref_url = property(_get_data_ref_url, _set_data_ref_url, 'Свойство data_ref_url.')
 
     def __eq__(self, obj):
@@ -476,17 +484,14 @@ class DataRef(Base):
     
     def _get_url(self):
         if self.type == DataRef.FILE:
-            if platform.system() == "Windows":
-                return self.url_raw.replace("/", os.sep)
-            elif platform.system() == "Linux":
-                return self.url_raw.replace("\\", os.sep)
-            else:
-                #TODO Может добавить что-то для других ОС?
-                pass
-        return self.url_raw
+            return helpers.from_db_format(self.url_raw)
+        else:
+            return self.url_raw
         
     def _set_url(self, value):
-        #TODO сохранять в БД этот url и  HistoryRec.url нужно всегда в формате Unix (т.е. с прямыми слешами)
+        #Сохранять в БД этот url и  HistoryRec.url нужно всегда в формате Unix (т.е. с прямыми слешами)
+        if self.type == DataRef.FILE:
+            value = helpers.to_db_format(value)
         self.url_raw = value
                 
     url = property(_get_url, _set_url, doc="Свойство url.")
