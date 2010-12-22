@@ -457,11 +457,11 @@ class UnitOfWork(object):
         data_ref_url = None
         if item_0.data_ref is not None:
             data_ref_hash = item_0.data_ref.hash
-            data_ref_url = item_0.data_ref.url
+            data_ref_url = item_0.data_ref.url_raw
         parent_hr = session.query(HistoryRec).filter(HistoryRec.item_id==item_0.id)\
                 .filter(HistoryRec.item_hash==item_0.hash())\
                 .filter(HistoryRec.data_ref_hash==data_ref_hash)\
-                .filter(HistoryRec.data_ref_url==data_ref_url)\
+                .filter(HistoryRec.data_ref_url_raw==data_ref_url)\
                 .order_by(HistoryRec.id.desc()).first()
         return parent_hr
     

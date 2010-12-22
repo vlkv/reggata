@@ -95,7 +95,7 @@ class HistoryRec(Base):
     item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"))
     item_hash = sqa.Column(sqa.String)
     data_ref_hash = sqa.Column(sqa.String)
-    data_ref_url = sqa.Column(sqa.String)
+    data_ref_url_raw = sqa.Column(sqa.String, name="data_ref_url")
     operation = sqa.Column(sqa.Enum(CREATE, UPDATE, DELETE, MERGE))
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
     
@@ -113,6 +113,15 @@ class HistoryRec(Base):
         self.user_login = user_login
         self.parent1_id = parent1_id 
         self.parent2_id = parent2_id
+
+    def _get_data_ref_url(self):
+        return self.data_ref_url_raw
+    
+    def _set_data_ref_url(self, value):
+        #TODO сохранять в БД этот url и  DataRef.url нужно всегда в формате Unix (т.е. с прямыми слешами) 
+        self.data_ref_url_raw = value
+        
+    data_ref_url = property(_get_data_ref_url, _set_data_ref_url, 'Свойство data_ref_url.')
 
     def __eq__(self, obj):
         '''Проверка на равенство. Значения HistoryRec.id могут быть разными 
@@ -477,6 +486,7 @@ class DataRef(Base):
         return self.url_raw
         
     def _set_url(self, value):
+        #TODO сохранять в БД этот url и  HistoryRec.url нужно всегда в формате Unix (т.е. с прямыми слешами)
         self.url_raw = value
                 
     url = property(_get_url, _set_url, doc="Свойство url.")
