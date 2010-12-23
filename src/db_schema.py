@@ -117,7 +117,7 @@ class HistoryRec(Base):
     def _get_data_ref_url(self):
         if not is_none_or_empty(self.data_ref_hash):
             #Если хеш непустой, то DataRef связан с физическим файлом
-            return helpers.from_db_format(self.url_raw)
+            return helpers.from_db_format(self.data_ref_url_raw)
         else:
             return self.data_ref_url_raw
     
