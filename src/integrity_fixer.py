@@ -85,42 +85,45 @@ class FileNotFoundFixer(IntegrityFixer):
     def _try_find(self, item, user_login):
         delete_old_dr = False
         bind_new_dr_to_item = False
-        new_dr = None
+        update_history_recs = False
+        new_dr = None        
         
         found = None
         
         try:
             #Сначала нужно поискать среди существующих DataRef-ов в базе
-            other_dr = self.uow.session.query(DataRef).filter(DataRef.hash==item.data_ref.hash)\
+            new_dr = self.uow.session.query(DataRef).filter(DataRef.hash==item.data_ref.hash)\
                 .filter(DataRef.url_raw != item.data_ref.url).first()
-            if other_dr is not None:
-                hash = compute_hash(os.path.join(self.repo_base_path, other_dr.url))
-                if hash == item.data_ref.hash and hash == other_dr.hash:
+            if new_dr is not None:
+                hash = compute_hash(os.path.join(self.repo_base_path, new_dr.url))
+                if hash == item.data_ref.hash and hash == new_dr.hash:
                     delete_old_dr = True
                     bind_new_dr_to_item = True
-                    new_dr = other_dr
+                    update_history_recs = True
                     found = True
+                else:
+                    new_dr = None
         except:
             found = False
         
         if not found:
-            #Логично искать только среди тех файлов, size которых совпадает с item.data_ref.size
+            #TODO We should first search in the same directory (maybe this file was just renamed) 
             need_break = False
             for root, dirs, files in os.walk(self.repo_base_path):
                 for file in files:
                     
+                    #Skip files which size is different from item.data_ref.size
                     size = os.path.getsize(os.path.join(root, file))
                     if size != item.data_ref.size:
                         continue
                     
                     hash = compute_hash(os.path.join(root, file))
                     if hash == item.data_ref.hash:
-                        #Нужно сохранить в item.data_ref новое значение url
-                        existing_dr = self.uow.session.query(DataRef).get(item.data_ref.id)
-                        existing_dr.url = os.path.relpath(os.path.join(root, file), self.repo_base_path)
+                        #updating existing DataRef object
+                        new_dr = self.uow.session.query(DataRef).get(item.data_ref.id)
+                        new_dr.url = os.path.relpath(os.path.join(root, file), self.repo_base_path)
                         self.uow.session.flush()
-                        
-                        new_dr = existing_dr
+                        update_history_recs = True
                         
                         need_break = True
                         break
@@ -140,7 +143,9 @@ class FileNotFoundFixer(IntegrityFixer):
             item_0.data_ref_id = new_dr.id
             item_0.data_ref = new_dr
             self.uow.session.flush()
+            self.uow.session.expunge(item_0)
             
+        if update_history_recs:
             #Сохраняем в историю изменений запись о том, что data_ref был модифицирован
             parent_hr = repo_mgr.UnitOfWork._find_item_latest_history_rec(self.uow.session, item)
             if parent_hr is None:
@@ -149,23 +154,21 @@ class FileNotFoundFixer(IntegrityFixer):
             hr.item_id = item.id
             hr.item_hash = item.hash()
             hr.parent1_id = parent_hr.id
-            if item.data_ref is not None:                
+            if item.data_ref is not None:
                 hr.data_ref_url = new_dr.url
+                hr.data_ref_hash = new_dr.hash
                 hr.operation = HistoryRec.UPDATE
                 hr.user_login = user_login
-            self.uow.session.add(hr) 
+            self.uow.session.add(hr)
             self.uow.session.flush()
+                
             
-            #TODO что-то в историю записи не сохраняются
-            
-            if item_0 in self.uow.session:
-                self.uow.session.expunge(item_0) 
+             
             
         if new_dr is not None:
 
             if new_dr in self.uow.session:
-                self.uow.session.expunge(new_dr)
-            
+                self.uow.session.expunge(new_dr)            
             
             try:
                 self.lock.lockForWrite()
