@@ -953,29 +953,23 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                     #сообщаем, что элемент нужно обновить
                     fixer = fixers.get(error_code)
                     if fixer is not None:
-                        fixer.fix_error(item, self.user_login)
-                        
-                        #Сохраняем
+                        fixed = fixer.fix_error(item, self.user_login)
+                                                
                         uow.session.commit()
                         
-                        try:
-                            self.lock.lockForWrite()
-                            #Убираем ошибку из списка
-                            item.error.remove(error_code)
-                        finally:
-                            self.lock.unlock()
+                        if fixed:
+                            try:
+                                self.lock.lockForWrite()
+                                #Убираем ошибку из списка
+                                
+                                item.error.remove(error_code)
+                            finally:
+                                self.lock.unlock()
                             
-                
-                            
-                
-                #Снова проверяем целостность
-                #item.error = UnitOfWork._check_item_integrity(uow.session, item, self.repo.base_path)
-
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
                     
         except Exception as ex:
             print(traceback.format_exc())
-            #self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
             self.emit(QtCore.SIGNAL("exception"), sys.exc_info())
         finally:
             self.emit(QtCore.SIGNAL("finished"))

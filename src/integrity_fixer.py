@@ -44,9 +44,13 @@ class IntegrityFixer(object):
             raise Exception(tr("There is no fixer class for item integrity error code {0}.").format(code))
 
     def code(self):
+        '''Returns code of error (as defined in db_schema.Item class) 
+        which can be fixed by this XXXFixer class.'''
         raise NotImplementedError(tr("This is an abstract class."))
     
     def fix_error(self, item, user_login):
+        '''Method should return True, if error was successfully fixed, 
+        else returns False.'''
         raise NotImplementedError(tr("This is an abstract class."))
     
 class FileNotFoundFixer(IntegrityFixer):
@@ -71,18 +75,18 @@ class FileNotFoundFixer(IntegrityFixer):
             raise Exception(tr("This item has no related files."))
         
         if self.strategy == self.TRY_FIND:
-            self._try_find(item, user_login)
+            return self._try_find(item, user_login)
         elif self.strategy == self.DELETE:
-            #self._delete(item, user_login)
+            #return self._delete(item, user_login)
             pass
         elif self.strategy == self.TRY_FIND_ELSE_DELETE:
-            #self._try_find(item, user_login)
-            #self._delete(item, user_login)
-            pass
+            #TODO
+            return False
         else:
             raise Exception(tr("Not supported strategy = {0}.").format(self.strategy))
         
     def _try_find(self, item, user_login):
+        error_fixed = False
         delete_old_dr = False
         bind_new_dr_to_item = False
         update_history_recs = False
@@ -101,6 +105,7 @@ class FileNotFoundFixer(IntegrityFixer):
                     bind_new_dr_to_item = True
                     update_history_recs = True
                     found = True
+                    error_fixed = True
                 else:
                     new_dr = None
         except:
@@ -124,6 +129,7 @@ class FileNotFoundFixer(IntegrityFixer):
                         new_dr.url = os.path.relpath(os.path.join(root, file), self.repo_base_path)
                         self.uow.session.flush()
                         update_history_recs = True
+                        error_fixed = True
                         
                         need_break = True
                         break
@@ -162,9 +168,6 @@ class FileNotFoundFixer(IntegrityFixer):
             self.uow.session.add(hr)
             self.uow.session.flush()
                 
-            
-             
-            
         if new_dr is not None:
 
             if new_dr in self.uow.session:
@@ -175,6 +178,8 @@ class FileNotFoundFixer(IntegrityFixer):
                 item.data_ref = new_dr
             finally:
                 self.lock.unlock()
+        
+        return error_fixed 
         
         
 
@@ -199,7 +204,8 @@ class FileHashMismatchFixer(IntegrityFixer):
         #Если нашли, то привязываем item к найденному файлу. 
         #При этом либо придется отредактировать url у существующего data_ref объекта, либо 
         #привязаться к другому data_ref объекту.
-        
+
+        error_fixed = False
         delete_old_dr = False
         bind_new_dr_to_item = False
         new_dr = None
@@ -219,6 +225,7 @@ class FileHashMismatchFixer(IntegrityFixer):
                     delete_old_dr = True
                     bind_new_dr_to_item = True
                     new_dr = other_dr
+                    error_fixed = True
         except:
             found = False
         
@@ -244,6 +251,7 @@ class FileHashMismatchFixer(IntegrityFixer):
                         #Привязать новый data_ref к item
                         delete_old_dr = True
                         bind_new_dr_to_item = True
+                        error_fixed = True
                         
                         need_break = True
                         break
@@ -290,7 +298,8 @@ class FileHashMismatchFixer(IntegrityFixer):
                 item.data_ref = new_dr
             finally:
                 self.lock.unlock()
-                
+        
+        return error_fixed
              
     
     def _update_hash(self, item, user_login):
@@ -333,6 +342,8 @@ class FileHashMismatchFixer(IntegrityFixer):
             item.data_ref.date_hashed = new_date_hashed
         finally:
             self.lock.unlock()   
+            
+        return True
     
     def fix_error(self, item, user_login):
         
@@ -340,9 +351,9 @@ class FileHashMismatchFixer(IntegrityFixer):
             raise Exception(tr("This item has no related files."))
         
         if self.strategy == self.UPDATE_HASH:
-            self._update_hash(item, user_login)
+            return self._update_hash(item, user_login)
         elif self.strategy == self.TRY_FIND_FILE:
-            self._try_find_file(item, user_login)
+            return self._try_find_file(item, user_login)
         else:
             raise Exception(tr("Not supported strategy = {0}.").format(self.strategy))
 
@@ -401,17 +412,18 @@ class HistoryRecNotFoundFixer(IntegrityFixer):
             raise Exception(tr("Item is already ok."))
         
         if self.strategy == self.RENEW:
-            self._renew(item, user_login)
+            return self._renew(item, user_login)
         elif self.strategy == self.TRY_PROCEED:
-            self._try_proceed(item, user_login)
-        elif self.strategy == self.TRY_PROCEED_ELSE_RENEW:
+            return self._try_proceed(item, user_login)
+        elif self.strategy == self.TRY_PROCEED_ELSE_RENEW:            
             try:
-                self._try_proceed(item, user_login)
+                return self._try_proceed(item, user_login)                
             except (NotFoundError, WrongValueError):
-                self._renew(item, user_login)
+                return self._renew(item, user_login)
         else:
-            raise Exception(tr("Not supported strategy = {0}.").format(self.strategy))        
-        
+            raise Exception(tr("Not supported strategy = {0}.").format(self.strategy))
+    
+       
         
 
 
