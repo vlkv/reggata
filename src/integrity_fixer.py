@@ -345,12 +345,6 @@ class FileHashMismatchFixer(IntegrityFixer):
             self._try_find_file(item, user_login)
         else:
             raise Exception(tr("Not supported strategy = {0}.").format(self.strategy))
-    
-
-class FileSizeMismatchFixer(FileHashMismatchFixer):
-    #Класс по сути ничем не отличается от FileHashMismatchFixer 
-    def code(self):
-        return Item.ERROR_FILE_SIZE_MISMATCH
 
 class HistoryRecNotFoundFixer(IntegrityFixer):
     TRY_PROCEED = 0 #Попытаться найти историю элемента и привязаться к ней

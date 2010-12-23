@@ -434,16 +434,11 @@ class UnitOfWork(object):
             abs_path = os.path.join(repo_base_path, item.data_ref.url)
             if not os.path.exists(abs_path):
                 error_set.add(Item.ERROR_FILE_NOT_FOUND)
-            else:                                            
-                #    нужно проверить, совпадает ли хеш файла со значением DataRef.hash
+            else:
                 hash = helpers.compute_hash(abs_path)
-                if item.data_ref.hash != hash:
-                    error_set.add(Item.ERROR_FILE_HASH_MISMATCH)
-                
-                #    можно проверить, если size не совпадает, то hash тоже совпадать не должен будет
                 size = os.path.getsize(abs_path)
-                if item.data_ref.size != size:
-                    error_set.add(Item.ERROR_FILE_SIZE_MISMATCH)
+                if item.data_ref.hash != hash or item.data_ref.size != size:
+                    error_set.add(Item.ERROR_FILE_HASH_MISMATCH)                
         
         return error_set
 

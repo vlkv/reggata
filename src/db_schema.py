@@ -165,8 +165,7 @@ class Item(Base):
     __tablename__ = "items"
         
     ERROR_FILE_NOT_FOUND = 1
-    ERROR_FILE_HASH_MISMATCH = 2
-    ERROR_FILE_SIZE_MISMATCH = 3
+    ERROR_FILE_HASH_MISMATCH = 2    
     ERROR_HISTORY_REC_NOT_FOUND = 4
     
     id = sqa.Column(sqa.Integer, primary_key=True)
@@ -226,11 +225,9 @@ class Item(Base):
                 s = ""
                 for error in error_set:
                     if error == Item.ERROR_FILE_HASH_MISMATCH:
-                        s += tr("{0}. Physical file has changed (hash mismatch)").format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
+                        s += tr("{0}. Physical file has changed (hash/size mismatch)").format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
                     elif error == Item.ERROR_FILE_NOT_FOUND:
                         s += tr("{0}. Physical file not found").format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
-                    elif error == Item.ERROR_FILE_SIZE_MISMATCH:
-                        s += tr("{0}. Size of physical file has changed").format(Item.ERROR_FILE_SIZE_MISMATCH) + os.linesep
                     elif error == Item.ERROR_HISTORY_REC_NOT_FOUND:
                         s += tr("{0}. There is no corresponding history record for this item").format(Item.ERROR_HISTORY_REC_NOT_FOUND) + os.linesep
                 if s.endswith(os.linesep):
