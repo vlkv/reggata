@@ -135,7 +135,7 @@ def to_os_format(path):
     return from_db_format(path)
     
     
-def to_commalist(seq, apply_each=repr, sep=","):
+def to_commalist(seq, apply_each=repr, sep=", "):
     '''
     Для последовательности seq (например, списка list) возвращает строку, содержащую
     элементы через запятую. При этому к каждому элементу применяется функция apply_each()
