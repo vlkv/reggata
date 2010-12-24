@@ -137,12 +137,12 @@ class UnitOfWork(object):
     def session(self):
         return self._session
         
-    def delete_all_thumbnails(self, data_ref_id):
-        rows = self._session.query(Thumbnail).filter(Thumbnail.data_ref_id==data_ref_id).delete(synchronize_session="fetch")
-        self._session.flush()
-        #self._session.commit()
-        
-        return rows
+#    def delete_all_thumbnails(self, data_ref_id):
+#        rows = self._session.query(Thumbnail).filter(Thumbnail.data_ref_id==data_ref_id)\
+#            .delete(synchronize_session="fetch")        
+#        self._session.commit()
+#        
+#        return rows
         
     def save_thumbnail(self, data_ref_id, thumbnail):
         data_ref = self._session.query(DataRef).get(data_ref_id)
@@ -1070,8 +1070,9 @@ class ThumbnailBuilderThread(QtCore.QThread):
                     continue
                 elif self.rebuild:
                     #Delete ALL existing thumbnails linked with current item.data_ref from database
-                    rows = uow.delete_all_thumbnails(item.data_ref.id)
-                    print("deleted {0} rows for data_ref.id={1}".format(rows, item.data_ref.id))
+                    uow.session.query(Thumbnail).filter(Thumbnail.data_ref_id==item.data_ref.id)\
+                        .delete(synchronize_session=False)                        
+                    uow.session.flush()
                     
                     #Clear item.data_ref.thumbnails collection
                     try:
