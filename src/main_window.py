@@ -653,7 +653,7 @@ class MainWindow(QtGui.QMainWindow):
         
         def refresh(percent, row):
             self.ui.statusbar.showMessage(self.tr("Integrity check {0}%").format(percent))            
-            self.model.reset_single_row(row)            
+            self.model.reset_single_row(row)
             QtCore.QCoreApplication.processEvents()
         
         try:
@@ -946,6 +946,9 @@ class MainWindow(QtGui.QMainWindow):
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
+            print("selected rows: {}".format(rows))
+            
+            
             uow = self.active_repo.create_unit_of_work()
             try:
                 items = []
@@ -960,8 +963,6 @@ class MainWindow(QtGui.QMainWindow):
                 self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
                 thread.start()
                     
-                
-                    
             finally:
                 uow.close()
                     
@@ -970,9 +971,7 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
-            self.query_exec()
-            self.ui.tag_cloud.refresh()
+            pass
             
             
 
@@ -1072,7 +1071,7 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         pixmap = index.data(QtCore.Qt.UserRole)
-        if pixmap:
+        if pixmap is not None and not pixmap.isNull():
             painter.drawPixmap(option.rect.topLeft(), pixmap)
             #painter.drawPixmap(option.rect, pixmap)
         else:
@@ -1116,8 +1115,6 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         '''Выполняет извлечение элементов из хранилища.'''
         
         def reset_row(row):
-            #if not self.timer.isActive():
-            #    self.timer.start(1000)
             self.reset_single_row(row)
             QtCore.QCoreApplication.processEvents()           
                 
@@ -1138,7 +1135,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             
             #Нужно запустить поток, который будет генерировать миниатюры
             self.thread = ThumbnailBuilderThread(self, self.repo, self.items, self.lock)
-            self.connect(self.thread, QtCore.SIGNAL("one_more_thumbnail_ready"), reset_row)
+            self.connect(self.thread, QtCore.SIGNAL("progress"), lambda percents, row: reset_row(row))            
             self.thread.start()
                 
             self.reset()
@@ -1208,7 +1205,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             elif column == self.STATE:
                 try:
                     self.lock.lockForRead()
-                    return Item.format_error_set(item.error)                
+                    return Item.format_error_set(item.error)
                 finally:
                     self.lock.unlock()
             

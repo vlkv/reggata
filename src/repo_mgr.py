@@ -138,13 +138,19 @@ class UnitOfWork(object):
         return self._session
         
     def delete_all_thumbnails(self, data_ref_id):
-        rows = self._session.query(Thumbnail).filter(Thumbnail.data_ref_id==data_ref_id).delete()
-        self._session.commit()
+        rows = self._session.query(Thumbnail).filter(Thumbnail.data_ref_id==data_ref_id).delete(synchronize_session="fetch")
+        self._session.flush()
+        #self._session.commit()
+        
         return rows
         
     def save_thumbnail(self, data_ref_id, thumbnail):
         data_ref = self._session.query(DataRef).get(data_ref_id)
+        self._session.refresh(data_ref)
         thumbnail.data_ref_id = data_ref.id
+        print("len(data_ref.thumbnails) = {}".format(len(data_ref.thumbnails)))
+        for th in data_ref.thumbnails:
+            print(th)
         data_ref.thumbnails.append(thumbnail)
         self._session.add(thumbnail)
         
@@ -1059,11 +1065,13 @@ class ThumbnailBuilderThread(QtCore.QThread):
                 if not item.data_ref or not item.data_ref.is_image():
                     continue
                 
+                
                 if self.rebuild == False and len(item.data_ref.thumbnails) > 0:
                     continue
                 elif self.rebuild:
                     #Delete ALL existing thumbnails linked with current item.data_ref from database
-                    uow.delete_all_thumbnails(item.data_ref.id)
+                    rows = uow.delete_all_thumbnails(item.data_ref.id)
+                    print("deleted {0} rows for data_ref.id={1}".format(rows, item.data_ref.id))
                     
                     #Clear item.data_ref.thumbnails collection
                     try:
@@ -1072,38 +1080,46 @@ class ThumbnailBuilderThread(QtCore.QThread):
                     finally:
                         self.lock.unlock()
             
-                
-                #Read image from file
-                pixmap = QtGui.QImage(os.path.join(self.repo.base_path, item.data_ref.url))
-                if pixmap.isNull():
-                    continue
-                
-                #Scale image to thumbnail size
-                if (pixmap.height() > pixmap.width()):
-                    pixmap = pixmap.scaledToHeight(thumbnail_size)
-                else:
-                    pixmap = pixmap.scaledToWidth(thumbnail_size)                
-                buffer = QtCore.QBuffer()
-                buffer.open(QtCore.QIODevice.WriteOnly);
-                pixmap.save(buffer, "JPG")
-                
-                #Create Thumbnail object
-                th = Thumbnail()
-                th.data = buffer.buffer().data()                
-                th.size = thumbnail_size
-                
-                #Save Thumbnail object in database
-                uow.save_thumbnail(item.data_ref.id, th)
-                
-                #Update items collection
                 try:
-                    self.lock.lockForWrite()
-                    item.data_ref.thumbnails.append(th)
-                finally:
-                    self.lock.unlock()
+                
+                    #Read image from file
+                    pixmap = QtGui.QImage(os.path.join(self.repo.base_path, item.data_ref.url))
+                    if pixmap.isNull():
+                        continue
                     
-                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
-                self.emit(QtCore.SIGNAL("one_more_thumbnail_ready"), i)
+                    #Scale image to thumbnail size
+                    if (pixmap.height() > pixmap.width()):
+                        pixmap = pixmap.scaledToHeight(thumbnail_size)
+                    else:
+                        pixmap = pixmap.scaledToWidth(thumbnail_size)
+                    buffer = QtCore.QBuffer()
+                    buffer.open(QtCore.QIODevice.WriteOnly);
+                    pixmap.save(buffer, "JPG")
+                    
+                    #Create Thumbnail object
+                    th = Thumbnail()
+                    th.data = buffer.buffer().data()
+                    th.size = thumbnail_size
+                    
+                    #Save Thumbnail object in database
+                    uow.save_thumbnail(item.data_ref.id, th)
+                    
+                    #Update items collection
+                    try:
+                        self.lock.lockForWrite()
+                        item.data_ref.thumbnails.append(th)
+                    finally:
+                        self.lock.unlock()
+                        
+                    self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row if hasattr(item, 'table_row') else i)
+                    
+                except:
+                    if self.rebuild:
+                        #Stop thumbnails rebuilding
+                        raise
+                    else:
+                        #Continue generating thumbnails in this case
+                        print(traceback.format_exc())                
                                     
         except:
             print(traceback.format_exc())
