@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Dec 21 09:06:56 2010
+# Created: Fri Dec 24 19:35:37 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -128,6 +128,8 @@ class Ui_MainWindow(object):
         self.action_fix_file_not_found_delete.setObjectName(_fromUtf8("action_fix_file_not_found_delete"))
         self.action_fix_file_not_found_try_find_else_delete = QtGui.QAction(MainWindow)
         self.action_fix_file_not_found_try_find_else_delete.setObjectName(_fromUtf8("action_fix_file_not_found_try_find_else_delete"))
+        self.action_item_rebuild_thumbnail = QtGui.QAction(MainWindow)
+        self.action_item_rebuild_thumbnail.setObjectName(_fromUtf8("action_item_rebuild_thumbnail"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -148,6 +150,7 @@ class Ui_MainWindow(object):
         self.menuItem.addAction(self.action_item_add_many_rec)
         self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_edit)
+        self.menuItem.addAction(self.action_item_rebuild_thumbnail)
         self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_delete)
         self.menuItem.addSeparator()
@@ -206,4 +209,5 @@ class Ui_MainWindow(object):
         self.action_fix_file_not_found_try_find.setText(QtGui.QApplication.translate("MainWindow", "Try find file", None, QtGui.QApplication.UnicodeUTF8))
         self.action_fix_file_not_found_delete.setText(QtGui.QApplication.translate("MainWindow", "Delete link", None, QtGui.QApplication.UnicodeUTF8))
         self.action_fix_file_not_found_try_find_else_delete.setText(QtGui.QApplication.translate("MainWindow", "Try find file else delete link", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_rebuild_thumbnail.setText(QtGui.QApplication.translate("MainWindow", "Rebuild &thumbnail", None, QtGui.QApplication.UnicodeUTF8))
 

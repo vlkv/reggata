@@ -111,6 +111,7 @@
     <addaction name="action_item_add_many_rec" />
     <addaction name="separator" />
     <addaction name="action_item_edit" />
+    <addaction name="action_item_rebuild_thumbnail" />
     <addaction name="separator" />
     <addaction name="action_item_delete" />
     <addaction name="separator" />
@@ -282,6 +283,11 @@
   <action name="action_fix_file_not_found_try_find_else_delete" >
    <property name="text" >
     <string>Try find file else delete link</string>
+   </property>
+  </action>
+  <action name="action_item_rebuild_thumbnail" >
+   <property name="text" >
+    <string>Rebuild &amp;thumbnail</string>
    </property>
   </action>
  </widget>

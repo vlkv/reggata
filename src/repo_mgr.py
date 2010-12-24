@@ -137,14 +137,17 @@ class UnitOfWork(object):
     def session(self):
         return self._session
         
+    def delete_all_thumbnails(self, data_ref_id):
+        rows = self._session.query(Thumbnail).filter(Thumbnail.data_ref_id==data_ref_id).delete()
+        self._session.commit()
+        return rows
         
     def save_thumbnail(self, data_ref_id, thumbnail):
         data_ref = self._session.query(DataRef).get(data_ref_id)
-        
-        self._session.add(thumbnail)
-        self._session.flush()
-        
+        thumbnail.data_ref_id = data_ref.id
         data_ref.thumbnails.append(thumbnail)
+        self._session.add(thumbnail)
+        
         self._session.commit()
         
         self._session.refresh(thumbnail)
@@ -1033,15 +1036,15 @@ class ThumbnailBuilderThread(QtCore.QThread):
     Данный поток автоматически запускается после выполнение любого запроса элементов 
     (т.к. в результате любого запроса могут оказаться изображения.
     '''
-    def __init__(self, parent, repo, items, lock):
+    def __init__(self, parent, repo, items, lock, rebuild=False):
         super(ThumbnailBuilderThread, self).__init__(parent)
         self.repo = repo
         self.items = items
         self.lock = lock
         self.interrupt = False
+        self.rebuild = rebuild
 
     def run(self):
-        
         uow = self.repo.create_unit_of_work()
         try:
             thumbnail_size = int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE))
@@ -1053,58 +1056,61 @@ class ThumbnailBuilderThread(QtCore.QThread):
                     print("ThumbnailBuilderThread interrupted!")
                     break
                 
-                if len(item.data_ref.thumbnails) > 0:
-                    continue
-            
-                if not item.data_ref.is_image():
+                if not item.data_ref or not item.data_ref.is_image():
                     continue
                 
+                if self.rebuild == False and len(item.data_ref.thumbnails) > 0:
+                    continue
+                elif self.rebuild:
+                    #Delete ALL existing thumbnails linked with current item.data_ref from database
+                    uow.delete_all_thumbnails(item.data_ref.id)
+                    
+                    #Clear item.data_ref.thumbnails collection
+                    try:
+                        self.lock.lockForWrite()
+                        item.data_ref.thumbnails[:] = []
+                    finally:
+                        self.lock.unlock()
+            
+                
+                #Read image from file
                 pixmap = QtGui.QImage(os.path.join(self.repo.base_path, item.data_ref.url))
                 if pixmap.isNull():
                     continue
                 
-                #Масштабируем изображение
+                #Scale image to thumbnail size
                 if (pixmap.height() > pixmap.width()):
                     pixmap = pixmap.scaledToHeight(thumbnail_size)
                 else:
-                    pixmap = pixmap.scaledToWidth(thumbnail_size)
-                
+                    pixmap = pixmap.scaledToWidth(thumbnail_size)                
                 buffer = QtCore.QBuffer()
                 buffer.open(QtCore.QIODevice.WriteOnly);
                 pixmap.save(buffer, "JPG")
                 
+                #Create Thumbnail object
+                th = Thumbnail()
+                th.data = buffer.buffer().data()                
+                th.size = thumbnail_size
+                
+                #Save Thumbnail object in database
+                uow.save_thumbnail(item.data_ref.id, th)
+                
+                #Update items collection
                 try:
                     self.lock.lockForWrite()
-                    th = Thumbnail()
-                    th.data = buffer.buffer().data()
-                    th.data_ref_id = item.data_ref.id
-                    th.size = thumbnail_size
                     item.data_ref.thumbnails.append(th)
-                    
-                    try:
-                        #Сохраняем миниатюру в БД
-                        uow.save_thumbnail(item.data_ref.id, th)
-                    except:
-                        #Если не получилось сохранить, то все равно данный поток не прерываем 
-                        print("Cannot save in DB thumbnail for image " + item.data_ref.url)
-                        print(traceback.format_exc())
-                    
-                except:
-                    print("Cannot generate thumbnail for " + item.data_ref.url)
-                    continue
-                else:
-                    self.emit(QtCore.SIGNAL("one_more_thumbnail_ready"), i)
-                    print("Generated thumbnail of " + item.data_ref.url)
                 finally:
                     self.lock.unlock()
-                
-                
                     
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
+                self.emit(QtCore.SIGNAL("one_more_thumbnail_ready"), i)
+                                    
         except:
             print(traceback.format_exc())
+            self.emit(QtCore.SIGNAL("exception"), sys.exc_info())
         finally:
-            uow.close()
-            print("ThumbnailBuilderThread done.")
+            self.emit(QtCore.SIGNAL("finished"))
+            uow.close()            
 
        
 class DeleteGroupOfItemsThread(QtCore.QThread):

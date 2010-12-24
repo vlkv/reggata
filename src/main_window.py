@@ -92,6 +92,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addAction(self.ui.action_item_view_image_viewer)
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_edit)
+        self.menu.addAction(self.ui.action_item_rebuild_thumbnail)
         self.menu.addSeparator()        
         self.menu.addAction(self.ui.action_item_delete)
         self.menu.addSeparator()
@@ -113,6 +114,7 @@ class MainWindow(QtGui.QMainWindow):
         
         self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
         self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
+        self.connect(self.ui.action_item_rebuild_thumbnail, QtCore.SIGNAL("triggered()"), self.action_item_rebuild_thumbnail)
         self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
         self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
         self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
@@ -922,6 +924,57 @@ class MainWindow(QtGui.QMainWindow):
 
 
     
+    def action_item_rebuild_thumbnail(self):
+        
+        def refresh(percent, row):
+            self.ui.statusbar.showMessage(self.tr("Rebuilding thumbnails ({0}%)").format(percent))            
+            self.model.reset_single_row(row)
+            QtCore.QCoreApplication.processEvents()
+        
+        try:
+            if self.active_repo is None:
+                raise MsgException(self.tr("Open a repository first."))
+            
+            if self.active_user is None:
+                raise MsgException(self.tr("Login to a repository first."))
+            
+            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
+            rows = set()
+            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
+                rows.add(idx.row())
+            
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            uow = self.active_repo.create_unit_of_work()
+            try:
+                items = []
+                for row in rows:
+                    #Нужно в элементе сохранить номер строки таблицы, откуда взят элемент
+                    self.model.items[row].table_row = row
+                    items.append(self.model.items[row])
+                 
+                thread = ThumbnailBuilderThread(self, self.active_repo, items, self.items_lock, rebuild=True)
+                self.connect(thread, QtCore.SIGNAL("exception"), lambda exc_info: helpers.show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
+                self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Rebuild thumbnails is done.")))            
+                self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
+                thread.start()
+                    
+                
+                    
+            finally:
+                uow.close()
+                    
+                                
+            
+        except Exception as ex:
+            show_exc_info(self, ex)
+        else:
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.query_exec()
+            self.ui.tag_cloud.refresh()
+            
+            
 
     def action_item_edit(self):
         try:
