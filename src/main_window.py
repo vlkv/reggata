@@ -61,7 +61,8 @@ from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
 #TODO Довести до ума встроенный просмотрщик графических файлов.
 #TODO Сделать всплывающие подсказки на элементах GUI
 #TODO Надо решить проблему, если запрос вернет ОЧЕНЬ много элементов, то как их по частям отображать
-#TODO Нужна функция в контекстном меню: rebuild thumbnail  
+#TODO Implement searching items by Item.title and Item.notes attributes
+#TODO Implement searching all items inside one physical directory  
 
 class MainWindow(QtGui.QMainWindow):
     '''
