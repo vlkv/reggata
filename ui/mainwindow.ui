@@ -89,7 +89,7 @@
      </property>
      <widget class="QMenu" name="menuFix_hash_mismatch_error" >
       <property name="title" >
-       <string>Fix hash mismatch error</string>
+       <string>Fix file changed error</string>
       </property>
       <addaction name="action_item_fix_hash_error" />
       <addaction name="action_item_update_file_hash" />

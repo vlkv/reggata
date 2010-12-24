@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Dec 24 19:35:37 2010
+# Created: Sat Dec 25 00:04:25 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -180,7 +180,7 @@ class Ui_MainWindow(object):
         self.menu.setTitle(QtGui.QApplication.translate("MainWindow", "&User", None, QtGui.QApplication.UnicodeUTF8))
         self.menuItem.setTitle(QtGui.QApplication.translate("MainWindow", "&Item", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFix_integrity_errors.setTitle(QtGui.QApplication.translate("MainWindow", "Fix integrity errors", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuFix_hash_mismatch_error.setTitle(QtGui.QApplication.translate("MainWindow", "Fix hash mismatch error", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuFix_hash_mismatch_error.setTitle(QtGui.QApplication.translate("MainWindow", "Fix file changed error", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFix_file_not_found_error.setTitle(QtGui.QApplication.translate("MainWindow", "Fix file not found error", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
