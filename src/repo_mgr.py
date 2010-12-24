@@ -605,7 +605,7 @@ class UnitOfWork(object):
                 url = os.path.relpath(item.data_ref.url, self._repo_base_path)
             else:
                 url = item.data_ref.url
-            existing_data_ref = self._session.query(DataRef).filter(DataRef.url==url).first()            
+            existing_data_ref = self._session.query(DataRef).filter(DataRef.url_raw==helpers.to_db_format(url)).first()            
             if existing_data_ref is not None:
                 item_0.data_ref = existing_data_ref
             else:

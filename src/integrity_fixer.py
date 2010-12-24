@@ -77,13 +77,30 @@ class FileNotFoundFixer(IntegrityFixer):
         if self.strategy == self.TRY_FIND:
             return self._try_find(item, user_login)
         elif self.strategy == self.DELETE:
-            #return self._delete(item, user_login)
-            pass
-        elif self.strategy == self.TRY_FIND_ELSE_DELETE:
-            #TODO
-            return False
+            return self._delete(item, user_login)
         else:
             raise Exception(tr("Not supported strategy = {0}.").format(self.strategy))
+
+    def _delete(self, item, user_login):
+        '''This method deletes item.data_ref object, which links to the lost file.
+        '''
+        #updating existing DataRef object
+        existing_dr = self.uow.session.query(DataRef).get(item.data_ref.id)
+        self.uow.session.delete(existing_dr)
+        self.uow.session.flush()
+        
+        if existing_dr in self.uow.session:
+            self.uow.session.expunge(existing_dr)            
+        
+        try:
+            self.lock.lockForWrite()
+            item.data_ref_id = None
+            item.data_ref = None            
+        finally:
+            self.lock.unlock()
+        
+        return True
+        
         
     def _try_find(self, item, user_login):
         error_fixed = False

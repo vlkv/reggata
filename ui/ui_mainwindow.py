@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Dec 25 00:04:25 2010
+# Created: Sat Dec 25 00:33:56 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -141,7 +141,6 @@ class Ui_MainWindow(object):
         self.menuFix_hash_mismatch_error.addAction(self.action_item_update_file_hash)
         self.menuFix_file_not_found_error.addAction(self.action_fix_file_not_found_try_find)
         self.menuFix_file_not_found_error.addAction(self.action_fix_file_not_found_delete)
-        self.menuFix_file_not_found_error.addAction(self.action_fix_file_not_found_try_find_else_delete)
         self.menuFix_integrity_errors.addAction(self.menuFix_hash_mismatch_error.menuAction())
         self.menuFix_integrity_errors.addAction(self.action_item_fix_history_rec_error)
         self.menuFix_integrity_errors.addAction(self.menuFix_file_not_found_error.menuAction())
@@ -207,7 +206,7 @@ class Ui_MainWindow(object):
         self.action_item_fix_hash_error.setText(QtGui.QApplication.translate("MainWindow", "Try find file", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_update_file_hash.setText(QtGui.QApplication.translate("MainWindow", "Update hash", None, QtGui.QApplication.UnicodeUTF8))
         self.action_fix_file_not_found_try_find.setText(QtGui.QApplication.translate("MainWindow", "Try find file", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_fix_file_not_found_delete.setText(QtGui.QApplication.translate("MainWindow", "Delete link", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_fix_file_not_found_delete.setText(QtGui.QApplication.translate("MainWindow", "Delete item\'s reference to file", None, QtGui.QApplication.UnicodeUTF8))
         self.action_fix_file_not_found_try_find_else_delete.setText(QtGui.QApplication.translate("MainWindow", "Try find file else delete link", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_rebuild_thumbnail.setText(QtGui.QApplication.translate("MainWindow", "Rebuild &thumbnail", None, QtGui.QApplication.UnicodeUTF8))
 

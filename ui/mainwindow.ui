@@ -100,7 +100,6 @@
       </property>
       <addaction name="action_fix_file_not_found_try_find" />
       <addaction name="action_fix_file_not_found_delete" />
-      <addaction name="action_fix_file_not_found_try_find_else_delete" />
      </widget>
      <addaction name="menuFix_hash_mismatch_error" />
      <addaction name="action_item_fix_history_rec_error" />
@@ -277,7 +276,7 @@
   </action>
   <action name="action_fix_file_not_found_delete" >
    <property name="text" >
-    <string>Delete link</string>
+    <string>Delete item's reference to file</string>
    </property>
   </action>
   <action name="action_fix_file_not_found_try_find_else_delete" >
