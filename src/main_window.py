@@ -290,8 +290,9 @@ class MainWindow(QtGui.QMainWindow):
             if not self.active_repo:
                 raise MsgException(self.tr("Open a repository first."))
             query_text = self.ui.lineEdit_query.text()
-            self.model.query(query_text)
-            #self.ui.tableView_items.resizeColumnsToContents()            
+            limit = self.ui.spinBox_limit.value()
+            page = self.ui.spinBox_page.value()
+            self.model.query(query_text, limit, page)
             self.ui.tableView_items.resizeRowsToContents()
             
         except Exception as ex:
@@ -1112,13 +1113,13 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 
     
     
-    def query(self, query_text):
+    def query(self, query_text, limit=0, page=1):
         '''Выполняет извлечение элементов из хранилища.'''
         
         def reset_row(row):
             self.reset_single_row(row)
-            QtCore.QCoreApplication.processEvents()           
-                
+            QtCore.QCoreApplication.processEvents()        
+        
         uow = self.repo.create_unit_of_work()
         try:
             #Нужно остановить поток (запущенный от предыдущего запроса), если будет выполнен новый запрос (этот)
@@ -1129,10 +1130,10 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                         
             if query_text is None or query_text.strip()=="":
                 #Если запрос пустой, тогда извлекаем элементы не имеющие тегов
-                self.items = uow.get_untagged_items()
+                self.items = uow.get_untagged_items(limit, page)
             else:
                 query_tree = query_parser.parse(query_text)
-                self.items = uow.query_items_by_tree(query_tree)
+                self.items = uow.query_items_by_tree(query_tree, limit, page)
             
             #Нужно запустить поток, который будет генерировать миниатюры
             self.thread = ThumbnailBuilderThread(self, self.repo, self.items, self.lock)

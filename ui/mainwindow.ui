@@ -43,6 +43,43 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QLabel" name="label_2" >
+           <property name="text" >
+            <string>Limit:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinBox_limit" >
+           <property name="toolTip" >
+            <string>Maximum number of rows per page to display (0 - no limit).</string>
+           </property>
+           <property name="maximum" >
+            <number>1000000</number>
+           </property>
+           <property name="singleStep" >
+            <number>20</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_3" >
+           <property name="text" >
+            <string>Page:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinBox_page" >
+           <property name="minimum" >
+            <number>1</number>
+           </property>
+           <property name="maximum" >
+            <number>1000000</number>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>

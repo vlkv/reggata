@@ -255,12 +255,25 @@ class UnitOfWork(object):
         self._session.expunge(item)
         return item
     
-    def get_untagged_items(self):
+    def get_untagged_items(self, limit=0, page=1):
         '''
         Извлекает из БД все ЖИВЫЕ элементы, с которыми не связано ни одного тега.
         '''
         
         thumbnail_default_size = UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)
+        
+        
+        if page < 1:
+            raise ValueError("Page number cannot be negative or zero.")
+        
+        if limit < 0:
+            raise ValueError("Limit cannot be negative number.")
+        
+        limit_offset = ""
+        if limit > 0:
+            offset = (page-1)*limit
+            limit_offset += "LIMIT {0} OFFSET {1}".format(limit, offset)
+        
         
         sql = '''--Извлекает все элементы, с которыми не связано ни одного тега
         select sub.*, ''' + \
@@ -276,16 +289,17 @@ class UnitOfWork(object):
             from items i
             left join items_tags it on i.id = it.item_id
             left join data_refs on i.data_ref_id = data_refs.id
-            left join thumbnails on data_refs.id = thumbnails.data_ref_id and thumbnails.size = {} 
+            left join thumbnails on data_refs.id = thumbnails.data_ref_id and thumbnails.size = ''' + thumbnail_default_size + ''' 
             where 
                 it.item_id is null
-                AND i.alive 
+                AND i.alive
+            ''' + limit_offset + ''' 
         ) as sub
         left join items_tags on sub.id = items_tags.item_id
         left join tags on tags.id = items_tags.tag_id
         left join items_fields on sub.id = items_fields.item_id
         left join fields on fields.id = items_fields.field_id 
-        '''.format(thumbnail_default_size)
+        '''
                 
         items = []
         try:
@@ -305,12 +319,23 @@ class UnitOfWork(object):
                 
         return items
     
-    def query_items_by_tree(self, query_tree):
+    def query_items_by_tree(self, query_tree, limit=0, page=1):
         '''
         Функция извлекает item-ы, которые соответствуют дереву разбора query_tree.
         '''
         
         sub_sql = query_tree.interpret()
+        
+        if page < 1:
+            raise ValueError("Page number cannot be negative or zero.")
+        
+        if limit < 0:
+            raise ValueError("Limit cannot be negative number.")
+        
+        limit_offset = ""
+        if limit > 0:
+            offset = (page-1)*limit
+            limit_offset += "LIMIT {0} OFFSET {1}".format(limit, offset)
         
         sql = '''
         select sub.*, 
@@ -319,14 +344,14 @@ class UnitOfWork(object):
         ''' + db_schema.Thumbnail._sql_from() + ''',
         ''' + db_schema.Item_Field._sql_from() + ''',
         ''' + db_schema.Field._sql_from() + '''        
-        from (''' + sub_sql + ''') as sub
+        from (''' + sub_sql + " " + limit_offset + ''') as sub
         left join items_tags on sub.id = items_tags.item_id
         left join tags on tags.id = items_tags.tag_id
         left join items_fields on sub.id = items_fields.item_id
         left join fields on fields.id = items_fields.field_id
         left join thumbnails on thumbnails.data_ref_id = sub.data_refs_id and 
                   thumbnails.size = ''' + str(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)) + '''
-        where sub.alive
+        where sub.alive        
         '''
         
         items = []

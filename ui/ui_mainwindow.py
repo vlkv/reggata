@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Dec 25 00:33:56 2010
+# Created: Sat Dec 25 14:31:23 2010
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -40,6 +40,22 @@ class Ui_MainWindow(object):
         self.pushButton_query_reset = QtGui.QPushButton(self.frame)
         self.pushButton_query_reset.setObjectName(_fromUtf8("pushButton_query_reset"))
         self.horizontalLayout.addWidget(self.pushButton_query_reset)
+        self.label_2 = QtGui.QLabel(self.frame)
+        self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.horizontalLayout.addWidget(self.label_2)
+        self.spinBox_limit = QtGui.QSpinBox(self.frame)
+        self.spinBox_limit.setMaximum(1000000)
+        self.spinBox_limit.setSingleStep(20)
+        self.spinBox_limit.setObjectName(_fromUtf8("spinBox_limit"))
+        self.horizontalLayout.addWidget(self.spinBox_limit)
+        self.label_3 = QtGui.QLabel(self.frame)
+        self.label_3.setObjectName(_fromUtf8("label_3"))
+        self.horizontalLayout.addWidget(self.label_3)
+        self.spinBox_page = QtGui.QSpinBox(self.frame)
+        self.spinBox_page.setMinimum(1)
+        self.spinBox_page.setMaximum(1000000)
+        self.spinBox_page.setObjectName(_fromUtf8("spinBox_page"))
+        self.horizontalLayout.addWidget(self.spinBox_page)
         self.verticalLayout_2.addLayout(self.horizontalLayout)
         self.tableView_items = QtGui.QTableView(self.frame)
         self.tableView_items.setObjectName(_fromUtf8("tableView_items"))
@@ -175,6 +191,9 @@ class Ui_MainWindow(object):
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Query:", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_query_exec.setText(QtGui.QApplication.translate("MainWindow", "Execute", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_query_reset.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("MainWindow", "Limit:", None, QtGui.QApplication.UnicodeUTF8))
+        self.spinBox_limit.setToolTip(QtGui.QApplication.translate("MainWindow", "Maximum number of rows per page to display (0 - no limit).", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("MainWindow", "Page:", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_repo.setTitle(QtGui.QApplication.translate("MainWindow", "&Repository", None, QtGui.QApplication.UnicodeUTF8))
         self.menu.setTitle(QtGui.QApplication.translate("MainWindow", "&User", None, QtGui.QApplication.UnicodeUTF8))
         self.menuItem.setTitle(QtGui.QApplication.translate("MainWindow", "&Item", None, QtGui.QApplication.UnicodeUTF8))
