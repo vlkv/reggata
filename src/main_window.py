@@ -60,7 +60,7 @@ from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
 #TODO Сделать новый тип объекта DataRef для сохранения ссылок на директории. Тогда можно будет привязывать теги и поля к директориям внутри хранилища. Надо еще подумать, стоит ли такое реализовывать или нет.
 #TODO Довести до ума встроенный просмотрщик графических файлов.
 #TODO Сделать всплывающие подсказки на элементах GUI
-#TODO Надо решить проблему, если запрос вернет ОЧЕНЬ много элементов, то как их по частям отображать
+#TODO Если запрос возвращает очень много элементов, и указан limit. То нельзя передать ВСЕ элементы в просмотрщик изображений, передаются только отображенные limit штук. 
 #TODO Implement searching items by Item.title and Item.notes attributes
 #TODO Implement searching all items inside one physical directory  
 
@@ -136,8 +136,15 @@ class MainWindow(QtGui.QMainWindow):
         
         self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
         self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
-        self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)        
+        self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
+        
+        #Initialization of limit and page spinboxes 
+        self.ui.spinBox_limit.setValue(int(UserConfig().get("spinBox_limit.value", 0)))
+        self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
+        self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), lambda: UserConfig().store("spinBox_limit.value", self.ui.spinBox_limit.value()))
+        self.connect(self.ui.spinBox_page, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
 
+        
 
         #Добавляем на статус бар поля для отображения текущего хранилища и пользователя
         self.ui.label_repo = QtGui.QLabel()
@@ -154,7 +161,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_tools_tag_cloud, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_tag_cloud.setVisible(b))
         self.connect(self.ui.dockWidget_tag_cloud, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
         
-        self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("textEdited(QString)"), self.reset_tag_cloud)
+        #self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("textEdited(QString)"), self.reset_tag_cloud)
         
         #Открываем последнее хранилище, с которым работал пользователь
         try:
