@@ -1,25 +1,19 @@
-# A simple setup script to create an executable using PyQt4. This also
-# demonstrates the method for creating a Windows executable that does not have
-# an associated console.
-#
-# PyQt4app.py is a very simple type of PyQt4 application
-#
-# Run the build process by running the command 'python setup.py build'
-#
-# If everything works well you should find a subdirectory in the build
-# subdirectory that contains the files needed to run the application
+# To build executable with cx_freeze just execute command:
+#   python setup.py build
 
 import sys
 
 from cx_Freeze import setup, Executable
+import imp
+import os
+import shutil
 
+target_dir = "cx_freezed"
 
 sys.path.append(r'.\ui')
 sys.path.append(r'.\lib')
 sys.path.append(r'.\src')
 sys.path.append(r'c:\usr\Python31_2\lib\sqlite3')
-
-print("sys.path={}".format(sys.path))
 
 base = "Console"
 
@@ -27,10 +21,9 @@ buildOptions = dict(
         compressed = True,
         includes = ["sqlite3"],
         packages = ["sqlalchemy.dialects.sqlite", "ply"],
-        #namespacePackages=["sqlalchemy"]
+        namespace_packages=["sqlalchemy"],
+        build_exe = target_dir
         )
-    
-
 setup(      
         name = "Reggata",
         version = "0.1",
@@ -38,3 +31,7 @@ setup(
         options = dict(build_exe = buildOptions),
         executables = [Executable(".\src\main_window.py", base = base)])
 
+file, PyQt4_path, desc = imp.find_module("PyQt4")
+shutil.copytree(PyQt4_path + os.sep + "plugins" + os.sep + "imageformats", target_dir + os.sep + "imageformats")
+
+print("Done")
