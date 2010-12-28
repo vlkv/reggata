@@ -8,12 +8,12 @@ import imp
 import os
 import shutil
 
-target_dir = "cx_freezed"
+target_dir = "bin" + os.sep + "build"
 
-sys.path.append(r'.\ui')
-sys.path.append(r'.\lib')
-sys.path.append(r'.\src')
-sys.path.append(r'c:\usr\Python31_2\lib\sqlite3')
+sys.path.append(r'.' + os.sep + 'ui')
+sys.path.append(r'.' + os.sep + 'lib')
+sys.path.append(r'.' + os.sep + 'src')
+#sys.path.append(r'c:\usr\Python31_2\lib\sqlite3')
 
 base = "Console"
 
@@ -29,7 +29,7 @@ setup(
         version = "0.1",
         description = "Reggata is a tag-based file manager",    
         options = dict(build_exe = buildOptions),
-        executables = [Executable(".\src\main_window.py", base = base)])
+        executables = [Executable('.' + os.sep + 'src' + os.sep + 'main_window.py', base = base)])
 
 file, PyQt4_path, desc = imp.find_module("PyQt4")
 shutil.copytree(PyQt4_path + os.sep + "plugins" + os.sep + "imageformats", target_dir + os.sep + "imageformats")

@@ -1,4 +1,4 @@
 *.pyc
 /parsetab.py
 /parser.out
-/cx_freezed
+/bin
