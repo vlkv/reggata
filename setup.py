@@ -8,7 +8,7 @@ import imp
 import os
 import shutil
 
-target_dir = "cx_freezed"
+target_dir = "bin" + os.sep + "build"
 
 sys.path.append(r'.' + os.sep + 'ui')
 sys.path.append(r'.' + os.sep + 'lib')
