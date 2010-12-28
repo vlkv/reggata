@@ -25,6 +25,15 @@ Visit reggata home page http://vlkv.github.com/reggata/
 
 Reggata is tested under GNU/Linux and Windows XP.
 
+=== Binary packages
+
+Reggata binary packages for Windows and GNU/Linux are available at 
+[[https://sourceforge.net/projects/reggata/files/]].
+
+Just download the zip/tar archive, unpack it and execute file main_window.
+
+=== Installing from source
+
 To run reggata you need to manually install:
   # Python (>= 3.1.1) [[http://www.python.org/]].
   # Qt (>= 4.4.3) [[http://qt.nokia.com/]].
