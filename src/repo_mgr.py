@@ -289,7 +289,7 @@ class UnitOfWork(object):
             from items i
             left join items_tags it on i.id = it.item_id
             left join data_refs on i.data_ref_id = data_refs.id
-            left join thumbnails on data_refs.id = thumbnails.data_ref_id and thumbnails.size = ''' + thumbnail_default_size + ''' 
+            left join thumbnails on data_refs.id = thumbnails.data_ref_id and thumbnails.size = ''' + str(thumbnail_default_size) + ''' 
             where 
                 it.item_id is null
                 AND i.alive
