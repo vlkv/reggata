@@ -13,6 +13,7 @@ import sys, io
 import re
 import time
 import codecs
+import os
 
 class IllegalArgumentException(Exception):
 
@@ -280,9 +281,9 @@ class Properties(object):
         """ Prints a listing of the properties to the
         stream 'out' which defaults to the standard output """
 
-        out.write('-- listing properties --\n')
+        out.write('-- listing properties --' + os.linesep)
         for key,value in list(self._props.items()):
-            out.write(''.join((key,'=',value,'\n')))
+            out.write(''.join((key,'=',value, os.linesep)))
 
     def store(self, out, header=""):
         """ Write the properties list to the stream 'out' along
@@ -292,15 +293,15 @@ class Properties(object):
             raise ValueError('Steam should be opened in write mode!')
 
         try:
-            out.write(''.join(('#',header,'\n')))
+            out.write(''.join(('#',header, os.linesep)))
             # Write timestamp
             tstamp = time.strftime('%a %b %d %H:%M:%S %Z %Y', time.localtime())
-            out.write(''.join(('#',tstamp,'\n')))
+            out.write(''.join(('#',tstamp, os.linesep)))
             # Write properties from the pristine dictionary
             for prop in self._keyorder:
                 if prop in self._origprops:
                     val = self._origprops[prop]
-                    out.write(''.join((prop,'=',self.escape(val),'\n')))
+                    out.write(''.join((prop,'=',self.escape(val), os.linesep)))
                 
             out.close()
         except IOError as e:
