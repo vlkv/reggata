@@ -32,3 +32,5 @@ thumbnail_size = 100
 
 tmp_dir = /tmp
 
+spinBox_limit.value = 50
+spinBox_limit.page = 1
