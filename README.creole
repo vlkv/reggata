@@ -8,9 +8,13 @@ Reggata - is a program for tagging user files on local computer.
 Reggata has a tag cloud (for querying files by mouse) and a powerful text query
 language (for more complex queries).
 Query examples:
-  ** Music and Rock and not Pop
-  ** (Music and Pop and "Lady GaGa") and (Rating >= 8)
-  ** Music and Favorite path:"download/unsorted"
+  ## {{{Music and Rock and not Pop}}} 
+  //(This is a simple query, searches items by tags only)//
+  ## {{{(Music and Pop and "Lady GaGa") and (Rating >= 8)}}}
+  //(This query seaches items by tags and "Rating" field value)//
+  ## {{{Music and Favorite path:"download/unsorted"}}}
+  //(This query seaches items (files) only in "download/unsorted" physical path by tags)//
+
 
 * Reggata is under active development and new features (so as bugfixes) are added constantly. 
 
