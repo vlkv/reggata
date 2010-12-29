@@ -15,7 +15,7 @@ Query examples:
   ## {{{Music and Favorite path:"download/unsorted"}}}
   //(This query seaches items (files) only in "download/unsorted" physical path by tags)//
 
-* When you double click on a file in Reggata, an preferred appropriate external program is invoked 
+* When you double click on a file in Reggata, a preferred appropriate external program is invoked 
 showing you the contents of this file. Reggata has a configuration file {{{reggata.conf}}} which allow you to configure your preferred apps for music, pdf, images and any other types of files.
 * Reggata is under active development and new features (so as bugfixes) are added constantly. 
 
