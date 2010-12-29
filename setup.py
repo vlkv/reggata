@@ -1,4 +1,4 @@
-# To build executable with cx_freeze just execute command:
+# To build executable package with cx_freeze just execute command:
 #   python setup.py build
 
 import sys
@@ -13,7 +13,6 @@ target_dir = "bin" + os.sep + "build"
 sys.path.append(r'.' + os.sep + 'ui')
 sys.path.append(r'.' + os.sep + 'lib')
 sys.path.append(r'.' + os.sep + 'src')
-#sys.path.append(r'c:\usr\Python31_2\lib\sqlite3')
 
 base = "Console"
 
@@ -24,14 +23,15 @@ buildOptions = dict(
         namespace_packages=["sqlalchemy"],
         build_exe = target_dir
         )
-setup(      
+setup(
         name = "Reggata",
         version = "0.1",
-        description = "Reggata is a tag-based file manager",    
+        description = "Reggata is a tag-based file manager",
         options = dict(build_exe = buildOptions),
         executables = [Executable('.' + os.sep + 'src' + os.sep + 'main_window.py', base = base)])
 
-file, PyQt4_path, desc = imp.find_module("PyQt4")
-shutil.copytree(PyQt4_path + os.sep + "plugins" + os.sep + "imageformats", target_dir + os.sep + "imageformats")
+if sys.platform == "win32":
+    file, PyQt4_path, desc = imp.find_module("PyQt4")
+    shutil.copytree(PyQt4_path + os.sep + "plugins" + os.sep + "imageformats", target_dir + os.sep + "imageformats")
 
 print("Done")
