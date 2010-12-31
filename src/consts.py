@@ -25,6 +25,7 @@ Created on 04.10.2010
 Модуль содержит различные константы.
 '''
 import os
+from user_config import UserConfig
 
 METADATA_DIR = ".reggata"
 DB_FILE = "database.sqlite3"
@@ -34,3 +35,7 @@ THUMBNAIL_DEFAULT_SIZE = 100
 
 #TODO Нужно бы иногда чистить tmp директорию, а то накопится много хлама там
 DEFAULT_TMP_DIR = USER_CONFIG_DIR + os.sep + "tmp"
+
+RATING_FIELD = UserConfig().get("reserved_fields.rating", "Rating")
+NOTES_FIELD = UserConfig().get("reserved_fields.notes", "Notes")
+RESERVED_FIELDS = [RATING_FIELD, NOTES_FIELD]

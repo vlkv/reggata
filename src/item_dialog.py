@@ -30,6 +30,8 @@ from helpers import tr, show_exc_info, DialogMode, index_of, is_none_or_empty, \
 import os
 from parsers import tags_def_parser, fields_def_parser, fields_def_tokens
 from parsers.util import quote, unquote
+import consts
+from exceptions import MsgException
 
 class ItemDialog(QtGui.QDialog):
     '''
@@ -63,8 +65,7 @@ class ItemDialog(QtGui.QDialog):
     def read(self):
         self.ui.lineEdit_id.setText(str(self.item.id))
         self.ui.lineEdit_user_login.setText(self.item.user_login)
-        self.ui.lineEdit_title.setText(self.item.title)
-        self.ui.plainTextEdit_notes.setPlainText(self.item.notes)
+        self.ui.lineEdit_title.setText(self.item.title)        
         
         #Добавляем в список единственный файл
         if self.item.data_ref:
@@ -78,15 +79,26 @@ class ItemDialog(QtGui.QDialog):
             if not os.path.exists(test_url):
                 lwitem.setTextColor(QtCore.Qt.red)
         
-        #Выводим информацию о полях элемента и их значениях
+        #Displaying item's list of field-values
         s = ""
         for itf in self.item.item_fields:
-            name = quote(itf.field.name) if fields_def_parser.needs_quote(itf.field.name) else itf.field.name
-            value = quote(itf.field_value) if fields_def_parser.needs_quote(itf.field_value) else itf.field_value
-            s = s + name + ": " + value + os.linesep
+            #Processing reserved fields
+            if itf.field.name in consts.RESERVED_FIELDS:
+                if itf.field.name == consts.NOTES_FIELD:
+                    self.ui.plainTextEdit_notes.setPlainText(itf.field_value)
+                elif itf.field.name == consts.RATING_FIELD:
+                    #TODO
+                    pass
+                else:
+                    raise MsgException(self.tr("Unknown reserved field name '{}'").format(itf.field.name))            
+            #Processing all other fields
+            else:
+                name = quote(itf.field.name) if fields_def_parser.needs_quote(itf.field.name) else itf.field.name
+                value = quote(itf.field_value) if fields_def_parser.needs_quote(itf.field_value) else itf.field_value
+                s = s + name + ": " + value + os.linesep
         self.ui.plainTextEdit_fields.setPlainText(s)
         
-        #Выводим список тегов данного элемента
+        #Displaying item's list of tags
         s = ""
         for itg in self.item.item_tags:
             tag_name = itg.tag.name
@@ -98,7 +110,7 @@ class ItemDialog(QtGui.QDialog):
     def write(self):
         '''Запись введенной в элементы gui информации в поля объекта.'''
         self.item.title = self.ui.lineEdit_title.text()
-        self.item.notes = self.ui.plainTextEdit_notes.toPlainText()
+        #self.item.notes = self.ui.plainTextEdit_notes.toPlainText()
         
         #Создаем объекты Tag
         text = self.ui.plainTextEdit_tags.toPlainText()
@@ -112,12 +124,20 @@ class ItemDialog(QtGui.QDialog):
         #Создаем объекты Field
         text = self.ui.plainTextEdit_fields.toPlainText()
         for (f, v) in fields_def_parser.parse(text):
+            if f in consts.RESERVED_FIELDS:
+                raise MsgException(self.tr("Field name '{}' is reserved.").format(f))
             field = Field(name=f)
             item_field = Item_Field(field, v)
             item_field.user_login = self.item.user_login
             self.item.item_fields.append(item_field)
         
+        #Creating reserved fields
+        field = Field(name=consts.NOTES_FIELD)
+        item_field = Item_Field(field, self.ui.plainTextEdit_notes.toPlainText())
+        item_field.user_login = self.item.user_login
+        self.item.item_fields.append(item_field)
         
+        #TODO create RATING_FIELD also
         
         
     def button_ok(self):

@@ -172,6 +172,8 @@ class Item(Base):
     
     title = sqa.Column(sqa.String, nullable=False)
     
+    #This column is deprecated, because field will be used instead of it
+    #TODO remove it from here
     notes = sqa.Column(sqa.String)
     
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
@@ -264,6 +266,7 @@ class Item(Base):
         if not is_none_or_empty(self.title):
             text += self.title
         
+        #TODO remove 'notes' column from hash computing
         if not is_none_or_empty(self.notes):
             text += self.notes
         
