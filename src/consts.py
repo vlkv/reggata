@@ -38,4 +38,4 @@ DEFAULT_TMP_DIR = USER_CONFIG_DIR + os.sep + "tmp"
 
 RATING_FIELD = UserConfig().get("reserved_fields.rating", "Rating")
 NOTES_FIELD = UserConfig().get("reserved_fields.notes", "Notes")
-RESERVED_FIELDS = [RATING_FIELD, NOTES_FIELD]
+RESERVED_FIELDS = [NOTES_FIELD] #TODO add RATING_FIELD HERE

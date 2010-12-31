@@ -178,9 +178,17 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), 5000)
         
+        
+        
         #В третьей колонке отображаем миниатюры изображений
-        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate())         
+        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate(self))         
         #Работает в PyQt начиная с 4.8.1. В PyQt 4.7.3 не работает!
+        
+        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.RATING, RatingDelegate(self))
+        
+        
+        
+        
                 
         
         #Ширина колонок в таблице
@@ -1071,6 +1079,9 @@ class MainWindow(QtGui.QMainWindow):
 class ImageThumbDelegate(QtGui.QStyledItemDelegate):
     '''Делегат, для отображения миниатюры графического файла в таблице элементов
     хранилища.'''
+    def __init__(self, parent=None):
+        super(ImageThumbDelegate, self).__init__(parent)
+        
     def sizeHint(self, option, index):
         pixmap = index.data(QtCore.Qt.UserRole)
         if pixmap:
@@ -1080,6 +1091,7 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
             
 
     def paint(self, painter, option, index):
+        
         pixmap = index.data(QtCore.Qt.UserRole)
         if pixmap is not None and not pixmap.isNull():
             painter.drawPixmap(option.rect.topLeft(), pixmap)
@@ -1087,7 +1099,63 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
         else:
             super(ImageThumbDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
             #QtGui.QStyledItemDelegate.paint(self, painter, option, index) #Для PyQt 4.7.3 надо так
-    
+
+class RatingDelegate(QtGui.QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super(RatingDelegate, self).__init__(parent)
+        
+    '''An ItemDelegate for displaying Rating of items. Rating value is stored in regular field with name consts.RATING_FIELD.'''
+    def sizeHint(self, option, index):
+        #TODO should return some size...
+        return super(RatingDelegate, self).sizeHint(option, index)
+            
+
+    def paint(self, painter, option, index):
+        
+        rating = int(index.data(QtCore.Qt.DisplayRole))
+        if rating < 0:
+            rating = 0
+        elif rating > 5:
+            rating = 5
+        #TODO draw rating "stars"
+        painter.save()
+        painter.translate(option.rect.x(), option.rect.y())
+        for i in range(0, rating):
+            painter.drawEllipse(0, 0, 10, 10)
+            painter.translate(11.0, 0.0)
+        painter.restore()
+
+
+# void StarRating::paint(QPainter *painter, const QRect &rect,
+#                        const QPalette &palette, EditMode mode) const
+# {
+#     painter->save();
+#
+#     painter->setRenderHint(QPainter::Antialiasing, true);
+#     painter->setPen(Qt::NoPen);
+#
+#     if (mode == Editable) {
+#         painter->setBrush(palette.highlight());
+#     } else {
+#         painter->setBrush(palette.foreground());
+#     }
+#
+#     int yOffset = (rect.height() - PaintingScaleFactor) / 2;
+#     painter->translate(rect.x(), rect.y() + yOffset);
+#     painter->scale(PaintingScaleFactor, PaintingScaleFactor);
+#
+#     for (int i = 0; i < myMaxStarCount; ++i) {
+#         if (i < myStarCount) {
+#             painter->drawPolygon(starPolygon, Qt::WindingFill);
+#         } else if (mode == Editable) {
+#             painter->drawPolygon(diamondPolygon, Qt::WindingFill);
+#         }
+#         painter->translate(1.0, 0.0);
+#     }
+#
+#     painter->restore();
+# }
+        
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
     '''Модель таблицы, отображающей элементы хранилища.'''
@@ -1097,6 +1165,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
     IMAGE_THUMB = 2
     LIST_OF_TAGS = 3
     STATE = 4 #Состояние элемента (в смысле целостности его данных)
+    RATING = 5
     
     def __init__(self, repo, items_lock):
         super(RepoItemTableModel, self).__init__()
@@ -1160,7 +1229,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         return len(self.items)
     
     def columnCount(self, index=QtCore.QModelIndex()):
-        return 5
+        return 6
     
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal:
@@ -1175,10 +1244,12 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                     return self.tr("Tags")
                 elif section == self.STATE:
                     return self.tr("State")
+                elif section == self.RATING:
+                    return self.tr("Rating")
             else:
                 return None
         elif orientation == Qt.Vertical and role == Qt.DisplayRole:
-            return section+1
+            return section + 1
         else:
             return None
 
@@ -1206,6 +1277,13 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                     return Item.format_error_set_short(item.error)
                 finally:
                     self.lock.unlock()
+            elif column == self.RATING:
+                rating_str = item.get_field_value(consts.RATING_FIELD)
+                try:
+                    rating = int(rating_str)
+                except:
+                    rating = 0
+                return rating
         
         elif role == Qt.ToolTipRole:            
             if column == self.TITLE:

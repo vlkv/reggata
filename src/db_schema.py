@@ -296,6 +296,12 @@ class Item(Base):
         
         return hashlib.sha1(text.encode("utf-8")).hexdigest()
     
+    def get_field_value(self, field_name):
+        '''Returns value of field field_name. If no such field exists in this item, returns None.'''
+        for item_field in self.item_fields:
+            if item_field.field.name == field_name:
+                return item_field.field_value
+        return None
     
     def has_tags_except_of(self, user_login):
         for item_tag in self.item_tags:
