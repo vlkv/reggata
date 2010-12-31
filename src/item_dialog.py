@@ -87,8 +87,11 @@ class ItemDialog(QtGui.QDialog):
                 if itf.field.name == consts.NOTES_FIELD:
                     self.ui.plainTextEdit_notes.setPlainText(itf.field_value)
                 elif itf.field.name == consts.RATING_FIELD:
-                    #TODO
-                    pass
+                    try:
+                        rating = int(itf.field_value)
+                    except:
+                        rating = 0
+                    self.ui.spinBox_rating.setValue(rating)
                 else:
                     raise MsgException(self.tr("Unknown reserved field name '{}'").format(itf.field.name))            
             #Processing all other fields
@@ -132,13 +135,20 @@ class ItemDialog(QtGui.QDialog):
             self.item.item_fields.append(item_field)
         
         #Creating reserved fields
-        field = Field(name=consts.NOTES_FIELD)
-        item_field = Item_Field(field, self.ui.plainTextEdit_notes.toPlainText())
-        item_field.user_login = self.item.user_login
-        self.item.item_fields.append(item_field)
+        notes = self.ui.plainTextEdit_notes.toPlainText()
+        if not is_none_or_empty(notes):
+            field = Field(name=consts.NOTES_FIELD)
+            item_field = Item_Field(field, notes)
+            item_field.user_login = self.item.user_login
+            self.item.item_fields.append(item_field)
         
         #TODO create RATING_FIELD also
-        
+        rating = self.ui.spinBox_rating.value()
+        if rating > 0:
+            field = Field(name=consts.RATING_FIELD)
+            item_field = Item_Field(field, rating)
+            item_field.user_login = self.item.user_login
+            self.item.item_fields.append(item_field)
         
     def button_ok(self):
         try:

@@ -1101,31 +1101,38 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
             #QtGui.QStyledItemDelegate.paint(self, painter, option, index) #Для PyQt 4.7.3 надо так
 
 class RatingDelegate(QtGui.QStyledItemDelegate):
+    '''An ItemDelegate for displaying Rating of items. Rating value is stored in regular field with name consts.RATING_FIELD.'''
+    
+    #TODO Create an editor for rating!!! Users should be able to set rating very easy and fast.
+
     def __init__(self, parent=None):
         super(RatingDelegate, self).__init__(parent)
         
-    '''An ItemDelegate for displaying Rating of items. Rating value is stored in regular field with name consts.RATING_FIELD.'''
+    
     def sizeHint(self, option, index):
-        #TODO should return some size...
+        #TODO should return some size?..
         return super(RatingDelegate, self).sizeHint(option, index)
             
 
     def paint(self, painter, option, index):
         
         rating = int(index.data(QtCore.Qt.DisplayRole))
+        
+        #TODO Maybe max rating should be 10?
         if rating < 0:
             rating = 0
         elif rating > 5:
             rating = 5
-        #TODO draw rating "stars"
+            
         painter.save()
         painter.translate(option.rect.x(), option.rect.y())
         for i in range(0, rating):
+            #TODO draw stars instead of circles!
             painter.drawEllipse(0, 0, 10, 10)
             painter.translate(11.0, 0.0)
         painter.restore()
 
-
+# Example from Qt documentation:
 # void StarRating::paint(QPainter *painter, const QRect &rect,
 #                        const QPalette &palette, EditMode mode) const
 # {
