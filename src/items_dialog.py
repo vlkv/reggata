@@ -174,7 +174,7 @@ class ItemsDialog(QtGui.QDialog):
                 #Сначала удаляем
                 item.remove_field(f)
                 #Теперь добавляем (вдруг, значение поля изменилось?)
-                item.add_field_value(f, v)
+                item.set_field_value(f, v)
             
             #Удаляем поля
             for f in fields_rm:

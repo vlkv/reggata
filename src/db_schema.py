@@ -320,10 +320,26 @@ class Item(Base):
         item_tag = Item_Tag(tag, user_login)
         self.item_tags.append(item_tag)
         
-    def add_field_value(self, name, value, user_login=None):
-        field = Field(name)
-        item_field = Item_Field(field, value, user_login)
-        self.item_fields.append(item_field)
+    def set_field_value(self, name, value, user_login=None):
+        '''Changes field value if it exists, or creates new field and sets a value to it.'''    
+        #Search field with name 'name'
+        itf = None
+        for item_field in self.item_fields:
+            if item_field.field.name == name:
+                if user_login is None or item_field.user_login == user_login: 
+                    itf = item_field
+                    break
+                
+        #Change field value to 'value'
+        if itf is not None:
+            itf.field_value = value
+            itf.user_login = user_login if user_login is not None else itf.user_login
+              
+        else:
+            #Create new field and set it's value
+            field = Field(name)
+            item_field = Item_Field(field, value, user_login)
+            self.item_fields.append(item_field)
             
     def format_field_vals(self):
         s = ""

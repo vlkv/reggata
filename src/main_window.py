@@ -120,7 +120,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
         self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
         self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)
-        self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view)
+        #self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view)
         self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
         self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u) 
         self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
@@ -345,12 +345,15 @@ class MainWindow(QtGui.QMainWindow):
         
         self.__active_user = user
         
-        #Добавляем в облако новый логин
+        
         if user is not None:
+            #Добавляем в облако новый логин
             self.ui.tag_cloud.add_user(user.login)
         
+            #Tell to table model that current active user has changed
+            if self.model is not None and isinstance(self.model, RepoItemTableModel):
+                self.model.user_login = user.login
         
-        if user is not None:
             self.ui.label_user.setText("<b>" + user.login + "</b>")
             
             #Запоминаем пользователя
@@ -390,7 +393,7 @@ class MainWindow(QtGui.QMainWindow):
                 self.ui.statusbar.showMessage(self.tr("Opened repository from {}.").format(repo.base_path), 5000)
                 
                 #Строим новую модель для таблицы
-                self.model = RepoItemTableModel(repo, self.items_lock)
+                self.model = RepoItemTableModel(repo, self.items_lock, self.active_user.login if self.active_user is not None else None)
                 self.ui.tableView_items.setModel(self.model)
                 self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
                 #self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
@@ -1103,8 +1106,6 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
 class RatingDelegate(QtGui.QStyledItemDelegate):
     '''An ItemDelegate for displaying Rating of items. Rating value is stored in regular field with name consts.RATING_FIELD.'''
     
-    #TODO Create an editor for rating!!! Users should be able to set rating very easy and fast.
-
     def __init__(self, parent=None):
         super(RatingDelegate, self).__init__(parent)
         
@@ -1131,7 +1132,33 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
             painter.drawEllipse(0, 0, 10, 10)
             painter.translate(11.0, 0.0)
         painter.restore()
+        
+    
+    def createEditor(self, parent, option, index):
+        print("createEditor")
+        editor = QtGui.QSpinBox(parent)
+        editor.setMinimum(0)
+        editor.setMaximum(5)
+        return editor
+    
+    def setEditorData(self, editor, index):
+        print("setEditorData")
+        try:
+            rating = int(index.data(QtCore.Qt.DisplayRole))
+        except:
+            rating = 0
+        editor.setValue(rating)
+    
+    def setModelData(self, editor, model, index):
+        print("setModelData")
+        model.setData(index, editor.value())
+    
+    def updateEditorGeometry(self, editor, option, index):
+        print("updateEditorGeometry")
+        editor.setGeometry(option.rect)
 
+    
+    
 # Example from Qt documentation:
 # void StarRating::paint(QPainter *painter, const QRect &rect,
 #                        const QPalette &palette, EditMode mode) const
@@ -1174,10 +1201,12 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
     STATE = 4 #Состояние элемента (в смысле целостности его данных)
     RATING = 5
     
-    def __init__(self, repo, items_lock):
+    #TODO Should pass current active user login to __init__() !!!
+    def __init__(self, repo, items_lock, user_login):
         super(RepoItemTableModel, self).__init__()
         self.repo = repo
         self.items = []
+        self._user_login = user_login
         
         
         #Это поток, который генерирует миниатюры в фоне
@@ -1192,9 +1221,16 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 
     def reset_single_row(self, row):
         topL = self.createIndex(row, self.ID)
-        bottomR = self.createIndex(row, self.STATE)
+        bottomR = self.createIndex(row, self.RATING)
         self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
 
+    def _set_user_login(self, user_login):
+        self._user_login = user_login
+        
+    def _get_user_login(self):
+        return self._user_login
+    
+    user_login = property(_get_user_login, _set_user_login, doc="Current active user login.")
     
     
     def query(self, query_text, limit=0, page=1):
@@ -1285,6 +1321,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                 finally:
                     self.lock.unlock()
             elif column == self.RATING:
+                #TODO Should display only rating field owned by current active user!!!
                 rating_str = item.get_field_value(consts.RATING_FIELD)
                 try:
                     rating = int(rating_str)
@@ -1330,8 +1367,31 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         
         #Во всех остальных случаях возвращаем None    
         return None
+    
+    def flags(self, index):
+        default_flags = super(RepoItemTableModel, self).flags(index)
         
+        if index.column() == self.RATING:
+            return Qt.ItemFlags(default_flags | QtCore.Qt.ItemIsEditable)             
+        else:
+            return default_flags
+    
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
+        print("setData, value = {}".format(value))
         
+        if role != Qt.EditRole:
+            return False
+        
+        if index.column() == self.RATING:
+            item = self.items[index.row()]
+            item.set_field_value(consts.RATING_FIELD, value, self.user_login)
+            
+            #TODO save new rating value into database
+            
+            self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
+            return True
+        
+        return False
 
 
 class AboutDialog(QtGui.QDialog):
