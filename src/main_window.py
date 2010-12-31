@@ -1128,21 +1128,21 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         painter.save()
         painter.translate(option.rect.x(), option.rect.y())
         for i in range(0, rating):
-            #TODO draw stars instead of circles!
+            #TODO draw stars instead of circles! Maybe should use icons?
             painter.drawEllipse(0, 0, 10, 10)
             painter.translate(11.0, 0.0)
         painter.restore()
         
     
     def createEditor(self, parent, option, index):
-        print("createEditor")
+        
         editor = QtGui.QSpinBox(parent)
         editor.setMinimum(0)
         editor.setMaximum(5)
         return editor
     
     def setEditorData(self, editor, index):
-        print("setEditorData")
+        
         try:
             rating = int(index.data(QtCore.Qt.DisplayRole))
         except:
@@ -1150,11 +1150,11 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         editor.setValue(rating)
     
     def setModelData(self, editor, model, index):
-        print("setModelData")
+        
         model.setData(index, editor.value())
     
     def updateEditorGeometry(self, editor, option, index):
-        print("updateEditorGeometry")
+        
         editor.setGeometry(option.rect)
 
     
@@ -1364,7 +1364,6 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             elif column == self.TITLE:
                 return int(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         
-        
         #Во всех остальных случаях возвращаем None    
         return None
     
@@ -1377,19 +1376,26 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             return default_flags
     
     def setData(self, index, value, role=QtCore.Qt.EditRole):
-        print("setData, value = {}".format(value))
         
-        if role != Qt.EditRole:
-            return False
-        
-        if index.column() == self.RATING:
+        if role == Qt.EditRole and index.column() == self.RATING:
             item = self.items[index.row()]
+            
+            #Remember old rating value
+            old_rating = item.get_field_value(consts.RATING_FIELD, self.user_login)
+            
             item.set_field_value(consts.RATING_FIELD, value, self.user_login)
             
-            #TODO save new rating value into database
-            
-            self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
-            return True
+            #Store new rating value into database
+            uow = self.repo.create_unit_of_work()
+            try:
+                uow.update_existing_item(item, self.user_login)
+                self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
+                return True
+            except:
+                #Restore old value
+                item.set_field_value(consts.RATING_FIELD, old_rating, self.user_login)
+            finally:
+                uow.close()
         
         return False
 

@@ -191,16 +191,23 @@ class UnitOfWork(object):
                 return []
             
             
-        else:                
+        else:
             #Сначала нужно получить список id-шников для всех имен тегов
             sql = '''--get_related_tags(): getting list of id for all selected tags
             select * from tags t
             where t.name in (''' + to_commalist(tag_names, lambda x: "'" + x + "'") + ''')
             order by t.id'''
-            tags = self._session.query(Tag).from_statement(sql).all()
+            try:
+                tags = self._session.query(Tag).from_statement(sql).all()
+            except ResourceClosedError:
+                tags = []
             tag_ids = []
             for tag in tags:
                 tag_ids.append(tag.id)
+                
+            if len(tag_ids) == 0:
+                #TODO Maybe raise an exception?
+                return []
             
             sub_from = ""
             for i in range(len(tag_ids)):
