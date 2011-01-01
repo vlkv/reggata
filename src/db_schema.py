@@ -172,10 +172,6 @@ class Item(Base):
     
     title = sqa.Column(sqa.String, nullable=False)
     
-    #This column is deprecated, because field will be used instead of it
-    #TODO remove it from here
-    notes = sqa.Column(sqa.String)
-    
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
     
     date_created = sqa.Column(sqa.DateTime)
@@ -198,11 +194,10 @@ class Item(Base):
     #field_vals - список связанных полей
     item_fields = relationship("Item_Field", cascade="all, delete-orphan")
 
-    def __init__(self, user_login=None, title=None, notes=None, date_created=None, alive=True):
+    def __init__(self, user_login=None, title=None, date_created=None, alive=True):
         self.alive = alive
         self.user_login = user_login
-        self.title = title
-        self.notes = notes
+        self.title = title        
         if date_created is not None:
             self.date_created = date_created
         else:
@@ -265,10 +260,6 @@ class Item(Base):
         
         if not is_none_or_empty(self.title):
             text += self.title
-        
-        #TODO remove 'notes' column from hash computing
-        if not is_none_or_empty(self.notes):
-            text += self.notes
         
         if not is_none_or_empty(self.user_login):
             text += self.user_login

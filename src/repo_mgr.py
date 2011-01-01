@@ -552,8 +552,7 @@ class UnitOfWork(object):
             #TODO Пользователю нужно сказать, чтобы он вызывал функцию проверки целостности и исправления ошибок
         
         #Редактирование полей, которые можно редактировать (вообще у item-а есть еще и другие поля).
-        item_0.title = item.title
-        item_0.notes = item.notes
+        item_0.title = item.title        
         item_0.user_login = item.user_login
         self._session.flush()
         

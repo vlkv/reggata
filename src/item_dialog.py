@@ -112,8 +112,7 @@ class ItemDialog(QtGui.QDialog):
     
     def write(self):
         '''Запись введенной в элементы gui информации в поля объекта.'''
-        self.item.title = self.ui.lineEdit_title.text()
-        #self.item.notes = self.ui.plainTextEdit_notes.toPlainText()
+        self.item.title = self.ui.lineEdit_title.text()        
         
         #Создаем объекты Tag
         text = self.ui.plainTextEdit_tags.toPlainText()
