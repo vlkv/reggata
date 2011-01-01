@@ -146,6 +146,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), lambda: UserConfig().store("spinBox_limit.value", self.ui.spinBox_limit.value()))
         self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), lambda val: self.ui.spinBox_page.setEnabled(val > 0))
         self.connect(self.ui.spinBox_page, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
+        self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
 
 
         #Добавляем на статус бар поля для отображения текущего хранилища и пользователя
