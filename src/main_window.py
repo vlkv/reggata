@@ -198,6 +198,7 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.tableView_items.setColumnWidth(RepoItemTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
         self.ui.tableView_items.setColumnWidth(RepoItemTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 50)))
         self.ui.tableView_items.setColumnWidth(RepoItemTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 50)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 50)))
         self.connect(self.ui.tableView_items.horizontalHeader(), QtCore.SIGNAL("sectionResized(int, int, int)"), self._table_columns_resized)
         
         
@@ -280,6 +281,7 @@ class MainWindow(QtGui.QMainWindow):
         width_title = self.ui.tableView_items.columnWidth(RepoItemTableModel.TITLE)
         width_list_of_tags = self.ui.tableView_items.columnWidth(RepoItemTableModel.LIST_OF_TAGS)
         width_state = self.ui.tableView_items.columnWidth(RepoItemTableModel.STATE)
+        width_rating = self.ui.tableView_items.columnWidth(RepoItemTableModel.RATING)
         if width_id > 0:
             UserConfig().store("items_table.ID.width", str(width_id))
         if width_title > 0:
@@ -288,6 +290,9 @@ class MainWindow(QtGui.QMainWindow):
             UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
         if width_state > 0:
             UserConfig().store("items_table.STATE.width", str(width_state))
+        if width_rating > 0:
+            UserConfig().store("items_table.RATING.width", str(width_rating))
+            
         
         self.ui.statusbar.showMessage(self.tr("Main window state has saved."), 5000)
         
