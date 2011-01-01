@@ -62,8 +62,8 @@ import math
 #TODO Довести до ума встроенный просмотрщик графических файлов.
 #TODO Сделать всплывающие подсказки на элементах GUI
 #TODO Если запрос возвращает очень много элементов, и указан limit. То нельзя передать ВСЕ элементы в просмотрщик изображений, передаются только отображенные limit штук. 
-#TODO Implement searching items by Item.title and Item.notes attributes
-#TODO Implement searching all items inside one physical directory  
+#TODO Implement searching items by Item.title attribute
+#TODO Implement searching all items inside one physical directory
 
 class MainWindow(QtGui.QMainWindow):
     '''
