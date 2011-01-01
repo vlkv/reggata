@@ -48,6 +48,7 @@ import traceback
 import ui_aboutdialog
 from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
     FileNotFoundFixer
+import math
 
 
 
@@ -1104,10 +1105,33 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
             #QtGui.QStyledItemDelegate.paint(self, painter, option, index) #Для PyQt 4.7.3 надо так
 
 class RatingDelegate(QtGui.QStyledItemDelegate):
-    '''An ItemDelegate for displaying Rating of items. Rating value is stored in regular field with name consts.RATING_FIELD.'''
+    '''An ItemDelegate for displaying Rating of items. Rating value is stored 
+    in a regular field with name consts.RATING_FIELD.'''
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, r=10):
         super(RatingDelegate, self).__init__(parent)
+        
+        self.r = r
+        self.star = QtGui.QPixmap(2*r, 2*r)
+        self.star.fill()
+        painter = QtGui.QPainter(self.star)
+        path = QtGui.QPainterPath()
+        
+        
+        for i in range(0, 10):
+            radius = r if i % 2 == 0 else r*0.4
+            if i == 0:
+                path.moveTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), radius*math.sin(i*2*math.pi/10)))
+            else:
+                path.lineTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), radius*math.sin(i*2*math.pi/10)))        
+        painter.save()
+        painter.translate(r, r)
+        painter.setPen(QtGui.QColor(0, 0, 255, 50))
+        painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 255, 127)))
+        painter.drawPath(path)
+        painter.restore()
+        
+        
         
     
     def sizeHint(self, option, index):
@@ -1128,9 +1152,8 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         painter.save()
         painter.translate(option.rect.x(), option.rect.y())
         for i in range(0, rating):
-            #TODO draw stars instead of circles! Maybe should use icons?
-            painter.drawEllipse(0, 0, 10, 10)
-            painter.translate(11.0, 0.0)
+            painter.drawPixmap(0, 0, self.star)
+            painter.translate(self.star.width() + 1, 0.0)
         painter.restore()
         
     
@@ -1157,39 +1180,6 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         
         editor.setGeometry(option.rect)
 
-    
-    
-# Example from Qt documentation:
-# void StarRating::paint(QPainter *painter, const QRect &rect,
-#                        const QPalette &palette, EditMode mode) const
-# {
-#     painter->save();
-#
-#     painter->setRenderHint(QPainter::Antialiasing, true);
-#     painter->setPen(Qt::NoPen);
-#
-#     if (mode == Editable) {
-#         painter->setBrush(palette.highlight());
-#     } else {
-#         painter->setBrush(palette.foreground());
-#     }
-#
-#     int yOffset = (rect.height() - PaintingScaleFactor) / 2;
-#     painter->translate(rect.x(), rect.y() + yOffset);
-#     painter->scale(PaintingScaleFactor, PaintingScaleFactor);
-#
-#     for (int i = 0; i < myMaxStarCount; ++i) {
-#         if (i < myStarCount) {
-#             painter->drawPolygon(starPolygon, Qt::WindingFill);
-#         } else if (mode == Editable) {
-#             painter->drawPolygon(diamondPolygon, Qt::WindingFill);
-#         }
-#         painter->translate(1.0, 0.0);
-#     }
-#
-#     painter->restore();
-# }
-        
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
     '''Модель таблицы, отображающей элементы хранилища.'''
@@ -1381,7 +1371,10 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             item = self.items[index.row()]
             
             #Remember old rating value
-            old_rating = item.get_field_value(consts.RATING_FIELD, self.user_login)
+            old_value = item.get_field_value(consts.RATING_FIELD, self.user_login)
+            
+            if old_value == value:
+                return False
             
             item.set_field_value(consts.RATING_FIELD, value, self.user_login)
             
@@ -1393,7 +1386,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                 return True
             except:
                 #Restore old value
-                item.set_field_value(consts.RATING_FIELD, old_rating, self.user_login)
+                item.set_field_value(consts.RATING_FIELD, old_value, self.user_login)
             finally:
                 uow.close()
         
