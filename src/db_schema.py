@@ -230,7 +230,7 @@ class Item(Base):
                 if s.endswith(os.linesep):
                     s = s[:-1]
         else:
-            s = "Item integrity isn't checked yet"
+            s = tr("Item integrity isn't checked yet")
             
         return s
     
