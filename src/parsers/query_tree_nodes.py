@@ -131,7 +131,47 @@ class SimpleQuery(QueryExpression):
             self.extra_titles.append(ext)
         else:
             raise Exception(tr("Unexpected type of extra_clause {}").format(str(ext.type)))
+
+class SingleExtraClause(SimpleQuery):
+    
+    def __init__(self):
+        super(SingleExtraClause, self).__init__()
         
+    def interpret(self):
+        #extra_users_str
+        if len(self.extra_users) > 0:
+            comma_list = helpers.to_commalist(self.extra_users, lambda x: "'" + x.interpret() + "'", ", ") 
+            extra_users_str = " i.user_login IN (" + comma_list + ") "
+        else:
+            extra_users_str = " 1 "
+        
+        #extra_paths_str
+        if len(self.extra_paths) > 0:
+            extra_paths_str = helpers.to_commalist( \
+                self.extra_paths, lambda x: "data_refs.url LIKE '" + x.interpret() + "%'", " OR ")
+        else:
+            extra_paths_str = " 1 "
+            
+        #extra_titles_str
+        if len(self.extra_titles) > 0:
+            extra_titles_str = helpers.to_commalist( \
+                self.extra_titles, lambda x: "i.title LIKE '%" + x.interpret() + "%'", " OR ")
+        else:
+            extra_titles_str = " 1 "
+        
+        #TODO filter items by item_tags.user_login and item_fields.user_login also
+        s = '''
+        --SingleExtraClause.interpret()
+        select distinct 
+            i.*, 
+            ''' + db_schema.DataRef._sql_from() + '''
+        from items i        
+        left join data_refs on data_refs.id = i.data_ref_id
+            where (''' + extra_users_str + ''')             
+            and (''' + extra_paths_str + ''')
+            and (''' + extra_titles_str + ''')
+        '''
+        return s
     
 class FieldsConjunction(SimpleQuery):
     '''

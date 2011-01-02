@@ -23,7 +23,7 @@ Created on 24.10.2010
 '''
 
 from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, FieldOpVal,\
-    FieldsConjunction, CompoundQuery
+    FieldsConjunction, CompoundQuery, SingleExtraClause
 import ply.yacc as yacc
 from parsers.query_tokens import *
 from exceptions import YaccError
@@ -77,7 +77,7 @@ def p_simple_query(p):
     '''simple_query : tags_conjunction
                     | tags_conjunction extra_clause 
                     | fields_conjunction
-                    | fields_conjunction extra_clause 
+                    | fields_conjunction extra_clause
     ''' 
     if len(p) == 2:
         p[0] = p[1]
@@ -85,8 +85,15 @@ def p_simple_query(p):
         for e in p[2]:
             p[1].add_extra_clause(e)
         p[0] = p[1]
-
-
+        
+def p_simple_query_single_extra_clause(p):
+    '''simple_query : extra_clause                    
+    ''' 
+    sec = SingleExtraClause()
+    for e in p[1]:
+        sec.add_extra_clause(e)
+        p[0] = sec
+    
 #Выражения user:<логин> ограничивают выборку только по объектам ItemTag или ItemField
 #Но никак не сравниваются с владельцами объектов Item или DataRef.
 #Таким образом, если пользователь прикрепил свой тег к чужому Item-у, то он 
