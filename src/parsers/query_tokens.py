@@ -31,6 +31,7 @@ OR_OPERATOR = tr('or')
 NOT_OPERATOR = tr('not')
 USER_KEYWORD = tr('user')
 PATH_KEYWORD = tr('path')
+TITLE_KEYWORD = tr('title')
 
 #Зарезервированные слова и соответствующие им типы токенов
 #Я хочу, чтобы операции and, or, not и др. были в нескольких вариантах.
@@ -38,7 +39,7 @@ PATH_KEYWORD = tr('path')
 #В словаре reserved: ключ - это зарезервированное слово, а значение - это тип токена
 reserved = dict()
 for tuple in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'), 
-              (USER_KEYWORD, 'USER'), (PATH_KEYWORD, 'PATH')]:
+              (USER_KEYWORD, 'USER'), (PATH_KEYWORD, 'PATH'), (TITLE_KEYWORD, 'TITLE')]:
     keyword, type = tuple
     reserved[keyword.capitalize()] = type
     reserved[keyword.upper()] = type
@@ -65,29 +66,30 @@ tokens = [
 
 
 
-# Строка. Если содержит пробелы или двойные кавычки или обратный слеш, то
-# должна быть в двойных кавычках. Для строки в кавычках есть две escape 
-# последовательности:
-# 1) \" для отображения кавычки "
-# 2) \\ для отображения слеша \
-# Если строка содержит :, то ее тоже нужно заключать в двойные кавычки
+# Строка. Используется для представления имен тегов и полей, а также значений 
+# полей и в нек. других случаях тоже...
 def t_STRING(t):
-    #r'''"(\\["\\]|[^"\\])*"|[\w]+''' #Тут пробелы лишние нельзя ставить!!!
-    #r'"(\\["\\]|[^"\\])*"|[^\s:"\\]+' #Тут пробелы лишние нельзя ставить!!!
     r'"(\\["\\]|[^"\\])*"|([^\s():=><~"\\])+' #Тут пробелы лишние нельзя ставить!!!
+    # Объяснение данного регулярного выражения:
+    # Первая часть: "(\\["\\]|[^"\\])*" Строкой может быть последовательность символов в двойных кавычках, 
+    # состоящая из escaped " и \ (т.е. \" и \\) и не содержащая просто " и \
+    # Вторая часть: ([^\s():=><~"\\])+ Строкой также может быть ненулевая последовательность символов,
+    # не заключенная в кавычки и не содержащая пробельные символы, скобки, двоеточие, знаки 
+    # больше меньше равно, тильда, " и обратный слеш \ (т.е. не содержит служебные символы языка)  
+    
+    # Строка также не должна совпадать с зарезервированными словами
     t.type = reserved.get(t.value, 'STRING')
+    
     if t.type == 'STRING' and t.value.startswith('"') and t.value.endswith('"') and not t.value.endswith(r'\"'):
         t.value = t.value.replace(r"\\", "\\") #Заменяем \\ на \
         t.value = t.value.replace(r'\"', r'"') #Заменяем \" на "
         t.value = t.value[1:-1] #Удаляем кавычки с начала и с конца, "abc" становится abc        
     return t
 
-
+#Эти токены должны учитываться в регэкспе токена STRING...
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
 t_COLON = r':'
-
-#Эти токены нужно внести в регэксп токена STRING...
 t_EQUAL = r'='
 t_GREATER = r'>'
 t_GREATER_EQ = r'>='
@@ -95,11 +97,9 @@ t_LESS = r'<'
 t_LESS_EQ = r'<='
 t_LIKE = r'~'
 
-
-
-
 # A string containing ignored characters (spaces and tabs)
 t_ignore  = ' \t\n\r'
+
 
 # Error handling rule
 def t_error(t):
@@ -126,10 +126,6 @@ def needs_quote(string):
         return True
     
     return False
-
-
-
-
 
 
 def build_lexer():    
