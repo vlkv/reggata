@@ -1232,13 +1232,16 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
     
     
     def sort(self, column, order=Qt.AscendingOrder):
-        if column not in [self.ID, self.TITLE]:
+        if column not in [self.ID, self.TITLE, self.RATING]:
             return
         
         if column == self.ID: 
             column_name = "id"
         elif column == self.TITLE:
             column_name = "title"
+        #This is not exactly sorting by pure rating, but by fields and their values...
+        elif column == self.RATING:
+            column_name = 'items_fields_field_id DESC, items_fields_field_value'
         
         if order == Qt.AscendingOrder:
             dir = "ASC"
