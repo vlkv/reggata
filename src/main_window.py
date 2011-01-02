@@ -1429,7 +1429,17 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         
         elif role == Qt.ToolTipRole:            
             if column == self.TITLE:
-                return item.data_ref.url if item.data_ref else None
+                if item.data_ref is not None:
+                    s  =  str(item.data_ref.type) + ": " + item.data_ref.url
+                    if  item.data_ref.type == DataRef.FILE:
+                        s += os.linesep + self.tr("Checksum (hash): {}").format(item.data_ref.hash)
+                        s += os.linesep + self.tr("File size: {} bytes").format(item.data_ref.size)
+                        s += os.linesep + self.tr("Date hashed: {}").format(item.data_ref.date_hashed)
+                    s += os.linesep + self.tr("Created by: {}").format(item.data_ref.user_login)
+                    s += os.linesep + self.tr("Date created: {}").format(item.data_ref.date_created)
+                    
+                    
+                    return s
             elif column == self.LIST_OF_TAGS:
                 return item.format_field_vals()
             elif column == self.STATE:
