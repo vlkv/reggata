@@ -64,6 +64,7 @@ import math
 #TODO Если запрос возвращает очень много элементов, и указан limit. То нельзя передать ВСЕ элементы в просмотрщик изображений, передаются только отображенные limit штук. 
 #TODO Implement searching items by Item.title attribute
 #TODO Implement searching all items inside one physical directory
+#TODO Implement some kind of tool to browse repository by physical file path, showing for each file it's tags
 
 class MainWindow(QtGui.QMainWindow):
     '''
