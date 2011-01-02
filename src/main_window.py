@@ -1117,9 +1117,11 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
     def __init__(self, parent=None, r=10):
         super(RatingDelegate, self).__init__(parent)
         
+        palette = QtGui.QApplication.palette()
+        
         self.r = r
         self.star = QtGui.QPixmap(2*r, 2*r)
-        self.star.fill()
+        self.star.fill(QtGui.QColor(255, 255, 255, 0)) #This is an absolutely transparent color
         painter = QtGui.QPainter(self.star)
         path = QtGui.QPainterPath()
         
@@ -1132,8 +1134,8 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
                 path.lineTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), radius*math.sin(i*2*math.pi/10)))        
         painter.save()
         painter.translate(r, r)
-        painter.setPen(QtGui.QColor(0, 0, 255, 50))
-        painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 255, 127)))
+        painter.setPen(palette.text().color())
+        painter.setBrush(QtGui.QBrush(palette.highlight().color()))
         painter.drawPath(path)
         painter.restore()
         
@@ -1147,7 +1149,11 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         
-        #TODO Highlight selected cells
+        palette = QtGui.QApplication.palette()
+        
+        bg_color = palette.highlight().color() \
+            if option.state & QtGui.QStyle.State_Selected \
+            else palette.base().color()
         
         rating = int(index.data(QtCore.Qt.DisplayRole))
         
@@ -1158,6 +1164,7 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
             rating = 5
             
         painter.save()
+        painter.fillRect(option.rect, bg_color)
         painter.translate(option.rect.x(), option.rect.y())
         for i in range(0, rating):
             painter.drawPixmap(0, 0, self.star)
@@ -1209,7 +1216,15 @@ class HTMLDelegate(QtGui.QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         
-        #TODO Highlight selected cells
+        palette = QtGui.QApplication.palette()
+        
+        bg_color = palette.highlight().color() \
+            if option.state & QtGui.QStyle.State_Selected \
+            else palette.base().color()
+            
+        text_color = palette.highlightedText().color() \
+            if option.state & QtGui.QStyle.State_Selected \
+            else palette.text().color()
         
         raw_text = index.data(Qt.DisplayRole)
         if raw_text is not None:
@@ -1217,19 +1232,20 @@ class HTMLDelegate(QtGui.QStyledItemDelegate):
             doc.setTextWidth(option.rect.width())
             doc.setDefaultFont(option.font)
             doc.setHtml(raw_text)
+            
+            cursor = QtGui.QTextCursor(doc)
+            format = QtGui.QTextCharFormat()
+            format.setForeground(QtGui.QBrush(text_color))
+            cursor.movePosition(QtGui.QTextCursor.Start)
+            cursor.movePosition(QtGui.QTextCursor.End, QtGui.QTextCursor.KeepAnchor)
+            cursor.mergeCharFormat(format)
+                    
             painter.save()
+            painter.fillRect(option.rect, bg_color)
             painter.translate(option.rect.x(), option.rect.y())
-            doc.drawContents(painter, QtCore.QRectF(0 ,0, option.rect.width(), option.rect.height()))
+            doc.drawContents(painter, QtCore.QRectF(0 ,0, option.rect.width(), option.rect.height()))            
             painter.restore()
     
-#            self.text_edit.setText(raw_text)
-#            self.text_edit.setGeometry(option.rect)
-#            pixmap = QtGui.QPixmap(option.rect.width(), option.rect.height())
-#            self.text_edit.render(pixmap)
-#            painter.save()
-#            painter.translate(option.rect.x(), option.rect.y())
-#            painter.drawPixmap(0, 0, pixmap)
-#            painter.restore()
         else:
             super(HTMLDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
             
