@@ -183,10 +183,9 @@ class MainWindow(QtGui.QMainWindow):
         
         
         
-        #В третьей колонке отображаем миниатюры изображений
-        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate(self))         
-        #Работает в PyQt начиная с 4.8.1. В PyQt 4.7.3 не работает!
-        
+        #Tuning table cell rendering        
+        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.TITLE, HTMLDelegate(self))
+        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate(self))                 
         self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.RATING, RatingDelegate(self))
         
         self.ui.tableView_items.setSortingEnabled(True)
@@ -1187,6 +1186,53 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         
         editor.setGeometry(option.rect)
 
+class HTMLDelegate(QtGui.QStyledItemDelegate):
+    '''Делегат, для отображения HTML текста в таблице.'''
+    def __init__(self, parent=None):
+        super(HTMLDelegate, self).__init__(parent)
+        self.text_edit = QtGui.QTextEdit()
+        
+    def sizeHint(self, option, index):
+        
+        raw_text = index.data(Qt.DisplayRole)
+        if raw_text is not None:
+            doc = QtGui.QTextDocument()
+            doc.setTextWidth(option.rect.width())
+            doc.setDefaultFont(option.font)
+            doc.setHtml(raw_text)
+            print("size = {}".format(doc.size()))
+            return QtCore.QSize(doc.size().width(), doc.size().height())
+        else:
+            return super(HTMLDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1
+        
+#        return super(HTMLDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1
+            
+
+    def paint(self, painter, option, index):
+        
+        raw_text = index.data(Qt.DisplayRole)
+        if raw_text is not None:
+            doc = QtGui.QTextDocument()
+            doc.setTextWidth(option.rect.width())
+            doc.setDefaultFont(option.font)
+            doc.setHtml(raw_text)
+            painter.save()
+            painter.translate(option.rect.x(), option.rect.y())
+            doc.drawContents(painter, QtCore.QRectF(0 ,0, option.rect.width(), option.rect.height()))
+            painter.restore()
+    
+#            self.text_edit.setText(raw_text)
+#            self.text_edit.setGeometry(option.rect)
+#            pixmap = QtGui.QPixmap(option.rect.width(), option.rect.height())
+#            self.text_edit.render(pixmap)
+#            painter.save()
+#            painter.translate(option.rect.x(), option.rect.y())
+#            painter.drawPixmap(0, 0, pixmap)
+#            painter.restore()
+        else:
+            super(HTMLDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
+            
+
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
     '''Модель таблицы, отображающей элементы хранилища.'''
@@ -1343,7 +1389,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                 return item.id
             
             elif column == self.TITLE:
-                return item.title
+                return "<b>" + item.title + "</b>" + ("<br/><font size='-1'>" + item.data_ref.url + "</font>" if item.data_ref else "")
             
             elif column == self.LIST_OF_TAGS:
                 return item.format_tags()
@@ -1355,8 +1401,8 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                 finally:
                     self.lock.unlock()
             elif column == self.RATING:
-                #TODO Should display only rating field owned by current active user!!!
-                rating_str = item.get_field_value(consts.RATING_FIELD)
+                #Should display only rating field owned by current active user
+                rating_str = item.get_field_value(consts.RATING_FIELD, self.user_login)
                 try:
                     rating = int(rating_str)
                 except:
