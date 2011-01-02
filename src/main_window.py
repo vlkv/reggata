@@ -188,7 +188,7 @@ class MainWindow(QtGui.QMainWindow):
         
         self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.RATING, RatingDelegate(self))
         
-        
+        self.ui.tableView_items.setSortingEnabled(True)
         
         
                 
@@ -1210,10 +1210,12 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         
         #Это замок, который нужен для синхронизации доступа к списку self.items
         self.lock = items_lock
-        
-#        self.timer = QtCore.QTimer(self)
-#        self.timer.setSingleShot(True)
-#        self.connect(self.timer, QtCore.SIGNAL("timeout()"), self.reset)
+
+        #This fields are required for table sorting
+        self.query_text = ""
+        self.limit = 0
+        self.page = 1
+
 
     def reset_single_row(self, row):
         topL = self.createIndex(row, self.ID)
@@ -1229,12 +1231,35 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
     user_login = property(_get_user_login, _set_user_login, doc="Current active user login.")
     
     
-    def query(self, query_text, limit=0, page=1):
+    def sort(self, column, order=Qt.AscendingOrder):
+        if column not in [self.ID, self.TITLE]:
+            return
+        
+        if column == self.ID: 
+            column_name = "id"
+        elif column == self.TITLE:
+            column_name = "title"
+        
+        if order == Qt.AscendingOrder:
+            dir = "ASC"
+        else:
+            dir = "DESC"
+        
+        order_by = "ORDER BY " + column_name + " " + dir
+        
+        self.query(self.query_text, self.limit, self.page, order_by)
+        
+    
+    def query(self, query_text, limit=0, page=1, order_by=""):
         '''Выполняет извлечение элементов из хранилища.'''
+        
+        self.query_text = query_text
+        self.limit = limit
+        self.page = page
         
         def reset_row(row):
             self.reset_single_row(row)
-            QtCore.QCoreApplication.processEvents()        
+            QtCore.QCoreApplication.processEvents()
         
         uow = self.repo.create_unit_of_work()
         try:
@@ -1246,10 +1271,10 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                         
             if query_text is None or query_text.strip()=="":
                 #Если запрос пустой, тогда извлекаем элементы не имеющие тегов
-                self.items = uow.get_untagged_items(limit, page)
+                self.items = uow.get_untagged_items(limit, page, order_by)
             else:
                 query_tree = query_parser.parse(query_text)
-                self.items = uow.query_items_by_tree(query_tree, limit, page)
+                self.items = uow.query_items_by_tree(query_tree, limit, page, order_by)
             
             #Нужно запустить поток, который будет генерировать миниатюры
             self.thread = ThumbnailBuilderThread(self, self.repo, self.items, self.lock)

@@ -262,7 +262,7 @@ class UnitOfWork(object):
         self._session.expunge(item)
         return item
     
-    def get_untagged_items(self, limit=0, page=1):
+    def get_untagged_items(self, limit=0, page=1, order_by=""):
         '''
         Извлекает из БД все ЖИВЫЕ элементы, с которыми не связано ни одного тега.
         '''
@@ -305,8 +305,8 @@ class UnitOfWork(object):
         left join items_tags on sub.id = items_tags.item_id
         left join tags on tags.id = items_tags.tag_id
         left join items_fields on sub.id = items_fields.item_id
-        left join fields on fields.id = items_fields.field_id 
-        '''
+        left join fields on fields.id = items_fields.field_id         
+        ''' + order_by
                 
         items = []
         try:
@@ -326,7 +326,7 @@ class UnitOfWork(object):
                 
         return items
     
-    def query_items_by_tree(self, query_tree, limit=0, page=1):
+    def query_items_by_tree(self, query_tree, limit=0, page=1, order_by=""):
         '''
         Функция извлекает item-ы, которые соответствуют дереву разбора query_tree.
         '''
@@ -359,7 +359,7 @@ class UnitOfWork(object):
         left join thumbnails on thumbnails.data_ref_id = sub.data_refs_id and 
                   thumbnails.size = ''' + str(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)) + '''
         where sub.alive        
-        '''
+        ''' + order_by
         
         items = []
         try:
