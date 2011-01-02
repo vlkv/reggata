@@ -103,6 +103,12 @@ def p_extra_clause_path(p):
     p[4].append(e)
     p[0] = p[4]
     
+def p_extra_clause_title(p):
+    '''extra_clause : TITLE COLON STRING extra_clause'''
+    e = ExtraClause('TITLE', p[3])
+    p[4].append(e)
+    p[0] = p[4]
+    
 def p_extra_clause_empty(p):
     '''extra_clause : '''    
     p[0] = []

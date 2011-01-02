@@ -117,15 +117,18 @@ class SimpleQuery(QueryExpression):
     Базовый класс для всех простых выражений (которые представляют собой один SQL запрос).
     '''
     def __init__(self):
-        #Список дополнительных условий USER и PATH
+        #Список дополнительных условий USER, PATH и TITLE
         self.extra_paths = []
         self.extra_users = []
+        self.extra_titles = []
     
     def add_extra_clause(self, ext):
         if ext.type == 'USER':
             self.extra_users.append(ext)
         elif ext.type == 'PATH':
             self.extra_paths.append(ext)
+        elif ext.type == 'TITLE':
+            self.extra_titles.append(ext)
         else:
             raise Exception(tr("Unexpected type of extra_clause {}").format(str(ext.type)))
         
@@ -176,6 +179,13 @@ class FieldsConjunction(SimpleQuery):
             users_comma_list = helpers.to_commalist(self.extra_users, lambda x: "'" + x.interpret() + "'", ", ") 
         else:
             users_comma_list = None
+        
+        #extra_titles_str
+        if len(self.extra_titles) > 0:
+            extra_titles_str = helpers.to_commalist( \
+                self.extra_titles, lambda x: "i.title LIKE '%" + x.interpret() + "%'", " OR ")
+        else:
+            extra_titles_str = " 1 "
             
         from_parts = []
         where_parts = []
@@ -222,6 +232,7 @@ class FieldsConjunction(SimpleQuery):
         left join data_refs on data_refs.id = i.data_ref_id
             where (''' + where_str + ''')
             and (''' + extra_paths_str + ''') 
+            and (''' + extra_titles_str + ''')
         '''            
         return s
         
@@ -303,6 +314,13 @@ class TagsConjunction(SimpleQuery):
         else:
             extra_paths_str = " 1 "
             
+        #extra_titles_str
+        if len(self.extra_titles) > 0:
+            extra_titles_str = helpers.to_commalist( \
+                self.extra_titles, lambda x: "i.title LIKE '%" + x.interpret() + "%'", " OR ")
+        else:
+            extra_titles_str = " 1 "
+            
         
         #no_tags_str
         if len(self.no_tags) > 0:
@@ -323,9 +341,10 @@ class TagsConjunction(SimpleQuery):
         left join tags t on t.id = it.tag_id
         left join data_refs on data_refs.id = i.data_ref_id
             where (''' + yes_tags_str + ''') 
-            and (''' + extra_users_str + ''') 
+            and (''' + extra_users_str + ''')
             and (''' + no_tags_str + ''')
             and (''' + extra_paths_str + ''')
+            and (''' + extra_titles_str + ''')
             ''' + group_by_having            
         return s
     
@@ -351,7 +370,7 @@ class ExtraClause(QueryExpression):
     '''
 
     def __init__(self, type=None, value=None):
-        self.type = type #'USER' или 'PATH'
+        self.type = type #'USER', 'PATH' или 'TITLE'
         self.value = value #логин пользователя или путь в хранилище
             
     def interpret(self):
