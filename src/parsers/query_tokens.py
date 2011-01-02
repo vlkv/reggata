@@ -24,6 +24,8 @@ Created on 27.11.2010
 import ply.lex as lex
 import re
 from helpers import tr
+from exceptions import LexError
+
 
 
 AND_OPERATOR = tr('and')
@@ -103,8 +105,9 @@ t_ignore  = ' \t\n\r'
 
 # Error handling rule
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
-    t.lexer.skip(1) #Пропускаем текущий символ и переходим к следующему
+    raise LexError(tr("Illegal character '{}'").format(t.value[0]))
+    #print("Illegal character '%s'" % t.value[0])
+    #t.lexer.skip(1) #Пропускаем текущий символ и переходим к следующему
 
 
 def needs_quote(string):

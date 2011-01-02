@@ -26,6 +26,7 @@ from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, FieldOpV
     FieldsConjunction, CompoundQuery
 import ply.yacc as yacc
 from parsers.query_tokens import *
+from exceptions import YaccError
 
 
 def p_query(p):
@@ -185,7 +186,7 @@ def p_field_value(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    print("Syntax error in the query! " + str(p))
+    raise YaccError(tr("Syntax error in the query: {}").format(str(p)))
 
 
 #Строим лексический анализатор

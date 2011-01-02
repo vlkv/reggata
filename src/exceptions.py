@@ -48,7 +48,16 @@ class CannotOpenRepoError(Exception):
     def __init__(self, msg=None, cause=None):
         super(CannotOpenRepoError, self).__init__(msg)
         self.cause = cause
-        
+
+class LexError(Exception):
+    def __init__(self, msg=None, cause=None):
+        super(LexError, self).__init__(msg)
+        self.cause = cause
+
+class YaccError(Exception):
+    def __init__(self, msg=None, cause=None):
+        super(YaccError, self).__init__(msg)
+        self.cause = cause
         
 class NotFoundError(Exception):
     def __init__(self, msg=None, cause=None):
