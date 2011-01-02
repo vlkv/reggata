@@ -267,6 +267,21 @@ class UnitOfWork(object):
         Извлекает из БД все ЖИВЫЕ элементы, с которыми не связано ни одного тега.
         '''
         
+        order_by_1 = ""
+        order_by_2 = ""
+        for col, dir in order_by:
+            if order_by_1:
+                order_by_1 += ", "
+            if order_by_2:
+                order_by_2 += ", "
+            order_by_2 += col + " " + dir + " "
+            if col == "title":
+                order_by_1 += col + " " + dir + " "
+        if order_by_1:
+            order_by_1 = " ORDER BY " + order_by_1
+        if order_by_2:
+            order_by_2 = " ORDER BY " + order_by_2
+        
         thumbnail_default_size = UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)
         
         
@@ -300,13 +315,13 @@ class UnitOfWork(object):
             where 
                 it.item_id is null
                 AND i.alive
-            ''' + limit_offset + ''' 
+            ''' + order_by_1 + " " + limit_offset + ''' 
         ) as sub
         left join items_tags on sub.id = items_tags.item_id
         left join tags on tags.id = items_tags.tag_id
         left join items_fields on sub.id = items_fields.item_id
         left join fields on fields.id = items_fields.field_id         
-        ''' + order_by
+        ''' + order_by_2
                 
         items = []
         try:
@@ -326,10 +341,26 @@ class UnitOfWork(object):
                 
         return items
     
-    def query_items_by_tree(self, query_tree, limit=0, page=1, order_by=""):
+    def query_items_by_tree(self, query_tree, limit=0, page=1, order_by=[]):
         '''
         Функция извлекает item-ы, которые соответствуют дереву разбора query_tree.
         '''
+        
+        order_by_1 = ""
+        order_by_2 = ""
+        for col, dir in order_by:
+            if order_by_1:
+                order_by_1 += ", "
+            if order_by_2:
+                order_by_2 += ", "
+            order_by_2 += col + " " + dir + " "
+            if col == "title":
+                order_by_1 += col + " " + dir + " "
+        if order_by_1:
+            order_by_1 = " ORDER BY " + order_by_1
+        if order_by_2:
+            order_by_2 = " ORDER BY " + order_by_2
+            
         
         sub_sql = query_tree.interpret()
         
@@ -351,7 +382,7 @@ class UnitOfWork(object):
         ''' + db_schema.Thumbnail._sql_from() + ''',
         ''' + db_schema.Item_Field._sql_from() + ''',
         ''' + db_schema.Field._sql_from() + '''        
-        from (''' + sub_sql + " " + limit_offset + ''') as sub
+        from (''' + sub_sql + " " + order_by_1 + " " + limit_offset +  ''') as sub
         left join items_tags on sub.id = items_tags.item_id
         left join tags on tags.id = items_tags.tag_id
         left join items_fields on sub.id = items_fields.item_id
@@ -359,7 +390,7 @@ class UnitOfWork(object):
         left join thumbnails on thumbnails.data_ref_id = sub.data_refs_id and 
                   thumbnails.size = ''' + str(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)) + '''
         where sub.alive        
-        ''' + order_by
+        ''' + order_by_2
         
         items = []
         try:

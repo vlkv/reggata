@@ -1216,6 +1216,9 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         self.query_text = ""
         self.limit = 0
         self.page = 1
+        
+        self.order_by_column = None
+        self.order_dir = None
 
 
     def reset_single_row(self, row):
@@ -1236,30 +1239,36 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         if column not in [self.ID, self.TITLE, self.RATING]:
             return
         
-        if column == self.ID: 
-            column_name = "id"
-        elif column == self.TITLE:
-            column_name = "title"
-        #This is not exactly sorting by pure rating, but by fields and their values...
-        elif column == self.RATING:
-            column_name = 'items_fields_field_id DESC, items_fields_field_value'
-        
-        if order == Qt.AscendingOrder:
-            dir = "ASC"
-        else:
-            dir = "DESC"
-        
-        order_by = "ORDER BY " + column_name + " " + dir
-        
-        self.query(self.query_text, self.limit, self.page, order_by)
+        self.order_by_column = column
+        self.order_dir = order
+                
+        self.query(self.query_text, self.limit, self.page)
         
     
-    def query(self, query_text, limit=0, page=1, order_by=""):
+    def query(self, query_text, limit=0, page=1):
         '''Выполняет извлечение элементов из хранилища.'''
         
         self.query_text = query_text
         self.limit = limit
         self.page = page
+        
+        if self.order_dir == Qt.AscendingOrder:
+            dir = "ASC"
+        else:
+            dir = "DESC"
+        
+        order_by = []        
+        if self.order_by_column is not None:
+            column = self.order_by_column
+            if column == self.ID:
+                order_by.append(("id", dir))                
+            elif column == self.TITLE:
+                order_by.append(("title", dir))
+            #This is not exactly sorting by pure rating, but by fields and their values...
+            elif column == self.RATING:
+                order_by.append(("items_fields_field_id", "DESC"))
+                order_by.append(("items_fields_field_value", dir))
+    
         
         def reset_row(row):
             self.reset_single_row(row)
