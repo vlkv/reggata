@@ -1135,7 +1135,7 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         painter.save()
         painter.translate(r, r)
         painter.setPen(palette.text().color())
-        painter.setBrush(QtGui.QBrush(palette.highlight().color()))
+        painter.setBrush(QtGui.QBrush(palette.button().color()))
         painter.drawPath(path)
         painter.restore()
         
@@ -1143,8 +1143,9 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         
     
     def sizeHint(self, option, index):
+        return QtCore.QSize(option.rect.width(), self.r)
         #TODO should return some size?..
-        return super(RatingDelegate, self).sizeHint(option, index)
+        #return super(RatingDelegate, self).sizeHint(option, index)
             
 
     def paint(self, painter, option, index):
