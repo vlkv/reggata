@@ -1147,6 +1147,8 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         
+        #TODO Highlight selected cells
+        
         rating = int(index.data(QtCore.Qt.DisplayRole))
         
         #TODO Maybe max rating should be 10?
@@ -1199,16 +1201,15 @@ class HTMLDelegate(QtGui.QStyledItemDelegate):
             doc = QtGui.QTextDocument()
             doc.setTextWidth(option.rect.width())
             doc.setDefaultFont(option.font)
-            doc.setHtml(raw_text)
-            print("size = {}".format(doc.size()))
+            doc.setHtml(raw_text)            
             return QtCore.QSize(doc.size().width(), doc.size().height())
         else:
             return super(HTMLDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1
-        
-#        return super(HTMLDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1
             
 
     def paint(self, painter, option, index):
+        
+        #TODO Highlight selected cells
         
         raw_text = index.data(Qt.DisplayRole)
         if raw_text is not None:
@@ -1389,7 +1390,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                 return item.id
             
             elif column == self.TITLE:
-                return "<b>" + item.title + "</b>" + ("<br/><font size='-1'>" + item.data_ref.url + "</font>" if item.data_ref else "")
+                return "<b>" + item.title + "</b>" + ("<br/><font>" + item.data_ref.url + "</font>" if item.data_ref else "")
             
             elif column == self.LIST_OF_TAGS:
                 return item.format_tags()
