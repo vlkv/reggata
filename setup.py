@@ -21,11 +21,12 @@ buildOptions = dict(
         includes = ["sqlite3"],
         packages = ["sqlalchemy.dialects.sqlite", "ply"],
         namespace_packages=["sqlalchemy"],
+	include_files = ["reggata_ru.qm"],
         build_exe = target_dir
         )
 setup(
         name = "Reggata",
-        version = "0.1",
+        version = "0.1_beta2",
         description = "Reggata is a tag-based file manager",
         options = dict(build_exe = buildOptions),
         executables = [Executable('.' + os.sep + 'src' + os.sep + 'main_window.py', base = base)])
