@@ -467,6 +467,7 @@ class DataRef(Base):
     date_created = sqa.Column(sqa.DateTime)
     
     #Пользователь-владелец данного объекта (обычно тот, кто его создал)
+    #deprecated because it's enough information in field Item.user_login
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
     
     
