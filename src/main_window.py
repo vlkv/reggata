@@ -171,8 +171,8 @@ class MainWindow(QtGui.QMainWindow):
         #Add file browser
         self.ui.file_browser = FileBrowser(self)
         self.ui.dockWidget_file_browser = QtGui.QDockWidget(self)
-        self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)        
-        self.addDockWidget(QtCore.Qt.DockWidgetArea(4), self.ui.dockWidget_file_browser)
+        self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.ui.dockWidget_file_browser)
         
         #Открываем последнее хранилище, с которым работал пользователь
         try:
@@ -413,12 +413,13 @@ class MainWindow(QtGui.QMainWindow):
                 #self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
                 self.connect(self.model, QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), self._resize_row_to_contents)
                 
-                self.ui.file_browser.root_path = repo.base_path
+                self.ui.file_browser.repo = repo                
                 
             else:
                 self.ui.label_repo.setText("")
                 self.model = None
                 self.ui.tableView_items.setModel(None)
+                self.ui.file_browser.repo = None
         except Exception as ex:
             raise CannotOpenRepoError(str(ex), ex)
                 
@@ -783,7 +784,6 @@ class MainWindow(QtGui.QMainWindow):
             items = []
             for root, dirs, files in os.walk(dir):
                 for file in files:
-#                    print(os.path.relpath(root, dir) + " FILE: " + file)
                     abs_file = os.path.join(root, file)
                     item = Item(user_login=self.active_user.login)
                     item.title = file

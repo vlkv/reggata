@@ -25,14 +25,16 @@ Created on 06.01.2011
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 import os
+import helpers
 
 class FileBrowser(QtGui.QTableView):
     '''
     '''
 
     def __init__(self, parent=None):
-        super(FileBrowser, self).__init__(parent)
+        super(FileBrowser, self).__init__(parent)        
         self.setModel(FileBrowserTableModel(self))
+        
         
     def mouseDoubleClickEvent(self, event):
         index = self.indexAt(event.pos())
@@ -44,14 +46,23 @@ class FileBrowser(QtGui.QTableView):
             self.root_path = self.model().file_infos[index.row()].full_path()
         else:
             super(FileBrowser, self).keyPressEvent(event)
-    
-    
 
+    
     def _set_root_path(self, path):
         if os.path.isdir(path) and self.model() is not None:
             self.model().root_path = path
-    
     root_path = property(fset=_set_root_path)
+    
+    
+    def _set_repo(self, repo):
+        self.model().repo = repo
+    repo = property(fset=_set_repo)
+    
+    
+
+    
+
+
 
 class FileInfo(object):
     FILE = 0
@@ -84,6 +95,10 @@ class FileInfo(object):
     def full_path(self):
         return os.path.join(self.path, self.filename)
         
+        
+        
+        
+        
 class FileBrowserTableModel(QtCore.QAbstractTableModel):
     '''A table model for displaying files (not items) of repository.'''
     
@@ -95,7 +110,7 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
     
     def __init__(self, parent, repo=None, user_login=None):
         super(FileBrowserTableModel, self).__init__(parent)
-        self.repo = repo
+        self._repo = repo
         self._user_login = user_login
         self.file_infos = []
         if repo is not None:
@@ -104,8 +119,12 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
 
     def _set_root_path(self, value):
         
-        path = os.path.normpath(value)
-        print("normalized path " + path)
+        if value is not None:        
+            if self.repo is None:
+                raise Exception(self.tr("Cannot set root_path, because self.repo is None."))
+            
+            if not helpers.is_internal(value, self.repo.base_path):
+                raise Exception(self.tr("Path must be inside current repository."))
         
         self._root_path = value
         self._read_root_path()
@@ -116,9 +135,26 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
     root_path = property(_get_root_path, _set_root_path, doc="root_path is just "
                          "a current directory of file browser.")
 
+    def _set_repo(self, value):
+        self._repo = value
+        if value is not None:
+            self.root_path = value.base_path
+        else:
+            self.root_path = None
+            
+    def _get_repo(self):
+        return self._repo
+    
+    repo = property(_get_repo, _set_repo)
+     
+
     def _read_root_path(self):
         self.file_infos = []
-        if self._root_path != self.repo.base_path:
+        
+        if self.repo is None or self.root_path is None:
+            return
+        
+        if os.path.normpath(self._root_path) != os.path.normpath(self.repo.base_path):
             self.file_infos.append(FileInfo(self._root_path, parent_dir=True))
         for fname in os.listdir(self._root_path):
             self.file_infos.append(FileInfo(os.path.join(self._root_path, fname)))
