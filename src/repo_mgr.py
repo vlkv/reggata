@@ -261,11 +261,11 @@ class UnitOfWork(object):
             .options(joinedload_all("items.item_fields.field"))\
             .one()
         self._session.expunge(data_ref)
-        finfo = FileInfo(data_ref.url)
+        finfo = FileInfo(data_ref.url, status = FileInfo.STORED_STATUS)
         for item in data_ref.items:
             for item_tag in item.item_tags:
                 if item_tag.user_login not in finfo.user_tags:
-                     finfo.user_tags[item_tag.user_login] = []
+                    finfo.user_tags[item_tag.user_login] = []
                 finfo.user_tags[item_tag.user_login].append(item_tag.tag.name)                
         return finfo
     

@@ -27,6 +27,8 @@ from PyQt4.QtCore import Qt
 import os
 import helpers
 from sqlalchemy import orm
+from helpers import tr, HTMLDelegate
+
 
 class FileBrowser(QtGui.QTableView):
     '''
@@ -35,6 +37,7 @@ class FileBrowser(QtGui.QTableView):
     def __init__(self, parent=None):
         super(FileBrowser, self).__init__(parent)        
         self.setModel(FileBrowserTableModel(self))
+        self.setItemDelegate(HTMLDelegate(self))
         
         
     def mouseDoubleClickEvent(self, event):
@@ -48,11 +51,15 @@ class FileBrowser(QtGui.QTableView):
         else:
             super(FileBrowser, self).keyPressEvent(event)
 
+    def _get_root_path(self):
+        return self.model().root_path
     
     def _set_root_path(self, path):
         if os.path.isdir(path) and self.model() is not None:
             self.model().root_path = path
-    root_path = property(fset=_set_root_path)
+        self.resizeRowsToContents()
+        
+    root_path = property(_get_root_path, _set_root_path)
     
     
     def _set_repo(self, repo):
@@ -68,9 +75,12 @@ class FileBrowser(QtGui.QTableView):
 class FileInfo(object):
     FILE = 0
     DIR = 1
-    OTHER = 2
+    OTHER = 2 #Maybe link, device file or mount point
     
-    def __init__(self, path, filename=None):
+    UNTRACKED_STATUS = tr("UNTRACKED")
+    STORED_STATUS = tr("STORED")
+    
+    def __init__(self, path, filename=None, status=None):
         
         if filename is not None:
             self.path = path
@@ -82,16 +92,16 @@ class FileInfo(object):
             self.path, self.filename = os.path.split(path)
         
         #Determine type of this path
-        if os.path.isdir(path):
+        if os.path.isdir(self.full_path):
             self.type = self.DIR
-        elif os.path.isfile(path):
+        elif os.path.isfile(self.full_path):
             self.type = self.FILE
         else:
-            self.type = self.OTHER            
+            self.type = self.OTHER
         
         self.user_tags = dict() #Key is user_login, value is a list of tags
                 
-        self.status = None
+        self.status = status
         
     def _get_full_path(self):
         return os.path.join(self.path, self.filename)
@@ -188,7 +198,7 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
                     try:
                         finfo = uow.get_file_info(os.path.relpath(os.path.join(self._root_path, fname), self.repo.base_path))
                     except (orm.exc.NoResultFound, orm.exc.MultipleResultsFound):
-                        finfo = FileInfo(self._root_path, fname)
+                        finfo = FileInfo(self._root_path, fname, status=FileInfo.UNTRACKED_STATUS)
                 else:
                     finfo = FileInfo(self._root_path, fname)
                 self.file_infos.append(finfo)
@@ -247,12 +257,17 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
         finfo = self.file_infos[row]
         
         if role == QtCore.Qt.DisplayRole:
-            if column == self.FILENAME:                
-                return finfo.filename
+            if column == self.FILENAME:
+                if finfo.type == FileInfo.DIR:                
+                    return "<b>" + finfo.filename + "</b>"
+                else:
+                    return finfo.filename
             elif column == self.TAGS:
                 return helpers.to_commalist(finfo.tags(), lambda x: x, " ")
             elif column == self.USERS:
                 return helpers.to_commalist(finfo.users(), lambda x: x, " ")
+            elif column == self.STATUS:
+                return finfo.status
       
         #Во всех остальных случаях возвращаем None    
         return None
