@@ -26,6 +26,7 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 import os
 import helpers
+from sqlalchemy import orm
 
 class FileBrowser(QtGui.QTableView):
     '''
@@ -38,12 +39,12 @@ class FileBrowser(QtGui.QTableView):
         
     def mouseDoubleClickEvent(self, event):
         index = self.indexAt(event.pos())
-        self.root_path = self.model().file_infos[index.row()].full_path()
+        self.root_path = self.model().file_infos[index.row()].full_path
         
     def keyPressEvent(self, event):        
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             index = self.selectionModel().currentIndex()            
-            self.root_path = self.model().file_infos[index.row()].full_path()
+            self.root_path = self.model().file_infos[index.row()].full_path
         else:
             super(FileBrowser, self).keyPressEvent(event)
 
@@ -69,13 +70,13 @@ class FileInfo(object):
     DIR = 1
     OTHER = 2
     
-    def __init__(self, path, parent_dir=False):
+    def __init__(self, path, filename=None):
         
-        if parent_dir:
+        if filename is not None:
             self.path = path
-            self.filename = os.pardir
+            self.filename = filename
         else:
-            #remove trailing slashes in this
+            #remove trailing slashes in the path
             while path.endswith(os.sep):
                 path = path[0:-1]
             self.path, self.filename = os.path.split(path)
@@ -88,12 +89,31 @@ class FileInfo(object):
         else:
             self.type = self.OTHER            
         
-        self.tags = set() #All tags (of all users?), linked to this item
-        self.users = set() #All users (their logins), who has items linked to this file
+        self.user_tags = dict() #Key is user_login, value is a list of tags
+                
         self.status = None
         
-    def full_path(self):
+    def _get_full_path(self):
         return os.path.join(self.path, self.filename)
+    full_path = property(fget=_get_full_path)
+    
+    def tags_of_user(self, user_login):
+        return self.user_tags.get(user_login, set())
+
+    def users(self):
+        logins = set()
+        for user_login, tag_names in self.user_tags.items():
+            logins.add(user_login)
+        return logins
+    
+    def tags(self):
+        tags = set()
+        for user_login, tag_names in self.user_tags.items():
+            for tag_name in tag_names:
+                tags.add(tag_name)
+        return tags
+            
+    
         
         
         
@@ -154,13 +174,29 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
         if self.repo is None or self.root_path is None:
             return
         
+        listdir = []
         if os.path.normpath(self._root_path) != os.path.normpath(self.repo.base_path):
-            self.file_infos.append(FileInfo(self._root_path, parent_dir=True))
+            listdir.append(os.pardir)
         for fname in os.listdir(self._root_path):
-            self.file_infos.append(FileInfo(os.path.join(self._root_path, fname)))
-        self.reset()
+            listdir.append(fname)            
+        
+        #TODO populate information about tags, users and status of every file
+        uow = self.repo.create_unit_of_work()
+        try:
+            for fname in listdir:
+                if os.path.isfile(os.path.join(self._root_path, fname)):
+                    try:
+                        finfo = uow.get_file_info(os.path.relpath(os.path.join(self._root_path, fname), self.repo.base_path))
+                    except (orm.exc.NoResultFound, orm.exc.MultipleResultsFound):
+                        finfo = FileInfo(self._root_path, fname)
+                else:
+                    finfo = FileInfo(self._root_path, fname)
+                self.file_infos.append(finfo)
+                        
+        finally:
+            uow.close()
             
-        #TODO populate information about tags, users and status of every file 
+        self.reset()
 
     def reset_single_row(self, row):
         topL = self.createIndex(row, self.FILENAME)
@@ -211,8 +247,12 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
         finfo = self.file_infos[row]
         
         if role == QtCore.Qt.DisplayRole:
-            if column == self.FILENAME:
+            if column == self.FILENAME:                
                 return finfo.filename
+            elif column == self.TAGS:
+                return helpers.to_commalist(finfo.tags(), lambda x: x, " ")
+            elif column == self.USERS:
+                return helpers.to_commalist(finfo.users(), lambda x: x, " ")
       
         #Во всех остальных случаях возвращаем None    
         return None

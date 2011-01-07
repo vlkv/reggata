@@ -46,6 +46,7 @@ import os
 import helpers
 import sys
 from integrity_fixer import IntegrityFixer
+from file_browser import FileInfo
 
 
 class RepoMgr(object):
@@ -251,6 +252,22 @@ class UnitOfWork(object):
                 return self._session.query("name", "c").from_statement(sql).all()
             except ResourceClosedError as ex:
                 return []
+    
+    def get_file_info(self, path):
+        data_ref = self._session.query(DataRef)\
+            .filter(DataRef.url_raw==helpers.to_db_format(path))\
+            .options(joinedload_all("items"))\
+            .options(joinedload_all("items.item_tags.tag"))\
+            .options(joinedload_all("items.item_fields.field"))\
+            .one()
+        self._session.expunge(data_ref)
+        finfo = FileInfo(data_ref.url)
+        for item in data_ref.items:
+            for item_tag in item.item_tags:
+                if item_tag.user_login not in finfo.user_tags:
+                     finfo.user_tags[item_tag.user_login] = []
+                finfo.user_tags[item_tag.user_login].append(item_tag.tag.name)                
+        return finfo
     
     def get_item(self, id):
         '''Возвращает detached-объект класса Item, с заданным значением id. '''
