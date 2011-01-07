@@ -180,7 +180,7 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
         for fname in os.listdir(self._root_path):
             listdir.append(fname)            
         
-        #TODO populate information about tags, users and status of every file
+        #TODO do this in a separate thread
         uow = self.repo.create_unit_of_work()
         try:
             for fname in listdir:
