@@ -401,6 +401,7 @@ class HistoryRecNotFoundFixer(IntegrityFixer):
             hr.user_login = user_login
         self.uow.session.add(hr)
         self.uow.session.flush()
+        return True
     
     def _try_proceed(self, item, user_login):
         parent_hr = self.uow.session.query(HistoryRec).filter(HistoryRec.item_id==item.id)\
@@ -423,6 +424,7 @@ class HistoryRecNotFoundFixer(IntegrityFixer):
             hr.user_login = user_login
         self.uow.session.add(hr)
         self.uow.session.flush()
+        return True
             
     
     def fix_error(self, item, user_login):

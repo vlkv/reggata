@@ -31,7 +31,7 @@ if __name__ == '__main__':
     s = ""
     for i in dir(qp):
         if i.startswith("p_") and not i=="p_error":
-            print(i)
+            #print(i)
             s += "       " + qp.__dict__.get(i).__doc__ + os.linesep
     print(s)
     
