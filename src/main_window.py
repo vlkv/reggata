@@ -71,7 +71,7 @@ import locale
 
 class MainWindow(QtGui.QMainWindow):
     '''
-    Главное окно приложения reggata.
+    Reggata's main window.
     '''
     
     def __init__(self, parent=None):
@@ -79,19 +79,19 @@ class MainWindow(QtGui.QMainWindow):
         self.ui = ui_mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
         
-        #Текущее активное открытое хранилище (объект RepoMgr)
+        #Current opened (active) repository (RepoMgr object)
         self.__active_repo = None
         
-        #Текущий пользователь, который работает с программой
+        #Current logined (active) user
         self.__active_user = None
         
-        #Модель таблицы для отображения элементов хранилища
+        #Table model for items table
         self.model = None
         
         #Это замок, который нужен для синхронизации доступа к списку элементов (результатов поиска)
         self.items_lock = QtCore.QReadWriteLock()
         
-        #Контекстное меню
+        #Context menu of items table
         self.menu = QtGui.QMenu()
         self.menu.addAction(self.ui.action_item_view)
         self.menu.addAction(self.ui.action_item_view_m3u)
@@ -104,7 +104,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_check_integrity)
         self.menu.addMenu(self.ui.menuFix_integrity_errors)        
-        #Добавляем его к таблице 
+        #Adding this menu to items table
         self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
         self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
         
@@ -124,8 +124,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
         self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
         self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
-        self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)
-        #self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view)
+        self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
         self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
         self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u) 
         self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
@@ -136,9 +135,10 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_fix_file_not_found_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
         self.connect(self.ui.action_fix_file_not_found_try_find_else_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find_else_delete)
         
-        
+        #About dialog
         self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
         
+        #Widgets for text queries
         self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
         self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
         self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
@@ -152,8 +152,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.spinBox_page, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
         self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
 
-
-        #Добавляем на статус бар поля для отображения текущего хранилища и пользователя
+        #Creating status bar widgets
         self.ui.label_repo = QtGui.QLabel()
         self.ui.label_user = QtGui.QLabel()
         self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("Repository:")))
@@ -161,15 +160,13 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("User:")))
         self.ui.statusbar.addPermanentWidget(self.ui.label_user)
         
-        #Добавляем облако тегов
+        #Adding tag cloud
         self.ui.tag_cloud = TagCloud(self)
         self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
         self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), self.selected_tags_changed)
         self.connect(self.ui.action_tools_tag_cloud, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_tag_cloud.setVisible(b))
         self.connect(self.ui.dockWidget_tag_cloud, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
-        
-        #self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("textEdited(QString)"), self.reset_tag_cloud)
-        
+                
         #Adding file browser
         self.ui.file_browser = FileBrowser(self)
         self.ui.dockWidget_file_browser = QtGui.QDockWidget(self.tr("File browser"), self)
@@ -180,7 +177,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("dockLocationChanged(Qt::DockWidgetArea)"), lambda x: print("dock location {}".format(x)))#self.save_main_window_state)
         
         
-        #Открываем последнее хранилище, с которым работал пользователь
+        #Try to open and login recent repository with recent user login
         try:
             tmp = UserConfig()["recent_repo.base_path"]
             self.active_repo = RepoMgr(tmp)
@@ -195,64 +192,64 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), 5000)
         
         
-        
-        #Tuning table cell rendering        
+        #Tuning table cell rendering
         self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.TITLE, HTMLDelegate(self))
         self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate(self))                 
         self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.RATING, RatingDelegate(self))
         
+        #Turn on table sorting
         self.ui.tableView_items.setSortingEnabled(True)
         
         
-                
-        
-        #Ширина колонок в таблице
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.ID, int(UserConfig().get("items_table.ID.width", 50)))
+        #Restoring columns width of items table
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.ID, int(UserConfig().get("items_table.ID.width", 20)))
         self.ui.tableView_items.setColumnWidth(RepoItemTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 250)))
         self.ui.tableView_items.setColumnWidth(RepoItemTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 50)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 50)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 50)))
-        self.connect(self.ui.tableView_items.horizontalHeader(), QtCore.SIGNAL("sectionResized(int, int, int)"), self._table_columns_resized)
-        
-        
-        #Для старых версий PyQt задаем его для всей таблицы:
-#        self.ui.tableView_items.setItemDelegate(ImageThumbDelegate())
-        
-        #Пытаемся восстанавливить размер окна, как был при последнем запуске
-        try:
-            width = int(UserConfig().get("main_window.width", 640))
-            height = int(UserConfig().get("main_window.height", 480))
-            self.resize(width, height)
-        except:
-            pass
-        
-        #Делаем так, чтобы размер окна сохранялся при изменении
-        self.save_state_timer = QtCore.QTimer(self)
-        self.save_state_timer.setSingleShot(True)
-        self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_main_window_state)
-        
-        #Восстанавливаем размер облака тегов
-        self.ui.tag_cloud.hint_height = int(UserConfig().get("tag_cloud.height", 100))
-        self.ui.tag_cloud.hint_width = int(UserConfig().get("tag_cloud.width", 100))
-        self.connect(self.ui.tag_cloud, QtCore.SIGNAL("maySaveSize"), self.save_main_window_state)
-        dock_area = int(UserConfig().get("tag_cloud.dock_area", QtCore.Qt.TopDockWidgetArea))
-        self.removeDockWidget(self.ui.dockWidget_tag_cloud)
-        self.addDockWidget(dock_area if dock_area != Qt.NoDockWidgetArea else QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
-        self.ui.dockWidget_tag_cloud.show()
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 100)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 30)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 60)))
 
+        #Restoring main window size        
+        width = int(UserConfig().get("main_window.width", 640))
+        height = int(UserConfig().get("main_window.height", 480))
+        self.resize(width, height)
+        
+        #Restoring all dock widgets position and size
         state = UserConfig().get("main_window.state")        
         if state:
             state = eval(state)
             self.restoreState(state)
 
+
     def closeEvent(self, event):
+        #Storing all dock widgets position and size
         byte_arr = self.saveState()
         UserConfig().store("main_window.state", str(byte_arr.data()))
-
-    def _table_columns_resized(self, col, old_size, new_size):
-        '''Обработчик события, которое возникает, когда изменяется ширина колонок таблицы.'''
-        self.save_state_timer.start(1000)
+        
+        #Storing main window size
+        UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
+        
+        #Storing items table columns width
+        width_id = self.ui.tableView_items.columnWidth(RepoItemTableModel.ID)
+        if width_id > 0:            
+            UserConfig().store("items_table.ID.width", str(width_id))
+                        
+        width_title = self.ui.tableView_items.columnWidth(RepoItemTableModel.TITLE)
+        if width_title > 0:
+            UserConfig().store("items_table.TITLE.width", str(width_title))
+        
+        width_list_of_tags = self.ui.tableView_items.columnWidth(RepoItemTableModel.LIST_OF_TAGS)
+        if width_list_of_tags > 0:
+            UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
+        
+        width_state = self.ui.tableView_items.columnWidth(RepoItemTableModel.STATE)
+        if width_state > 0:
+            UserConfig().store("items_table.STATE.width", str(width_state))
+        
+        width_rating = self.ui.tableView_items.columnWidth(RepoItemTableModel.RATING)
+        if width_rating > 0:
+            UserConfig().store("items_table.RATING.width", str(width_rating))
+                                        
     
     def _resize_row_to_contents(self, top_left, bottom_right):
         '''Обработчик сигнала, который посылает модель RepoItemTableModel, когда просит обновить 
@@ -289,41 +286,10 @@ class MainWindow(QtGui.QMainWindow):
         text = self.ui.lineEdit_query.setText(text)
         self.query_exec()
     
-    def save_main_window_state(self):
-        #Тут нужно сохранить в конфиге пользователя размер окна
-        UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
-        
-        #Размер облака тегов
-        UserConfig().storeAll({"tag_cloud.width":self.ui.tag_cloud.hint_width, "tag_cloud.height":self.ui.tag_cloud.hint_height})
-        
-        #Расположение облака тегов
-        UserConfig().store("tag_cloud.dock_area", str(self.dockWidgetArea(self.ui.dockWidget_tag_cloud)))
-        
-        #Ширина колонок таблицы
-        width_id = self.ui.tableView_items.columnWidth(RepoItemTableModel.ID)
-        width_title = self.ui.tableView_items.columnWidth(RepoItemTableModel.TITLE)
-        width_list_of_tags = self.ui.tableView_items.columnWidth(RepoItemTableModel.LIST_OF_TAGS)
-        width_state = self.ui.tableView_items.columnWidth(RepoItemTableModel.STATE)
-        width_rating = self.ui.tableView_items.columnWidth(RepoItemTableModel.RATING)
-        if width_id > 0:
-            UserConfig().store("items_table.ID.width", str(width_id))
-        if width_title > 0:
-            UserConfig().store("items_table.TITLE.width", str(width_title))
-        if width_list_of_tags > 0:
-            UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
-        if width_state > 0:
-            UserConfig().store("items_table.STATE.width", str(width_state))
-        if width_rating > 0:
-            UserConfig().store("items_table.RATING.width", str(width_rating))
-            
-        
-        self.ui.statusbar.showMessage(self.tr("Main window state has saved."), 5000)
+    
     
     
         
-    def resizeEvent(self, resize_event):
-        self.save_state_timer.start(3000) #Повторный вызов start() делает перезапуск таймера 
-            
         
     def query_reset(self):
         self.ui.lineEdit_query.setText("")
