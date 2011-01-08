@@ -198,6 +198,8 @@ def is_none_or_empty(s):
 
 def is_internal(url, base_path):
         '''Метод проверяет, находится ли путь url внутри директории base_path или нет.'''
+        url = os.path.normpath(url)
+        base_path = os.path.normpath(base_path)
         com_pref = os.path.commonprefix([base_path, url])
         if com_pref == base_path:
             return True
