@@ -15,20 +15,21 @@ Query examples:
   ## {{{Music and Favorite path:"download/unsorted"}}}
   //(This query seaches items (files) only in "download/unsorted" physical path by tags)//
 
-* When you double click on a file in Reggata, a preferred appropriate external program is invoked 
-showing you the contents of this file. Reggata has a configuration file {{{reggata.conf}}} which allow you to configure your preferred apps for music, pdf, images and any other types of files.
+* With Reggata you can open file with a preferred appropriate external program. Reggata has a configuration file {{{reggata.conf}}} which allows you to configure your preferred apps for music, pdf, images and any other types of files.
 * Reggata is under active development and new features (so as bugfixes) are added constantly. 
 
 === Alike projects
 I would like Reggata to be like Delicious (http://www.delicious.com), but for tagging local files (and URL bookmarks also though) and storing all information in local database, not remote server.
+
 Like Calibre (http://calibre-ebook.com/ which is for electronic books) or JBrout (http://jbrout.manatlan.com/ which is for digital photos) but for files of any type.
+
 Like Tag2Find (http://www.tag2find.com/ which is for windows only as I know) but cross-platform.
+
 Also, in the future I would like Reggata to have repository clone/merge features like Git (http://git-scm.com/), but without storing every previous version state but only the last one.
 
 === Screenshots
 
 Visit reggata home page http://vlkv.github.com/reggata/
-
 
 
 == Installation instructions
@@ -90,5 +91,5 @@ along with Reggata.  If not, see http://www.gnu.org/licenses/ .
 
 == Need more information?
 
-Visit Reggata wiki pages https://github.com/vlkv/reggata/wiki (in Russian language).
+Visit Reggata wiki pages https://github.com/vlkv/reggata/wiki.
 
