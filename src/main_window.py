@@ -406,8 +406,11 @@ class MainWindow(QtGui.QMainWindow):
             
             #Запоминаем пользователя
             UserConfig().storeAll({"recent_user.login":user.login, "recent_user.password":user.password})
+            
+            self.ui.file_browser.model().user_login = user.login
         else:
             self.ui.label_user.setText("")
+            self.ui.file_browser.model().user_login = None
         
         
     def _get_active_user(self):

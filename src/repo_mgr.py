@@ -262,11 +262,18 @@ class UnitOfWork(object):
             .one()
         self._session.expunge(data_ref)
         finfo = FileInfo(data_ref.url, status = FileInfo.STORED_STATUS)
-        for item in data_ref.items:
+        
+        for item in data_ref.items:            
             for item_tag in item.item_tags:
                 if item_tag.user_login not in finfo.user_tags: #finfo.user_tags is a dict()
                     finfo.user_tags[item_tag.user_login] = []
                 finfo.user_tags[item_tag.user_login].append(item_tag.tag.name)
+            
+            for item_field in item.item_fields:
+                if item_field.user_login not in finfo.user_fields:
+                    finfo.user_fields[item_field.user_login] = dict()
+                finfo.user_fields[item_field.user_login][item_field.field.name] = item_field.field_value 
+                
         return finfo
     
     def get_item(self, id):

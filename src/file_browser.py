@@ -28,6 +28,8 @@ import os
 import helpers
 from sqlalchemy import orm
 from helpers import tr, HTMLDelegate
+import consts
+import unicodedata
 
 
 class FileBrowser(QtGui.QTableView):
@@ -103,6 +105,8 @@ class FileInfo(object):
                 
         self.status = status
         
+        self.user_fields = dict() #Key is user_login, value is a dict of fields and values 
+        
     def _get_full_path(self):
         return os.path.join(self.path, self.filename)
     full_path = property(fget=_get_full_path)
@@ -123,7 +127,12 @@ class FileInfo(object):
                 tags.add(tag_name)
         return tags
             
-    
+    def get_field_value(self, field_name, user_login):
+        fields = self.user_fields.get(user_login)
+        if fields:
+            return fields.get(field_name)
+        else:
+            return None
         
         
         
@@ -268,8 +277,19 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
                 return helpers.to_commalist(finfo.users(), lambda x: x, " ")
             elif column == self.STATUS:
                 return finfo.status
+            elif column == self.RATING:
+                #Should display only rating field owned by current active user
+                rating_str = finfo.get_field_value(consts.RATING_FIELD, self.user_login)
+                try:
+                    rating = int(rating_str)
+                except:
+                    rating = 0
+                stars = ""
+                for i in range(rating):
+                    stars += '\u2605' #This is a unicode character 'BLACK STAR'
+                return stars
       
-        #Во всех остальных случаях возвращаем None    
+        #return None in all other cases    
         return None
     
    
