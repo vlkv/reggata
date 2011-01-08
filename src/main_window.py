@@ -160,8 +160,17 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("User:")))
         self.ui.statusbar.addPermanentWidget(self.ui.label_user)
         
+        self.setCentralWidget(None)
+        
+        #Items table
+        self.connect(self.ui.action_tools_items_table, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_items_table.setVisible(b))
+        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_items_table.setChecked(b))
+        #Note that dock widget for items table is created in Qt Designer         
+        
         #Adding tag cloud
         self.ui.tag_cloud = TagCloud(self)
+        self.ui.dockWidget_tag_cloud = QtGui.QDockWidget(self.tr("Tag cloud"), self)
+        self.ui.dockWidget_tag_cloud.setObjectName("dockWidget_tag_cloud")
         self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
         self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), self.selected_tags_changed)
         self.connect(self.ui.action_tools_tag_cloud, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_tag_cloud.setVisible(b))
@@ -175,6 +184,8 @@ class MainWindow(QtGui.QMainWindow):
         dock_area = int(UserConfig().get("file_browser.dock_area", QtCore.Qt.TopDockWidgetArea))
         self.addDockWidget(dock_area if dock_area != Qt.NoDockWidgetArea else QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_file_browser)
         self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("dockLocationChanged(Qt::DockWidgetArea)"), lambda x: print("dock location {}".format(x)))#self.save_main_window_state)
+        self.connect(self.ui.action_tools_file_browser, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_file_browser.setVisible(b))
+        self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_file_browser.setChecked(b))
         
         
         #Try to open and login recent repository with recent user login
@@ -287,9 +298,6 @@ class MainWindow(QtGui.QMainWindow):
         self.query_exec()
     
     
-    
-    
-        
         
     def query_reset(self):
         self.ui.lineEdit_query.setText("")
