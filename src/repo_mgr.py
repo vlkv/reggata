@@ -783,9 +783,10 @@ class UnitOfWork(object):
                 dr.url = os.path.relpath(dr.url, self._repo_base_path)
             else:
                 #Файл снаружи                
-                if not is_none_or_empty(dr.dst_path):            
+                if not is_none_or_empty(dr.dst_path) and dr.dst_path != os.curdir:
                     #Такой файл будет скопирован в хранилище в директорию dr.dst_path
                     dr.url = os.path.join(dr.dst_path, os.path.basename(dr.url))
+                    #TODO insert check to be sure that dr.dst_path inside a repository!!!
                 else:
                     #Если dst_path пустая, тогда копируем в корень хранилища
                     dr.url = os.path.basename(dr.url)
@@ -884,6 +885,8 @@ class UnitOfWork(object):
         '''Method saves in database given item. 
         Parameter user_login specifies owner of this item 
         (and all tags/fields linked with it).
+        
+        item.data_ref.dst_path is an absolute path.
         '''
         
         if is_none_or_empty(user_login):

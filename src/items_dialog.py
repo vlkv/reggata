@@ -59,6 +59,8 @@ class ItemsDialog(QtGui.QDialog):
         self.items = items
         self.dst_path = None
         self.group_has_files = False
+        
+        #If this field is true, all items will be moved into selected destination path
         self.same_dst_path = same_dst_path
         
         
@@ -125,6 +127,8 @@ class ItemsDialog(QtGui.QDialog):
                         item.data_ref.dst_path = os.path.normpath(os.path.join(self.dst_path, item.data_ref.dst_subpath))
                     else:
                         item.data_ref.dst_path = os.path.normpath(item.data_ref.dst_subpath)
+#                        if item.data_ref.dst_path == os.curdir:
+#                            item.data_ref.dst_path = ""
                 
                  
         
