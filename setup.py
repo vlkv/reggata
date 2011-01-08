@@ -21,11 +21,13 @@ buildOptions = dict(
         includes = ["sqlite3"],
         packages = ["sqlalchemy.dialects.sqlite", "ply"],
         namespace_packages=["sqlalchemy"],
-	include_files = ["reggata_ru.qm"],
+	include_files = ["reggata_ru.qm", "COPYING", "README.creole"],
         build_exe = target_dir
         )
 setup(
         name = "Reggata",
+	
+	#TODO create some script to automate version generation...
         version = "0.1_beta2",
         description = "Reggata is a tag-based file manager",
         options = dict(build_exe = buildOptions),
