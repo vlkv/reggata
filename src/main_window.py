@@ -65,9 +65,7 @@ import locale
 #TODO Довести до ума встроенный просмотрщик графических файлов.
 #TODO Сделать всплывающие подсказки на элементах GUI
 #TODO Если запрос возвращает очень много элементов, и указан limit. То нельзя передать ВСЕ элементы в просмотрщик изображений, передаются только отображенные limit штук. 
-#TODO Implement searching items by Item.title attribute
-#TODO Implement searching all items inside one physical directory
-#TODO Implement some kind of tool to browse repository by physical file path, showing for each file it's tags
+#TODO Sometimes Reggata hangs up!!! This happens in Windows with repository on usb flash drive... Need to know why.
 
 class MainWindow(QtGui.QMainWindow):
     '''
@@ -143,6 +141,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
         self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
         
+        #TODO limit page function sometimes works not correct!!! It sometimes shows less items, than specified in limit spinbox!
         #Initialization of limit and page spinboxes 
         self.ui.spinBox_limit.setValue(int(UserConfig().get("spinBox_limit.value", 0)))
         self.ui.spinBox_limit.setSingleStep(int(UserConfig().get("spinBox_limit.step", 5)))
@@ -151,6 +150,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), lambda val: self.ui.spinBox_page.setEnabled(val > 0))
         self.connect(self.ui.spinBox_page, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
         self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
+        
 
         #Creating status bar widgets
         self.ui.label_repo = QtGui.QLabel()
