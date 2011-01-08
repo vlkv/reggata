@@ -51,6 +51,7 @@ from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
     FileNotFoundFixer
 import math
 from file_browser import FileBrowser, FileBrowserTableModel
+import locale
 
 
 
@@ -169,11 +170,15 @@ class MainWindow(QtGui.QMainWindow):
         
         #self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("textEdited(QString)"), self.reset_tag_cloud)
         
-        #Add file browser
+        #Adding file browser
         self.ui.file_browser = FileBrowser(self)
-        self.ui.dockWidget_file_browser = QtGui.QDockWidget(self)
+        self.ui.dockWidget_file_browser = QtGui.QDockWidget(self.tr("File browser"), self)
+        self.ui.dockWidget_file_browser.setObjectName("dockWidget_file_browser")
         self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)
-        self.addDockWidget(Qt.BottomDockWidgetArea, self.ui.dockWidget_file_browser)
+        dock_area = int(UserConfig().get("file_browser.dock_area", QtCore.Qt.TopDockWidgetArea))
+        self.addDockWidget(dock_area if dock_area != Qt.NoDockWidgetArea else QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_file_browser)
+        self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("dockLocationChanged(Qt::DockWidgetArea)"), lambda x: print("dock location {}".format(x)))#self.save_main_window_state)
+        
         
         #Открываем последнее хранилище, с которым работал пользователь
         try:
@@ -235,6 +240,15 @@ class MainWindow(QtGui.QMainWindow):
         self.removeDockWidget(self.ui.dockWidget_tag_cloud)
         self.addDockWidget(dock_area if dock_area != Qt.NoDockWidgetArea else QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
         self.ui.dockWidget_tag_cloud.show()
+
+        state = UserConfig().get("main_window.state")        
+        if state:
+            state = eval(state)
+            self.restoreState(state)
+
+    def closeEvent(self, event):
+        byte_arr = self.saveState()
+        UserConfig().store("main_window.state", str(byte_arr.data()))
 
     def _table_columns_resized(self, col, old_size, new_size):
         '''Обработчик события, которое возникает, когда изменяется ширина колонок таблицы.'''
@@ -304,6 +318,8 @@ class MainWindow(QtGui.QMainWindow):
             
         
         self.ui.statusbar.showMessage(self.tr("Main window state has saved."), 5000)
+    
+    
         
     def resizeEvent(self, resize_event):
         self.save_state_timer.start(3000) #Повторный вызов start() делает перезапуск таймера 
