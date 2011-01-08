@@ -972,14 +972,14 @@ class UnitOfWork(object):
                 #If DST path (file) exists, raise an exception. 
                 #I don't want to overwrite any untracked files in repository... Maybe I'll need them
                 if os.path.exists(abs_dst_path):
-                    raise FileAlreadyExistsError(tr("File {} already exists. Operation cancelled.").format(abs_dst_path))                
+                    raise FileAlreadyExistsError(tr("File {} already exists. Operation cancelled.").format(abs_dst_path))
                 
                 #Making dirs...
                 try:
                     head, tail = os.path.split(abs_dst_path)
                     os.makedirs(head)
                 except:
-                    pass                
+                    pass
                 
                 #Copying physical file from SRC to DST
                 shutil.copy(data_ref_original_url, abs_dst_path)
@@ -1262,14 +1262,26 @@ class CreateGroupIfItemsThread(QtCore.QThread):
         super(CreateGroupIfItemsThread, self).__init__(parent)
         self.repo = repo
         self.items = items
+        self.error_log = []
+        self.created_objects_count = 0
     
-    def run(self):
+    def run(self):        
+        self.error_log = []
+        self.created_objects_count = 0
         uow = self.repo.create_unit_of_work()
         try:
             i = 0
             for item in self.items:
-                #Every item is saved in a separate transaction
-                uow.save_new_item(item, item.user_login)
+                try:
+                    #Every item is saved in a separate transaction
+                    uow.save_new_item(item, item.user_login)
+                    self.created_objects_count += 1
+                    
+                except  (FileAlreadyExistsError, DataRefAlreadyExistsError):
+                    #Skip this item and remember it's data_ref.url)                    
+                    if item.data_ref:
+                        self.error_log.append(item.data_ref.url)
+                        
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
     
@@ -1277,7 +1289,7 @@ class CreateGroupIfItemsThread(QtCore.QThread):
             self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
             print(traceback.format_exc())
         finally:
-            self.emit(QtCore.SIGNAL("finished"))
+            self.emit(QtCore.SIGNAL("finished"), len(self.error_log))
             uow.close()
         
 

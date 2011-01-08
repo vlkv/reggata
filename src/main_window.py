@@ -814,6 +814,7 @@ class MainWindow(QtGui.QMainWindow):
         исходной директории.
         Название title каждого элемента будет совпадать с
         именем добавляемого файла.'''
+        thread = None
         try:
             if self.active_repo is None:
                 raise MsgException(self.tr("Open a repository first."))
@@ -837,8 +838,7 @@ class MainWindow(QtGui.QMainWindow):
                     item.data_ref = DataRef(url=abs_file, type=DataRef.FILE)
                     item.data_ref.dst_subpath = os.path.relpath(root, dir)
                     items.append(item)
-            
-            #Открываем диалог для ввода информации о тегах и полях
+                        
             d = ItemsDialog(self, items, DialogMode.CREATE, same_dst_path=False)
             if d.exec_():
                 
@@ -857,8 +857,8 @@ class MainWindow(QtGui.QMainWindow):
                 
         except Exception as ex:
             show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+        finally:
+            self.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(thread.created_objects_count, len(thread.error_log)))
             self.query_exec()
             
             
@@ -868,6 +868,7 @@ class MainWindow(QtGui.QMainWindow):
         файлам привязываются одинаковые теги и поля. И они копируются в одну и ту 
         же директорию хранилища. Название title каждого элемента будет совпадать с
         именем добавляемого файла.'''
+        thread = None
         try:
             if self.active_repo is None:
                 raise MsgException(self.tr("Open a repository first."))
@@ -906,8 +907,8 @@ class MainWindow(QtGui.QMainWindow):
                 
         except Exception as ex:
             show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+        finally:
+            self.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(thread.created_objects_count, len(thread.error_log)))
             self.query_exec()
         
         
