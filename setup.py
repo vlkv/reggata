@@ -16,19 +16,23 @@ sys.path.append(r'.' + os.sep + 'src')
 
 base = "Console"
 
+f = open("version.txt", "r")
+reggata_version = f.readline()
+f.close()
+
 buildOptions = dict(
         compressed = True,
         includes = ["sqlite3"],
         packages = ["sqlalchemy.dialects.sqlite", "ply"],
         namespace_packages=["sqlalchemy"],
-	include_files = ["reggata_ru.qm", "COPYING", "README.creole"],
+	include_files = ["reggata_ru.qm", "COPYING", "README.creole", "version.txt"],
         build_exe = target_dir
         )
 setup(
         name = "Reggata",
 	
 	#TODO create some script to automate version generation...
-        version = "0.1_beta2",
+        version = reggata_version,
         description = "Reggata is a tag-based file manager",
         options = dict(build_exe = buildOptions),
         executables = [Executable('.' + os.sep + 'src' + os.sep + 'main_window.py', base = base)])

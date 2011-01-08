@@ -1411,12 +1411,55 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 
 class AboutDialog(QtGui.QDialog):
     
-    #TODO display release version on this dialog
-    
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)
         self.ui = ui_aboutdialog.Ui_AboutDialog()
-        self.ui.setupUi(self) 
+        self.ui.setupUi(self)
+        
+        title = '''<h1>Reggata</h1>'''
+        text = \
+'''
+<p>Reggata is a tagging system for local files.
+</p>
+
+<p>Copyright 2010 Vitaly Volkov, <font color="blue">vitvlkv@gmail.com</font>
+</p>
+
+<p>Home page: <font color="blue">http://github.com/vlkv/reggata</font>
+</p>
+
+<p>Reggata is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+</p>
+
+<p>Reggata is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+</p>
+
+<p>You should have received a copy of the GNU General Public License
+along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses</font>.
+</p>
+'''
+        f = None
+        try:
+            try:
+                f = open("version.txt", "r")
+            except:
+                f = open(os.path.join(os.pardir, "version.txt"), "r")
+                
+            version = f.readline()
+            text = "<p>Version: " + version + "</p>" + text
+        except:
+            text = "<p>Version: " + "<font color='red'>&lt;no information&gt;</font>" + "</p>" + text
+        finally:
+            if f:
+                f.close()
+                        
+        self.ui.textEdit.setHtml(title + text)
         
 
 
