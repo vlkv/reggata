@@ -1,5 +1,8 @@
 # To build executable package with cx_freeze just execute command:
 #   python setup.py build
+#
+# Command to upload release
+# scp [archive.tar.gz] vlkv,reggata@frs.sourceforge.net:/home/frs/project/r/re/reggata/[version]
 
 import sys
 
