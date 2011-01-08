@@ -264,9 +264,9 @@ class UnitOfWork(object):
         finfo = FileInfo(data_ref.url, status = FileInfo.STORED_STATUS)
         for item in data_ref.items:
             for item_tag in item.item_tags:
-                if item_tag.user_login not in finfo.user_tags:
+                if item_tag.user_login not in finfo.user_tags: #finfo.user_tags is a dict()
                     finfo.user_tags[item_tag.user_login] = []
-                finfo.user_tags[item_tag.user_login].append(item_tag.tag.name)                
+                finfo.user_tags[item_tag.user_login].append(item_tag.tag.name)
         return finfo
     
     def get_item(self, id):
@@ -683,7 +683,7 @@ class UnitOfWork(object):
             if item.data_ref.type == DataRef.FILE and item.data_ref.url.startswith(self._repo_base_path):
                 url = os.path.relpath(item.data_ref.url, self._repo_base_path)
             else:
-                url = item.data_ref.url
+                url = item.data_ref.url            
             existing_data_ref = self._session.query(DataRef).filter(DataRef.url_raw==helpers.to_db_format(url)).first()            
             if existing_data_ref is not None:
                 item_0.data_ref = existing_data_ref
@@ -964,7 +964,7 @@ class UnitOfWork(object):
 
                 #Если файл dst существует, то вылетает исключение                
                 if os.path.exists(abs_dst_path):
-                    raise FileAlreadyExistsError(tr("File {} already exists. Operation cancelled."))
+                    raise FileAlreadyExistsError(tr("File {} already exists. Operation cancelled.").format(abs_dst_path))
                 
                 try:
                     head, tail = os.path.split(abs_dst_path)

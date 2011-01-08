@@ -468,6 +468,9 @@ class MainWindow(QtGui.QMainWindow):
             base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a base path for new repository"))
             if not base_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
+            
+            #QFileDialog returns forward slashed in windows! Because of this path should be normalized
+            base_path = os.path.normpath(base_path)
             self.active_repo = RepoMgr.create_new_repo(base_path)
             self.active_user = None
         except Exception as ex:
@@ -486,13 +489,19 @@ class MainWindow(QtGui.QMainWindow):
         #TODO when user closes repo, and opens another, all column width of items table are reset!!!
 
     def action_repo_open(self):
-        try:
+        try:            
             base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a repository base path"))
+            
             if not base_path:
                 raise Exception(self.tr("You haven't chosen existent directory. Operation canceled."))
+
+            #QFileDialog returns forward slashed in windows! Because of this path should be normalized
+            base_path = os.path.normpath(base_path)
             self.active_repo = RepoMgr(base_path)
             self.active_user = None
             self._login_recent_user()
+            
+            
         
         except LoginError:
             #Отображаем диалог ввода логина/пароля (с возможностью отмены или создания нового юзера)
