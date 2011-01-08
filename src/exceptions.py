@@ -43,6 +43,11 @@ class MsgException(Exception):
 class FileAlreadyExistsError(Exception):
     def __init__(self, msg=None):
         super(FileAlreadyExistsError, self).__init__(msg)
+
+class DataRefAlreadyExistsError(Exception):
+    def __init__(self, msg=None, cause=None):
+        super(DataRefAlreadyExistsError, self).__init__(msg)
+        self.cause = cause
         
 class CannotOpenRepoError(Exception):
     def __init__(self, msg=None, cause=None):

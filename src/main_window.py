@@ -36,7 +36,7 @@ from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty
 from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
-from exceptions import LoginError, MsgException, CannotOpenRepoError
+from exceptions import LoginError, MsgException, CannotOpenRepoError, DataRefAlreadyExistsError
 from parsers import query_parser
 from tag_cloud import TagCloud
 import consts

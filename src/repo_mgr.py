@@ -32,7 +32,7 @@ from sqlalchemy.orm import sessionmaker, joinedload, contains_eager,\
 from db_schema import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
     Thumbnail, HistoryRec
 from exceptions import LoginError, AccessError, FileAlreadyExistsError,\
-    CannotOpenRepoError, NotFoundError, WrongValueError
+    CannotOpenRepoError, NotFoundError, WrongValueError, DataRefAlreadyExistsError
 import shutil
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
@@ -874,24 +874,27 @@ class UnitOfWork(object):
         
     
     def save_new_item(self, item, user_login):
+        '''Method saves in database given item. 
+        Parameter user_login specifies owner of this item 
+        (and all tags/fields linked with it).
+        '''
         
         if is_none_or_empty(user_login):
             raise AccessError(tr("Argument user_login shouldn't be null or empty."))
-            
-        
-        #Предварительная обработка объекта Item
+                    
         item.user_login = user_login
         
-        #Путь происхождения добавляемого файла. Именно отсюда файл будет скопирован внутрь хранилища
+        #Original absolute path to the file, linked with item.data_ref. This is a SRC path (mentioned below...)
         data_ref_original_url = None
-        
-        #Предварительная обработка объекта DataRef
+                
         if item.data_ref is not None:
-            data_ref_original_url = item.data_ref.url            
+            #Remember original path
+            data_ref_original_url = item.data_ref.url
+            #Some data_ref.url transformations
             self._prepare_data_ref(item.data_ref, user_login)
             
-                                                
-        item_tags_copy = item.item_tags[:] #Копируем список
+        #Remove from item those tags, which have corresponding Tag objects in database
+        item_tags_copy = item.item_tags[:] #Making list copy
         existing_item_tags = []
         for item_tag in item_tags_copy:
             item_tag.user_login = user_login
@@ -902,7 +905,8 @@ class UnitOfWork(object):
                 existing_item_tags.append(item_tag)
                 item.item_tags.remove(item_tag)
                 
-        item_fields_copy = item.item_fields[:] #Копируем список
+        #Remove from item those fields, which have corresponding Field objects in database
+        item_fields_copy = item.item_fields[:] #Making list copy
         existing_item_fields = []
         for item_field in item_fields_copy:
             item_field.user_login = user_login
@@ -912,68 +916,78 @@ class UnitOfWork(object):
                 item_field.field = f
                 existing_item_fields.append(item_field)
                 item.item_fields.remove(item_field)
-        
-        
     
+        #Check if this item's data_ref.url already in database
+        #If so, we should not link new item to this existing data_ref 
+        #(because, consistency of existent data_ref object may be broken, and actual file has different contents, but the same url.
+        # And user will think that he saved his file, but he did not!!!)
         if item.data_ref is not None:
             dr = self._session.query(DataRef).filter(DataRef.url_raw==item.data_ref.url_raw).first()
             if dr is not None:
-                raise Exception(tr("DataRef instance with url={}, "
+                raise DataRefAlreadyExistsError(tr("DataRef instance with url='{}', "
                                    "already in database. "
                                    "Operation cancelled.").format(item.data_ref.url))
                 #Тут нельзя привязывать к существующему объекту. Т.к.
                 # вдруг имена совпадают, но содержимое файлов разное?
 
-        #Сохраняем item пока что только с новыми тегами и новыми полями
+        #Saving item with just absolutely new tags and fields
         self._session.add(item)
         self._session.flush()
         
-        #Добавляем в item существующие теги
+        #Adding to the item existent tags
         for it in existing_item_tags:
             item.item_tags.append(it)
         
-        #Добавляем в item существующие поля
+        #Adding to the item existent fields
         for if_ in existing_item_fields:
             item.item_fields.append(if_)
             
         self._session.flush()
         
         
-        #Сохраняем в БД data_ref объект
-        if item.data_ref:          
-            #Сохраняем data_ref в БД  
+        #Saving in database DataRef object
+        if item.data_ref:            
             self._session.add(item.data_ref)
             self._session.flush()
             
-            #Привязываем к элементу            
+            #Linking data_ref to the item
             item.data_ref_id = item.data_ref.id
             self._session.flush()
         
         
-        #Сохраняем запись о совершенной операции в историю
+        #Saving history record object about this create new item operation
         UnitOfWork._save_history_rec(self._session, item, operation=HistoryRec.CREATE, \
                                      user_login=user_login)
         self._session.flush()
             
-        #Если все сохранилось в БД, то копируем файл, связанный с DataRef
+        #Now it's time to COPY physical file to the repository
         if item.data_ref and item.data_ref.type == DataRef.FILE:
             dr = item.data_ref
-            #Копируем, только если пути src и dst не совпадают, иначе это один и тот же файл!            
+            
+            #if SRC and DST path are equal, it means that source and destination files are the SAME file
+            #In this case, everything is OK, shouldn't do anything
             abs_dst_path = os.path.join(self._repo_base_path, dr.url)
             if data_ref_original_url != abs_dst_path:
 
-                #Если файл dst существует, то вылетает исключение                
+                #If DST path (file) exists, raise an exception. 
+                #I don't want to overwrite any untracked files in repository... Maybe I'll need them
                 if os.path.exists(abs_dst_path):
-                    raise FileAlreadyExistsError(tr("File {} already exists. Operation cancelled.").format(abs_dst_path))
+                    raise FileAlreadyExistsError(tr("File {} already exists. Operation cancelled.").format(abs_dst_path))                
                 
+                #Making dirs...
                 try:
                     head, tail = os.path.split(abs_dst_path)
                     os.makedirs(head)
                 except:
-                    pass
+                    pass                
+                
+                #Copying physical file from SRC to DST
                 shutil.copy(data_ref_original_url, abs_dst_path)
+                #TODO should not use shutil.copy() function, because I cannot specify block size! 
+                #On very large files (about 15Gb) shutil.copy() function takes really A LOT OF TIME.
+                #Because of small block size, I think.
             else:
-                #Это один и тот же файл, копировать не нужно ничего 
+                #do nothing, this is the case when SRC and DST are the SAME file
                 pass
             
         self._session.commit()
@@ -1254,7 +1268,7 @@ class CreateGroupIfItemsThread(QtCore.QThread):
         try:
             i = 0
             for item in self.items:
-                #Сохраняем каждый item в отдельности
+                #Every item is saved in a separate transaction
                 uow.save_new_item(item, item.user_login)
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
