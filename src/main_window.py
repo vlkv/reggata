@@ -825,6 +825,8 @@ class MainWindow(QtGui.QMainWindow):
             dir = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Select one directory"))
             if not dir:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
+                        
+            dir = os.path.normpath(dir)
             
             items = []
             for root, dirs, files in os.walk(dir):
@@ -879,6 +881,7 @@ class MainWindow(QtGui.QMainWindow):
             
             items = []
             for file in files:
+                file = os.path.normpath(file)
                 item = Item(user_login=self.active_user.login)
                 item.title = os.path.basename(file)
                 item.data_ref = DataRef(url=file, type=DataRef.FILE)
@@ -924,6 +927,7 @@ class MainWindow(QtGui.QMainWindow):
             file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select file to add"))
             if not is_none_or_empty(file):
                 #Сразу привязываем выбранный файл к новому элементу
+                file = os.path.normpath(file)
                 item.title = os.path.basename(file) #Предлагаем назвать элемент по имени файла            
                 item.data_ref = DataRef(url=file, type=DataRef.FILE)
             
