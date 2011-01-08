@@ -211,22 +211,19 @@ class MainWindow(QtGui.QMainWindow):
         #Turn on table sorting
         self.ui.tableView_items.setSortingEnabled(True)
         
-        
         #Restoring columns width of items table
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.ID, int(UserConfig().get("items_table.ID.width", 20)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 250)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 100)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 30)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 60)))
-
-        #Restoring main window size        
+        self.restore_items_table_state()
+        
+        #Restoring columns width of file browser
+        self.restore_file_browser_state()
+        
+        #Restoring main window size
         width = int(UserConfig().get("main_window.width", 640))
         height = int(UserConfig().get("main_window.height", 480))
         self.resize(width, height)
         
         #Restoring all dock widgets position and size
-        state = UserConfig().get("main_window.state")        
+        state = UserConfig().get("main_window.state")
         if state:
             state = eval(state)
             self.restoreState(state)
@@ -240,6 +237,13 @@ class MainWindow(QtGui.QMainWindow):
         #Storing main window size
         UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
         
+        #Storing items table columns width
+        self.save_items_table_state()
+        
+        #Storing file browser table columns width
+        self.save_file_browser_state()
+        
+    def save_items_table_state(self):
         #Storing items table columns width
         width_id = self.ui.tableView_items.columnWidth(RepoItemTableModel.ID)
         if width_id > 0:            
@@ -260,7 +264,46 @@ class MainWindow(QtGui.QMainWindow):
         width_rating = self.ui.tableView_items.columnWidth(RepoItemTableModel.RATING)
         if width_rating > 0:
             UserConfig().store("items_table.RATING.width", str(width_rating))
+
+    def restore_items_table_state(self):
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.ID, int(UserConfig().get("items_table.ID.width", 20)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 250)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 100)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 30)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 60)))
+        
+    
+    def restore_file_browser_state(self):
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.FILENAME, int(UserConfig().get("file_browser.FILENAME.width", 200)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.TAGS, int(UserConfig().get("file_browser.TAGS.width", 100)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.USERS, int(UserConfig().get("file_browser.USERS.width", 100)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.STATUS, int(UserConfig().get("file_browser.STATUS.width", 30)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.RATING, int(UserConfig().get("file_browser.RATING.width", 60)))
+
+
+    def save_file_browser_state(self):
+        #Storing file browser table columns width
+        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.FILENAME)
+        if width > 0:
+            UserConfig().store("file_browser.FILENAME.width", str(width))
+            
+        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.TAGS)
+        if width > 0:
+            UserConfig().store("file_browser.TAGS.width", str(width))
+        
+        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.USERS)
+        if width > 0:
+            UserConfig().store("file_browser.USERS.width", str(width))
+        
+        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.STATUS)
+        if width > 0:
+            UserConfig().store("file_browser.STATUS.width", str(width))
                                         
+        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.RATING)
+        if width > 0:
+            UserConfig().store("file_browser.RATING.width", str(width))
+    
     
     def _resize_row_to_contents(self, top_left, bottom_right):
         '''Обработчик сигнала, который посылает модель RepoItemTableModel, когда просит обновить 
@@ -439,13 +482,15 @@ class MainWindow(QtGui.QMainWindow):
             self.active_user = None
         except Exception as ex:
             show_exc_info(self, ex)
+            
+        #TODO when user closes repo, and opens another, all column width of items table are reset!!!
 
     def action_repo_open(self):
         try:
             base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a repository base path"))
             if not base_path:
                 raise Exception(self.tr("You haven't chosen existent directory. Operation canceled."))
-            self.active_repo = RepoMgr(base_path)            
+            self.active_repo = RepoMgr(base_path)
             self.active_user = None
             self._login_recent_user()
         
