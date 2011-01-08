@@ -47,12 +47,14 @@ def p_query(p):
 # Составное выражение, представляющее собой несколько SQL запросов, соединенных
 # операциями INTERSECT, UNION, EXCEPT.
 def p_compound_query(p):
-    '''compound_query : LPAREN simple_query RPAREN'''
+    '''compound_query : LPAREN simple_query RPAREN
+    '''
     p[0] = CompoundQuery(p[2])
     
 def p_compound_query_and(p):
     '''compound_query : compound_query AND LPAREN simple_query RPAREN
-                      | compound_query LPAREN simple_query RPAREN '''
+                      | compound_query LPAREN simple_query RPAREN
+    '''
     if len(p) == 6:        
         p[1].and_elem(p[4])
     elif len(p) == 5:
@@ -62,12 +64,14 @@ def p_compound_query_and(p):
     p[0] = p[1]
 
 def p_compound_query_or(p):
-    '''compound_query : compound_query OR LPAREN simple_query RPAREN ''' 
+    '''compound_query : compound_query OR LPAREN simple_query RPAREN
+    ''' 
     p[1].or_elem(p[4])
     p[0] = p[1]
 
 def p_compound_query_and_not(p):
-    '''compound_query : compound_query AND NOT LPAREN simple_query RPAREN '''
+    '''compound_query : compound_query AND NOT LPAREN simple_query RPAREN
+    '''
     p[1].and_not_elem(p[5])
     p[0] = p[1]
     
@@ -99,26 +103,30 @@ def p_simple_query_single_extra_clause(p):
 #Таким образом, если пользователь прикрепил свой тег к чужому Item-у, то он 
 #будет его видеть в своих запросах. 
 def p_extra_clause_user(p):
-    '''extra_clause : USER COLON STRING extra_clause'''
+    '''extra_clause : USER COLON STRING extra_clause
+    '''
     e = ExtraClause('USER', p[3])
     p[4].append(e)
     p[0] = p[4]
 
     
 def p_extra_clause_path(p):
-    '''extra_clause : PATH COLON STRING extra_clause'''
+    '''extra_clause : PATH COLON STRING extra_clause
+    '''
     e = ExtraClause('PATH', p[3])
     p[4].append(e)
     p[0] = p[4]
     
 def p_extra_clause_title(p):
-    '''extra_clause : TITLE COLON STRING extra_clause'''
+    '''extra_clause : TITLE COLON STRING extra_clause
+    '''
     e = ExtraClause('TITLE', p[3])
     p[4].append(e)
     p[0] = p[4]
     
 def p_extra_clause_empty(p):
-    '''extra_clause : '''    
+    '''extra_clause : 
+    '''    
     p[0] = []
     
     
@@ -126,7 +134,8 @@ def p_extra_clause_empty(p):
 def p_tags_conjunction(p):
     '''tags_conjunction : tags_conjunction AND tag_not_tag
                         | tags_conjunction tag_not_tag
-                        | tag_not_tag'''
+                        | tag_not_tag
+    '''
     if len(p) == 4:
         p[1].add_tag(p[3])
         p[0] = p[1]
@@ -141,7 +150,8 @@ def p_tags_conjunction(p):
 # Тег или его отрицание
 def p_tag_not_tag(p):
     '''tag_not_tag : NOT tag
-                   | tag'''
+                   | tag
+    '''
     if len(p) == 3:
         p[2].negate()
         p[0] = p[2]
@@ -155,7 +165,8 @@ def p_tag(p):
     
 def p_fields_conjunction(p):
     '''fields_conjunction : fields_conjunction field_op_value
-                          | fields_conjunction AND field_op_value'''
+                          | fields_conjunction AND field_op_value
+    '''
     if len(p) == 3:
         p[1].add_field_op_val(p[2])
     elif len(p) == 4:
@@ -163,18 +174,21 @@ def p_fields_conjunction(p):
     p[0] = p[1]
 
 def p_fields_conjunction_empty(p):
-    '''fields_conjunction : field_op_value'''
+    '''fields_conjunction : field_op_value
+    '''
     fc = FieldsConjunction()
     fc.add_field_op_val(p[1])
     p[0] = fc
     
 
 def p_field_op_value(p):
-    '''field_op_value : field_name field_op field_value '''
+    '''field_op_value : field_name field_op field_value 
+    '''
     p[0] = FieldOpVal(p[1], p[2], p[3])
     
 def p_field_name(p):
-    '''field_name : STRING '''
+    '''field_name : STRING 
+    '''
     p[0] = p[1]
     
 def p_field_op(p):
@@ -183,11 +197,13 @@ def p_field_op(p):
                 | GREATER_EQ
                 | LESS
                 | LESS_EQ
-                | LIKE  '''
+                | LIKE  
+    '''
     p[0] = p[1]
 
 def p_field_value(p):
-    '''field_value : STRING '''
+    '''field_value : STRING 
+    '''
     p[0] = p[1]
     
 
