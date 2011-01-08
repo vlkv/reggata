@@ -33,8 +33,10 @@ import os
 import hashlib
 import time
 from PyQt4 import QtCore
+from PyQt4.QtCore import Qt
 from exceptions import MsgException
 import platform
+import math
 
 
 def tr(text):
@@ -282,6 +284,171 @@ def raise_msg_exc(msg):
     raise MsgException(msg)
         
         
+class ImageThumbDelegate(QtGui.QStyledItemDelegate):
+    '''Делегат, для отображения миниатюры графического файла в таблице элементов
+    хранилища.'''
+    def __init__(self, parent=None):
+        super(ImageThumbDelegate, self).__init__(parent)
+        
+    def sizeHint(self, option, index):
+        pixmap = index.data(QtCore.Qt.UserRole)
+        if pixmap:
+            return pixmap.size()
+        else:
+            return super(ImageThumbDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1            
+            
+
+    def paint(self, painter, option, index):
+        
+        pixmap = index.data(QtCore.Qt.UserRole)
+        if pixmap is not None and not pixmap.isNull():
+            painter.drawPixmap(option.rect.topLeft(), pixmap)
+            #painter.drawPixmap(option.rect, pixmap)
+        else:
+            super(ImageThumbDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
+            #QtGui.QStyledItemDelegate.paint(self, painter, option, index) #Для PyQt 4.7.3 надо так
+
+class RatingDelegate(QtGui.QStyledItemDelegate):
+    '''An ItemDelegate for displaying Rating of items. Rating value is stored 
+    in a regular field with name consts.RATING_FIELD.'''
+    
+    def __init__(self, parent=None, r=10):
+        super(RatingDelegate, self).__init__(parent)
+        
+        palette = QtGui.QApplication.palette()
+        
+        self.r = r
+        self.star = QtGui.QPixmap(2*r, 2*r)
+        self.star.fill(QtGui.QColor(255, 255, 255, 0)) #This is an absolutely transparent color
+        painter = QtGui.QPainter(self.star)
+        path = QtGui.QPainterPath()
+        
+        
+        for i in range(0, 10):
+            radius = r if i % 2 == 0 else r*0.4
+            if i == 0:
+                path.moveTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), radius*math.sin(i*2*math.pi/10)))
+            else:
+                path.lineTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), radius*math.sin(i*2*math.pi/10)))        
+        painter.save()
+        painter.translate(r, r)
+        painter.setPen(palette.text().color())
+        painter.setBrush(QtGui.QBrush(palette.button().color()))
+        painter.drawPath(path)
+        painter.restore()
+        
+        
+        
+    
+    def sizeHint(self, option, index):
+        return QtCore.QSize(option.rect.width(), self.r)
+        #TODO should return some size?..
+        #return super(RatingDelegate, self).sizeHint(option, index)
+            
+
+    def paint(self, painter, option, index):
+        
+        palette = QtGui.QApplication.palette()
+        
+        bg_color = palette.highlight().color() \
+            if option.state & QtGui.QStyle.State_Selected \
+            else palette.base().color()
+        
+        rating = int(index.data(QtCore.Qt.DisplayRole))
+        
+        #TODO Maybe max rating should be 10?
+        if rating < 0:
+            rating = 0
+        elif rating > 5:
+            rating = 5
+            
+        painter.save()
+        painter.fillRect(option.rect, bg_color)
+        painter.translate(option.rect.x(), option.rect.y())
+        for i in range(0, rating):
+            painter.drawPixmap(0, 0, self.star)
+            painter.translate(self.star.width() + 1, 0.0)
+        painter.restore()
+        
+    
+    def createEditor(self, parent, option, index):
+        
+        editor = QtGui.QSpinBox(parent)
+        editor.setMinimum(0)
+        editor.setMaximum(5)
+        return editor
+    
+    def setEditorData(self, editor, index):
+        
+        try:
+            rating = int(index.data(QtCore.Qt.DisplayRole))
+        except:
+            rating = 0
+        editor.setValue(rating)
+    
+    def setModelData(self, editor, model, index):
+        
+        model.setData(index, editor.value())
+    
+    def updateEditorGeometry(self, editor, option, index):
+        
+        editor.setGeometry(option.rect)
+
+class HTMLDelegate(QtGui.QStyledItemDelegate):
+    '''Делегат, для отображения HTML текста в таблице.'''
+    def __init__(self, parent=None):
+        super(HTMLDelegate, self).__init__(parent)
+        self.text_edit = QtGui.QTextEdit()
+        
+    def sizeHint(self, option, index):
+        
+        raw_text = index.data(Qt.DisplayRole)
+        if raw_text is not None:
+            doc = QtGui.QTextDocument()
+            doc.setTextWidth(option.rect.width())
+            doc.setDefaultFont(option.font)
+            doc.setHtml(raw_text)            
+            return QtCore.QSize(doc.size().width(), doc.size().height())
+        else:
+            return super(HTMLDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1
+            
+
+    def paint(self, painter, option, index):
+        
+        palette = QtGui.QApplication.palette()
+        
+        bg_color = palette.highlight().color() \
+            if option.state & QtGui.QStyle.State_Selected \
+            else palette.base().color()
+            
+        text_color = palette.highlightedText().color() \
+            if option.state & QtGui.QStyle.State_Selected \
+            else palette.text().color()
+        
+        raw_text = index.data(Qt.DisplayRole)
+        if raw_text is not None:
+            doc = QtGui.QTextDocument()
+            doc.setTextWidth(option.rect.width())
+            doc.setDefaultFont(option.font)
+            doc.setHtml(raw_text)
+            
+            cursor = QtGui.QTextCursor(doc)
+            format = QtGui.QTextCharFormat()
+            format.setForeground(QtGui.QBrush(text_color))
+            cursor.movePosition(QtGui.QTextCursor.Start)
+            cursor.movePosition(QtGui.QTextCursor.End, QtGui.QTextCursor.KeepAnchor)
+            cursor.mergeCharFormat(format)
+                    
+            painter.save()
+            painter.fillRect(option.rect, bg_color)
+            painter.translate(option.rect.x(), option.rect.y())
+            doc.drawContents(painter, QtCore.QRectF(0 ,0, option.rect.width(), option.rect.height()))            
+            painter.restore()
+    
+        else:
+            super(HTMLDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
+            
+
         
         
         

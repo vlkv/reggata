@@ -31,11 +31,12 @@ from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread, CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
     ItemIntegrityCheckerThread, ItemIntegrityFixerThread
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
-    WaitDialog, raise_exc, format_exc_info
+    WaitDialog, raise_exc, format_exc_info, HTMLDelegate, ImageThumbDelegate,\
+    RatingDelegate
 from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
-from exceptions import LoginError, MsgException, CannotOpenRepoError
+from exceptions import LoginError, MsgException, CannotOpenRepoError, DataRefAlreadyExistsError
 from parsers import query_parser
 from tag_cloud import TagCloud
 import consts
@@ -49,6 +50,8 @@ import ui_aboutdialog
 from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
     FileNotFoundFixer
 import math
+from file_browser import FileBrowser, FileBrowserTableModel
+import locale
 
 
 
@@ -62,13 +65,11 @@ import math
 #TODO Довести до ума встроенный просмотрщик графических файлов.
 #TODO Сделать всплывающие подсказки на элементах GUI
 #TODO Если запрос возвращает очень много элементов, и указан limit. То нельзя передать ВСЕ элементы в просмотрщик изображений, передаются только отображенные limit штук. 
-#TODO Implement searching items by Item.title attribute
-#TODO Implement searching all items inside one physical directory
-#TODO Implement some kind of tool to browse repository by physical file path, showing for each file it's tags
+#TODO Sometimes Reggata hangs up!!! This happens in Windows with repository on usb flash drive... Need to know why.
 
 class MainWindow(QtGui.QMainWindow):
     '''
-    Главное окно приложения reggata.
+    Reggata's main window.
     '''
     
     def __init__(self, parent=None):
@@ -76,19 +77,19 @@ class MainWindow(QtGui.QMainWindow):
         self.ui = ui_mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
         
-        #Текущее активное открытое хранилище (объект RepoMgr)
+        #Current opened (active) repository (RepoMgr object)
         self.__active_repo = None
         
-        #Текущий пользователь, который работает с программой
+        #Current logined (active) user
         self.__active_user = None
         
-        #Модель таблицы для отображения элементов хранилища
+        #Table model for items table
         self.model = None
         
         #Это замок, который нужен для синхронизации доступа к списку элементов (результатов поиска)
         self.items_lock = QtCore.QReadWriteLock()
         
-        #Контекстное меню
+        #Context menu of items table
         self.menu = QtGui.QMenu()
         self.menu.addAction(self.ui.action_item_view)
         self.menu.addAction(self.ui.action_item_view_m3u)
@@ -101,7 +102,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_check_integrity)
         self.menu.addMenu(self.ui.menuFix_integrity_errors)        
-        #Добавляем его к таблице 
+        #Adding this menu to items table
         self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
         self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
         
@@ -121,8 +122,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
         self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
         self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
-        self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)
-        #self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(QModelIndex)"), self.action_item_view)
+        self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
         self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
         self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u) 
         self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
@@ -133,13 +133,15 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_fix_file_not_found_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
         self.connect(self.ui.action_fix_file_not_found_try_find_else_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find_else_delete)
         
-        
+        #About dialog
         self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
         
+        #Widgets for text queries
         self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
         self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
         self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
         
+        #TODO limit page function sometimes works not correct!!! It sometimes shows less items, than specified in limit spinbox!
         #Initialization of limit and page spinboxes 
         self.ui.spinBox_limit.setValue(int(UserConfig().get("spinBox_limit.value", 0)))
         self.ui.spinBox_limit.setSingleStep(int(UserConfig().get("spinBox_limit.step", 5)))
@@ -148,9 +150,9 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), lambda val: self.ui.spinBox_page.setEnabled(val > 0))
         self.connect(self.ui.spinBox_page, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
         self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
+        
 
-
-        #Добавляем на статус бар поля для отображения текущего хранилища и пользователя
+        #Creating status bar widgets
         self.ui.label_repo = QtGui.QLabel()
         self.ui.label_user = QtGui.QLabel()
         self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("Repository:")))
@@ -158,16 +160,35 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("User:")))
         self.ui.statusbar.addPermanentWidget(self.ui.label_user)
         
-        #Добавляем облако тегов
+        self.setCentralWidget(None)
+        
+        #Items table
+        self.connect(self.ui.action_tools_items_table, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_items_table.setVisible(b))
+        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_items_table.setChecked(b))
+        #Note that dock widget for items table is created in Qt Designer         
+        
+        #Adding tag cloud
         self.ui.tag_cloud = TagCloud(self)
+        self.ui.dockWidget_tag_cloud = QtGui.QDockWidget(self.tr("Tag cloud"), self)
+        self.ui.dockWidget_tag_cloud.setObjectName("dockWidget_tag_cloud")
         self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
         self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), self.selected_tags_changed)
         self.connect(self.ui.action_tools_tag_cloud, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_tag_cloud.setVisible(b))
         self.connect(self.ui.dockWidget_tag_cloud, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
+                
+        #Adding file browser
+        self.ui.file_browser = FileBrowser(self)
+        self.ui.dockWidget_file_browser = QtGui.QDockWidget(self.tr("File browser"), self)
+        self.ui.dockWidget_file_browser.setObjectName("dockWidget_file_browser")
+        self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)        
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_file_browser)
+        self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("dockLocationChanged(Qt::DockWidgetArea)"), lambda x: print("dock location {}".format(x)))#self.save_main_window_state)
+        self.connect(self.ui.action_tools_file_browser, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_file_browser.setVisible(b))
+        self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_file_browser.setChecked(b))
         
-        #self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("textEdited(QString)"), self.reset_tag_cloud)
         
-        #Открываем последнее хранилище, с которым работал пользователь
+        #Try to open and login recent repository with recent user login
         try:
             tmp = UserConfig()["recent_repo.base_path"]
             self.active_repo = RepoMgr(tmp)
@@ -182,55 +203,107 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), 5000)
         
         
-        
-        #Tuning table cell rendering        
+        #Tuning table cell rendering
         self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.TITLE, HTMLDelegate(self))
         self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate(self))                 
         self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.RATING, RatingDelegate(self))
         
+        #Turn on table sorting
         self.ui.tableView_items.setSortingEnabled(True)
         
+        #Restoring columns width of items table
+        self.restore_items_table_state()
         
-                
+        #Restoring columns width of file browser
+        self.restore_file_browser_state()
         
-        #Ширина колонок в таблице
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.ID, int(UserConfig().get("items_table.ID.width", 50)))
+        #Restoring main window size
+        width = int(UserConfig().get("main_window.width", 640))
+        height = int(UserConfig().get("main_window.height", 480))
+        self.resize(width, height)
+        
+        #Restoring all dock widgets position and size
+        state = UserConfig().get("main_window.state")
+        if state:
+            state = eval(state)
+            self.restoreState(state)
+
+
+    def closeEvent(self, event):
+        #Storing all dock widgets position and size
+        byte_arr = self.saveState()
+        UserConfig().store("main_window.state", str(byte_arr.data()))
+        
+        #Storing main window size
+        UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
+        
+        #Storing items table columns width
+        self.save_items_table_state()
+        
+        #Storing file browser table columns width
+        self.save_file_browser_state()
+        
+    def save_items_table_state(self):
+        #Storing items table columns width
+        width_id = self.ui.tableView_items.columnWidth(RepoItemTableModel.ID)
+        if width_id > 0:            
+            UserConfig().store("items_table.ID.width", str(width_id))
+                        
+        width_title = self.ui.tableView_items.columnWidth(RepoItemTableModel.TITLE)
+        if width_title > 0:
+            UserConfig().store("items_table.TITLE.width", str(width_title))
+        
+        width_list_of_tags = self.ui.tableView_items.columnWidth(RepoItemTableModel.LIST_OF_TAGS)
+        if width_list_of_tags > 0:
+            UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
+        
+        width_state = self.ui.tableView_items.columnWidth(RepoItemTableModel.STATE)
+        if width_state > 0:
+            UserConfig().store("items_table.STATE.width", str(width_state))
+        
+        width_rating = self.ui.tableView_items.columnWidth(RepoItemTableModel.RATING)
+        if width_rating > 0:
+            UserConfig().store("items_table.RATING.width", str(width_rating))
+
+    def restore_items_table_state(self):
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.ID, int(UserConfig().get("items_table.ID.width", 20)))
         self.ui.tableView_items.setColumnWidth(RepoItemTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 250)))
         self.ui.tableView_items.setColumnWidth(RepoItemTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 50)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 50)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 50)))
-        self.connect(self.ui.tableView_items.horizontalHeader(), QtCore.SIGNAL("sectionResized(int, int, int)"), self._table_columns_resized)
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 100)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 30)))
+        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 60)))
         
-        
-        #Для старых версий PyQt задаем его для всей таблицы:
-#        self.ui.tableView_items.setItemDelegate(ImageThumbDelegate())
-        
-        #Пытаемся восстанавливить размер окна, как был при последнем запуске
-        try:
-            width = int(UserConfig().get("main_window.width", 640))
-            height = int(UserConfig().get("main_window.height", 480))
-            self.resize(width, height)
-        except:
-            pass
-        
-        #Делаем так, чтобы размер окна сохранялся при изменении
-        self.save_state_timer = QtCore.QTimer(self)
-        self.save_state_timer.setSingleShot(True)
-        self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_main_window_state)
-        
-        #Восстанавливаем размер облака тегов
-        self.ui.tag_cloud.hint_height = int(UserConfig().get("tag_cloud.height", 100))
-        self.ui.tag_cloud.hint_width = int(UserConfig().get("tag_cloud.width", 100))
-        self.connect(self.ui.tag_cloud, QtCore.SIGNAL("maySaveSize"), self.save_main_window_state)
-        dock_area = int(UserConfig().get("tag_cloud.dock_area", QtCore.Qt.TopDockWidgetArea))
-        self.removeDockWidget(self.ui.dockWidget_tag_cloud)
-        self.addDockWidget(dock_area if dock_area != Qt.NoDockWidgetArea else QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
-        self.ui.dockWidget_tag_cloud.show()
+    
+    def restore_file_browser_state(self):
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.FILENAME, int(UserConfig().get("file_browser.FILENAME.width", 200)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.TAGS, int(UserConfig().get("file_browser.TAGS.width", 100)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.USERS, int(UserConfig().get("file_browser.USERS.width", 100)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.STATUS, int(UserConfig().get("file_browser.STATUS.width", 30)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.RATING, int(UserConfig().get("file_browser.RATING.width", 60)))
 
-    def _table_columns_resized(self, col, old_size, new_size):
-        '''Обработчик события, которое возникает, когда изменяется ширина колонок таблицы.'''
-        self.save_state_timer.start(1000)
+
+    def save_file_browser_state(self):
+        #Storing file browser table columns width
+        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.FILENAME)
+        if width > 0:
+            UserConfig().store("file_browser.FILENAME.width", str(width))
+            
+        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.TAGS)
+        if width > 0:
+            UserConfig().store("file_browser.TAGS.width", str(width))
+        
+        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.USERS)
+        if width > 0:
+            UserConfig().store("file_browser.USERS.width", str(width))
+        
+        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.STATUS)
+        if width > 0:
+            UserConfig().store("file_browser.STATUS.width", str(width))
+                                        
+        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.RATING)
+        if width > 0:
+            UserConfig().store("file_browser.RATING.width", str(width))
+    
     
     def _resize_row_to_contents(self, top_left, bottom_right):
         '''Обработчик сигнала, который посылает модель RepoItemTableModel, когда просит обновить 
@@ -267,39 +340,7 @@ class MainWindow(QtGui.QMainWindow):
         text = self.ui.lineEdit_query.setText(text)
         self.query_exec()
     
-    def save_main_window_state(self):
-        #Тут нужно сохранить в конфиге пользователя размер окна
-        UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
-        
-        #Размер облака тегов
-        UserConfig().storeAll({"tag_cloud.width":self.ui.tag_cloud.hint_width, "tag_cloud.height":self.ui.tag_cloud.hint_height})
-        
-        #Расположение облака тегов
-        UserConfig().store("tag_cloud.dock_area", str(self.dockWidgetArea(self.ui.dockWidget_tag_cloud)))
-        
-        #Ширина колонок таблицы
-        width_id = self.ui.tableView_items.columnWidth(RepoItemTableModel.ID)
-        width_title = self.ui.tableView_items.columnWidth(RepoItemTableModel.TITLE)
-        width_list_of_tags = self.ui.tableView_items.columnWidth(RepoItemTableModel.LIST_OF_TAGS)
-        width_state = self.ui.tableView_items.columnWidth(RepoItemTableModel.STATE)
-        width_rating = self.ui.tableView_items.columnWidth(RepoItemTableModel.RATING)
-        if width_id > 0:
-            UserConfig().store("items_table.ID.width", str(width_id))
-        if width_title > 0:
-            UserConfig().store("items_table.TITLE.width", str(width_title))
-        if width_list_of_tags > 0:
-            UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
-        if width_state > 0:
-            UserConfig().store("items_table.STATE.width", str(width_state))
-        if width_rating > 0:
-            UserConfig().store("items_table.RATING.width", str(width_rating))
-            
-        
-        self.ui.statusbar.showMessage(self.tr("Main window state has saved."), 5000)
-        
-    def resizeEvent(self, resize_event):
-        self.save_state_timer.start(3000) #Повторный вызов start() делает перезапуск таймера 
-            
+    
         
     def query_reset(self):
         self.ui.lineEdit_query.setText("")
@@ -365,8 +406,11 @@ class MainWindow(QtGui.QMainWindow):
             
             #Запоминаем пользователя
             UserConfig().storeAll({"recent_user.login":user.login, "recent_user.password":user.password})
+            
+            self.ui.file_browser.model().user_login = user.login
         else:
             self.ui.label_user.setText("")
+            self.ui.file_browser.model().user_login = None
         
         
     def _get_active_user(self):
@@ -406,10 +450,13 @@ class MainWindow(QtGui.QMainWindow):
                 #self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
                 self.connect(self.model, QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), self._resize_row_to_contents)
                 
+                self.ui.file_browser.repo = repo                
+                
             else:
                 self.ui.label_repo.setText("")
                 self.model = None
                 self.ui.tableView_items.setModel(None)
+                self.ui.file_browser.repo = None
         except Exception as ex:
             raise CannotOpenRepoError(str(ex), ex)
                 
@@ -424,6 +471,9 @@ class MainWindow(QtGui.QMainWindow):
             base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a base path for new repository"))
             if not base_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
+            
+            #QFileDialog returns forward slashed in windows! Because of this path should be normalized
+            base_path = os.path.normpath(base_path)
             self.active_repo = RepoMgr.create_new_repo(base_path)
             self.active_user = None
         except Exception as ex:
@@ -438,15 +488,23 @@ class MainWindow(QtGui.QMainWindow):
             self.active_user = None
         except Exception as ex:
             show_exc_info(self, ex)
+            
+        #TODO when user closes repo, and opens another, all column width of items table are reset!!!
 
     def action_repo_open(self):
-        try:
+        try:            
             base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a repository base path"))
+            
             if not base_path:
                 raise Exception(self.tr("You haven't chosen existent directory. Operation canceled."))
-            self.active_repo = RepoMgr(base_path)            
+
+            #QFileDialog returns forward slashed in windows! Because of this path should be normalized
+            base_path = os.path.normpath(base_path)
+            self.active_repo = RepoMgr(base_path)
             self.active_user = None
             self._login_recent_user()
+            
+            
         
         except LoginError:
             #Отображаем диалог ввода логина/пароля (с возможностью отмены или создания нового юзера)
@@ -759,6 +817,7 @@ class MainWindow(QtGui.QMainWindow):
         исходной директории.
         Название title каждого элемента будет совпадать с
         именем добавляемого файла.'''
+        thread = None
         try:
             if self.active_repo is None:
                 raise MsgException(self.tr("Open a repository first."))
@@ -770,19 +829,19 @@ class MainWindow(QtGui.QMainWindow):
             dir = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Select one directory"))
             if not dir:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
+                        
+            dir = os.path.normpath(dir)
             
             items = []
             for root, dirs, files in os.walk(dir):
                 for file in files:
-#                    print(os.path.relpath(root, dir) + " FILE: " + file)
                     abs_file = os.path.join(root, file)
                     item = Item(user_login=self.active_user.login)
                     item.title = file
                     item.data_ref = DataRef(url=abs_file, type=DataRef.FILE)
                     item.data_ref.dst_subpath = os.path.relpath(root, dir)
                     items.append(item)
-            
-            #Открываем диалог для ввода информации о тегах и полях
+                        
             d = ItemsDialog(self, items, DialogMode.CREATE, same_dst_path=False)
             if d.exec_():
                 
@@ -801,8 +860,8 @@ class MainWindow(QtGui.QMainWindow):
                 
         except Exception as ex:
             show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+        finally:
+            self.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(thread.created_objects_count, len(thread.error_log)))
             self.query_exec()
             
             
@@ -812,6 +871,7 @@ class MainWindow(QtGui.QMainWindow):
         файлам привязываются одинаковые теги и поля. И они копируются в одну и ту 
         же директорию хранилища. Название title каждого элемента будет совпадать с
         именем добавляемого файла.'''
+        thread = None
         try:
             if self.active_repo is None:
                 raise MsgException(self.tr("Open a repository first."))
@@ -825,6 +885,7 @@ class MainWindow(QtGui.QMainWindow):
             
             items = []
             for file in files:
+                file = os.path.normpath(file)
                 item = Item(user_login=self.active_user.login)
                 item.title = os.path.basename(file)
                 item.data_ref = DataRef(url=file, type=DataRef.FILE)
@@ -849,8 +910,8 @@ class MainWindow(QtGui.QMainWindow):
                 
         except Exception as ex:
             show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+        finally:
+            self.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(thread.created_objects_count, len(thread.error_log)))
             self.query_exec()
         
         
@@ -870,6 +931,7 @@ class MainWindow(QtGui.QMainWindow):
             file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select file to add"))
             if not is_none_or_empty(file):
                 #Сразу привязываем выбранный файл к новому элементу
+                file = os.path.normpath(file)
                 item.title = os.path.basename(file) #Предлагаем назвать элемент по имени файла            
                 item.data_ref = DataRef(url=file, type=DataRef.FILE)
             
@@ -1086,170 +1148,6 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
             
 
-class ImageThumbDelegate(QtGui.QStyledItemDelegate):
-    '''Делегат, для отображения миниатюры графического файла в таблице элементов
-    хранилища.'''
-    def __init__(self, parent=None):
-        super(ImageThumbDelegate, self).__init__(parent)
-        
-    def sizeHint(self, option, index):
-        pixmap = index.data(QtCore.Qt.UserRole)
-        if pixmap:
-            return pixmap.size()
-        else:
-            return super(ImageThumbDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1            
-            
-
-    def paint(self, painter, option, index):
-        
-        pixmap = index.data(QtCore.Qt.UserRole)
-        if pixmap is not None and not pixmap.isNull():
-            painter.drawPixmap(option.rect.topLeft(), pixmap)
-            #painter.drawPixmap(option.rect, pixmap)
-        else:
-            super(ImageThumbDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
-            #QtGui.QStyledItemDelegate.paint(self, painter, option, index) #Для PyQt 4.7.3 надо так
-
-class RatingDelegate(QtGui.QStyledItemDelegate):
-    '''An ItemDelegate for displaying Rating of items. Rating value is stored 
-    in a regular field with name consts.RATING_FIELD.'''
-    
-    def __init__(self, parent=None, r=10):
-        super(RatingDelegate, self).__init__(parent)
-        
-        palette = QtGui.QApplication.palette()
-        
-        self.r = r
-        self.star = QtGui.QPixmap(2*r, 2*r)
-        self.star.fill(QtGui.QColor(255, 255, 255, 0)) #This is an absolutely transparent color
-        painter = QtGui.QPainter(self.star)
-        path = QtGui.QPainterPath()
-        
-        
-        for i in range(0, 10):
-            radius = r if i % 2 == 0 else r*0.4
-            if i == 0:
-                path.moveTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), radius*math.sin(i*2*math.pi/10)))
-            else:
-                path.lineTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), radius*math.sin(i*2*math.pi/10)))        
-        painter.save()
-        painter.translate(r, r)
-        painter.setPen(palette.text().color())
-        painter.setBrush(QtGui.QBrush(palette.button().color()))
-        painter.drawPath(path)
-        painter.restore()
-        
-        
-        
-    
-    def sizeHint(self, option, index):
-        return QtCore.QSize(option.rect.width(), self.r)
-        #TODO should return some size?..
-        #return super(RatingDelegate, self).sizeHint(option, index)
-            
-
-    def paint(self, painter, option, index):
-        
-        palette = QtGui.QApplication.palette()
-        
-        bg_color = palette.highlight().color() \
-            if option.state & QtGui.QStyle.State_Selected \
-            else palette.base().color()
-        
-        rating = int(index.data(QtCore.Qt.DisplayRole))
-        
-        #TODO Maybe max rating should be 10?
-        if rating < 0:
-            rating = 0
-        elif rating > 5:
-            rating = 5
-            
-        painter.save()
-        painter.fillRect(option.rect, bg_color)
-        painter.translate(option.rect.x(), option.rect.y())
-        for i in range(0, rating):
-            painter.drawPixmap(0, 0, self.star)
-            painter.translate(self.star.width() + 1, 0.0)
-        painter.restore()
-        
-    
-    def createEditor(self, parent, option, index):
-        
-        editor = QtGui.QSpinBox(parent)
-        editor.setMinimum(0)
-        editor.setMaximum(5)
-        return editor
-    
-    def setEditorData(self, editor, index):
-        
-        try:
-            rating = int(index.data(QtCore.Qt.DisplayRole))
-        except:
-            rating = 0
-        editor.setValue(rating)
-    
-    def setModelData(self, editor, model, index):
-        
-        model.setData(index, editor.value())
-    
-    def updateEditorGeometry(self, editor, option, index):
-        
-        editor.setGeometry(option.rect)
-
-class HTMLDelegate(QtGui.QStyledItemDelegate):
-    '''Делегат, для отображения HTML текста в таблице.'''
-    def __init__(self, parent=None):
-        super(HTMLDelegate, self).__init__(parent)
-        self.text_edit = QtGui.QTextEdit()
-        
-    def sizeHint(self, option, index):
-        
-        raw_text = index.data(Qt.DisplayRole)
-        if raw_text is not None:
-            doc = QtGui.QTextDocument()
-            doc.setTextWidth(option.rect.width())
-            doc.setDefaultFont(option.font)
-            doc.setHtml(raw_text)            
-            return QtCore.QSize(doc.size().width(), doc.size().height())
-        else:
-            return super(HTMLDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1
-            
-
-    def paint(self, painter, option, index):
-        
-        palette = QtGui.QApplication.palette()
-        
-        bg_color = palette.highlight().color() \
-            if option.state & QtGui.QStyle.State_Selected \
-            else palette.base().color()
-            
-        text_color = palette.highlightedText().color() \
-            if option.state & QtGui.QStyle.State_Selected \
-            else palette.text().color()
-        
-        raw_text = index.data(Qt.DisplayRole)
-        if raw_text is not None:
-            doc = QtGui.QTextDocument()
-            doc.setTextWidth(option.rect.width())
-            doc.setDefaultFont(option.font)
-            doc.setHtml(raw_text)
-            
-            cursor = QtGui.QTextCursor(doc)
-            format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(text_color))
-            cursor.movePosition(QtGui.QTextCursor.Start)
-            cursor.movePosition(QtGui.QTextCursor.End, QtGui.QTextCursor.KeepAnchor)
-            cursor.mergeCharFormat(format)
-                    
-            painter.save()
-            painter.fillRect(option.rect, bg_color)
-            painter.translate(option.rect.x(), option.rect.y())
-            doc.drawContents(painter, QtCore.QRectF(0 ,0, option.rect.width(), option.rect.height()))            
-            painter.restore()
-    
-        else:
-            super(HTMLDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
-            
 
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
@@ -1513,7 +1411,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
 
 class AboutDialog(QtGui.QDialog):
     
-    #TODO Надо как-то автоматически выводить информацию о версии Reggata
+    #TODO display release version on this dialog
     
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)

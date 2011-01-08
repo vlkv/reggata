@@ -461,18 +461,21 @@ class DataRef(Base):
     date_hashed = sqa.Column(sqa.DateTime)
     
     #Размер физического файла на диске (для объектов типа 'FILE', для остальных NULL)
-    size = sqa.Column(sqa.Integer)    
+    size = sqa.Column(sqa.Integer)
     
     #Это дата создания объекта DataRef в БД (не имеет ничего общего с датой создания файла на ФС)
     date_created = sqa.Column(sqa.DateTime)
     
     #Пользователь-владелец данного объекта (обычно тот, кто его создал)
+    #deprecated because it's enough information in field Item.user_login
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
     
     
     user = relationship(User, cascade="save-update, merge, expunge, refresh-expire")
     
     thumbnails = relationship("Thumbnail", cascade="all, delete-orphan")
+    
+    items = relationship("Item", cascade="expunge, refresh-expire")
 
     @orm.reconstructor
     def __init_on_load__(self):
