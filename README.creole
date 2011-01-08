@@ -1,5 +1,5 @@
 == About Reggata
-Reggata - is a program for tagging user files on local computer.
+Reggata - is a program for tagging user files on local computer or (in other words) a tagging file manager.
 
 === Features
 * You can assosiate with your files any number of arbitrary tags
