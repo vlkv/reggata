@@ -23,6 +23,7 @@ Created on 20.08.2010
 '''
 import os.path
 import sys
+import datetime
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
@@ -242,6 +243,9 @@ class MainWindow(QtGui.QMainWindow):
         
         #Storing file browser table columns width
         self.save_file_browser_state()
+        
+        print("========= Reggata stopped at {} =========".format(datetime.datetime.now()))
+        print()
         
     def save_items_table_state(self):
         #Storing items table columns width
@@ -1465,6 +1469,14 @@ along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses<
 
 if __name__ == '__main__':
     
+    if UserConfig().get("redirect_stdout", "True") in ["True", "true", "TRUE", "1"]:
+        sys.stdout = open(os.path.join(consts.DEFAULT_TMP_DIR, "stdout.txt"), "a+")
+        
+    if UserConfig().get("redirect_stderr", "True") in ["True", "true", "TRUE", "1"]:
+        sys.stderr = open(os.path.join(consts.DEFAULT_TMP_DIR, "stderr.txt"), "a+")
+    
+    print()
+    print("========= Reggata started at {} =========".format(datetime.datetime.now()))
     print("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
     print("qt_version = {}".format(QtCore.QT_VERSION_STR))
     
