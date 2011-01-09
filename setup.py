@@ -17,7 +17,11 @@ sys.path.append(r'.' + os.sep + 'ui')
 sys.path.append(r'.' + os.sep + 'lib')
 sys.path.append(r'.' + os.sep + 'src')
 
-base = "Console"
+
+#base = "Console"
+base = None
+if sys.platform == "win32":
+    base = "Win32GUI"
 
 f = open("version.txt", "r")
 reggata_version = f.readline()

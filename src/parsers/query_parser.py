@@ -27,6 +27,7 @@ from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, FieldOpV
 import ply.yacc as yacc
 from parsers.query_tokens import *
 from exceptions import YaccError
+import consts
 
 
 def p_query(p):
@@ -216,7 +217,7 @@ def p_error(p):
 lexer = build_lexer()
 
 #Строим синтаксический анализатор
-parser = yacc.yacc()
+parser = yacc.yacc(errorlog=consts.yacc_errorlog)
 
 def parse(text):
     '''Функция обертка, для удобства. Выполняет разбор строки text по правилам 

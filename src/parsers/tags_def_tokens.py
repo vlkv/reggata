@@ -26,6 +26,7 @@ Created on 27.11.2010
 
 from ply import lex
 import re
+import consts
 
 #Список типов токенов
 tokens = [
@@ -58,7 +59,7 @@ def t_error(t):
 
 def build_lexer():    
     '''Строит лексический анализатор на основе всех определенных здесь токенов.'''
-    lexer = lex.lex()
+    lexer = lex.lex(errorlog=consts.lex_errorlog)
     return lexer
 
 

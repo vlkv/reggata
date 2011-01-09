@@ -26,6 +26,8 @@ Created on 04.10.2010
 '''
 import os
 from user_config import UserConfig
+import ply.yacc
+import ply.lex
 
 METADATA_DIR = ".reggata"
 DB_FILE = "database.sqlite3"
@@ -39,3 +41,7 @@ DEFAULT_TMP_DIR = USER_CONFIG_DIR + os.sep + "tmp"
 RATING_FIELD = UserConfig().get("reserved_fields.rating", "Rating")
 NOTES_FIELD = UserConfig().get("reserved_fields.notes", "Notes")
 RESERVED_FIELDS = [RATING_FIELD, NOTES_FIELD]
+
+#Some custom logger (from logging module) can be substituted here
+yacc_errorlog = ply.yacc.NullLogger()
+lex_errorlog = ply.lex.NullLogger()

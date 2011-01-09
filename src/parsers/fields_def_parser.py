@@ -26,6 +26,7 @@ Created on 28.11.2010
 
 import ply.yacc as yacc
 from parsers.fields_def_tokens import *
+import consts
 
 #Далее следуют продукции грамматики языка 
 
@@ -58,7 +59,7 @@ def p_error(p):
 lexer = build_lexer()
 
 #Строим синтаксический анализатор
-parser = yacc.yacc()
+parser = yacc.yacc(errorlog=consts.yacc_errorlog)
 
 def parse(text):
     '''Функция обертка, для удобства. Выполняет разбор строки text по правилам 

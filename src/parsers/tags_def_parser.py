@@ -24,6 +24,7 @@ Created on 27.11.2010
 
 import ply.yacc as yacc
 from parsers.tags_def_tokens import *
+import consts
 
 #TODO!!! Мне кажется нужно объединить два парсера: tags_def_tokens и fields_def_tokens в один. 
 
@@ -50,7 +51,7 @@ def p_error(p):
 lexer = build_lexer()
 
 #Строим синтаксический анализатор
-parser = yacc.yacc()
+parser = yacc.yacc(errorlog=consts.yacc_errorlog)
 
 def parse(text):
     '''Функция обертка, для удобства. Выполняет разбор строки text по правилам 

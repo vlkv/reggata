@@ -25,7 +25,7 @@ import ply.lex as lex
 import re
 from helpers import tr
 from exceptions import LexError
-
+import consts
 
 
 AND_OPERATOR = tr('and')
@@ -133,6 +133,6 @@ def needs_quote(string):
 
 def build_lexer():    
     '''Строит лексический анализатор на основе всех определенных здесь токенов.'''
-    lexer = lex.lex()
+    lexer = lex.lex(errorlog=consts.lex_errorlog)
     return lexer
 

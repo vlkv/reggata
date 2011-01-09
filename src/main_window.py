@@ -184,7 +184,6 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.dockWidget_file_browser.setObjectName("dockWidget_file_browser")
         self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)        
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_file_browser)
-        self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("dockLocationChanged(Qt::DockWidgetArea)"), lambda x: print("dock location {}".format(x)))#self.save_main_window_state)
         self.connect(self.ui.action_tools_file_browser, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_file_browser.setVisible(b))
         self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_file_browser.setChecked(b))
         
@@ -314,11 +313,11 @@ class MainWindow(QtGui.QMainWindow):
         часть ячеек таблицы. Данный обработчик подгоняет высоту строк под новое содержимое.'''        
         if top_left.row() == bottom_right.row():
             self.ui.tableView_items.resizeRowToContents(top_left.row())
-            print("resizing row={}".format(top_left.row()))
+            
         elif top_left.row() < bottom_right.row():
             for row in range(top_left.row(), bottom_right.row()):
                 self.ui.tableView_items.resizeRowToContents(row)
-                print("resizing row={}".format(row))
+                
 
     def event(self, e):
         #Информация о нажатии Control-а передается облаку тегов
@@ -1039,8 +1038,6 @@ class MainWindow(QtGui.QMainWindow):
             
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
-            
-            print("selected rows: {}".format(rows))
             
             
             uow = self.active_repo.create_unit_of_work()
