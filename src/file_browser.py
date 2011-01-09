@@ -286,7 +286,14 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
                     rating = 0
                 stars = ""
                 for i in range(rating):
-                    stars += '\u2605' #This is a unicode character 'BLACK STAR'
+                    stars += '\u2605'
+#Also:
+#U+2605 BLACK STAR
+#U+2606 WHITE STAR
+#U+1F44D THUMBS UP SIGN
+#U+1F44E THUMBS DOWN SIGN
+#U+2639 WHITE FROWNING FACE
+#U+263A WHITE SMILING FACE
                 return stars
       
         #return None in all other cases    
