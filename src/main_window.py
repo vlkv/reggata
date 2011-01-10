@@ -183,10 +183,11 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.dockWidget_file_browser = QtGui.QDockWidget(self.tr("File browser"), self)
         self.ui.dockWidget_file_browser.setObjectName("dockWidget_file_browser")
         self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)        
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_file_browser)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.ui.dockWidget_file_browser)
         self.connect(self.ui.action_tools_file_browser, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_file_browser.setVisible(b))
         self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_file_browser.setChecked(b))
         
+        self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.dockWidget_items_table)        
         
         #Try to open and login recent repository with recent user login
         try:

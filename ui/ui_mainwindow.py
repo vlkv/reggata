@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Jan  8 10:31:24 2011
+# Created: Mon Jan 10 16:39:58 2011
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -90,7 +90,7 @@ class Ui_MainWindow(object):
         self.tableView_items.setObjectName(_fromUtf8("tableView_items"))
         self.verticalLayout.addWidget(self.tableView_items)
         self.dockWidget_items_table.setWidget(self.dockWidgetContents)
-        MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(4), self.dockWidget_items_table)
+        MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(8), self.dockWidget_items_table)
         self.action_repo_create = QtGui.QAction(MainWindow)
         self.action_repo_create.setObjectName(_fromUtf8("action_repo_create"))
         self.action_repo_open = QtGui.QAction(MainWindow)
