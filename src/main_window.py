@@ -635,6 +635,8 @@ class MainWindow(QtGui.QMainWindow):
             iv.set_current_image_index(start_index)
             iv.show()
             
+            #TODO scroll items table to the last item shown in ImageViewer 
+            
             
         except Exception as ex:
             show_exc_info(self, ex)
