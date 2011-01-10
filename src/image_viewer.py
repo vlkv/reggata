@@ -169,10 +169,13 @@ class ImageViewer(QtGui.QMainWindow):
     #а объект, который ведет себя как список, но на самом деле --- выполняет
     #буферизованное чтение информации из БД
 
-    def __init__(self, parent=None, abs_paths=[]):
+    def __init__(self, repo, user_login, parent=None, abs_paths=[]):
         super(ImageViewer, self).__init__(parent)
         self.ui = ui_imageviewer.Ui_ImageViewer()
         self.ui.setupUi(self)
+        
+        self.repo = repo
+        self.user_login = user_login
         
         self.abs_paths = abs_paths
         self.i_current = 0 if len(self.abs_paths) > 0 else None
@@ -206,6 +209,22 @@ class ImageViewer(QtGui.QMainWindow):
     
         self.setWindowModality(Qt.WindowModal)
         
+        
+        
+        #Actions: edit item
+        self.ui.action_edit_item = QtGui.QAction(self.tr("Edit item"), self)
+        self.addAction(self.ui.action_edit_item)
+        self.ui.action_edit_item.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+E")))       
+        self.connect(self.ui.action_edit_item, QtCore.SIGNAL("triggered()"), self.action_edit_item)
+        #Context menu
+        self.menu = QtGui.QMenu()
+        self.menu.addAction(self.ui.action_edit_item)
+        self.ui.canvas.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.connect(self.ui.canvas, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), lambda pos: self.menu.exec_(self.ui.canvas.mapToGlobal(pos)))
+    
+#    def event(self, event):
+#        print(type(event))
+    
     def set_current_image_index(self, value):
         if 0 <= value < len(self.abs_paths): 
             self.i_current = value
@@ -225,6 +244,8 @@ class ImageViewer(QtGui.QMainWindow):
             self.action_prev()
         elif event.key() == Qt.Key_Escape:
             self.close()
+        else:
+            super(ImageViewer, self).keyPressEvent(event)
         
     def wheelEvent(self, event):
         if event.delta() < 0:
@@ -285,6 +306,11 @@ class ImageViewer(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
             
+    def action_edit_item(self):
+        try:
+            raise MsgException("Not implemented yet.")
+        except Exception as ex:
+            show_exc_info(self, ex)
             
     def action_template(self):
         try:

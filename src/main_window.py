@@ -631,7 +631,7 @@ class MainWindow(QtGui.QMainWindow):
                 for row in rows:
                     abs_paths.append(os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url))
             
-            iv = ImageViewer(self, abs_paths)
+            iv = ImageViewer(self.active_repo, self.active_user.login, self, abs_paths)
             iv.set_current_image_index(start_index)
             iv.show()
             
