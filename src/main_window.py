@@ -619,13 +619,20 @@ class MainWindow(QtGui.QMainWindow):
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
+            start_index = 0
             abs_paths = []
-            for row in rows:
-                abs_paths.append(os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url))
-                
-                                                        
+            if len(rows) == 1:
+                #If there is only one selected item, pass to viewer all items in this table model
+                for row in range(self.ui.tableView_items.model().rowCount()):
+                    abs_paths.append(os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url))
+                #This is the index of the first image to show
+                start_index = rows.pop()
+            else:
+                for row in rows:
+                    abs_paths.append(os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url))
+            
             iv = ImageViewer(self, abs_paths)
-            iv.setWindowModality(Qt.WindowModal)
+            iv.set_current_image_index(start_index)
             iv.show()
             
             

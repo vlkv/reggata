@@ -203,6 +203,16 @@ class ImageViewer(QtGui.QMainWindow):
         self.save_state_timer = QtCore.QTimer(self)
         self.save_state_timer.setSingleShot(True)
         self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_window_state)
+    
+        self.setWindowModality(Qt.WindowModal)
+        
+    def set_current_image_index(self, value):
+        if 0 <= value < len(self.abs_paths): 
+            self.i_current = value
+            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
+            self.update()
+        else:
+            raise ValueError(self.tr("Image index is out of range."))  
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Plus:
@@ -261,7 +271,7 @@ class ImageViewer(QtGui.QMainWindow):
             if self.i_current < 0:
                 self.i_current = len(self.abs_paths) - 1
             
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]            
+            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
             self.update()
             
         except Exception as ex:
