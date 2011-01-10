@@ -1448,9 +1448,9 @@ along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses<
         f = None
         try:
             try:
-                f = open("version.txt", "r")
-            except:
-                f = open(os.path.join(os.pardir, "version.txt"), "r")
+                f = open(os.path.join(os.path.dirname(__file__), "version.txt", "r"))
+            except:                
+                f = open(os.path.join(os.path.dirname(__file__), os.pardir, "version.txt"), "r")
                 
             version = f.readline()
             text = "<p>Version: " + version + "</p>" + text
