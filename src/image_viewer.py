@@ -82,15 +82,15 @@ class Canvas(QtGui.QWidget):
         self.scale = self.scale / koeff
         self.update()
 
-    def wheelEvent(self, event):
-        if event.delta() > 0:
-            self.zoom_in()
-            self.x -= (event.pos().x() - self.x)/2
-            self.y -= (event.pos().y() - self.y)/2            
-        else:
-            self.zoom_out()
-            self.x += (event.pos().x() - self.x)/2
-            self.y += (event.pos().y() - self.y)/2
+#    def wheelEvent(self, event):
+#        if event.delta() > 0:
+#            self.zoom_in()
+#            self.x -= (event.pos().x() - self.x)/2
+#            self.y -= (event.pos().y() - self.y)/2            
+#        else:
+#            self.zoom_out()
+#            self.x += (event.pos().x() - self.x)/2
+#            self.y += (event.pos().y() - self.y)/2
 
     @property
     def fit_window(self):
@@ -226,6 +226,14 @@ class ImageViewer(QtGui.QMainWindow):
         elif event.key() == Qt.Key_Escape:
             self.close()
         
+    def wheelEvent(self, event):
+        if event.delta() < 0:
+            #scroll down
+            self.action_next()
+        else:
+            #scroll up
+            self.action_prev()
+    
         
     def save_window_state(self):        
         UserConfig().storeAll({"image_viewer.width":self.width(), "image_viewer.height":self.height()})
