@@ -463,15 +463,17 @@ class TextEdit(QtGui.QTextEdit):
         
         self.one_line = one_line
         if one_line:
+            #In this case TextEdit should emulate QLineEdit behaviour
             self.setWordWrapMode(QtGui.QTextOption.NoWrap)
             self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.setTabChangesFocus(True)
             self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
             
-            le = QtGui.QLineEdit()
-            self.setFixedHeight(le.sizeHint().height() + 2)
-            del le
+            
+            self.setFixedHeight(QtGui.QLineEdit().sizeHint().height() + 2)
+            
+            
     
     def set_completer(self, completer):
         self.completer = completer    
@@ -486,8 +488,8 @@ class TextEdit(QtGui.QTextEdit):
         #TODO Should show completer automatically when two or three characters have been typed?
         
         if self.completer is not None and \
-        event.modifiers() == Qt.ControlModifier and \
-        event.key() == Qt.Key_Space:
+        event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_Space:
+        
             cursor = self.textCursor()
             cursor.select(QtGui.QTextCursor.WordUnderCursor)
             word = cursor.selectedText()
@@ -500,11 +502,10 @@ class TextEdit(QtGui.QTextEdit):
             self.completer.end_str = self.completer_end_str
             
             self.completer.show()
-            self.completer.setFocus(Qt.PopupFocusReason)
-                        
-            #super(TextEdit, self).keyPressEvent(event)            
+            self.completer.setFocus(Qt.PopupFocusReason)     
             
         elif self.one_line and event.key() in [Qt.Key_Enter, Qt.Key_Return]:
+            #This signal is for QLineEdit behaviour
             self.emit(QtCore.SIGNAL("returnPressed()"))
         else:
             super(TextEdit, self).keyPressEvent(event)
@@ -547,15 +548,16 @@ class Completer(QtGui.QListWidget):
             self.hide()
         elif event.key() in [Qt.Key_Enter, Qt.Key_Return, Qt.Key_Up, Qt.Key_Down]:
             super(Completer, self).keyPressEvent(event)
+            
         elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_Space:
             #Refresh tag/field names from database
             self.populate_words()
             self.widget_text_changed()
             
-            super(Completer, self).keyPressEvent(event)
         elif event.key() == Qt.Key_Backspace:
             cursor = self.widget.textCursor()
             cursor.deletePreviousChar()
+            
         else:
             text = event.text()
             cursor = self.widget.textCursor()
@@ -590,7 +592,7 @@ class Completer(QtGui.QListWidget):
         for (word,) in self.words:
             if word.startswith(prefix):
                 self.addItem(word)
-        #TODO not very smart seach! Very expensive.
+        #TODO not very smart search! Very expensive.
                 
             
         

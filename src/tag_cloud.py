@@ -48,8 +48,6 @@ class TagCloud(QtGui.QTextEdit):
         
         self.menu = None #Это ссылка на контекстное меню (при нажатии правой кнопки мыши)
         
-        #True, когда нажата клавиша Control
-        self.control_pressed = False
         
         #Пользователи (их логины), теги которых должны отображаться в облаке
         #Если пустое множество, то в облаке отображаются теги всех пользователей
@@ -157,28 +155,19 @@ class TagCloud(QtGui.QTextEdit):
         return super(TagCloud, self).mouseMoveEvent(e)
     
     def event(self, e):
-        #Информация о нажатии Control-а передается облаку тегов
-        if e.type() == QtCore.QEvent.KeyPress and e.key() == Qt.Key_Control:
-            self.control_pressed = True
-        elif e.type() == QtCore.QEvent.KeyRelease and e.key() == Qt.Key_Control:
-            self.control_pressed = False
         return super(TagCloud, self).event(e)
     
     def mouseDoubleClickEvent(self, e):
         '''Добавление тега в запрос.'''
         
-        if not is_none_or_empty(self.word):
-            #if self.control_pressed:
+        if not is_none_or_empty(self.word):           
             if e.modifiers() == Qt.ControlModifier:
                 self.not_tags.add(self.word)
             else:
                 self.tags.add(self.word)
             self.emit(QtCore.SIGNAL("selectedTagsChanged"))
             self.refresh()
-            
-#    def event(self, e):
-#        print("TagCloud caught event " + str(e))
-#        return super(TagCloud, self).event(e)
+           
     
     def and_tag(self):
         '''Добавление тега в запрос (через контекстное меню).'''

@@ -327,11 +327,6 @@ class MainWindow(QtGui.QMainWindow):
                 
 
     def event(self, e):
-        #Информация о нажатии Control-а передается облаку тегов
-        #if e.type() == QtCore.QEvent.KeyPress and e.key() == Qt.Key_Control:
-        #    self.ui.tag_cloud.control_pressed = True
-        #elif e.type() == QtCore.QEvent.KeyRelease and e.key() == Qt.Key_Control:
-        #    self.ui.tag_cloud.control_pressed = False
         return super(MainWindow, self).event(e)
 
     def showContextMenu(self, pos):
