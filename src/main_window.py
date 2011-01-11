@@ -33,7 +33,7 @@ from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread
     ItemIntegrityCheckerThread, ItemIntegrityFixerThread
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
     WaitDialog, raise_exc, format_exc_info, HTMLDelegate, ImageThumbDelegate,\
-    RatingDelegate
+    RatingDelegate, Completer
 from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
 from user_config import UserConfig
 from user_dialog import UserDialog
@@ -854,8 +854,9 @@ class MainWindow(QtGui.QMainWindow):
                     item.data_ref = DataRef(url=abs_file, type=DataRef.FILE)
                     item.data_ref.dst_subpath = os.path.relpath(root, dir)
                     items.append(item)
-                        
-            d = ItemsDialog(self, items, DialogMode.CREATE, same_dst_path=False)
+            
+            completer = helpers.Completer(self.active_repo, self)
+            d = ItemsDialog(self, items, DialogMode.CREATE, same_dst_path=False, completer=completer)
             if d.exec_():
                 
                 thread = CreateGroupIfItemsThread(self, self.active_repo, items)
@@ -905,7 +906,8 @@ class MainWindow(QtGui.QMainWindow):
                 items.append(item)
             
             #Открываем диалог для ввода информации о тегах и полях
-            d = ItemsDialog(self, items, DialogMode.CREATE)
+            completer = helpers.Completer(self.active_repo, self)
+            d = ItemsDialog(self, items, DialogMode.CREATE, completer=completer)
             if d.exec_():
                 
                 thread = CreateGroupIfItemsThread(self, self.active_repo, items)
@@ -1105,7 +1107,8 @@ class MainWindow(QtGui.QMainWindow):
                         #Потом надо бы исправить (хотя бы теги/поля/датарефы извлекать по join-стратегии
                         id = self.model.items[row].id
                         sel_items.append(uow.get_item(id))
-                    dlg = ItemsDialog(self, sel_items, DialogMode.EDIT)
+                    completer = helpers.Completer(self.active_repo, self)
+                    dlg = ItemsDialog(self, sel_items, DialogMode.EDIT, completer=completer)
                     if dlg.exec_():
                         thread = UpdateGroupOfItemsThread(self, self.active_repo, sel_items)
                         self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
@@ -1132,7 +1135,7 @@ class MainWindow(QtGui.QMainWindow):
                     completer = helpers.Completer(self.active_repo, self)
                     item_dialog = ItemDialog(item, self, DialogMode.EDIT, completer=completer)
                     if item_dialog.exec_():
-                        uow.update_existing_item(item_dialog.item, self.active_user.login)                        
+                        uow.update_existing_item(item_dialog.item, self.active_user.login)
                 finally:
                     uow.close()
             

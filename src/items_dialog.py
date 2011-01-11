@@ -81,6 +81,17 @@ class ItemsDialog(QtGui.QDialog):
         self.ui.textEdit_fields = CustomTextEdit()
         self.ui.verticalLayout_fields.addWidget(self.ui.textEdit_fields)
         
+        self.ui.plainTextEdit_tags_add = helpers.TextEdit(self, completer=self.completer)
+        self.ui.verticalLayout_tags_add.addWidget(self.ui.plainTextEdit_tags_add)
+        
+        self.ui.plainTextEdit_tags_rm = helpers.TextEdit(self, completer=self.completer)
+        self.ui.verticalLayout_tags_rm.addWidget(self.ui.plainTextEdit_tags_rm)
+        
+        self.ui.plainTextEdit_fields_add = helpers.TextEdit(self, completer=self.completer, completer_end_str=": ")
+        self.ui.verticalLayout_fields_add.addWidget(self.ui.plainTextEdit_fields_add)
+        
+        self.ui.plainTextEdit_fields_rm = helpers.TextEdit(self, completer=self.completer)
+        self.ui.verticalLayout_fields_rm.addWidget(self.ui.plainTextEdit_fields_rm)
         
         self.set_dialog_mode(mode)
         self.read()
