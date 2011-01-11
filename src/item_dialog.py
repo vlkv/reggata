@@ -65,28 +65,31 @@ class ItemDialog(QtGui.QDialog):
         self.ui.action_popup_compl = QtGui.QAction(self)
         self.ui.action_popup_compl.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+Space")))
         self.ui.action_popup_compl.setShortcutContext(Qt.WidgetShortcut)
-        
         self.connect(self.ui.action_popup_compl, QtCore.SIGNAL("triggered()"), self.action_popup_compl)
         self.ui.plainTextEdit_tags.addAction(self.ui.action_popup_compl)
         
-    def action_popup_compl(self):
+    def action_popup_compl(self):        
         
-        rect = self.ui.plainTextEdit_tags.cursorRect()
-        point = rect.bottomLeft()
+        cursor = self.ui.plainTextEdit_tags.textCursor()
+        cursor.select(QtGui.QTextCursor.WordUnderCursor)
+        word =  cursor.selectedText()
+        if is_none_or_empty(word):
+            return
+        
         list = QtGui.QListWidget(self)
-        list.addItem("123")
+        list.addItem(word)
         list.addItem("456")
         list.addItem("656")
         list.addItem("sdfsdf")
         list.addItem("1sdf")
         list.addItem("1234")
         list.addItem("12")
+        
+        rect = self.ui.plainTextEdit_tags.cursorRect()
+        point = rect.bottomLeft()
         list.move(self.ui.plainTextEdit_tags.mapToParent(point))
         list.show()
         list.setFocus(Qt.PopupFocusReason)
-        
-        
-        #QtGui.QMessageBox.information(self, "sldkjfd", "123")
         
     
     def read(self):
