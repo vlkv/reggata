@@ -949,8 +949,10 @@ class MainWindow(QtGui.QMainWindow):
                 item.data_ref = DataRef(url=file, type=DataRef.FILE)
             
                         
+            
             #Открываем диалог для ввода остальной информации об элементе
-            d = ItemDialog(item, self, DialogMode.CREATE)
+            completer = helpers.Completer(self.active_repo, self)
+            d = ItemDialog(item, self, DialogMode.CREATE, completer=completer)
             if d.exec_():
                 uow = self.active_repo.create_unit_of_work()
                 try:
@@ -1132,7 +1134,7 @@ class MainWindow(QtGui.QMainWindow):
                     if item_dialog.exec_():
                         uow.update_existing_item(item_dialog.item, self.active_user.login)                        
                 finally:
-                    uow.close()                    
+                    uow.close()
             
         except Exception as ex:
             show_exc_info(self, ex)
