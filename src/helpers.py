@@ -470,34 +470,18 @@ class TextEdit(QtGui.QTextEdit):
             self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
             
             le = QtGui.QLineEdit()
-            self.setFixedHeight(le.sizeHint().height())
+            self.setFixedHeight(le.sizeHint().height() + 2)
             del le
     
     def set_completer(self, completer):
-        self.completer = completer
-    
-    #def sizeHint(self):    
-        #label = QtGui.QLineEdit()
-        #return label.sizeHint()
-        #return QtGui.QSize(100, 20)
-        #fm = QtGui.QFontMetrics(self.font())
-        #h = fm.height();
-        #w = fm.width(QtCore.QLatin1Char('x'));
-        #w = fm.width('x');
-        #print(QtCore.QSize(w, h))
-        #return QtCore.QSize(w, h);
-        #return QtCore.QSize(100, 20);
-        
-        #QFontMetrics fm(font());
-        #int h = fm.height();
-        #int w = fm.width(QLatin1Char('x'));     
-        #return QSize(w, h);
+        self.completer = completer    
     
     def text(self):
+        '''This is for QLineEdit behaviour.'''
         return self.toPlainText()
     
       
-    def keyPressEvent(self, event):        
+    def keyPressEvent(self, event):
         
         #TODO Should show completer automatically when two or three characters have been typed?
         
@@ -517,10 +501,8 @@ class TextEdit(QtGui.QTextEdit):
             
             self.completer.show()
             self.completer.setFocus(Qt.PopupFocusReason)
-            
-            
-            super(TextEdit, self).keyPressEvent(event)
-            
+                        
+            #super(TextEdit, self).keyPressEvent(event)            
             
         elif self.one_line and event.key() in [Qt.Key_Enter, Qt.Key_Return]:
             self.emit(QtCore.SIGNAL("returnPressed()"))

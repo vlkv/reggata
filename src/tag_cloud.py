@@ -146,7 +146,7 @@ class TagCloud(QtGui.QTextEdit):
         self.refresh()
     
     def mouseMoveEvent(self, e):
-        self.setFocus(Qt.OtherFocusReason)
+        #self.setFocus(Qt.OtherFocusReason)
         cursor = self.cursorForPosition(e.pos())
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
@@ -168,7 +168,8 @@ class TagCloud(QtGui.QTextEdit):
         '''Добавление тега в запрос.'''
         
         if not is_none_or_empty(self.word):
-            if self.control_pressed:
+            #if self.control_pressed:
+            if e.modifiers() == Qt.ControlModifier:
                 self.not_tags.add(self.word)
             else:
                 self.tags.add(self.word)
