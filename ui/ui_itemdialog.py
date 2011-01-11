@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemdialog.ui'
 #
-# Created: Sun Jan  2 22:46:33 2011
+# Created: Tue Jan 11 16:51:49 2011
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -78,26 +78,18 @@ class Ui_ItemDialog(object):
         self.verticalLayout_2.addLayout(self.verticalLayout_4)
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
         self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
-        self.verticalLayout_7 = QtGui.QVBoxLayout()
-        self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))
+        self.verticalLayout_text_edit_fields = QtGui.QVBoxLayout()
+        self.verticalLayout_text_edit_fields.setObjectName(_fromUtf8("verticalLayout_text_edit_fields"))
         self.label_7 = QtGui.QLabel(ItemDialog)
         self.label_7.setObjectName(_fromUtf8("label_7"))
-        self.verticalLayout_7.addWidget(self.label_7)
-        self.plainTextEdit_fields = QtGui.QPlainTextEdit(ItemDialog)
-        self.plainTextEdit_fields.setMinimumSize(QtCore.QSize(0, 46))
-        self.plainTextEdit_fields.setObjectName(_fromUtf8("plainTextEdit_fields"))
-        self.verticalLayout_7.addWidget(self.plainTextEdit_fields)
-        self.horizontalLayout_4.addLayout(self.verticalLayout_7)
-        self.verticalLayout_8 = QtGui.QVBoxLayout()
-        self.verticalLayout_8.setObjectName(_fromUtf8("verticalLayout_8"))
+        self.verticalLayout_text_edit_fields.addWidget(self.label_7)
+        self.horizontalLayout_4.addLayout(self.verticalLayout_text_edit_fields)
+        self.verticalLayout_text_edit_tags = QtGui.QVBoxLayout()
+        self.verticalLayout_text_edit_tags.setObjectName(_fromUtf8("verticalLayout_text_edit_tags"))
         self.label_6 = QtGui.QLabel(ItemDialog)
         self.label_6.setObjectName(_fromUtf8("label_6"))
-        self.verticalLayout_8.addWidget(self.label_6)
-        self.plainTextEdit_tags = QtGui.QPlainTextEdit(ItemDialog)
-        self.plainTextEdit_tags.setMinimumSize(QtCore.QSize(0, 46))
-        self.plainTextEdit_tags.setObjectName(_fromUtf8("plainTextEdit_tags"))
-        self.verticalLayout_8.addWidget(self.plainTextEdit_tags)
-        self.horizontalLayout_4.addLayout(self.verticalLayout_8)
+        self.verticalLayout_text_edit_tags.addWidget(self.label_6)
+        self.horizontalLayout_4.addLayout(self.verticalLayout_text_edit_tags)
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
         self.verticalLayout = QtGui.QVBoxLayout()
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))

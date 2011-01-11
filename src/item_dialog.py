@@ -47,6 +47,13 @@ class ItemDialog(QtGui.QDialog):
         
         self.completer = completer
         
+        #Adding my custom widgets into design
+        self.ui.plainTextEdit_fields = helpers.TextEdit(self, self.completer, completer_end_str=": ")
+        self.ui.verticalLayout_text_edit_fields.addWidget(self.ui.plainTextEdit_fields)
+        
+        self.ui.plainTextEdit_tags = helpers.TextEdit(self, self.completer)
+        self.ui.verticalLayout_text_edit_tags.addWidget(self.ui.plainTextEdit_tags)
+        
         if type(item) != Item:
             raise TypeError(self.tr("Argument item should be an instance of Item class."))
 
@@ -63,39 +70,41 @@ class ItemDialog(QtGui.QDialog):
         self.connect(self.ui.pushButton_add_files, QtCore.SIGNAL("clicked()"), self.button_add_files)
         self.connect(self.ui.pushButton_remove, QtCore.SIGNAL("clicked()"), self.button_remove)
         self.connect(self.ui.pushButton_select_dst_path, QtCore.SIGNAL("clicked()"), self.button_sel_dst_path)
+        
+        
+#        self.ui.action_popup_compl = QtGui.QAction(self)
+#        self.ui.action_popup_compl.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+Space")))
+#        self.ui.action_popup_compl.setShortcutContext(Qt.WidgetShortcut)
+#        self.connect(self.ui.action_popup_compl, QtCore.SIGNAL("triggered()"), self.action_popup_compl)
+#        self.ui.plainTextEdit_tags.addAction(self.ui.action_popup_compl)
+#        
+#        self.ui.text_edit = helpers.TextEdit(self, self.completer)
+#        self.ui.verticalLayout_text_edit_tags.addWidget(self.ui.text_edit)
+        
         self.read()
         
-        self.ui.action_popup_compl = QtGui.QAction(self)
-        self.ui.action_popup_compl.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+Space")))
-        self.ui.action_popup_compl.setShortcutContext(Qt.WidgetShortcut)
-        self.connect(self.ui.action_popup_compl, QtCore.SIGNAL("triggered()"), self.action_popup_compl)
-        self.ui.plainTextEdit_tags.addAction(self.ui.action_popup_compl)
-        
-        self.ui.text_edit = helpers.TextEdit(self, self.completer)
-        self.ui.verticalLayout_8.addWidget(self.ui.text_edit)
-        
-    def action_popup_compl(self):
-        
-        cursor = self.ui.plainTextEdit_tags.textCursor()
-        cursor.select(QtGui.QTextCursor.WordUnderCursor)
-        word =  cursor.selectedText()
-        if is_none_or_empty(word):
-            return
-        
-        list = QtGui.QListWidget(self)
-        list.addItem(word)
-        list.addItem("456")
-        list.addItem("656")
-        list.addItem("sdfsdf")
-        list.addItem("1sdf")
-        list.addItem("1234")
-        list.addItem("12")
-        
-        rect = self.ui.plainTextEdit_tags.cursorRect()
-        point = rect.bottomLeft()
-        list.move(self.ui.plainTextEdit_tags.mapToParent(point))
-        list.show()
-        list.setFocus(Qt.PopupFocusReason)
+#    def action_popup_compl(self):
+#        
+#        cursor = self.ui.plainTextEdit_tags.textCursor()
+#        cursor.select(QtGui.QTextCursor.WordUnderCursor)
+#        word =  cursor.selectedText()
+#        if is_none_or_empty(word):
+#            return
+#        
+#        list = QtGui.QListWidget(self)
+#        list.addItem(word)
+#        list.addItem("456")
+#        list.addItem("656")
+#        list.addItem("sdfsdf")
+#        list.addItem("1sdf")
+#        list.addItem("1234")
+#        list.addItem("12")
+#        
+#        rect = self.ui.plainTextEdit_tags.cursorRect()
+#        point = rect.bottomLeft()
+#        list.move(self.ui.plainTextEdit_tags.mapToParent(point))
+#        list.show()
+#        list.setFocus(Qt.PopupFocusReason)
         
     
     def read(self):

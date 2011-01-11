@@ -126,7 +126,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4" >
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_7" >
+      <layout class="QVBoxLayout" name="verticalLayout_text_edit_fields" >
        <item>
         <widget class="QLabel" name="label_7" >
          <property name="text" >
@@ -134,34 +134,14 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPlainTextEdit" name="plainTextEdit_fields" >
-         <property name="minimumSize" >
-          <size>
-           <width>0</width>
-           <height>46</height>
-          </size>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_8" >
+      <layout class="QVBoxLayout" name="verticalLayout_text_edit_tags" >
        <item>
         <widget class="QLabel" name="label_6" >
          <property name="text" >
           <string>Tags:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="plainTextEdit_tags" >
-         <property name="minimumSize" >
-          <size>
-           <width>0</width>
-           <height>46</height>
-          </size>
          </property>
         </widget>
        </item>

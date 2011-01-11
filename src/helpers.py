@@ -453,14 +453,17 @@ class HTMLDelegate(QtGui.QStyledItemDelegate):
 
 class TextEdit(QtGui.QTextEdit):
     '''Modified QTextEdit, that supports Completer class. When user presses shortcut Ctrl+Space,
-    it shows a completer (if such exists).'''
+    it shows a completer (if such exists) that helps user to enter tag/field names.'''
     
-    def __init__(self, parent=None, completer=None):
+    def __init__(self, parent=None, completer=None, completer_end_str=" "):
         super(TextEdit, self).__init__(parent)
         self.completer = completer
+        self.completer_end_str = completer_end_str
         self.setPlainText("")
         
     def keyPressEvent(self, event):
+        print("keyPressEvent")
+        
         if self.completer is not None and \
         event.modifiers() == Qt.ControlModifier and \
         event.key() == Qt.Key_Space:
@@ -471,7 +474,9 @@ class TextEdit(QtGui.QTextEdit):
             
             rect = self.cursorRect()
             point = rect.bottomLeft()
-            self.completer.move(self.mapToGlobal(point))            
+            self.completer.move(self.mapToGlobal(point))
+            
+            self.completer.end_str = self.completer_end_str
             
             self.completer.show()
             self.completer.setFocus(Qt.PopupFocusReason)
@@ -480,19 +485,25 @@ class TextEdit(QtGui.QTextEdit):
             
         
     def focusInEvent(self, event):
+        print("focusInEvent")
         #completer may be shared between multilple text edit widgets
         if self.completer is not None:
             self.completer.set_widget(self)
-            
+        super(TextEdit, self).focusInEvent(event)
+        
         
 class Completer(QtGui.QListWidget):
-    
-    def __init__(self, repo, parent=None):
+    '''This class is a popup list widget with tag/field names.
+    It should help user to enter tags/fields. Completer should be used with TextEdit class.
+    '''    
+    def __init__(self, repo, parent=None, end_str=" "):
         super(Completer, self).__init__(parent)
         self.setWindowFlags(Qt.Popup)
         self.repo = repo
         self.words = []
         self.widget = None #This is a text edit widget for which completion is perfomed
+        
+        self.end_str = end_str #This string is placed after every inserted name
                 
         self.connect(self, QtCore.SIGNAL("itemActivated(QListWidgetItem *)"), self.submit_word)
     
@@ -506,11 +517,15 @@ class Completer(QtGui.QListWidget):
         self.connect(self.widget, QtCore.SIGNAL("textChanged()"), self.widget_text_changed)
     
     
-    def keyPressEvent(self, event):        
+    def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.hide()
         elif event.key() in [Qt.Key_Enter, Qt.Key_Return, Qt.Key_Up, Qt.Key_Down]:
             super(Completer, self).keyPressEvent(event)
+        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_Space:
+            #Refresh tag/field names from database
+            self.populate_words()
+            self.widget_text_changed()
         elif event.key() == Qt.Key_Backspace:
             cursor = self.widget.textCursor()
             cursor.deletePreviousChar()
@@ -519,13 +534,11 @@ class Completer(QtGui.QListWidget):
             cursor = self.widget.textCursor()
             cursor.insertText(text)
             
-            
-    
     def submit_word(self, item):
         if self.widget is not None and item is not None:            
             cursor = self.widget.textCursor()
             cursor.select(QtGui.QTextCursor.WordUnderCursor)
-            cursor.insertText(item.text() + " ")
+            cursor.insertText(item.text() + self.end_str)
         self.hide()
         
     def populate_words(self):
