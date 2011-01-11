@@ -451,6 +451,109 @@ class HTMLDelegate(QtGui.QStyledItemDelegate):
             super(HTMLDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
             
 
+class TextEdit(QtGui.QTextEdit):
+    '''Modified QTextEdit, that supports Completer class. When user presses shortcut Ctrl+Space,
+    it shows a completer (if such exists).'''
+    
+    def __init__(self, parent=None, completer=None):
+        super(TextEdit, self).__init__(parent)
+        self.completer = completer
+        self.setPlainText("")
+        
+    def keyPressEvent(self, event):
+        if self.completer is not None and \
+        event.modifiers() == Qt.ControlModifier and \
+        event.key() == Qt.Key_Space:
+            cursor = self.textCursor()
+            cursor.select(QtGui.QTextCursor.WordUnderCursor)
+            word = cursor.selectedText()
+            self.completer.filter(word if not is_none_or_empty(word) else "")
+            
+            rect = self.cursorRect()
+            point = rect.bottomLeft()
+            self.completer.move(self.mapToGlobal(point))            
+            
+            self.completer.show()
+            self.completer.setFocus(Qt.PopupFocusReason)
+        else:
+            super(TextEdit, self).keyPressEvent(event)
+            
+        
+    def focusInEvent(self, event):
+        #completer may be shared between multilple text edit widgets
+        if self.completer is not None:
+            self.completer.set_widget(self)
+            
+        
+class Completer(QtGui.QListWidget):
+    
+    def __init__(self, repo, parent=None):
+        super(Completer, self).__init__(parent)
+        self.setWindowFlags(Qt.Popup)
+        self.repo = repo
+        self.words = []
+        self.widget = None #This is a text edit widget for which completion is perfomed
+                
+        self.connect(self, QtCore.SIGNAL("itemActivated(QListWidgetItem *)"), self.submit_word)
+    
+        self.populate_words()
+    
+    def set_widget(self, widget):
+        if self.widget:
+            self.disconnect(self.widget, QtCore.SIGNAL("textChanged()"), self.widget_text_changed)             
+            
+        self.widget = widget
+        self.connect(self.widget, QtCore.SIGNAL("textChanged()"), self.widget_text_changed)
+    
+    
+    def keyPressEvent(self, event):        
+        if event.key() == Qt.Key_Escape:
+            self.hide()
+        elif event.key() in [Qt.Key_Enter, Qt.Key_Return, Qt.Key_Up, Qt.Key_Down]:
+            super(Completer, self).keyPressEvent(event)
+        elif event.key() == Qt.Key_Backspace:
+            cursor = self.widget.textCursor()
+            cursor.deletePreviousChar()
+        else:
+            text = event.text()
+            cursor = self.widget.textCursor()
+            cursor.insertText(text)
+            
+            
+    
+    def submit_word(self, item):
+        cursor = self.widget.textCursor()
+        cursor.select(QtGui.QTextCursor.WordUnderCursor)
+        cursor.removeSelectedText()
+        cursor.insertText(item.text())
+        self.hide()
+        
+    def populate_words(self):
+        if not self.repo:
+            raise ValueError(self.tr("Completer does'n connected to repository."))
+
+        uow = self.repo.create_unit_of_work()
+        try:
+            self.words = uow.get_names_of_all_tags_and_fields()
+        finally:
+            uow.close()
+    
+    def widget_text_changed(self):
+        if self.widget:
+            cursor = self.widget.textCursor()
+            cursor.select(QtGui.QTextCursor.WordUnderCursor)
+            word =  cursor.selectedText()
+            self.filter(word)
+    
+    def filter(self, prefix):
+        self.clear()
+        for (word,) in self.words:
+            if word.startswith(prefix):
+                self.addItem(word)
+        #TODO not very smart seach! Very expensive.
+                
+            
+        
         
         
         

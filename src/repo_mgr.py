@@ -253,6 +253,19 @@ class UnitOfWork(object):
             except ResourceClosedError as ex:
                 return []
     
+    def get_names_of_all_tags_and_fields(self):
+        sql = '''
+        select distinct name from tags
+        UNION
+        select distinct name from fields
+        ORDER BY name
+        '''
+        try:            
+            return self._session.query("name").from_statement(sql).all()
+        except ResourceClosedError:
+            return []
+        
+    
     def get_file_info(self, path):
         data_ref = self._session.query(DataRef)\
             .filter(DataRef.url_raw==helpers.to_db_format(path))\

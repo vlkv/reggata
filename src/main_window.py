@@ -1104,7 +1104,7 @@ class MainWindow(QtGui.QMainWindow):
                         id = self.model.items[row].id
                         sel_items.append(uow.get_item(id))
                     dlg = ItemsDialog(self, sel_items, DialogMode.EDIT)
-                    if dlg.exec_():                        
+                    if dlg.exec_():
                         thread = UpdateGroupOfItemsThread(self, self.active_repo, sel_items)
                         self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
                                                                         
@@ -1127,7 +1127,8 @@ class MainWindow(QtGui.QMainWindow):
                 uow = self.active_repo.create_unit_of_work()
                 try:
                     item = uow.get_item(item_id)
-                    item_dialog = ItemDialog(item, self, DialogMode.EDIT)
+                    completer = helpers.Completer(self.active_repo)
+                    item_dialog = ItemDialog(item, self, DialogMode.EDIT, completer=completer)
                     if item_dialog.exec_():
                         uow.update_existing_item(item_dialog.item, self.active_user.login)                        
                 finally:

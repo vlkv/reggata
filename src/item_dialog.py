@@ -33,16 +33,19 @@ from parsers import definition_parser, definition_tokens
 from parsers.util import quote, unquote
 import consts
 from exceptions import MsgException
+import helpers
 
 class ItemDialog(QtGui.QDialog):
     '''
     Диалог для представления одного элемента хранилища
     '''
 
-    def __init__(self, item, parent=None, mode=DialogMode.VIEW):
+    def __init__(self, item, parent=None, mode=DialogMode.VIEW, completer=None):
         super(ItemDialog, self).__init__(parent)
         self.ui = ui_itemdialog.Ui_ItemDialog()
         self.ui.setupUi(self)
+        
+        self.completer = completer
         
         if type(item) != Item:
             raise TypeError(self.tr("Argument item should be an instance of Item class."))
@@ -68,7 +71,10 @@ class ItemDialog(QtGui.QDialog):
         self.connect(self.ui.action_popup_compl, QtCore.SIGNAL("triggered()"), self.action_popup_compl)
         self.ui.plainTextEdit_tags.addAction(self.ui.action_popup_compl)
         
-    def action_popup_compl(self):        
+        self.ui.text_edit = helpers.TextEdit(self, self.completer)
+        self.ui.verticalLayout_8.addWidget(self.ui.text_edit)
+        
+    def action_popup_compl(self):
         
         cursor = self.ui.plainTextEdit_tags.textCursor()
         cursor.select(QtGui.QTextCursor.WordUnderCursor)

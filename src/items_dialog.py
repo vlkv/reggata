@@ -50,7 +50,7 @@ class ItemsDialog(QtGui.QDialog):
     
     
 
-    def __init__(self, parent=None, items=[], mode=DialogMode.EDIT, same_dst_path=True):
+    def __init__(self, parent=None, items=[], mode=DialogMode.EDIT, same_dst_path=True, completer=None):
         super(ItemsDialog, self).__init__(parent)
         self.ui = ui_itemsdialog.Ui_ItemsDialog()
         self.ui.setupUi(self)
@@ -62,7 +62,8 @@ class ItemsDialog(QtGui.QDialog):
         
         #If this field is true, all items will be moved into selected destination path
         self.same_dst_path = same_dst_path
-        
+                
+        self.completer = completer
         
         if len(items) <= 1:
             raise ValueError(self.tr("ItemsDialog cannot operate with one or zero Item objects."))
