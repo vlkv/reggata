@@ -28,11 +28,11 @@ Created on 04.10.2010
 '''
 from PyQt4.QtCore import (QCoreApplication)
 import PyQt4.QtGui as QtGui
+import PyQt4.QtCore as QtCore
 import traceback
 import os
 import hashlib
 import time
-from PyQt4 import QtCore
 from PyQt4.QtCore import Qt
 from exceptions import MsgException
 import platform
@@ -455,12 +455,48 @@ class TextEdit(QtGui.QTextEdit):
     '''Modified QTextEdit, that supports Completer class. When user presses shortcut Ctrl+Space,
     it shows a completer (if such exists) that helps user to enter tag/field names.'''
     
-    def __init__(self, parent=None, completer=None, completer_end_str=" "):
+    def __init__(self, parent=None, completer=None, completer_end_str=" ", one_line=False):
         super(TextEdit, self).__init__(parent)
         self.completer = completer
         self.completer_end_str = completer_end_str
         self.setPlainText("")
         
+        self.one_line = one_line
+        if one_line:
+            self.setWordWrapMode(QtGui.QTextOption.NoWrap)
+            self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.setTabChangesFocus(True)
+            self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+            
+            le = QtGui.QLineEdit()
+            self.setFixedHeight(le.sizeHint().height())
+            del le
+    
+    def set_completer(self, completer):
+        self.completer = completer
+    
+    #def sizeHint(self):    
+        #label = QtGui.QLineEdit()
+        #return label.sizeHint()
+        #return QtGui.QSize(100, 20)
+        #fm = QtGui.QFontMetrics(self.font())
+        #h = fm.height();
+        #w = fm.width(QtCore.QLatin1Char('x'));
+        #w = fm.width('x');
+        #print(QtCore.QSize(w, h))
+        #return QtCore.QSize(w, h);
+        #return QtCore.QSize(100, 20);
+        
+        #QFontMetrics fm(font());
+        #int h = fm.height();
+        #int w = fm.width(QLatin1Char('x'));     
+        #return QSize(w, h);
+    
+    def text(self):
+        return self.toPlainText()
+    
+      
     def keyPressEvent(self, event):        
         
         #TODO Should show completer automatically when two or three characters have been typed?
@@ -481,6 +517,13 @@ class TextEdit(QtGui.QTextEdit):
             
             self.completer.show()
             self.completer.setFocus(Qt.PopupFocusReason)
+            
+            
+            super(TextEdit, self).keyPressEvent(event)
+            
+            
+        elif self.one_line and event.key() in [Qt.Key_Enter, Qt.Key_Return]:
+            self.emit(QtCore.SIGNAL("returnPressed()"))
         else:
             super(TextEdit, self).keyPressEvent(event)
             
@@ -526,6 +569,8 @@ class Completer(QtGui.QListWidget):
             #Refresh tag/field names from database
             self.populate_words()
             self.widget_text_changed()
+            
+            super(Completer, self).keyPressEvent(event)
         elif event.key() == Qt.Key_Backspace:
             cursor = self.widget.textCursor()
             cursor.deletePreviousChar()

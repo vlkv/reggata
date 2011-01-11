@@ -23,6 +23,7 @@ Created on 13.11.2010
 '''
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
+from PyQt4.QtCore import Qt
 from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty
 from parsers.query_tokens import needs_quote
 from parsers.util import quote
@@ -145,6 +146,7 @@ class TagCloud(QtGui.QTextEdit):
         self.refresh()
     
     def mouseMoveEvent(self, e):
+        self.setFocus(Qt.OtherFocusReason)
         cursor = self.cursorForPosition(e.pos())
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
@@ -153,7 +155,15 @@ class TagCloud(QtGui.QTextEdit):
         #то word неправильно определяется!
         #Надо будет что-то по этому поводу сделать
         return super(TagCloud, self).mouseMoveEvent(e)
-        
+    
+    def event(self, e):
+        #Информация о нажатии Control-а передается облаку тегов
+        if e.type() == QtCore.QEvent.KeyPress and e.key() == Qt.Key_Control:
+            self.control_pressed = True
+        elif e.type() == QtCore.QEvent.KeyRelease and e.key() == Qt.Key_Control:
+            self.control_pressed = False
+        return super(TagCloud, self).event(e)
+    
     def mouseDoubleClickEvent(self, e):
         '''Добавление тега в запрос.'''
         

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Jan 10 16:39:58 2011
+# Created: Tue Jan 11 19:36:02 2011
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName(_fromUtf8("menu_repo"))
@@ -60,9 +60,11 @@ class Ui_MainWindow(object):
         self.label = QtGui.QLabel(self.dockWidgetContents)
         self.label.setObjectName(_fromUtf8("label"))
         self.horizontalLayout.addWidget(self.label)
-        self.lineEdit_query = QtGui.QLineEdit(self.dockWidgetContents)
-        self.lineEdit_query.setObjectName(_fromUtf8("lineEdit_query"))
-        self.horizontalLayout.addWidget(self.lineEdit_query)
+        self.frame_lineEdit_query = QtGui.QFrame(self.dockWidgetContents)
+        self.frame_lineEdit_query.setFrameShape(QtGui.QFrame.NoFrame)
+        self.frame_lineEdit_query.setFrameShadow(QtGui.QFrame.Plain)
+        self.frame_lineEdit_query.setObjectName(_fromUtf8("frame_lineEdit_query"))
+        self.horizontalLayout.addWidget(self.frame_lineEdit_query)
         self.pushButton_query_exec = QtGui.QPushButton(self.dockWidgetContents)
         self.pushButton_query_exec.setObjectName(_fromUtf8("pushButton_query_exec"))
         self.horizontalLayout.addWidget(self.pushButton_query_exec)

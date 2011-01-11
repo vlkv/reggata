@@ -98,7 +98,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_edit)
         self.menu.addAction(self.ui.action_item_rebuild_thumbnail)
-        self.menu.addSeparator()        
+        self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_delete)
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_check_integrity)
@@ -138,9 +138,15 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
         
         #Widgets for text queries
+        self.ui.lineEdit_query = helpers.TextEdit(self, one_line=True)
+        tmp = QtGui.QHBoxLayout(self)
+        self.ui.frame_lineEdit_query.setLayout(tmp)
+        tmp.addWidget(self.ui.lineEdit_query)
         self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
         self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
         self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
+        
+        #self.ui.horizontalLayout.addWidget(helpers.TextEdit(self, one_line=True))
         
         #TODO limit page function sometimes works not correct!!! It sometimes shows less items, than specified in limit spinbox!
         #Initialization of limit and page spinboxes 
@@ -322,10 +328,10 @@ class MainWindow(QtGui.QMainWindow):
 
     def event(self, e):
         #Информация о нажатии Control-а передается облаку тегов
-        if e.type() == QtCore.QEvent.KeyPress and e.key() == Qt.Key_Control:
-            self.ui.tag_cloud.control_pressed = True
-        elif e.type() == QtCore.QEvent.KeyRelease and e.key() == Qt.Key_Control:
-            self.ui.tag_cloud.control_pressed = False
+        #if e.type() == QtCore.QEvent.KeyPress and e.key() == Qt.Key_Control:
+        #    self.ui.tag_cloud.control_pressed = True
+        #elif e.type() == QtCore.QEvent.KeyRelease and e.key() == Qt.Key_Control:
+        #    self.ui.tag_cloud.control_pressed = False
         return super(MainWindow, self).event(e)
 
     def showContextMenu(self, pos):
@@ -456,11 +462,17 @@ class MainWindow(QtGui.QMainWindow):
                 
                 self.ui.file_browser.repo = repo                
                 
+                completer = helpers.Completer(repo, self)
+                self.ui.lineEdit_query.set_completer(completer)
+                
             else:
                 self.ui.label_repo.setText("")
                 self.model = None
                 self.ui.tableView_items.setModel(None)
                 self.ui.file_browser.repo = None
+                
+                self.ui.lineEdit_query.set_completer(None)
+                
         except Exception as ex:
             raise CannotOpenRepoError(str(ex), ex)
                 
