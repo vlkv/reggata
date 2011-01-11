@@ -134,19 +134,23 @@ class ItemsDialog(QtGui.QDialog):
         
         #Теги, которые нужно добавить        
         text = self.ui.plainTextEdit_tags_add.toPlainText()
-        tags_add = set(parsers.tags_def_parser.parse(text))
+        tags, tmp = parsers.definition_parser.parse(text)
+        tags_add = set(tags)
         
-        #Теги, которые нужно удалить        
+        #Теги, которые нужно удалить
         text = self.ui.plainTextEdit_tags_rm.toPlainText()
-        tags_rm = set(parsers.tags_def_parser.parse(text))
+        tags, tmp = parsers.definition_parser.parse(text)
+        tags_rm = set(tags)
         
         #Поля, которые нужно добавить
         text = self.ui.plainTextEdit_fields_add.toPlainText()
-        fieldvals_add = set(parsers.fields_def_parser.parse(text))
+        tmp, fields = parsers.definition_parser.parse(text)
+        fieldvals_add = set(fields)
         
         #Имена полей, которые нужно удалить
         text = self.ui.plainTextEdit_fields_rm.toPlainText()
-        fields_rm = set(parsers.tags_def_parser.parse(text)) #Здесь используется парсер для тегов!
+        tmp, fields = parsers.definition_parser.parse(text)
+        fields_rm = set(fields) #Здесь используется парсер для тегов!
             
             
         

@@ -19,41 +19,62 @@ along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 
 Created on 28.11.2010
 
-Парсер списка пар <поле:значение>.
+Parser for text definition of tags and fields.
 '''
 
-#TODO!!! Мне кажется нужно объединить два парсера: tags_def_tokens и fields_def_tokens в один.
-
 import ply.yacc as yacc
-from parsers.fields_def_tokens import *
+from parsers.definition_tokens import *
 import consts
+from exceptions import YaccError
 
-#Далее следуют продукции грамматики языка 
-
-def p_fields_def_expression(p):
-    '''fields_def_expression : fields_def_expression field_value_pair '''
-    p[1].append(p[2])
-    p[0] = p[1]
-
-def p_fields_def_expression_empty(p):
-    '''fields_def_expression : '''
-    p[0] = []
+def p_definition_empty(p):
+    '''definition :
+    '''
+    p[0] = ([], []) #Tuple (list_of_tags, list_of_fields)
+ 
+def p_definition_fields(p):
+    '''definition : definition field_value_pair
+    '''
+    fields = p[1][1]
+    fields.append(p[2])
+    p[0] = (p[1][0], fields)
+    
+def p_definition_tags(p):
+    '''definition : definition tag
+    '''
+    tags = p[1][0]
+    tags.append(p[2])
+    p[0] = (tags, p[1][1])
 
 def p_field_value_pair(p):
-    '''field_value_pair : field COLON value '''
+    '''field_value_pair : field COLON value 
+    '''
     p[0] = (p[1], p[3])
     
 def p_field(p):
-    '''field : STRING'''
+    '''field : STRING
+    '''
     p[0] = p[1]
     
 def p_value(p):
-    '''value : STRING'''
+    '''value : STRING
+    '''
     p[0] = p[1]
+    
+def p_tags_def_expression_empty(p):
+    '''tags_def_expression : 
+    '''
+    p[0] = []
+
+def p_tag(p):
+    '''tag : STRING
+    '''
+    p[0] = p[1]
+
 
 #Правило для определения действий в случае возникновения ошибки
 def p_error(p):
-    print("Syntax error in input! " + str(p))
+    raise YaccError(tr("Syntax error in definition: {}").format(str(p)))
 
 #Строим лексический анализатор
 lexer = build_lexer()
@@ -74,19 +95,10 @@ if __name__ == '__main__':
     
     data = r'''
     Tag1 : "Slash\\:quote\" end" 
-    and:"tag 2"
-     user : "asdf"
+    and:"tag 2" LOOK
+    user : "asdf"
+    TAG AND MORE TAGS
     '''
-    lexer.input(data)
-    while True:
-        tok = lexer.token()
-        if not tok: break      # No more input
-        print(tok)
-    
-    
-#    text = r'asdf:asdf "asdf a":"sdf"'
     res = parse(data)
     print(res)
-    for r in res:
-        print(r)
         

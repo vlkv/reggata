@@ -28,7 +28,7 @@ from db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
 from helpers import tr, show_exc_info, DialogMode, index_of, is_none_or_empty, \
                     is_internal
 import os
-from parsers import tags_def_parser, fields_def_parser, fields_def_tokens
+from parsers import definition_parser, definition_tokens
 from parsers.util import quote, unquote
 import consts
 from exceptions import MsgException
@@ -96,8 +96,8 @@ class ItemDialog(QtGui.QDialog):
                     raise MsgException(self.tr("Unknown reserved field name '{}'").format(itf.field.name))            
             #Processing all other fields
             else:
-                name = quote(itf.field.name) if fields_def_parser.needs_quote(itf.field.name) else itf.field.name
-                value = quote(itf.field_value) if fields_def_parser.needs_quote(itf.field_value) else itf.field_value
+                name = quote(itf.field.name) if definition_parser.needs_quote(itf.field.name) else itf.field.name
+                value = quote(itf.field_value) if definition_parser.needs_quote(itf.field_value) else itf.field_value
                 s = s + name + ": " + value + os.linesep
         self.ui.plainTextEdit_fields.setPlainText(s)
         
@@ -105,18 +105,19 @@ class ItemDialog(QtGui.QDialog):
         s = ""
         for itg in self.item.item_tags:
             tag_name = itg.tag.name
-            s = s + (quote(tag_name) if tags_def_parser.needs_quote(tag_name) else tag_name) + " "
+            s = s + (quote(tag_name) if definition_parser.needs_quote(tag_name) else tag_name) + " "
         self.ui.plainTextEdit_tags.setPlainText(s)
         
         
     
     def write(self):
         '''Запись введенной в элементы gui информации в поля объекта.'''
-        self.item.title = self.ui.lineEdit_title.text()        
+        self.item.title = self.ui.lineEdit_title.text()
         
         #Создаем объекты Tag
         text = self.ui.plainTextEdit_tags.toPlainText()
-        for t in tags_def_parser.parse(text):
+        tags, tmp = definition_parser.parse(text)
+        for t in tags:
             tag = Tag(name=t)
             item_tag = Item_Tag(tag)
             item_tag.user_login = self.item.user_login
@@ -125,7 +126,8 @@ class ItemDialog(QtGui.QDialog):
         
         #Создаем объекты Field
         text = self.ui.plainTextEdit_fields.toPlainText()
-        for (f, v) in fields_def_parser.parse(text):
+        tmp, fields = definition_parser.parse(text)
+        for (f, v) in fields:
             if f in consts.RESERVED_FIELDS:
                 raise MsgException(self.tr("Field name '{}' is reserved.").format(f))
             field = Field(name=f)
