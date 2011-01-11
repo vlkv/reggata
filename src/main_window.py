@@ -1127,7 +1127,7 @@ class MainWindow(QtGui.QMainWindow):
                 uow = self.active_repo.create_unit_of_work()
                 try:
                     item = uow.get_item(item_id)
-                    completer = helpers.Completer(self.active_repo)
+                    completer = helpers.Completer(self.active_repo, self)
                     item_dialog = ItemDialog(item, self, DialogMode.EDIT, completer=completer)
                     if item_dialog.exec_():
                         uow.update_existing_item(item_dialog.item, self.active_user.login)                        

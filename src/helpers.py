@@ -522,14 +522,14 @@ class Completer(QtGui.QListWidget):
             
     
     def submit_word(self, item):
-        cursor = self.widget.textCursor()
-        cursor.select(QtGui.QTextCursor.WordUnderCursor)
-        cursor.removeSelectedText()
-        cursor.insertText(item.text())
+        if self.widget is not None and item is not None:            
+            cursor = self.widget.textCursor()
+            cursor.select(QtGui.QTextCursor.WordUnderCursor)
+            cursor.insertText(item.text() + " ")
         self.hide()
         
     def populate_words(self):
-        if not self.repo:
+        if self.repo is None:
             raise ValueError(self.tr("Completer does'n connected to repository."))
 
         uow = self.repo.create_unit_of_work()
@@ -539,7 +539,7 @@ class Completer(QtGui.QListWidget):
             uow.close()
     
     def widget_text_changed(self):
-        if self.widget:
+        if self.widget is not None:
             cursor = self.widget.textCursor()
             cursor.select(QtGui.QTextCursor.WordUnderCursor)
             word =  cursor.selectedText()
