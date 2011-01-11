@@ -461,8 +461,9 @@ class TextEdit(QtGui.QTextEdit):
         self.completer_end_str = completer_end_str
         self.setPlainText("")
         
-    def keyPressEvent(self, event):
-        print("keyPressEvent")
+    def keyPressEvent(self, event):        
+        
+        #TODO Should show completer automatically when two or three characters have been typed?
         
         if self.completer is not None and \
         event.modifiers() == Qt.ControlModifier and \
@@ -485,7 +486,6 @@ class TextEdit(QtGui.QTextEdit):
             
         
     def focusInEvent(self, event):
-        print("focusInEvent")
         #completer may be shared between multilple text edit widgets
         if self.completer is not None:
             self.completer.set_widget(self)
