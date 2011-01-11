@@ -48,6 +48,7 @@ class TagCloud(QtGui.QTextEdit):
         
         self.menu = None #Это ссылка на контекстное меню (при нажатии правой кнопки мыши)
         
+        self.word = None
         
         #Пользователи (их логины), теги которых должны отображаться в облаке
         #Если пустое множество, то в облаке отображаются теги всех пользователей
@@ -144,10 +145,19 @@ class TagCloud(QtGui.QTextEdit):
         self.refresh()
     
     def mouseMoveEvent(self, e):
-        #self.setFocus(Qt.OtherFocusReason)
+        
         cursor = self.cursorForPosition(e.pos())
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
+        if word != self.word:
+            
+            #cursor.movePosition(QtGui.QTextCursor.Start)
+            #cursor.movePosition(QtGui.QTextCursor.End, QtGui.QTextCursor.KeepAnchor)
+            #cursor.mergeCharFormat(format)
+            
+            format = QtGui.QTextCharFormat()
+            format.setForeground(QtGui.QBrush(Qt.red))
+            cursor.mergeCharFormat(format)
         self.word = word
         #TODO Если тег содержит пробелы (или другие символы, типа - (дефис)) 
         #то word неправильно определяется!
