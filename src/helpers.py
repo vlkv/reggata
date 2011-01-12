@@ -26,17 +26,18 @@ Created on 04.10.2010
 Содержит функцию tr() для более удобного вызова QCoreApplication.translate().
 А функции Object.tr() рекомендуется в PyQt не использовать вообще.
 '''
-from PyQt4.QtCore import (QCoreApplication)
+from PyQt4.QtCore import QCoreApplication
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
+from PyQt4.QtCore import Qt
 import traceback
 import os
 import hashlib
 import time
-from PyQt4.QtCore import Qt
 from exceptions import MsgException
 import platform
 import math
+import parsers
 
 
 def tr(text):
@@ -456,7 +457,7 @@ class TextEdit(QtGui.QTextEdit):
     it shows a completer (if such exists) that helps user to enter tag/field names.'''
     
     def __init__(self, parent=None, completer=None, completer_end_str=" ", one_line=False):
-        super(TextEdit, self).__init__(parent)
+        super(TextEdit, self).__init__(parent)        
         self.completer = completer
         self.completer_end_str = completer_end_str
         self.setPlainText("")
@@ -470,7 +471,7 @@ class TextEdit(QtGui.QTextEdit):
             self.setTabChangesFocus(True)
             self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
             
-            
+            #TODO I dont like this:
             self.setFixedHeight(QtGui.QLineEdit().sizeHint().height() + 2)
             
             
@@ -482,31 +483,47 @@ class TextEdit(QtGui.QTextEdit):
         '''This is for QLineEdit behaviour.'''
         return self.toPlainText()
     
-      
-    def keyPressEvent(self, event):
-        
-        #TODO Should show completer automatically when two or three characters have been typed?
-        
-        if self.completer is not None and \
-        event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_Space:
-        
-            cursor = self.textCursor()
-            cursor.select(QtGui.QTextCursor.WordUnderCursor)
-            word = cursor.selectedText()
-            self.completer.filter(word if not is_none_or_empty(word) else "")
-            
+    def show_completer(self):
+        if self.completer is not None:
             rect = self.cursorRect()
             point = rect.bottomLeft()
             self.completer.move(self.mapToGlobal(point))
             
             self.completer.end_str = self.completer_end_str
             
+            
             self.completer.show()
-            self.completer.setFocus(Qt.PopupFocusReason)     
+            self.completer.setFocus(Qt.PopupFocusReason)
+      
+    def keyPressEvent(self, event):
+        
+        cursor = self.textCursor()
+        cursor.select(QtGui.QTextCursor.WordUnderCursor)
+        word = cursor.selectedText()
+        word = word if not is_none_or_empty(word) else ""
+        
+        if self.completer is not None and \
+        event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_Space:        
+            self.completer.filter(word)
+            self.show_completer()
+            super(TextEdit, self).keyPressEvent(event)                        
+            #TODO When user press Ctrl+Space, completer is shown, but TextEdit cursor becomes hidden! Why?
             
         elif self.one_line and event.key() in [Qt.Key_Enter, Qt.Key_Return]:
             #This signal is for QLineEdit behaviour
             self.emit(QtCore.SIGNAL("returnPressed()"))
+            
+        elif event.key() in [Qt.Key_Backspace, Qt.Key_Delete, 
+                             Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right,
+                             Qt.Key_End, Qt.Key_Home, Qt.Key_Shift, Qt.Key_Alt, Qt.Key_Control]:
+            super(TextEdit, self).keyPressEvent(event)
+            
+        elif len(word) > 0:
+            self.completer.filter(word)            
+            if self.completer.count() > 0:
+                self.show_completer()
+            super(TextEdit, self).keyPressEvent(event)
+                        
         else:
             super(TextEdit, self).keyPressEvent(event)
             
@@ -525,6 +542,8 @@ class Completer(QtGui.QListWidget):
     def __init__(self, repo, parent=None, end_str=" "):
         super(Completer, self).__init__(parent)
         self.setWindowFlags(Qt.Popup)
+        #self.setWindowModality(Qt.NonModal)
+        
         self.repo = repo
         self.words = []
         self.widget = None #This is a text edit widget for which completion is perfomed
@@ -542,10 +561,19 @@ class Completer(QtGui.QListWidget):
         self.widget = widget
         self.connect(self.widget, QtCore.SIGNAL("textChanged()"), self.widget_text_changed)
     
+    def event(self, e):
+        #print("Completer {}".format(type(e)))
+        
+        #This hides the completer (self) when user clicks somewhere outside
+        if e.type() == QtCore.QEvent.MouseButtonPress:
+            self.hide()
+            
+        return super(Completer, self).event(e)
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.hide()
+            
         elif event.key() in [Qt.Key_Enter, Qt.Key_Return, Qt.Key_Up, Qt.Key_Down]:
             super(Completer, self).keyPressEvent(event)
             
@@ -557,6 +585,19 @@ class Completer(QtGui.QListWidget):
         elif event.key() == Qt.Key_Backspace:
             cursor = self.widget.textCursor()
             cursor.deletePreviousChar()
+        
+        elif event.key() in [Qt.Key_Left]:
+            cursor = self.widget.textCursor()
+            #cursor.setVisualNavigation(True)
+            cursor.movePosition(QtGui.QTextCursor.Left)
+            self.widget.setTextCursor(cursor)
+            
+            
+        elif event.key() in [Qt.Key_Right]:
+            cursor = self.widget.textCursor()
+            #cursor.setVisualNavigation(True)
+            cursor.movePosition(QtGui.QTextCursor.Right)
+            self.widget.setTextCursor(cursor)
             
         else:
             text = event.text()
@@ -567,7 +608,10 @@ class Completer(QtGui.QListWidget):
         if self.widget is not None and item is not None:            
             cursor = self.widget.textCursor()
             cursor.select(QtGui.QTextCursor.WordUnderCursor)
-            cursor.insertText(item.text() + self.end_str)
+            word = item.text()
+            if parsers.query_parser.needs_quote(word):
+                word = parsers.util.quote(word)
+            cursor.insertText(word + self.end_str)
         self.hide()
         
     def populate_words(self):
@@ -585,13 +629,18 @@ class Completer(QtGui.QListWidget):
             cursor = self.widget.textCursor()
             cursor.select(QtGui.QTextCursor.WordUnderCursor)
             word =  cursor.selectedText()
+            if is_none_or_empty(word):
+                self.hide()
             self.filter(word)
+            if self.count() <= 0:
+                self.hide()
     
     def filter(self, prefix):
         self.clear()
         for (word,) in self.words:
             if word.startswith(prefix):
                 self.addItem(word)
+        self.setCurrentRow(0)
         #TODO not very smart search! Very expensive.
                 
             

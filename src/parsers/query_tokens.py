@@ -23,17 +23,17 @@ Created on 27.11.2010
 '''
 import ply.lex as lex
 import re
-from helpers import tr
+import helpers
 from exceptions import LexError
 import consts
 
 
-AND_OPERATOR = tr('and')
-OR_OPERATOR = tr('or')
-NOT_OPERATOR = tr('not')
-USER_KEYWORD = tr('user')
-PATH_KEYWORD = tr('path')
-TITLE_KEYWORD = tr('title')
+AND_OPERATOR = helpers.tr('and')
+OR_OPERATOR = helpers.tr('or')
+NOT_OPERATOR = helpers.tr('not')
+USER_KEYWORD = helpers.tr('user')
+PATH_KEYWORD = helpers.tr('path')
+TITLE_KEYWORD = helpers.tr('title')
 
 #Зарезервированные слова и соответствующие им типы токенов
 #Я хочу, чтобы операции and, or, not и др. были в нескольких вариантах.
@@ -105,7 +105,7 @@ t_ignore  = ' \t\n\r'
 
 # Error handling rule
 def t_error(t):
-    raise LexError(tr("Illegal character '{}'").format(t.value[0]))
+    raise LexError(helpers.tr("Illegal character '{}'").format(t.value[0]))
     #print("Illegal character '%s'" % t.value[0])
     #t.lexer.skip(1) #Пропускаем текущий символ и переходим к следующему
 

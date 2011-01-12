@@ -25,7 +25,7 @@ from pyjavaproperties import Properties
 import consts
 import os
 import codecs
-from helpers import tr
+
 
 
 #TODO Кстати, можно было бы использовать класс QSettings
@@ -86,7 +86,7 @@ class UserConfig(object):
         
     def storeAll(self, d):
         if type(d) != dict:
-            raise TypeError(tr("This is not a dict instance."))
+            raise TypeError("This is not a dict instance.")
         for key in d.keys():
             self._props[key] = str(d[key])
         self._props.store(codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8"))

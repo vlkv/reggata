@@ -26,14 +26,15 @@ import consts
 import helpers
 from user_config import UserConfig
 import db_schema
-from helpers import tr, to_commalist
+
+#from helpers import to_commalist
 
 
 class QueryExpression(object):
     '''Базовый класс для всех классов-узлов синтаксического дерева разбора.'''
     
     def interpret(self):
-        raise NotImplementedError(tr('This is an abstract method.'))
+        raise NotImplementedError(helpers.tr('This is an abstract method.'))
 
 
 class CompoundQuery(QueryExpression):
@@ -130,7 +131,7 @@ class SimpleQuery(QueryExpression):
         elif ext.type == 'TITLE':
             self.extra_titles.append(ext)
         else:
-            raise Exception(tr("Unexpected type of extra_clause {}").format(str(ext.type)))
+            raise Exception(helpers.tr("Unexpected type of extra_clause {}").format(str(ext.type)))
 
 class SingleExtraClause(SimpleQuery):
     
@@ -251,7 +252,7 @@ class FieldsConjunction(SimpleQuery):
             from_str = from_str + from_part
             
         #where_str
-        where_str = to_commalist(where_parts, lambda x: x, " and \n")
+        where_str = helpers.to_commalist(where_parts, lambda x: x, " and \n")
         
         
         
