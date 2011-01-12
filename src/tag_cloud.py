@@ -53,34 +53,9 @@ class TagCloud(QtGui.QTextEdit):
         #Пользователи (их логины), теги которых должны отображаться в облаке
         #Если пустое множество, то в облаке отображаются теги всех пользователей
         self._users = set() #TODO Это пока что не используется... (не реализовано)
-        
-        #Значения по умолчанию
-        self.hint_width = 320
-        self.hint_height = 240
-        
-#        #Таймер для задержки отправки сигнала maySaveSize
-#        self.save_state_timer = QtCore.QTimer(self)
-#        self.save_state_timer.setSingleShot(True)
-#        self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), lambda: self.emit(QtCore.SIGNAL("maySaveSize")))
-        
-        
-#    def resizeEvent(self, resize_event):
-#        self.hint_width = self.width()
-#        self.hint_height = self.height()
-#        self.save_state_timer.start(3000)
-#        #Через три секунды будет отправлен сигнал главному окну, чтобы оно 
-#        #сохранило размер облака тегов
-#        
-#        #Как правило, если dock_widget внутри которого находится облако тегов
-#        #перетаскивать мышкой в другую область, то меняется и размер облака тегов.
-#        #Соответственно, срабатывает данный обработчик и потом в главном окне
-#        #сохраняется размер облака тегов и заодно и положение dock_widget-а.
-#        
-#        return super(TagCloud, self).resizeEvent(resize_event)
-        
-        
-#    def sizeHint(self):
-#        return QtCore.QSize(self.hint_width, self.hint_height)
+    
+        self.selection_start = 0
+        self.selection_end = 0
     
     def add_user(self, user_login):
         self._users.add(user_login)
@@ -130,9 +105,13 @@ class TagCloud(QtGui.QTextEdit):
                     #очередности по количеству элементов, связанным с тегом (т.е. первое место --- тег
                     #у которого больше всех элементов, второе место --- у которого чуть меньше и т.д.)
                     font_size = int(scale_value(tag.c, (min, max), (0, 5)))
+                    
+                    palette = QtGui.QApplication.palette()
+                    
                     #Тут как раз НЕ нужно escape-ить имена тегов!
-                    bg_color = UserConfig().get("tag_cloud.tag_background_color", "Beige")
-                    text = text + ' <font style="BACKGROUND-COLOR: ' + bg_color + '" size="+{}">'.format(font_size) + tag.name + '</font>'
+                    bg_color = UserConfig().get("tag_cloud.tag_background_color", palette.button().color().name())
+                    fg_color = UserConfig().get("tag_cloud.tag_text_color", palette.text().color().name())
+                    text = text + ' <font style="BACKGROUND-COLOR: {0}" size="+{1}" color="{2}">'.format(bg_color, font_size, fg_color) + tag.name + '</font>'
                     
                 self.setText(text)
             finally:
@@ -146,31 +125,60 @@ class TagCloud(QtGui.QTextEdit):
     
     def mouseMoveEvent(self, e):
         
+        #Get current word under cursor
         cursor = self.cursorForPosition(e.pos())
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
+        print("word = " + word)
+        
+        #If current word has changed (or cleared) --- set default formatting to the previous word
+        if word != self.word or is_none_or_empty(word):
+            cursor1 = self.textCursor()
+            cursor1.setPosition(self.selection_start)
+            cursor1.setPosition(self.selection_end, QtGui.QTextCursor.KeepAnchor)
+            format = QtGui.QTextCharFormat()
+            format.setForeground(QtGui.QBrush(Qt.black))
+            cursor1.mergeCharFormat(format)
+            self.word = None
+            print("black")
+        
+        
         if word != self.word:
-            
-            #cursor.movePosition(QtGui.QTextCursor.Start)
-            #cursor.movePosition(QtGui.QTextCursor.End, QtGui.QTextCursor.KeepAnchor)
-            #cursor.mergeCharFormat(format)
+            self.selection_start = cursor.selectionStart()
+            self.selection_end = cursor.selectionEnd()
             
             format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(Qt.red))
+            format.setForeground(QtGui.QBrush(Qt.blue))
             cursor.mergeCharFormat(format)
-        self.word = word
+            self.word = word
+            print("blue word = " + word)
+                        
+        
         #TODO Если тег содержит пробелы (или другие символы, типа - (дефис)) 
         #то word неправильно определяется!
         #Надо будет что-то по этому поводу сделать
         return super(TagCloud, self).mouseMoveEvent(e)
     
     def event(self, e):
+#        print(type(e), e.type())
+        if e.type() == QtCore.QEvent.Enter:
+            print("Hello")
+        elif e.type() == QtCore.QEvent.Leave:
+            cursor1 = self.textCursor()
+            cursor1.setPosition(self.selection_start)
+            cursor1.setPosition(self.selection_end, QtGui.QTextCursor.KeepAnchor)
+            format = QtGui.QTextCharFormat()
+            format.setForeground(QtGui.QBrush(Qt.black))
+            cursor1.mergeCharFormat(format)
+            self.word = None
+            print("clear")
+            print("Bye!")
         return super(TagCloud, self).event(e)
     
     def mouseDoubleClickEvent(self, e):
         '''Добавление тега в запрос.'''
         
-        if not is_none_or_empty(self.word):           
+        if not is_none_or_empty(self.word):
             if e.modifiers() == Qt.ControlModifier:
                 self.not_tags.add(self.word)
             else:
@@ -183,6 +191,8 @@ class TagCloud(QtGui.QTextEdit):
         '''Добавление тега в запрос (через контекстное меню).'''
         try:
             sel_text = self.textCursor().selectedText()
+            if not sel_text:                
+                sel_text = self.word
             if not sel_text:
                 raise MsgException(self.tr("There is no selected text in tag cloud."))
             if parsers.query_parser.needs_quote(sel_text):
@@ -197,8 +207,10 @@ class TagCloud(QtGui.QTextEdit):
         '''Добавление отрицания тега в запрос (через контекстное меню).'''
         try:
             sel_text = self.textCursor().selectedText()
+            if not sel_text:                
+                sel_text = self.word
             if not sel_text:
-                    raise MsgException(self.tr("There is no selected text in tag cloud."))
+                raise MsgException(self.tr("There is no selected text in tag cloud."))
             if parsers.query_parser.needs_quote(sel_text):
                 sel_text = parsers.util.quote(sel_text)
             self.not_tags.add(sel_text)
