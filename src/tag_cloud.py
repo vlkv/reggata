@@ -59,6 +59,12 @@ class TagCloud(QtGui.QTextEdit):
     '''
     
     def __init__(self, parent=None, repo=None):
+        #Current word in tag cloud under the mouse cursor
+        self.word = None
+        
+        #This is a list of tuples (tag_name, count_of_items_with_this_tag)
+        self.tag_count = None
+        
         super(TagCloud, self).__init__(parent)
         self.setMouseTracking(True)
         self.setReadOnly(True)
@@ -68,7 +74,7 @@ class TagCloud(QtGui.QTextEdit):
         
         self.menu = None #Это ссылка на контекстное меню (при нажатии правой кнопки мыши)
         
-        self.word = None
+        
         
         try:
             self._limit = int(UserConfig().get("tag_cloud.limit", 0))
@@ -127,13 +133,8 @@ class TagCloud(QtGui.QTextEdit):
             try:
                 tags = uow.get_related_tags(list(self.tags), limit=self.limit)
                 
-#                #Поиск минимального и максимального количества
-#                min = max = 0 #Отрицательным кол-во быть не может
-#                for tag in tags:
-#                    if tag.c < min:
-#                        min = tag.c
-#                    if tag.c > max:
-#                        max = tag.c
+                self.tag_count = tags
+                
                 tags_sorted = sorted(tags, key=lambda tag : tag.c, reverse=True)
                 sizes = dict()
                 size_max = 6
@@ -199,13 +200,20 @@ class TagCloud(QtGui.QTextEdit):
         if e.type() == QtCore.QEvent.Enter:
             pass
         elif e.type() == QtCore.QEvent.Leave:
+            #Colour previous word into default color
             cursor1 = self.textCursor()
             cursor1.setPosition(self.selection_start)
             cursor1.setPosition(self.selection_end, QtGui.QTextCursor.KeepAnchor)
             format = QtGui.QTextCharFormat()
             format.setForeground(QtGui.QBrush(Qt.black))
             cursor1.mergeCharFormat(format)
-            self.word = None            
+            self.word = None
+        elif self.word is not None and self.tag_count is not None and e.type() == QtCore.QEvent.ToolTip:
+            #Show number of items for tag name under the mouse cursor
+            for tag_name, tag_count in self.tag_count:
+                if tag_name == self.word:
+                    QtGui.QToolTip.showText(e.globalPos(), str(tag_count))
+                    break
         return super(TagCloud, self).event(e)
     
     def mouseDoubleClickEvent(self, e):
