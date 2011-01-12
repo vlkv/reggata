@@ -31,7 +31,7 @@ import ui_mainwindow
 from item_dialog import ItemDialog
 from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread, CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
     ItemIntegrityCheckerThread, ItemIntegrityFixerThread
-from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty,\
+from helpers import tr, show_exc_info, DialogMode, is_none_or_empty,\
     WaitDialog, raise_exc, format_exc_info, HTMLDelegate, ImageThumbDelegate,\
     RatingDelegate, Completer
 from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field

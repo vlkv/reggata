@@ -24,7 +24,7 @@ Created on 13.11.2010
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
-from helpers import tr, show_exc_info, DialogMode, scale_value, is_none_or_empty
+from helpers import tr, show_exc_info, DialogMode, is_none_or_empty
 from parsers.query_tokens import needs_quote
 from parsers.util import quote
 import parsers
@@ -32,6 +32,26 @@ from exceptions import MsgException
 from user_config import UserConfig
 
 #TODO Сделать по Ctr+F поиск тега в облаке (т.к. в хранилище обычно очень много тегов)
+
+def scale_value(value, src_range, dst_range):
+    ''' Выполняет масштабирование значения value, которое может варьироваться в пределах
+    от src_range[0] до src_range[1], после чего значение попадает в диапазон от dst_range[0] до 
+    dst_range[1].
+        Если value находится вне диапазона src_range, то оно будет сдвинуто на соответствующую
+        границу.
+    '''    
+    if src_range[0] > src_range[1]:
+        raise ValueError(tr("Incorrect range, src_range[0] must be less then src_range[1]."))
+    
+    if dst_range[0] > dst_range[1]:
+        raise ValueError(tr("Incorrect range, dst_range[0] must be less then dst_range[1]."))
+    
+    result = float(value) * (float(dst_range[0]) - dst_range[1]) / (src_range[0] - src_range[1])
+    if result < dst_range[0]:
+        result = dst_range[0]
+    elif result > dst_range[1]:
+        result = dst_range[1]
+    return result
 
 class TagCloud(QtGui.QTextEdit):
     '''
@@ -107,20 +127,24 @@ class TagCloud(QtGui.QTextEdit):
             try:
                 tags = uow.get_related_tags(list(self.tags), limit=self.limit)
                 
-                #Поиск минимального и максимального количества
-                min = max = 0 #Отрицательным кол-во быть не может
-                for tag in tags:
-                    if tag.c < min:
-                        min = tag.c
-                    if tag.c > max:
-                        max = tag.c
+#                #Поиск минимального и максимального количества
+#                min = max = 0 #Отрицательным кол-во быть не может
+#                for tag in tags:
+#                    if tag.c < min:
+#                        min = tag.c
+#                    if tag.c > max:
+#                        max = tag.c
+                tags_sorted = sorted(tags, key=lambda tag : tag.c, reverse=True)
+                sizes = dict()
+                size_max = 6
+                i = 0
+                while i < size_max and i < len(tags_sorted):
+                    sizes[tags_sorted[i].c] = size_max - i
+                    i += 1                
                 
                 text = ""
                 for tag in tags:
-                    #TODO Переделать scale_value, чтобы размер определялся не пропорционально, а в порядке
-                    #очередности по количеству элементов, связанным с тегом (т.е. первое место --- тег
-                    #у которого больше всех элементов, второе место --- у которого чуть меньше и т.д.)
-                    font_size = int(scale_value(tag.c, (min, max), (0, 5)))
+                    font_size = sizes.get(tag.c, 0)
                     
                     palette = QtGui.QApplication.palette()
                     
