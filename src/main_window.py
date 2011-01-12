@@ -66,7 +66,9 @@ import locale
 #TODO Довести до ума встроенный просмотрщик графических файлов.
 #TODO Сделать всплывающие подсказки на элементах GUI
 #TODO Если запрос возвращает очень много элементов, и указан limit. То нельзя передать ВСЕ элементы в просмотрщик изображений, передаются только отображенные limit штук. 
-#TODO Sometimes Reggata hangs up!!! This happens in Windows with repository on usb flash drive... Need to know why.
+
+
+#TODO Restore columns widths when close and then open another repository
 
 class MainWindow(QtGui.QMainWindow):
     '''
