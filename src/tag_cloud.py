@@ -50,12 +50,28 @@ class TagCloud(QtGui.QTextEdit):
         
         self.word = None
         
+        try:
+            self._limit = int(UserConfig().get("tag_cloud.limit", 0))
+            if self._limit < 0:
+                raise ValueError()
+        except:
+            self._limit = 0
+        
         #Пользователи (их логины), теги которых должны отображаться в облаке
         #Если пустое множество, то в облаке отображаются теги всех пользователей
         self._users = set() #TODO Это пока что не используется... (не реализовано)
     
         self.selection_start = 0
         self.selection_end = 0
+    
+    def _set_limit(self, value):
+        self._limit = value
+        self.refresh()
+    
+    def _get_limit(self):
+        return self._limit
+    
+    limit = property(_get_limit, _set_limit)
     
     def add_user(self, user_login):
         self._users.add(user_login)
@@ -89,7 +105,7 @@ class TagCloud(QtGui.QTextEdit):
         else:
             uow = self.repo.create_unit_of_work()
             try:
-                tags = uow.get_related_tags(list(self.tags))
+                tags = uow.get_related_tags(list(self.tags), limit=self.limit)
                 
                 #Поиск минимального и максимального количества
                 min = max = 0 #Отрицательным кол-во быть не может
@@ -109,7 +125,7 @@ class TagCloud(QtGui.QTextEdit):
                     palette = QtGui.QApplication.palette()
                     
                     #Тут как раз НЕ нужно escape-ить имена тегов!
-                    bg_color = UserConfig().get("tag_cloud.tag_background_color", palette.button().color().name())
+                    bg_color = UserConfig().get("tag_cloud.tag_background_color", palette.window().color().name())
                     fg_color = UserConfig().get("tag_cloud.tag_text_color", palette.text().color().name())
                     text = text + ' <font style="BACKGROUND-COLOR: {0}" size="+{1}" color="{2}">'.format(bg_color, font_size, fg_color) + tag.name + '</font>'
                     
@@ -128,8 +144,7 @@ class TagCloud(QtGui.QTextEdit):
         #Get current word under cursor
         cursor = self.cursorForPosition(e.pos())
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
-        word = cursor.selectedText()
-        print("word = " + word)
+        word = cursor.selectedText()        
         
         #If current word has changed (or cleared) --- set default formatting to the previous word
         if word != self.word or is_none_or_empty(word):
@@ -140,8 +155,6 @@ class TagCloud(QtGui.QTextEdit):
             format.setForeground(QtGui.QBrush(Qt.black))
             cursor1.mergeCharFormat(format)
             self.word = None
-            print("black")
-        
         
         if word != self.word:
             self.selection_start = cursor.selectionStart()
@@ -151,8 +164,6 @@ class TagCloud(QtGui.QTextEdit):
             format.setForeground(QtGui.QBrush(Qt.blue))
             cursor.mergeCharFormat(format)
             self.word = word
-            print("blue word = " + word)
-                        
         
         #TODO Если тег содержит пробелы (или другие символы, типа - (дефис)) 
         #то word неправильно определяется!
@@ -162,7 +173,7 @@ class TagCloud(QtGui.QTextEdit):
     def event(self, e):
 #        print(type(e), e.type())
         if e.type() == QtCore.QEvent.Enter:
-            print("Hello")
+            pass
         elif e.type() == QtCore.QEvent.Leave:
             cursor1 = self.textCursor()
             cursor1.setPosition(self.selection_start)
@@ -170,9 +181,7 @@ class TagCloud(QtGui.QTextEdit):
             format = QtGui.QTextCharFormat()
             format.setForeground(QtGui.QBrush(Qt.black))
             cursor1.mergeCharFormat(format)
-            self.word = None
-            print("clear")
-            print("Bye!")
+            self.word = None            
         return super(TagCloud, self).event(e)
     
     def mouseDoubleClickEvent(self, e):
@@ -218,7 +227,14 @@ class TagCloud(QtGui.QTextEdit):
             self.refresh()
         except Exception as ex:
             show_exc_info(self, ex)
-            
+        
+    def set_limit(self):
+        i, ok = QtGui.QInputDialog.getInteger(self, self.tr("Reggata input dialog"), \
+            self.tr("Enter new value for maximum number of tags in the cloud (0 - unlimited)."), \
+            value=self.limit, min=0, max=1000000000)
+        if ok:
+            self.limit = i
+            UserConfig().store("tag_cloud.limit", i)
     
     def contextMenuEvent(self, e):
         if not self.menu:
@@ -227,6 +243,8 @@ class TagCloud(QtGui.QTextEdit):
             self.connect(self.action_and_tag, QtCore.SIGNAL("triggered()"), self.and_tag)
             self.action_and_not_tag = self.menu.addAction(self.tr("AND NOT Tag"))
             self.connect(self.action_and_not_tag, QtCore.SIGNAL("triggered()"), self.and_not_tag)            
+            self.action_set_limit = self.menu.addAction(self.tr("Limit number of tags"))
+            self.connect(self.action_set_limit, QtCore.SIGNAL("triggered()"), self.set_limit)
         self.menu.exec_(e.globalPos())        
      
  

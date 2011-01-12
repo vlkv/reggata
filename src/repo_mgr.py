@@ -163,26 +163,43 @@ class UnitOfWork(object):
         
         
         
-    def get_related_tags(self, tag_names=[], user_logins=[]):
+    def get_related_tags(self, tag_names=[], user_logins=[], limit=0):
         ''' Возвращает список related тегов для тегов из списка tag_names.
         Если tag_names - пустой список, возращает все теги.
         Поиск ведется среди тегов пользователей из списка user_logins.
         Если user_logins пустой, то поиск среди всех тегов в БД.
+        
+        limit affects only if tag_names is empty. In other cases limit is ignored.
+        If limit == 0 it means there is no limit.
         '''
         
         #TODO Пока что не учитывается аргумент user_logins
         
         if len(tag_names) == 0:
-            sql = '''
-            --get_related_tags() запрос, извлекающий все теги и кол-во связанных с каждым тегом ЖИВЫХ элементов
-            select t.name as name, count(*) as c
-               from items i, tags t
-               join items_tags it on it.tag_id = t.id and it.item_id = i.id and i.alive   
-            where
-                1
-            group by t.name
-            ORDER BY t.name
-            '''
+            if limit > 0:
+                sql = '''
+                select name, c 
+                from
+                (select t.name as name, count(*) as c
+                   from items i, tags t
+                   join items_tags it on it.tag_id = t.id and it.item_id = i.id and i.alive   
+                where
+                    1
+                group by t.name
+                ORDER BY c DESC LIMIT ''' + str(limit) + ''') as sub
+                ORDER BY name
+                '''
+            else:
+                sql = '''
+                --get_related_tags() запрос, извлекающий все теги и кол-во связанных с каждым тегом ЖИВЫХ элементов
+                select t.name as name, count(*) as c
+                   from items i, tags t
+                   join items_tags it on it.tag_id = t.id and it.item_id = i.id and i.alive   
+                where
+                    1
+                group by t.name
+                ORDER BY t.name
+                '''
             
             #Здесь пришлось вставлять этот try..except, т.к. иначе пустой список (если нет связанных тегов)
             #не возвращается, а вылетает ResourceClosedError. Не очень удобно, однако. 
