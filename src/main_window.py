@@ -141,9 +141,8 @@ class MainWindow(QtGui.QMainWindow):
         
         #Widgets for text queries
         self.ui.lineEdit_query = helpers.TextEdit(self, one_line=True)
-        tmp = QtGui.QHBoxLayout(self)
-        self.ui.frame_lineEdit_query.setLayout(tmp)
-        tmp.addWidget(self.ui.lineEdit_query)
+        tmp = QtGui.QHBoxLayout(self.ui.widget_lineEdit_query)
+        tmp.addWidget(self.ui.lineEdit_query)        
         self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
         self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
         self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
@@ -462,13 +461,23 @@ class MainWindow(QtGui.QMainWindow):
                 completer = helpers.Completer(repo, self)
                 self.ui.lineEdit_query.set_completer(completer)
                 
-            else:
+                #Restore column widths
+                self.restore_file_browser_state()
+                self.restore_items_table_state()
+                
+            else:                
+                #Save column widths
+                self.save_file_browser_state()
+                self.save_items_table_state()
+                
                 self.ui.label_repo.setText("")
                 self.model = None
                 self.ui.tableView_items.setModel(None)
                 self.ui.file_browser.repo = None
                 
                 self.ui.lineEdit_query.set_completer(None)
+                
+                
                 
         except Exception as ex:
             raise CannotOpenRepoError(str(ex), ex)

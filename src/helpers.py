@@ -454,7 +454,7 @@ class TextEdit(QtGui.QTextEdit):
             self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
             
             #TODO I dont like this:
-            self.setFixedHeight(QtGui.QLineEdit().sizeHint().height() + 2)
+            self.setFixedHeight(QtGui.QLineEdit().sizeHint().height())
             
             
     
