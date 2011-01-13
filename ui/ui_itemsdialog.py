@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemsdialog.ui'
 #
-# Created: Tue Jan 11 17:34:03 2011
+# Created: Thu Jan 13 15:40:15 2011
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -105,6 +105,7 @@ class Ui_ItemsDialog(object):
         self.label.setText(QtGui.QApplication.translate("ItemsDialog", "Number of items: ", None, QtGui.QApplication.UnicodeUTF8))
         self.label_num_of_items.setText(QtGui.QApplication.translate("ItemsDialog", "0", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("ItemsDialog", "Destination path:", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_dst_path.setToolTip(QtGui.QApplication.translate("ItemsDialog", "Path where to put the files in the repository.", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_select_dst_path.setText(QtGui.QApplication.translate("ItemsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
         self.label_fields.setText(QtGui.QApplication.translate("ItemsDialog", "Fields:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_tags.setText(QtGui.QApplication.translate("ItemsDialog", "Tags:", None, QtGui.QApplication.UnicodeUTF8))
