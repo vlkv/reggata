@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemdialog.ui'
 #
-# Created: Tue Jan 11 16:51:49 2011
+# Created: Thu Jan 13 15:04:41 2011
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -160,5 +160,6 @@ class Ui_ItemDialog(object):
         self.pushButton_add_URL.setText(QtGui.QApplication.translate("ItemDialog", "Add URLs", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_remove.setText(QtGui.QApplication.translate("ItemDialog", "Remove", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("ItemDialog", "Destination path:", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEdit_dst_path.setToolTip(QtGui.QApplication.translate("ItemDialog", "Path where to put the file in the repository.", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_select_dst_path.setText(QtGui.QApplication.translate("ItemDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
 

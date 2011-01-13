@@ -231,6 +231,9 @@
      </item>
      <item>
       <widget class="QLineEdit" name="lineEdit_dst_path" >
+       <property name="toolTip" >
+        <string>Path where to put the file in the repository.</string>
+       </property>
        <property name="readOnly" >
         <bool>true</bool>
        </property>
