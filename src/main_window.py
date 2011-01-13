@@ -1486,14 +1486,18 @@ along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses<
 '''
         f = None
         try:
+            #print(os.path.abspath(os.curdir))
+            #print(__file__)
             try:
                 f = open(os.path.join(os.path.dirname(__file__), "version.txt", "r"))
-            except:                
-                f = open(os.path.join(os.path.dirname(__file__), os.pardir, "version.txt"), "r")
-                
+            except:
+                try:
+                    f = open(os.path.join(os.path.dirname(__file__), os.pardir, "version.txt"), "r")
+                except:
+                    f = open(os.path.join(os.path.abspath(os.curdir), "version.txt"), "r")
             version = f.readline()
             text = "<p>Version: " + version + "</p>" + text
-        except:
+        except Exception as ex:
             text = "<p>Version: " + "<font color='red'>&lt;no information&gt;</font>" + "</p>" + text
         finally:
             if f:
