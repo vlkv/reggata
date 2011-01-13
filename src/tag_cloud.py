@@ -89,6 +89,11 @@ class TagCloud(QtGui.QTextEdit):
     
         self.selection_start = 0
         self.selection_end = 0
+        
+        palette = QtGui.QApplication.palette()
+        self.bg_color = UserConfig().get("tag_cloud.tag_background_color", palette.window().color().name())
+        self.text_color = UserConfig().get("tag_cloud.tag_text_color", palette.text().color().name())
+        self.hl_text_color = UserConfig().get("tag_cloud.tag_highlighted_text_color", QtGui.QColor("blue"))
     
     def _set_limit(self, value):
         self._limit = value
@@ -147,12 +152,8 @@ class TagCloud(QtGui.QTextEdit):
                 for tag in tags:
                     font_size = sizes.get(tag.c, 0)
                     
-                    palette = QtGui.QApplication.palette()
-                    
-                    #Тут как раз НЕ нужно escape-ить имена тегов!
-                    bg_color = UserConfig().get("tag_cloud.tag_background_color", palette.window().color().name())
-                    fg_color = UserConfig().get("tag_cloud.tag_text_color", palette.text().color().name())
-                    text = text + ' <font style="BACKGROUND-COLOR: {0}" size="+{1}" color="{2}">'.format(bg_color, font_size, fg_color) + tag.name + '</font>'
+                    #Тут как раз НЕ нужно escape-ить имена тегов!                    
+                    text = text + ' <font style="BACKGROUND-COLOR: {0}" size="+{1}" color="{2}">'.format(self.bg_color, font_size, self.text_color) + tag.name + '</font>'
                     
                 self.setText(text)
             finally:
@@ -177,7 +178,7 @@ class TagCloud(QtGui.QTextEdit):
             cursor1.setPosition(self.selection_start)
             cursor1.setPosition(self.selection_end, QtGui.QTextCursor.KeepAnchor)
             format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(Qt.black))
+            format.setForeground(QtGui.QBrush(QtGui.QColor(self.text_color)))
             cursor1.mergeCharFormat(format)
             self.word = None
         
@@ -186,7 +187,7 @@ class TagCloud(QtGui.QTextEdit):
             self.selection_end = cursor.selectionEnd()
             
             format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(Qt.blue))
+            format.setForeground(QtGui.QBrush(QtGui.QColor(self.hl_text_color)))
             cursor.mergeCharFormat(format)
             self.word = word
         
@@ -205,7 +206,7 @@ class TagCloud(QtGui.QTextEdit):
             cursor1.setPosition(self.selection_start)
             cursor1.setPosition(self.selection_end, QtGui.QTextCursor.KeepAnchor)
             format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(Qt.black))
+            format.setForeground(QtGui.QBrush(QtGui.QColor(self.text_color)))
             cursor1.mergeCharFormat(format)
             self.word = None
         elif self.word is not None and self.tag_count is not None and e.type() == QtCore.QEvent.ToolTip:
