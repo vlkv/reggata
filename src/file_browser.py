@@ -35,6 +35,7 @@ import unicodedata
 class FileBrowser(QtGui.QTableView):
     '''
     '''
+    #TODO File browser should allow edit tags and fields
 
     def __init__(self, parent=None):
         super(FileBrowser, self).__init__(parent)        

@@ -28,7 +28,6 @@ from helpers import tr, compute_hash
 import os
 import datetime
 
-#TODO There are bugs in some fixing algorithms!
 
 class IntegrityFixer(object):
     '''Базовый класс для классов, исправляющих целостность элементов.'''

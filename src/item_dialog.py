@@ -180,7 +180,8 @@ class ItemDialog(QtGui.QDialog):
             item_field.user_login = self.item.user_login
             self.item.item_fields.append(item_field)
         
-        #Creating reserved fields
+        #Creating reserved fields (NOTES and RATING)
+        #create NOTES_FIELD
         notes = self.ui.plainTextEdit_notes.toPlainText()
         if not is_none_or_empty(notes):
             field = Field(name=consts.NOTES_FIELD)
@@ -188,7 +189,7 @@ class ItemDialog(QtGui.QDialog):
             item_field.user_login = self.item.user_login
             self.item.item_fields.append(item_field)
         
-        #TODO create RATING_FIELD also
+        #create RATING_FIELD
         rating = self.ui.spinBox_rating.value()
         if rating > 0:
             field = Field(name=consts.RATING_FIELD)

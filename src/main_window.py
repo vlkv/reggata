@@ -68,8 +68,6 @@ import locale
 #TODO Если запрос возвращает очень много элементов, и указан limit. То нельзя передать ВСЕ элементы в просмотрщик изображений, передаются только отображенные limit штук. 
 
 
-#TODO Restore columns widths when close and then open another repository
-
 class MainWindow(QtGui.QMainWindow):
     '''
     Reggata's main window.
@@ -513,8 +511,7 @@ class MainWindow(QtGui.QMainWindow):
             self.active_user = None
         except Exception as ex:
             show_exc_info(self, ex)
-            
-        #TODO when user closes repo, and opens another, all column width of items table are reset!!!
+                    
 
     def action_repo_open(self):
         try:            
@@ -1204,7 +1201,6 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
     STATE = 4 #Состояние элемента (в смысле целостности его данных)
     RATING = 5
     
-    #TODO Should pass current active user login to __init__() !!!
     def __init__(self, repo, items_lock, user_login):
         super(RepoItemTableModel, self).__init__()
         self.repo = repo
