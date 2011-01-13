@@ -500,7 +500,10 @@ class MainWindow(QtGui.QMainWindow):
             self.active_user = None
         except Exception as ex:
             show_exc_info(self, ex)
-            
+        else:        
+            #Let user create a user account in new repository    
+            self.action_user_create()
+        
         
     def action_repo_close(self):
         try:
@@ -895,6 +898,7 @@ class MainWindow(QtGui.QMainWindow):
         finally:
             self.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(thread.created_objects_count, len(thread.error_log)))
             self.query_exec()
+            self.ui.tag_cloud.refresh()
             
             
         
@@ -946,6 +950,7 @@ class MainWindow(QtGui.QMainWindow):
         finally:
             self.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(thread.created_objects_count, len(thread.error_log)))
             self.query_exec()
+            self.ui.tag_cloud.refresh()
         
         
     def action_item_add(self):
@@ -997,6 +1002,7 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
             self.query_exec()
+            self.ui.tag_cloud.refresh()
     
     def action_user_create(self):
         try:
@@ -1030,6 +1036,9 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_user_login(self):
         try:
+            if self.active_repo is None:
+                raise MsgException(self.tr("There is no opened repository."))
+            
             ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
             if ud.exec_():                    
                 uow = self.active_repo.create_unit_of_work()
