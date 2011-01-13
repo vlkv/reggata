@@ -55,9 +55,11 @@ class UserDialog(QtGui.QDialog):
     
     def setMode(self, mode):
         if mode == DialogMode.CREATE:
-            pass
+            self.setWindowTitle(self.tr("Create new repository user"))
             
         elif mode == DialogMode.LOGIN:
+            self.setWindowTitle(self.tr("Repository login"))
+            
             self.ui.label_password_repeat.setVisible(False)
             self.ui.lineEdit_password_repeat.setVisible(False)
             
