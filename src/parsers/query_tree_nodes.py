@@ -209,7 +209,8 @@ class FieldsConjunction(SimpleQuery):
         
         self.field_op_vals = []
         
-        
+    def len(self):
+        return len(self.field_op_vals)
     
     
     
@@ -328,7 +329,8 @@ class TagsConjunction(SimpleQuery):
         self.yes_tags = []
         self.no_tags = []
         
-        
+    def len(self):
+        return len(self.yes_tags) + len(self.no_tags)
     
     def interpret(self):
         #yes_tags_str, group_by_having
