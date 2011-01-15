@@ -43,7 +43,7 @@ def p_query(p):
             p[1].add_extra_clause(e)            
         p[0] = p[1]
     else:
-        raise ValueError(tr("len(p) has incorrect value."))
+        raise ValueError(helpers.tr("len(p) has incorrect value."))
         
 
 # Составное выражение, представляющее собой несколько SQL запросов, соединенных

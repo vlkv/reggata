@@ -29,6 +29,7 @@ from ply import lex
 import re
 import consts
 from exceptions import LexError
+import helpers
 
 #Список типов токенов
 tokens = [
@@ -61,7 +62,7 @@ t_ignore  = ' \t\n\r'
 
 # Что делать, если возникнет ошибка
 def t_error(t):
-    raise LexError(tr("Illegal character '{}'").format(t.value[0]))
+    raise LexError(helpers.tr("Illegal character '{}'").format(t.value[0]))
 #    print("Illegal character '%s'" % t.value[0])
 #    t.lexer.skip(1) #Пропускаем текущий символ и переходим к следующему
 
