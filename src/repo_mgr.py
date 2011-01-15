@@ -176,6 +176,9 @@ class UnitOfWork(object):
         #TODO Пока что не учитывается аргумент user_logins
         
         if len(tag_names) == 0:
+            #TODO The more items in the repository, the slower this query is performed.
+            #I think, I should store in database some statistics information, such as number of items
+            #tagged with each tag. With this information, the query can be rewritten and became much faster.
             if limit > 0:
                 sql = '''
                 select name, c 
