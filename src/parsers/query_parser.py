@@ -28,6 +28,7 @@ import ply.yacc as yacc
 from parsers.query_tokens import *
 from exceptions import YaccError
 import consts
+import helpers
 
 
 def p_query(p):
@@ -61,7 +62,7 @@ def p_compound_query_and(p):
     elif len(p) == 5:
         p[1].and_elem(p[3])
     else:
-        raise ValueError(tr("len(p) has incorrect value."))
+        raise ValueError(helpers.tr("len(p) has incorrect value."))
     p[0] = p[1]
 
 def p_compound_query_or(p):
@@ -210,7 +211,7 @@ def p_field_value(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    raise YaccError(tr("Syntax error in the query: {}").format(str(p)))
+    raise YaccError(helpers.tr("Syntax error in the query: {}").format(str(p)))
 
 
 #Строим лексический анализатор
