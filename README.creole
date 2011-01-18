@@ -1,6 +1,10 @@
 == About Reggata
 Reggata - is a program for tagging user files on local computer or (in other words) a tagging file manager.
 
+This is a very "young" project and I'm very interested about your opinion on it. Your comments and suggestions are very appreciated.
+
+If you found a bug, please, report it here [[https://github.com/vlkv/reggata/issues]].
+
 === Features
 * You can assosiate with your files any number of arbitrary tags
 (or keywords) and fields (<name>:<value> pairs).
@@ -17,6 +21,8 @@ Query examples:
 
 * With Reggata you can open file with a preferred appropriate external program. Reggata has a configuration file {{{reggata.conf}}} which allows you to configure your preferred apps for music, pdf, images and any other types of files.
 * Reggata is under active development and new features (so as bugfixes) are added constantly. 
+
+More information about Reggata can be found on wiki pages [[https://github.com/vlkv/reggata/wiki]].
 
 === Alike projects
 I would like Reggata to be like Delicious (http://www.delicious.com), but for tagging local files (and URL bookmarks also though) and storing all information in local database, not remote server.
