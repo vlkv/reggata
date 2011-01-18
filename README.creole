@@ -29,7 +29,7 @@ Also, in the future I would like Reggata to have repository clone/merge features
 
 === Screenshots
 
-Visit reggata home page http://vlkv.github.com/reggata/
+Reggata screenshots are here: [[http://sourceforge.net/project/screenshots.php?group_id=388265]].
 
 
 == Installation instructions
