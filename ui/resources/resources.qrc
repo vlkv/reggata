@@ -1,5 +1,7 @@
 <RCC>
-  <qresource prefix="icons" >
+  <qresource prefix="icons">
+    <file>icons/paperboat.ico</file>
+    <file>icons/zeilboot.ico</file>
     <file>icons/fit_window.png</file>
     <file>icons/go-next.png</file>
     <file>icons/go-previous.png</file>
