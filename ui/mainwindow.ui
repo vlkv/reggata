@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources/resources.qrc">
-    <normaloff>:/icons/icons/paperboat.ico</normaloff>:/icons/icons/paperboat.ico</iconset>
+    <normaloff>:/icons/icons/reggata.ico</normaloff>:/icons/icons/reggata.ico</iconset>
   </property>
   <property name="dockNestingEnabled">
    <bool>true</bool>
