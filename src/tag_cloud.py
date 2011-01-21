@@ -91,7 +91,7 @@ class TagCloud(QtGui.QTextEdit):
         self.selection_end = 0
         
         palette = QtGui.QApplication.palette()
-        self.bg_color = UserConfig().get("tag_cloud.tag_background_color", palette.window().color().name())
+        self.bg_color = UserConfig().get("tag_cloud.tag_background_color", QtGui.QColor(230, 230, 230).name())
         self.text_color = UserConfig().get("tag_cloud.tag_text_color", palette.text().color().name())
         self.hl_text_color = UserConfig().get("tag_cloud.tag_highlighted_text_color", QtGui.QColor("blue"))
     
