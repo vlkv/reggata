@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Apr  9 16:33:00 2011
+# Created: Sat Apr  9 17:41:19 2011
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -155,6 +155,8 @@ class Ui_MainWindow(object):
         self.action_tools_file_browser.setObjectName(_fromUtf8("action_tools_file_browser"))
         self.action_item_to_external_filemanager = QtGui.QAction(MainWindow)
         self.action_item_to_external_filemanager.setObjectName(_fromUtf8("action_item_to_external_filemanager"))
+        self.action_export_selected_items = QtGui.QAction(MainWindow)
+        self.action_export_selected_items.setObjectName(_fromUtf8("action_export_selected_items"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -181,6 +183,8 @@ class Ui_MainWindow(object):
         self.menuItem.addAction(self.action_item_view)
         self.menuItem.addAction(self.action_item_view_image_viewer)
         self.menuItem.addAction(self.action_item_view_m3u)
+        self.menuItem.addAction(self.action_item_to_external_filemanager)
+        self.menuItem.addAction(self.action_export_selected_items)
         self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_check_integrity)
         self.menuItem.addAction(self.menuFix_integrity_errors.menuAction())
@@ -242,5 +246,6 @@ class Ui_MainWindow(object):
         self.action_tools_items_table.setText(QtGui.QApplication.translate("MainWindow", "Items table", None, QtGui.QApplication.UnicodeUTF8))
         self.action_tools_file_browser.setText(QtGui.QApplication.translate("MainWindow", "File browser", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_to_external_filemanager.setText(QtGui.QApplication.translate("MainWindow", "Open external file manager", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_export_selected_items.setText(QtGui.QApplication.translate("MainWindow", "Export selected items (copy files)", None, QtGui.QApplication.UnicodeUTF8))
 
 import resources_rc

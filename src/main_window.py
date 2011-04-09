@@ -53,6 +53,7 @@ from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
 import math
 from file_browser import FileBrowser, FileBrowserTableModel
 import locale
+import shutil
 
 
 
@@ -95,10 +96,11 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addAction(self.ui.action_item_view)
         self.menu.addAction(self.ui.action_item_view_m3u)
         self.menu.addAction(self.ui.action_item_view_image_viewer)
+        self.menu.addAction(self.ui.action_item_to_external_filemanager)
+        self.menu.addAction(self.ui.action_export_selected_items)
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_edit)
-        self.menu.addAction(self.ui.action_item_rebuild_thumbnail)
-        self.menu.addAction(self.ui.action_item_to_external_filemanager)
+        self.menu.addAction(self.ui.action_item_rebuild_thumbnail)        
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_delete)
         self.menu.addSeparator()
@@ -127,7 +129,8 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
         self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
         self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
-        self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u) 
+        self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u)
+        self.connect(self.ui.action_export_selected_items, QtCore.SIGNAL("triggered()"), self.action_export_selected_items)
         self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
         self.connect(self.ui.action_item_fix_history_rec_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
         self.connect(self.ui.action_item_fix_hash_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
@@ -807,6 +810,48 @@ class MainWindow(QtGui.QMainWindow):
         else:
             pass
 
+
+    def action_export_selected_items(self):
+        count = 0
+        try:
+            if self.active_repo is None:
+                raise MsgException(self.tr("Open a repository first."))
+            
+            if self.active_user is None:
+                raise MsgException(self.tr("Login to a repository first."))
+            
+            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
+            rows = set()
+            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
+                rows.add(idx.row())
+            
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            #Ask user for destination directory path            
+            export_dir_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a directory path to export files into."))
+            if not export_dir_path:
+                raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
+            
+            #TODO should execute copying in a separate thread!
+            for row in rows:
+                src_file_path = os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url)
+                unique_path = dst_file_path = os.path.join(export_dir_path, os.path.basename(src_file_path))
+                i = 1
+                
+                #Generate unique file name. I don't want different files with same name to overwrite each other
+                while os.path.exists(unique_path):
+                    name, ext = os.path.splitext(dst_file_path)
+                    unique_path = name + str(i) + ext
+                    i += 1
+                    
+                shutil.copy(src_file_path, unique_path)
+                count += 1
+            
+        except Exception as ex:
+            show_exc_info(self, ex)
+        else:
+            self.ui.statusbar.showMessage(self.tr("Operation completed. Exported {} files.").format(count), 5000)
 
     def action_item_view_m3u(self):
         try:

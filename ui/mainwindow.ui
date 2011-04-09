@@ -86,6 +86,8 @@
     <addaction name="action_item_view" />
     <addaction name="action_item_view_image_viewer" />
     <addaction name="action_item_view_m3u" />
+    <addaction name="action_item_to_external_filemanager" />
+    <addaction name="action_export_selected_items" />
     <addaction name="separator" />
     <addaction name="action_item_check_integrity" />
     <addaction name="menuFix_integrity_errors" />
@@ -350,6 +352,11 @@
   <action name="action_item_to_external_filemanager" >
    <property name="text" >
     <string>Open external file manager</string>
+   </property>
+  </action>
+  <action name="action_export_selected_items" >
+   <property name="text" >
+    <string>Export selected items (copy files)</string>
    </property>
   </action>
  </widget>
