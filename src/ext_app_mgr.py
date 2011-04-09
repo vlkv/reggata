@@ -37,20 +37,12 @@ class ExtAppMgr(object):
     Кстати, если редактировать файлы, а не просматривать, то надо как-то оперативно
     обновлять их DataRef.hash.
     
-    Пример фрагмента reggata.conf:
-    
-    ext_app_mgr.file_types = ['images', 'pdf', 'audio']
-    ext_app_mgr.images.extensions = ['.jpg', '.png', '.gif', '.bmp']
-    ext_app_mgr.images.command = gqview {}
-    ext_app_mgr.pdf.extensions = ['.pdf']
-    ext_app_mgr.pdf.command = xpdf {}
-    ext_app_mgr.audio.extensions = ['.mp3', '.ogg', '.flac', '.wav', '.m3u']
-    ext_app_mgr.audio.command = vlc {}    
+    Пример файла reggata.conf см. в корне дерева исходников reggata.conf.template.
     '''
 
     def __init__(self):
 
-        file_types_list = eval(UserConfig().get('ext_app_mgr.file_types', "[]"))
+        file_types_list = eval(UserConfig().get('ext_app_mgr_file_types', "[]"))
         
         #Ключ - название группы файлов, значение - список расширений файлов
         self.file_types = dict()
@@ -80,7 +72,8 @@ class ExtAppMgr(object):
         if not command:
             raise Exception(tr("Command for file_type {0} not found. Edit your {1} file.").format(file_type, consts.USER_CONFIG_FILE))
 
-        command = command.format('"' + abs_path + '"')
+        command = command.replace('%d', '"' + os.path.dirname(abs_path) + '"')
+        command = command.replace('%f', '"' + abs_path + '"')
         print("subprocess.Popen(): " + command)
         args = shlex.split(command)
         print(args)
