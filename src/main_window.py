@@ -1577,6 +1577,9 @@ along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses<
 
 if __name__ == '__main__':
     
+    if not os.path.exists(consts.DEFAULT_TMP_DIR):
+        os.makedirs(consts.DEFAULT_TMP_DIR)
+    
     if UserConfig().get("redirect_stdout", "True") in ["True", "true", "TRUE", "1"]:
         sys.stdout = open(os.path.join(consts.DEFAULT_TMP_DIR, "stdout.txt"), "a+")
         
