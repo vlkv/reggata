@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Jan 21 15:04:16 2011
+# Created: Sat Apr  9 16:33:00 2011
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 26))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName(_fromUtf8("menu_repo"))
@@ -153,6 +153,8 @@ class Ui_MainWindow(object):
         self.action_tools_file_browser = QtGui.QAction(MainWindow)
         self.action_tools_file_browser.setCheckable(True)
         self.action_tools_file_browser.setObjectName(_fromUtf8("action_tools_file_browser"))
+        self.action_item_to_external_filemanager = QtGui.QAction(MainWindow)
+        self.action_item_to_external_filemanager.setObjectName(_fromUtf8("action_item_to_external_filemanager"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -239,5 +241,6 @@ class Ui_MainWindow(object):
         self.action_item_rebuild_thumbnail.setText(QtGui.QApplication.translate("MainWindow", "Rebuild &thumbnail", None, QtGui.QApplication.UnicodeUTF8))
         self.action_tools_items_table.setText(QtGui.QApplication.translate("MainWindow", "Items table", None, QtGui.QApplication.UnicodeUTF8))
         self.action_tools_file_browser.setText(QtGui.QApplication.translate("MainWindow", "File browser", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_item_to_external_filemanager.setText(QtGui.QApplication.translate("MainWindow", "Open external file manager", None, QtGui.QApplication.UnicodeUTF8))
 
 import resources_rc

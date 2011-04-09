@@ -27,6 +27,7 @@ import os
 import consts
 import subprocess
 import shlex
+from exceptions import MsgException
 
 class ExtAppMgr(object):
     '''
@@ -64,6 +65,8 @@ class ExtAppMgr(object):
                 if ext in self.extensions.keys():
                     raise ValueError(tr("File extension {} cannot be in more than one file_type group.").format(ext))
                 self.extensions[ext] = type
+                
+        self.ext_file_manager_command = UserConfig().get('ext_file_manager')
              
     def invoke(self, abs_path, file_type=None):
         if not file_type:
@@ -85,6 +88,21 @@ class ExtAppMgr(object):
         pid = subprocess.Popen(args).pid #Такой вызов не блокирует поток
         print("Created process with PID = {}".format(pid))
 
+    def external_file_manager(self, abs_path):
+        if self.ext_file_manager_command is None:
+            raise MsgException(tr('No external file manager command is set. Please edit your reggata.conf configuration file.'))
+        
+        command = self.ext_file_manager_command
+        command = command.replace('%d', '"' + os.path.dirname(abs_path) + '"')
+        command = command.replace('%f', '"' + abs_path + '"')
+        print("subprocess.Popen(): " + command)
+        args = shlex.split(command)
+        pid = subprocess.Popen(args).pid 
+        print("Created process with PID = {}".format(pid))
+        
+        
+        
+        
 
 if __name__ == '__main__':
     pass    

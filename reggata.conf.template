@@ -24,6 +24,11 @@ ext_app_mgr.pdf.command=xpdf {}
 ext_app_mgr.audio.extensions=['.mp3', '.ogg', '.flac', '.wav', '.m3u']
 ext_app_mgr.audio.command=vlc {}
 
+#Command for invoking external file manager program
+# %f will be replaced with absolute file name (of selected item)
+# %d will be replaced with absolute path to containing directory (of selected item)
+ext_file_manager=thunar %d
+
 language = ru
 
 sqlalchemy.engine_echo = True

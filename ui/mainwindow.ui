@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
+<ui version="4.0" >
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
@@ -10,182 +9,182 @@
     <height>447</height>
    </rect>
   </property>
-  <property name="windowTitle">
+  <property name="windowTitle" >
    <string>Reggata</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="resources/resources.qrc">
+  <property name="windowIcon" >
+   <iconset resource="resources/resources.qrc" >
     <normaloff>:/icons/icons/reggata.ico</normaloff>:/icons/icons/reggata.ico</iconset>
   </property>
-  <property name="dockNestingEnabled">
+  <property name="dockNestingEnabled" >
    <bool>true</bool>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_3"/>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QVBoxLayout" name="verticalLayout_3" />
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
     <rect>
      <x>0</x>
      <y>0</y>
      <width>659</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_repo">
-    <property name="title">
+   <widget class="QMenu" name="menu_repo" >
+    <property name="title" >
      <string>&amp;Repository</string>
     </property>
-    <addaction name="action_repo_create"/>
-    <addaction name="action_repo_open"/>
-    <addaction name="action_repo_close"/>
+    <addaction name="action_repo_create" />
+    <addaction name="action_repo_open" />
+    <addaction name="action_repo_close" />
    </widget>
-   <widget class="QMenu" name="menu">
-    <property name="title">
+   <widget class="QMenu" name="menu" >
+    <property name="title" >
      <string>&amp;User</string>
     </property>
-    <addaction name="action_user_create"/>
-    <addaction name="action_user_login"/>
-    <addaction name="action_user_logout"/>
-    <addaction name="action_user_change_pass"/>
+    <addaction name="action_user_create" />
+    <addaction name="action_user_login" />
+    <addaction name="action_user_logout" />
+    <addaction name="action_user_change_pass" />
    </widget>
-   <widget class="QMenu" name="menuItem">
-    <property name="title">
+   <widget class="QMenu" name="menuItem" >
+    <property name="title" >
      <string>&amp;Item</string>
     </property>
-    <widget class="QMenu" name="menuFix_integrity_errors">
-     <property name="title">
+    <widget class="QMenu" name="menuFix_integrity_errors" >
+     <property name="title" >
       <string>Fix integrity errors</string>
      </property>
-     <widget class="QMenu" name="menuFix_hash_mismatch_error">
-      <property name="title">
+     <widget class="QMenu" name="menuFix_hash_mismatch_error" >
+      <property name="title" >
        <string>Fix file changed error</string>
       </property>
-      <addaction name="action_item_fix_hash_error"/>
-      <addaction name="action_item_update_file_hash"/>
+      <addaction name="action_item_fix_hash_error" />
+      <addaction name="action_item_update_file_hash" />
      </widget>
-     <widget class="QMenu" name="menuFix_file_not_found_error">
-      <property name="title">
+     <widget class="QMenu" name="menuFix_file_not_found_error" >
+      <property name="title" >
        <string>Fix file not found error</string>
       </property>
-      <addaction name="action_fix_file_not_found_try_find"/>
-      <addaction name="action_fix_file_not_found_delete"/>
+      <addaction name="action_fix_file_not_found_try_find" />
+      <addaction name="action_fix_file_not_found_delete" />
      </widget>
-     <addaction name="menuFix_hash_mismatch_error"/>
-     <addaction name="action_item_fix_history_rec_error"/>
-     <addaction name="menuFix_file_not_found_error"/>
+     <addaction name="menuFix_hash_mismatch_error" />
+     <addaction name="action_item_fix_history_rec_error" />
+     <addaction name="menuFix_file_not_found_error" />
     </widget>
-    <addaction name="action_item_add"/>
-    <addaction name="action_item_add_many"/>
-    <addaction name="action_item_add_many_rec"/>
-    <addaction name="separator"/>
-    <addaction name="action_item_edit"/>
-    <addaction name="action_item_rebuild_thumbnail"/>
-    <addaction name="separator"/>
-    <addaction name="action_item_delete"/>
-    <addaction name="separator"/>
-    <addaction name="action_item_view"/>
-    <addaction name="action_item_view_image_viewer"/>
-    <addaction name="action_item_view_m3u"/>
-    <addaction name="separator"/>
-    <addaction name="action_item_check_integrity"/>
-    <addaction name="menuFix_integrity_errors"/>
+    <addaction name="action_item_add" />
+    <addaction name="action_item_add_many" />
+    <addaction name="action_item_add_many_rec" />
+    <addaction name="separator" />
+    <addaction name="action_item_edit" />
+    <addaction name="action_item_rebuild_thumbnail" />
+    <addaction name="separator" />
+    <addaction name="action_item_delete" />
+    <addaction name="separator" />
+    <addaction name="action_item_view" />
+    <addaction name="action_item_view_image_viewer" />
+    <addaction name="action_item_view_m3u" />
+    <addaction name="separator" />
+    <addaction name="action_item_check_integrity" />
+    <addaction name="menuFix_integrity_errors" />
    </widget>
-   <widget class="QMenu" name="menuTools">
-    <property name="title">
+   <widget class="QMenu" name="menuTools" >
+    <property name="title" >
      <string>&amp;Tools</string>
     </property>
-    <addaction name="action_tools_items_table"/>
-    <addaction name="action_tools_tag_cloud"/>
-    <addaction name="action_tools_file_browser"/>
+    <addaction name="action_tools_items_table" />
+    <addaction name="action_tools_tag_cloud" />
+    <addaction name="action_tools_file_browser" />
    </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
+   <widget class="QMenu" name="menuHelp" >
+    <property name="title" >
      <string>Help</string>
     </property>
-    <addaction name="action_help_about"/>
+    <addaction name="action_help_about" />
    </widget>
-   <addaction name="menu_repo"/>
-   <addaction name="menu"/>
-   <addaction name="menuItem"/>
-   <addaction name="menuTools"/>
-   <addaction name="menuHelp"/>
+   <addaction name="menu_repo" />
+   <addaction name="menu" />
+   <addaction name="menuItem" />
+   <addaction name="menuTools" />
+   <addaction name="menuHelp" />
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QDockWidget" name="dockWidget_items_table">
-   <property name="floating">
+  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QDockWidget" name="dockWidget_items_table" >
+   <property name="floating" >
     <bool>false</bool>
    </property>
-   <property name="features">
+   <property name="features" >
     <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
-   <property name="windowTitle">
+   <property name="windowTitle" >
     <string>Items table</string>
    </property>
-   <attribute name="dockWidgetArea">
+   <attribute name="dockWidgetArea" >
     <number>8</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QVBoxLayout" name="verticalLayout">
+   <widget class="QWidget" name="dockWidgetContents" >
+    <layout class="QVBoxLayout" name="verticalLayout" >
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout" >
        <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
+        <widget class="QLabel" name="label" >
+         <property name="text" >
           <string>Query:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QWidget" name="widget_lineEdit_query" native="true"/>
+        <widget class="QWidget" native="1" name="widget_lineEdit_query" />
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_query_exec">
-         <property name="text">
+        <widget class="QPushButton" name="pushButton_query_exec" >
+         <property name="text" >
           <string>Execute</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_query_reset">
-         <property name="text">
+        <widget class="QPushButton" name="pushButton_query_reset" >
+         <property name="text" >
           <string>Reset</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
+        <widget class="QLabel" name="label_2" >
+         <property name="text" >
           <string>Limit:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox_limit">
-         <property name="toolTip">
+        <widget class="QSpinBox" name="spinBox_limit" >
+         <property name="toolTip" >
           <string>Maximum number of rows per page to display (0 - no limit).</string>
          </property>
-         <property name="maximum">
+         <property name="maximum" >
           <number>1000000</number>
          </property>
-         <property name="singleStep">
+         <property name="singleStep" >
           <number>20</number>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
+        <widget class="QLabel" name="label_3" >
+         <property name="text" >
           <string>Page:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox_page">
-         <property name="minimum">
+        <widget class="QSpinBox" name="spinBox_page" >
+         <property name="minimum" >
           <number>1</number>
          </property>
-         <property name="maximum">
+         <property name="maximum" >
           <number>1000000</number>
          </property>
         </widget>
@@ -193,164 +192,169 @@
       </layout>
      </item>
      <item>
-      <widget class="QTableView" name="tableView_items"/>
+      <widget class="QTableView" name="tableView_items" />
      </item>
     </layout>
    </widget>
   </widget>
-  <action name="action_repo_create">
-   <property name="text">
+  <action name="action_repo_create" >
+   <property name="text" >
     <string>&amp;New</string>
    </property>
   </action>
-  <action name="action_repo_open">
-   <property name="text">
+  <action name="action_repo_open" >
+   <property name="text" >
     <string>&amp;Open</string>
    </property>
   </action>
-  <action name="action_repo_close">
-   <property name="text">
+  <action name="action_repo_close" >
+   <property name="text" >
     <string>&amp;Close</string>
    </property>
   </action>
-  <action name="action_item_add">
-   <property name="text">
+  <action name="action_item_add" >
+   <property name="text" >
     <string>Add &amp;one</string>
    </property>
   </action>
-  <action name="action_user_create">
-   <property name="text">
+  <action name="action_user_create" >
+   <property name="text" >
     <string>&amp;Create</string>
    </property>
   </action>
-  <action name="action_user_login">
-   <property name="text">
+  <action name="action_user_login" >
+   <property name="text" >
     <string>&amp;Login</string>
    </property>
   </action>
-  <action name="action_user_logout">
-   <property name="text">
+  <action name="action_user_logout" >
+   <property name="text" >
     <string>Log&amp;out</string>
    </property>
   </action>
-  <action name="action_item_edit">
-   <property name="text">
+  <action name="action_item_edit" >
+   <property name="text" >
     <string>&amp;Edit</string>
    </property>
   </action>
-  <action name="action_item_add_many">
-   <property name="text">
+  <action name="action_item_add_many" >
+   <property name="text" >
     <string>Add &amp;many</string>
    </property>
   </action>
-  <action name="action_user_change_pass">
-   <property name="text">
+  <action name="action_user_change_pass" >
+   <property name="text" >
     <string>Change &amp;password</string>
    </property>
   </action>
-  <action name="action_tools_tag_cloud">
-   <property name="checkable">
+  <action name="action_tools_tag_cloud" >
+   <property name="checkable" >
     <bool>true</bool>
    </property>
-   <property name="checked">
+   <property name="checked" >
     <bool>false</bool>
    </property>
-   <property name="enabled">
+   <property name="enabled" >
     <bool>true</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Tag &amp;cloud</string>
    </property>
   </action>
-  <action name="action_item_view">
-   <property name="text">
+  <action name="action_item_view" >
+   <property name="text" >
     <string>&amp;View with external app</string>
    </property>
   </action>
-  <action name="action_item_add_many_rec">
-   <property name="text">
+  <action name="action_item_add_many_rec" >
+   <property name="text" >
     <string>Add many &amp;recursively</string>
    </property>
   </action>
-  <action name="action_item_delete">
-   <property name="text">
+  <action name="action_item_delete" >
+   <property name="text" >
     <string>&amp;Delete</string>
    </property>
   </action>
-  <action name="action_item_view_m3u">
-   <property name="text">
+  <action name="action_item_view_m3u" >
+   <property name="text" >
     <string>Create m3u playlist and open it</string>
    </property>
   </action>
-  <action name="action_help_about">
-   <property name="text">
+  <action name="action_help_about" >
+   <property name="text" >
     <string>About Reggata</string>
    </property>
   </action>
-  <action name="action_item_view_image_viewer">
-   <property name="text">
+  <action name="action_item_view_image_viewer" >
+   <property name="text" >
     <string>View images with built-in viewer</string>
    </property>
   </action>
-  <action name="action_item_check_integrity">
-   <property name="text">
+  <action name="action_item_check_integrity" >
+   <property name="text" >
     <string>Check &amp;integrity</string>
    </property>
   </action>
-  <action name="action_item_fix_history_rec_error">
-   <property name="text">
+  <action name="action_item_fix_history_rec_error" >
+   <property name="text" >
     <string>Fix history rec error</string>
    </property>
   </action>
-  <action name="action_item_fix_hash_error">
-   <property name="text">
+  <action name="action_item_fix_hash_error" >
+   <property name="text" >
     <string>Try find file</string>
    </property>
   </action>
-  <action name="action_item_update_file_hash">
-   <property name="text">
+  <action name="action_item_update_file_hash" >
+   <property name="text" >
     <string>Update hash</string>
    </property>
   </action>
-  <action name="action_fix_file_not_found_try_find">
-   <property name="text">
+  <action name="action_fix_file_not_found_try_find" >
+   <property name="text" >
     <string>Try find file</string>
    </property>
   </action>
-  <action name="action_fix_file_not_found_delete">
-   <property name="text">
+  <action name="action_fix_file_not_found_delete" >
+   <property name="text" >
     <string>Delete item's reference to file</string>
    </property>
   </action>
-  <action name="action_fix_file_not_found_try_find_else_delete">
-   <property name="text">
+  <action name="action_fix_file_not_found_try_find_else_delete" >
+   <property name="text" >
     <string>Try find file else delete link</string>
    </property>
   </action>
-  <action name="action_item_rebuild_thumbnail">
-   <property name="text">
+  <action name="action_item_rebuild_thumbnail" >
+   <property name="text" >
     <string>Rebuild &amp;thumbnail</string>
    </property>
   </action>
-  <action name="action_tools_items_table">
-   <property name="checkable">
+  <action name="action_tools_items_table" >
+   <property name="checkable" >
     <bool>true</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>Items table</string>
    </property>
   </action>
-  <action name="action_tools_file_browser">
-   <property name="checkable">
+  <action name="action_tools_file_browser" >
+   <property name="checkable" >
     <bool>true</bool>
    </property>
-   <property name="text">
+   <property name="text" >
     <string>File browser</string>
+   </property>
+  </action>
+  <action name="action_item_to_external_filemanager" >
+   <property name="text" >
+    <string>Open external file manager</string>
    </property>
   </action>
  </widget>
  <resources>
-  <include location="resources/resources.qrc"/>
+  <include location="resources/resources.qrc" />
  </resources>
  <connections/>
 </ui>

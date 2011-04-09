@@ -98,6 +98,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_edit)
         self.menu.addAction(self.ui.action_item_rebuild_thumbnail)
+        self.menu.addAction(self.ui.action_item_to_external_filemanager)
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_delete)
         self.menu.addSeparator()
@@ -120,6 +121,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
         self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
         self.connect(self.ui.action_item_rebuild_thumbnail, QtCore.SIGNAL("triggered()"), self.action_item_rebuild_thumbnail)
+        self.connect(self.ui.action_item_to_external_filemanager, QtCore.SIGNAL("triggered()"), self.action_item_to_external_filemanager)
         self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
         self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
         self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
@@ -1102,7 +1104,28 @@ class MainWindow(QtGui.QMainWindow):
         else:
             pass
             
+
+    def action_item_to_external_filemanager(self):
+        try:
+            sel_indexes = self.ui.tableView_items.selectionModel().selectedIndexes()
+            if len(sel_indexes) != 1:
+                raise MsgException(self.tr("Select one item, please."))
             
+            sel_row = sel_indexes[0].row()
+            data_ref = self.model.items[sel_row].data_ref
+            
+            if not data_ref or data_ref.type != DataRef.FILE:
+                raise MsgException(
+                self.tr("Action '%1' can be applied only to items linked with files.")
+                .arg(self.ui.action_item_to_external_filemanager.text()))
+            
+            eam = ExtAppMgr()
+            eam.external_file_manager(os.path.join(self.active_repo.base_path, data_ref.url))
+                        
+        except Exception as ex:
+            show_exc_info(self, ex)
+        else:
+            pass
 
     def action_item_edit(self):
         try:
