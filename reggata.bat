@@ -1,5 +1,7 @@
-rem Please correct your PATH variable value!
-set PATH=c:\usr\Python31_2\Lib\site-packages\PyQt4;c:\usr\Python31_2\Lib\site-packages\PyQt4\bin;"c:\WINDOWS\system32";"c:\WINDOWS";"c:\WINDOWS\system32\wbem";"c:\usr\Python31_2"
+rem Change PYTHON_HOME according to your system configuration
+set PYTHON_HOME=c:\usr\Python31_2
+
+set PATH=%PYTHON_HOME%;%PYTHON_HOME%\Lib\site-packages\PyQt4;%PYTHON_HOME%\Lib\site-packages\PyQt4\bin;c:\WINDOWS\system32;c:\WINDOWS;c:\WINDOWS\system32\wbem;
 
 set PYTHONPATH=.\ui;.\lib
 
