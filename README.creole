@@ -20,7 +20,6 @@ Query examples:
   //(This query seaches items (files) only in "download/unsorted" physical path by tags)//
 
 * With Reggata you can open file with a preferred appropriate external program. Reggata has a configuration file {{{reggata.conf}}} which allows you to configure your preferred apps for music, pdf, images and any other types of files.
-* Reggata is under active development and new features (so as bugfixes) are added constantly. 
 
 More information about Reggata can be found on wiki pages [[https://github.com/vlkv/reggata/wiki]].
 
