@@ -117,14 +117,22 @@ class RepoMgr(object):
         
 
     def create_unit_of_work(self):
-        return UnitOfWork(self)
+        return UnitOfWork(self.Session(), self.base_path)
 
 
 class UnitOfWork(object):
+    ''' This class allows you to open a working session with database (unit of work), 
+    do some actions and close the session.
     
-    def __init__(self, repoMgr):
-        self._repo_base_path = repoMgr.base_path
-        self._session = repoMgr.Session()        
+    Also this class has methods for executing operations with the database. 
+    TODO: This operations should be 
+    moved to a separate Command classes (I think).
+    '''
+    
+    #TODO argument repo_base_path should be moved to Command class ctor
+    def __init__(self, session, repo_base_path):
+        self._session = session
+        self._repo_base_path = repo_base_path 
         
     def __del__(self):
         if self._session is not None:
