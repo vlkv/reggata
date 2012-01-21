@@ -51,6 +51,7 @@ from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
     FileNotFoundFixer
 from file_browser import FileBrowser, FileBrowserTableModel
 import shutil
+import worker_threads
 
 
 
@@ -809,46 +810,39 @@ class MainWindow(QtGui.QMainWindow):
 
 
     def action_export_selected_items(self):
-        count = 0
         try:
             if self.active_repo is None:
                 raise MsgException(self.tr("Open a repository first."))
             
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
-            
-            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
-            rows = set()
+            #Collect selected items' ids
+            #We use set, because selectedIndexes() can return duplicates
+            item_ids = set()
             for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-                rows.add(idx.row())
-            
-            if len(rows) == 0:
+                item_ids.add(self.model.items[idx.row()].id)
+            if len(item_ids) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            #Ask user for destination directory path            
             export_dir_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a directory path to export files into."))
             if not export_dir_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
-            #TODO should execute copying in a separate thread!
-            for row in rows:
-                src_file_path = os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url)
-                unique_path = dst_file_path = os.path.join(export_dir_path, os.path.basename(src_file_path))
-                i = 1
-                
-                #Generate unique file name. I don't want different files with same name to overwrite each other
-                while os.path.exists(unique_path):
-                    name, ext = os.path.splitext(dst_file_path)
-                    unique_path = name + str(i) + ext
-                    i += 1
-                    
-                shutil.copy(src_file_path, unique_path)
-                count += 1
+            thread = worker_threads.ExportItemsThread(self, self.active_repo, item_ids, export_dir_path)
+            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+                                    
+            wd = WaitDialog(self)
+            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
             
+            thread.start()
+            thread.wait(1000)
+            if thread.isRunning():
+                wd.exec_()
+
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed. Exported {} files.").format(count), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 
     def action_item_view_m3u(self):
         try:
