@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemstabledockwidget.ui'
 #
-# Created: Sat Jan 21 15:29:38 2012
+# Created: Sat Jan 21 21:30:01 2012
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -62,7 +62,7 @@ class Ui_ItemsTableDockWidget(object):
         QtCore.QMetaObject.connectSlotsByName(ItemsTableDockWidget)
 
     def retranslateUi(self, ItemsTableDockWidget):
-        ItemsTableDockWidget.setWindowTitle(QtGui.QApplication.translate("ItemsTableDockWidget", "DockWidget", None, QtGui.QApplication.UnicodeUTF8))
+        ItemsTableDockWidget.setWindowTitle(QtGui.QApplication.translate("ItemsTableDockWidget", "Items Table", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("ItemsTableDockWidget", "Query:", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_query_exec.setText(QtGui.QApplication.translate("ItemsTableDockWidget", "Execute", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_query_reset.setText(QtGui.QApplication.translate("ItemsTableDockWidget", "Reset", None, QtGui.QApplication.UnicodeUTF8))

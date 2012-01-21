@@ -225,7 +225,7 @@ class TagCloud(QtGui.QTextEdit):
                 self.not_tags.add(self.word)
             else:
                 self.tags.add(self.word)
-            self.emit(QtCore.SIGNAL("selectedTagsChanged"))
+            self.emit(QtCore.SIGNAL("selectedTagsChanged"), self.tags, self.not_tags)
             self.refresh()
            
     
@@ -240,7 +240,7 @@ class TagCloud(QtGui.QTextEdit):
             if parsers.query_parser.needs_quote(sel_text):
                 sel_text = parsers.util.quote(sel_text)
             self.tags.add(sel_text)
-            self.emit(QtCore.SIGNAL("selectedTagsChanged"))
+            self.emit(QtCore.SIGNAL("selectedTagsChanged"), self.tags, self.not_tags)
             self.refresh()
         except Exception as ex:
             show_exc_info(self, ex)
@@ -256,7 +256,7 @@ class TagCloud(QtGui.QTextEdit):
             if parsers.query_parser.needs_quote(sel_text):
                 sel_text = parsers.util.quote(sel_text)
             self.not_tags.add(sel_text)
-            self.emit(QtCore.SIGNAL("selectedTagsChanged"))
+            self.emit(QtCore.SIGNAL("selectedTagsChanged"), self.tags, self.not_tags)
             self.refresh()
         except Exception as ex:
             show_exc_info(self, ex)
