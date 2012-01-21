@@ -52,19 +52,7 @@ from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
 from file_browser import FileBrowser, FileBrowserTableModel
 import shutil
 import worker_threads
-
-
-
-
-#TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
-#TODO Реализовать до конца грамматику языка запросов (прежде всего фильтрацию по директориям и пользователям)
-#TODO Сделать функции экспорта результатов поиска во внешнюю директорию
-#TODO Сделать проект механизма клонирования/синхронизации хранилищ
-#TODO Сделать возможность привязывать несколько файлов к одному Item-у при помощи архивирования их на лету (при помощи zip, например)
-#TODO Сделать новый тип объекта DataRef для сохранения ссылок на директории. Тогда можно будет привязывать теги и поля к директориям внутри хранилища. Надо еще подумать, стоит ли такое реализовывать или нет.
-#TODO Довести до ума встроенный просмотрщик графических файлов.
-#TODO Сделать всплывающие подсказки на элементах GUI
-#TODO Если запрос возвращает очень много элементов, и указан limit. То нельзя передать ВСЕ элементы в просмотрщик изображений, передаются только отображенные limit штук. 
+from items_table_dock_widget import ItemsTableDockWidget
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -103,10 +91,12 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addAction(self.ui.action_item_delete)
         self.menu.addSeparator()
         self.menu.addAction(self.ui.action_item_check_integrity)
-        self.menu.addMenu(self.ui.menuFix_integrity_errors)        
-        #Adding this menu to items table
-        self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
+        self.menu.addMenu(self.ui.menuFix_integrity_errors)
+        
+        #Create ItemsTableDockWidget
+        self.ui.dockWidget_items_table = ItemsTableDockWidget(self)
+        self.ui.dockWidget_items_table.addContextMenu(self.menu)
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_items_table)
         
                 
         self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
@@ -139,27 +129,7 @@ class MainWindow(QtGui.QMainWindow):
         
         #About dialog
         self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
-        
-        #Widgets for text queries
-        self.ui.lineEdit_query = helpers.TextEdit(self, one_line=True)
-        tmp = QtGui.QHBoxLayout(self.ui.widget_lineEdit_query)
-        tmp.addWidget(self.ui.lineEdit_query)        
-        self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
-        self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
-        self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
-        
-        #self.ui.horizontalLayout.addWidget(helpers.TextEdit(self, one_line=True))
-        
-        #TODO limit page function sometimes works not correct!!! It sometimes shows less items, than specified in limit spinbox!
-        #Initialization of limit and page spinboxes 
-        self.ui.spinBox_limit.setValue(int(UserConfig().get("spinBox_limit.value", 0)))
-        self.ui.spinBox_limit.setSingleStep(int(UserConfig().get("spinBox_limit.step", 5)))
-        self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
-        self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), lambda: UserConfig().store("spinBox_limit.value", self.ui.spinBox_limit.value()))
-        self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), lambda val: self.ui.spinBox_page.setEnabled(val > 0))
-        self.connect(self.ui.spinBox_page, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
-        self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
-        
+                        
 
         #Creating status bar widgets
         self.ui.label_repo = QtGui.QLabel()
@@ -331,9 +301,6 @@ class MainWindow(QtGui.QMainWindow):
     def event(self, e):
         return super(MainWindow, self).event(e)
 
-    def showContextMenu(self, pos):
-        self.menu.exec_(self.ui.tableView_items.mapToGlobal(pos))
-
     def reset_tag_cloud(self):
         self.ui.tag_cloud.reset()
     
@@ -452,7 +419,7 @@ class MainWindow(QtGui.QMainWindow):
                 
                 #Строим новую модель для таблицы
                 self.model = RepoItemTableModel(repo, self.items_lock, self.active_user.login if self.active_user is not None else None)
-                self.ui.tableView_items.setModel(self.model)
+                self.ui.dockWidget_items_table.setTableModel(self.model)
                 self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
                 #self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
                 self.connect(self.model, QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), self._resize_row_to_contents)
