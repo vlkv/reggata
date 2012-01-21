@@ -31,6 +31,7 @@ import consts
 from user_config import UserConfig
 from main_window import MainWindow
 
+
 if __name__ == '__main__':
     if not os.path.exists(consts.DEFAULT_TMP_DIR):
         os.makedirs(consts.DEFAULT_TMP_DIR)
