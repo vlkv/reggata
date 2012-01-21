@@ -22,22 +22,21 @@ Created on 20.08.2010
 @author: vlkv
 '''
 import os.path
-import sys
 import datetime
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread, CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
+from repo_mgr import RepoMgr, BackgrThread, UpdateGroupOfItemsThread, CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
     ItemIntegrityCheckerThread, ItemIntegrityFixerThread
 from helpers import tr, show_exc_info, DialogMode, is_none_or_empty,\
     WaitDialog, raise_exc, format_exc_info, HTMLDelegate, ImageThumbDelegate,\
-    RatingDelegate, Completer
-from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
+    RatingDelegate
+from db_schema import User, Item, DataRef
 from user_config import UserConfig
 from user_dialog import UserDialog
-from exceptions import LoginError, MsgException, CannotOpenRepoError, DataRefAlreadyExistsError
+from exceptions import LoginError, MsgException, CannotOpenRepoError
 from parsers import query_parser
 from tag_cloud import TagCloud
 import consts
@@ -50,9 +49,7 @@ import traceback
 import ui_aboutdialog
 from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
     FileNotFoundFixer
-import math
 from file_browser import FileBrowser, FileBrowserTableModel
-import locale
 import shutil
 
 
@@ -1572,38 +1569,3 @@ along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses<
                 f.close()
                         
         self.ui.textEdit.setHtml(title + text)
-        
-
-
-if __name__ == '__main__':
-    
-    if not os.path.exists(consts.DEFAULT_TMP_DIR):
-        os.makedirs(consts.DEFAULT_TMP_DIR)
-    
-    if UserConfig().get("redirect_stdout", "True") in ["True", "true", "TRUE", "1"]:
-        sys.stdout = open(os.path.join(consts.DEFAULT_TMP_DIR, "stdout.txt"), "a+")
-        
-    if UserConfig().get("redirect_stderr", "True") in ["True", "true", "TRUE", "1"]:
-        sys.stderr = open(os.path.join(consts.DEFAULT_TMP_DIR, "stderr.txt"), "a+")
-    
-    print()
-    print("========= Reggata started at {} =========".format(datetime.datetime.now()))
-    print("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
-    print("qt_version = {}".format(QtCore.QT_VERSION_STR))
-    
-    app = QtGui.QApplication(sys.argv)
-        
-    qtr = QtCore.QTranslator()
-    language = UserConfig().get("language")
-    if language:
-        qm_filename = "reggata_{}.qm".format(language)
-        if qtr.load(qm_filename, ".") or qtr.load(qm_filename, ".."):
-            app.installTranslator(qtr)
-        else:
-            print("Cannot find translation file {}.".format(qm_filename))
-    
-    form = MainWindow()
-    form.show()
-    app.exec_()
-
-

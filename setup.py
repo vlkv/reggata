@@ -18,7 +18,6 @@ sys.path.append(r'.' + os.sep + 'lib')
 sys.path.append(r'.' + os.sep + 'src')
 
 
-#base = "Console"
 base = None
 if sys.platform == "win32":
     base = "Win32GUI"
@@ -33,17 +32,16 @@ buildOptions = dict(
         packages = ["sqlalchemy.dialects.sqlite", "ply"],
         namespace_packages=["sqlalchemy"],
 	include_files = ["reggata_ru.qm", "COPYING", "README.creole", "version.txt", "reggata.conf.template"],
-	#zip_includes = ["version.txt"],
         build_exe = target_dir
         )
 setup(
         name = "Reggata",
 	
-	#TODO create some script to automate version generation...
+        #TODO create some script to automate version generation...
         version = reggata_version,
         description = "Reggata is a tag-based file manager",
         options = dict(build_exe = buildOptions),
-        executables = [Executable('.' + os.sep + 'src' + os.sep + 'main_window.py', base = base)])
+        executables = [Executable('.' + os.sep + 'src' + os.sep + 'reggata.py', base = base)])
 
 if sys.platform == "win32":
     file, PyQt4_path, desc = imp.find_module("PyQt4")
