@@ -5,4 +5,4 @@ set PATH=%PYTHON_HOME%;%PYTHON_HOME%\Lib\site-packages\PyQt4;%PYTHON_HOME%\Lib\s
 
 set PYTHONPATH=.\ui;.\lib
 
-python .\src\main_window.py
+python .\src\reggata.py
