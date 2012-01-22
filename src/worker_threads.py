@@ -24,6 +24,8 @@ class ExportItemsThread(QtCore.QThread):
             i = 0
             for id in self.item_ids:
                 item = uow.get_item(id)
+                if item.is_data_ref_null():
+                    continue
                 
                 src_file_path = os.path.join(self.repo.base_path, item.data_ref.url)
                 unique_path = dst_file_path = os.path.join(self.dst_path, os.path.basename(src_file_path))

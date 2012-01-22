@@ -713,6 +713,9 @@ class MainWindow(QtGui.QMainWindow):
             
             file = open(export_filename, "w", newline='')
             for row in rows:
+                item = self.model.items[row]
+                if item.is_data_ref_null():
+                    continue
                 textline = self.active_repo.base_path + \
                     os.sep + self.model.items[row].data_ref.url + os.linesep
                 file.write(textline)

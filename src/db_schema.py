@@ -398,7 +398,12 @@ class Item(Base):
         if self.title == "" or self.title is None:
             raise Exception(tr("Attribute Item.title shouldn't be empty."))
         return True
+    
+    def is_data_ref_null(self):
+        return self.data_ref is None
         
+        
+    #TODO: remove method, if unused
     def has_data_ref(self, url_str):
         '''Проверяет, связан ли с данным элементом объект DataRef, 
         имеющий url=url_str.'''
@@ -410,7 +415,8 @@ class Item(Base):
                 if dr.url == url_str:
                     return True
         return False
-            
+    
+    #TODO: remove method, if unused
     def remove_data_ref(self, url_str):
         '''Удаляет DataRef (и соответствующий Item_DataRef) с указанным значением url.
         Из БД ничего не удаляется, эта операция только в ОП.'''
