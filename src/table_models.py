@@ -11,7 +11,7 @@ import traceback
 from db_schema import Item, DataRef
 import os
 from parsers import query_parser
-from repo_mgr import ThumbnailBuilderThread
+from worker_threads import ThumbnailBuilderThread
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
     '''

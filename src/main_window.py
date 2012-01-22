@@ -25,19 +25,15 @@ import os.path
 import datetime
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
-from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import RepoMgr, BackgrThread, UpdateGroupOfItemsThread, CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
-    ItemIntegrityCheckerThread, ItemIntegrityFixerThread
+from repo_mgr import RepoMgr
 from helpers import tr, show_exc_info, DialogMode, is_none_or_empty,\
-    WaitDialog, raise_exc, format_exc_info, HTMLDelegate, ImageThumbDelegate,\
-    RatingDelegate
+    WaitDialog, raise_exc, format_exc_info
 from db_schema import User, Item, DataRef
 from user_config import UserConfig
 from user_dialog import UserDialog
 from exceptions import LoginError, MsgException, CannotOpenRepoError
-from parsers import query_parser
 from tag_cloud import TagCloud
 import consts
 from items_dialog import ItemsDialog
@@ -45,13 +41,13 @@ from ext_app_mgr import ExtAppMgr
 import helpers
 import time
 from image_viewer import ImageViewer
-import traceback
 import ui_aboutdialog
 from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
     FileNotFoundFixer
 from file_browser import FileBrowser, FileBrowserTableModel
-import shutil
-import worker_threads
+from worker_threads import BackgrThread, UpdateGroupOfItemsThread, \
+    CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
+    ItemIntegrityCheckerThread, ItemIntegrityFixerThread, ExportItemsThread
 from items_table_dock_widget import ItemsTableDockWidget
 from table_models import RepoItemTableModel
 
@@ -680,7 +676,7 @@ class MainWindow(QtGui.QMainWindow):
             if not export_dir_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
-            thread = worker_threads.ExportItemsThread(self, self.active_repo, item_ids, export_dir_path)
+            thread = ExportItemsThread(self, self.active_repo, item_ids, export_dir_path)
             self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
                                     
             wd = WaitDialog(self)
