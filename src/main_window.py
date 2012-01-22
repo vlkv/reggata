@@ -382,14 +382,12 @@ class MainWindow(QtGui.QMainWindow):
                 completer = helpers.Completer(repo=repo, parent=self.ui.dockWidget_items_table)
                 self.ui.dockWidget_items_table.set_tag_completer(completer)
                 
-                #Restore column widths
                 self.restore_file_browser_state()
                 self.ui.dockWidget_items_table.restore_columns_width()
                 
-            else:                
-                #Save column widths
+            else:
                 self.save_file_browser_state()
-                self.save_items_table_state()
+                self.ui.dockWidget_items_table.save_columns_width()
                 
                 self.ui.label_repo.setText("")
                 self.model = None

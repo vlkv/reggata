@@ -108,8 +108,9 @@ class ItemsTableDockWidget(QtGui.QDockWidget):
     def setTableModel(self, model):
         self.__table_model = model
         self.ui.tableView_items.setModel(model)
-        self.connect(model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
-        self.connect(model, QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), self._resize_row_to_contents)
+        if model is not None:
+            self.connect(model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
+            self.connect(model, QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), self._resize_row_to_contents)
         
     def _resize_row_to_contents(self, top_left, bottom_right):
         if top_left.row() == bottom_right.row():
