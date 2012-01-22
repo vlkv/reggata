@@ -4,4 +4,4 @@
 export REGGATA_HOME=/home/vlkv/projects/reggata.git
 
 export PYTHONPATH=$REGGATA_HOME/ui/:$REGGATA_HOME/lib/
-python3 $REGGATA_HOME/src/main_window.py &
+python3 $REGGATA_HOME/src/reggata.py &
