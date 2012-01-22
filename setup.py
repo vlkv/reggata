@@ -11,40 +11,65 @@ import imp
 import os
 import shutil
 
-target_dir = "bin" + os.sep + "build"
+class UnsupportedPlatform(Exception):
+    pass
 
-sys.path.append(r'.' + os.sep + 'ui')
-sys.path.append(r'.' + os.sep + 'lib')
-sys.path.append(r'.' + os.sep + 'src')
+class VersionInfoNotFound(Exception):
+    pass 
 
 
-base = None
-if sys.platform == "win32":
-    base = "Win32GUI"
+def get_reggata_version():
+    f = open("version.txt", "r")
+    version = f.readline()
+    if not version or len(version) == 0:
+        raise VersionInfoNotFound()
+    f.close()
+    return version.strip()
 
-f = open("version.txt", "r")
-reggata_version = f.readline()
-f.close()
 
-buildOptions = dict(
-        compressed = True,
-        includes = ["sqlite3"],
-        packages = ["sqlalchemy.dialects.sqlite", "ply"],
-        namespace_packages=["sqlalchemy"],
-	include_files = ["reggata_ru.qm", "COPYING", "README.creole", "version.txt", "reggata.conf.template"],
-        build_exe = target_dir
-        )
-setup(
-        name = "Reggata",
-	
-        #TODO create some script to automate version generation...
-        version = reggata_version,
-        description = "Reggata is a tag-based file manager",
-        options = dict(build_exe = buildOptions),
-        executables = [Executable('.' + os.sep + 'src' + os.sep + 'reggata.py', base = base)])
+def get_short_sys_platform():
+    if sys.platform.startswith("linux"):
+        return "linux"
+    elif sys.platform.startswith("win"):
+        return "win"
+    elif sys.platform.startswith("darwin"):
+        return "mac"
+    else:
+        raise UnsupportedPlatform()
+    
 
-if sys.platform == "win32":
-    file, PyQt4_path, desc = imp.find_module("PyQt4")
-    shutil.copytree(PyQt4_path + os.sep + "plugins" + os.sep + "imageformats", target_dir + os.sep + "imageformats")
+if __name__ == '__main__':
+    
+    sys.path.append(r'.' + os.sep + 'ui')
+    sys.path.append(r'.' + os.sep + 'lib')
+    sys.path.append(r'.' + os.sep + 'src')
+    
+    base = None
+    if sys.platform.startswith("win"):
+        base = "Win32GUI"
+    
+    reggata_version = get_reggata_version()
+    target_dir = "bin" + os.sep + "reggata_" + get_short_sys_platform() + "-" + reggata_version
+    buildOptions = dict(
+            compressed = True,
+            includes = ["sqlite3"],
+            packages = ["sqlalchemy.dialects.sqlite", "ply"],
+            namespace_packages=["sqlalchemy"],
+            include_files = ["reggata_ru.qm", "COPYING", "README.creole", 
+                             "version.txt", "reggata.conf.template"],
+            build_exe = target_dir
+            )
+    setup(
+            name = "Reggata",
+            version = reggata_version,
+            description = "Reggata is a tag-based file manager",
+            options = dict(build_exe = buildOptions),
+            executables = [Executable('.' + os.sep + 'src' + os.sep + 'reggata.py', base = base)]
+            )
+    
+    if sys.platform.startswith("win"):
+        file, PyQt4_path, desc = imp.find_module("PyQt4")
+        shutil.copytree(PyQt4_path + os.sep + "plugins" + os.sep + "imageformats", target_dir + os.sep + "imageformats")
+    
+    print("Done")
 
-print("Done")
