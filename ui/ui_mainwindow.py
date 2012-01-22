@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Jan 21 22:46:45 2012
+# Created: Sun Jan 22 10:31:38 2012
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -101,8 +101,6 @@ class Ui_MainWindow(object):
         self.action_fix_file_not_found_try_find.setObjectName(_fromUtf8("action_fix_file_not_found_try_find"))
         self.action_fix_file_not_found_delete = QtGui.QAction(MainWindow)
         self.action_fix_file_not_found_delete.setObjectName(_fromUtf8("action_fix_file_not_found_delete"))
-        self.action_fix_file_not_found_try_find_else_delete = QtGui.QAction(MainWindow)
-        self.action_fix_file_not_found_try_find_else_delete.setObjectName(_fromUtf8("action_fix_file_not_found_try_find_else_delete"))
         self.action_item_rebuild_thumbnail = QtGui.QAction(MainWindow)
         self.action_item_rebuild_thumbnail.setObjectName(_fromUtf8("action_item_rebuild_thumbnail"))
         self.action_tools_items_table = QtGui.QAction(MainWindow)
@@ -197,7 +195,6 @@ class Ui_MainWindow(object):
         self.action_item_update_file_hash.setText(QtGui.QApplication.translate("MainWindow", "Update hash", None, QtGui.QApplication.UnicodeUTF8))
         self.action_fix_file_not_found_try_find.setText(QtGui.QApplication.translate("MainWindow", "Try find file", None, QtGui.QApplication.UnicodeUTF8))
         self.action_fix_file_not_found_delete.setText(QtGui.QApplication.translate("MainWindow", "Delete item\'s reference to file", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_fix_file_not_found_try_find_else_delete.setText(QtGui.QApplication.translate("MainWindow", "Try find file else delete link", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_rebuild_thumbnail.setText(QtGui.QApplication.translate("MainWindow", "Rebuild &thumbnail", None, QtGui.QApplication.UnicodeUTF8))
         self.action_tools_items_table.setText(QtGui.QApplication.translate("MainWindow", "Items table", None, QtGui.QApplication.UnicodeUTF8))
         self.action_tools_file_browser.setText(QtGui.QApplication.translate("MainWindow", "File browser", None, QtGui.QApplication.UnicodeUTF8))

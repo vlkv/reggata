@@ -78,21 +78,7 @@ class MainWindow(QtGui.QMainWindow):
         #Это замок, который нужен для синхронизации доступа к списку элементов (результатов поиска)
         self.items_lock = QtCore.QReadWriteLock()
         
-        #Context menu of items table
-        self.menu = QtGui.QMenu()
-        self.menu.addAction(self.ui.action_item_view)
-        self.menu.addAction(self.ui.action_item_view_m3u)
-        self.menu.addAction(self.ui.action_item_view_image_viewer)
-        self.menu.addAction(self.ui.action_item_to_external_filemanager)
-        self.menu.addAction(self.ui.action_export_selected_items)
-        self.menu.addSeparator()
-        self.menu.addAction(self.ui.action_item_edit)
-        self.menu.addAction(self.ui.action_item_rebuild_thumbnail)        
-        self.menu.addSeparator()
-        self.menu.addAction(self.ui.action_item_delete)
-        self.menu.addSeparator()
-        self.menu.addAction(self.ui.action_item_check_integrity)
-        self.menu.addMenu(self.ui.menuFix_integrity_errors)
+        self.menu = self.create_items_table_context_menu()
         
         #Create ItemsTableDockWidget
         self.ui.dockWidget_items_table = ItemsTableDockWidget(self)
@@ -102,37 +88,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("query_reset"), self.query_reset)
         
                 
-        self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
-        self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
-        self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
-        
-        self.connect(self.ui.action_user_create, QtCore.SIGNAL("triggered()"), self.action_user_create)
-        self.connect(self.ui.action_user_login, QtCore.SIGNAL("triggered()"), self.action_user_login)
-        self.connect(self.ui.action_user_logout, QtCore.SIGNAL("triggered()"), self.action_user_logout)
-        self.connect(self.ui.action_user_change_pass, QtCore.SIGNAL("triggered()"), self.action_user_change_pass)
-        
-        self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
-        self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
-        self.connect(self.ui.action_item_rebuild_thumbnail, QtCore.SIGNAL("triggered()"), self.action_item_rebuild_thumbnail)
-        self.connect(self.ui.action_item_to_external_filemanager, QtCore.SIGNAL("triggered()"), self.action_item_to_external_filemanager)
-        self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
-        self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
-        self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
-        self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
-        self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
-        self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u)
-        self.connect(self.ui.action_export_selected_items, QtCore.SIGNAL("triggered()"), self.action_export_selected_items)
-        self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
-        self.connect(self.ui.action_item_fix_history_rec_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
-        self.connect(self.ui.action_item_fix_hash_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
-        self.connect(self.ui.action_item_update_file_hash, QtCore.SIGNAL("triggered()"), self.action_item_update_file_hash)
-        self.connect(self.ui.action_fix_file_not_found_try_find, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find)
-        self.connect(self.ui.action_fix_file_not_found_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
-        self.connect(self.ui.action_fix_file_not_found_try_find_else_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find_else_delete)
-        
-        #About dialog
-        self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
-                        
+        self.connect_menu_actions()
 
         #Creating status bar widgets
         self.ui.label_repo = QtGui.QLabel()
@@ -201,6 +157,63 @@ class MainWindow(QtGui.QMainWindow):
             state = eval(state)
             self.restoreState(state)
 
+    def connect_menu_actions(self):
+        #MENU: Repository
+        self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
+        self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
+        self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
+        
+        #MENU: User
+        self.connect(self.ui.action_user_create, QtCore.SIGNAL("triggered()"), self.action_user_create)
+        self.connect(self.ui.action_user_login, QtCore.SIGNAL("triggered()"), self.action_user_login)
+        self.connect(self.ui.action_user_logout, QtCore.SIGNAL("triggered()"), self.action_user_logout)
+        self.connect(self.ui.action_user_change_pass, QtCore.SIGNAL("triggered()"), self.action_user_change_pass)
+        
+        #MENU: Item
+        self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
+        self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
+        self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
+        #SEPARATOR
+        self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
+        self.connect(self.ui.action_item_rebuild_thumbnail, QtCore.SIGNAL("triggered()"), self.action_item_rebuild_thumbnail)
+        #SEPARATOR
+        self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
+        #SEPARATOR
+        self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
+        self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
+        self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u)
+        self.connect(self.ui.action_item_to_external_filemanager, QtCore.SIGNAL("triggered()"), self.action_item_to_external_filemanager)
+        self.connect(self.ui.action_export_selected_items, QtCore.SIGNAL("triggered()"), self.action_export_selected_items)
+        self.connect(self.ui.action_export_items_file_paths, QtCore.SIGNAL("triggered()"), self.action_export_items_file_paths)
+        #SEPARATOR
+        self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
+        self.connect(self.ui.action_item_fix_hash_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
+        self.connect(self.ui.action_item_update_file_hash, QtCore.SIGNAL("triggered()"), self.action_item_update_file_hash)
+        self.connect(self.ui.action_item_fix_history_rec_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
+        self.connect(self.ui.action_fix_file_not_found_try_find, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find)
+        self.connect(self.ui.action_fix_file_not_found_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
+        
+        #MENU: Help
+        self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
+                        
+
+    def create_items_table_context_menu(self):
+        menu = QtGui.QMenu(self)
+        menu.addAction(self.ui.action_item_view)
+        menu.addAction(self.ui.action_item_view_m3u)
+        menu.addAction(self.ui.action_item_view_image_viewer)
+        menu.addAction(self.ui.action_item_to_external_filemanager)
+        menu.addMenu(self.ui.menuExport_items)
+        menu.addSeparator()
+        menu.addAction(self.ui.action_item_edit)
+        menu.addAction(self.ui.action_item_rebuild_thumbnail)        
+        menu.addSeparator()
+        menu.addAction(self.ui.action_item_delete)
+        menu.addSeparator()
+        menu.addAction(self.ui.action_item_check_integrity)
+        menu.addMenu(self.ui.menuFix_integrity_errors)
+        return menu
+        
 
     def closeEvent(self, event):
         #Storing all dock widgets position and size
@@ -570,10 +583,6 @@ class MainWindow(QtGui.QMainWindow):
     def action_fix_file_not_found_delete(self):
         strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
         self._fix_integrity_error(strategy)
-        
-    def action_fix_file_not_found_try_find_else_delete(self):
-        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND_ELSE_DELETE}
-        self._fix_integrity_error(strategy)
 
     def action_item_update_file_hash(self):
         strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
@@ -685,6 +694,31 @@ class MainWindow(QtGui.QMainWindow):
             thread.wait(1000)
             if thread.isRunning():
                 wd.exec_()
+
+        except Exception as ex:
+            show_exc_info(self, ex)
+        else:
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+
+    def action_export_items_file_paths(self):
+        try:
+            if self.active_repo is None:
+                raise MsgException(self.tr("Open a repository first."))
+            
+            rows = self.ui.dockWidget_items_table.selected_rows()
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            export_filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption=self.tr('Save results in a file.')) 
+            if not export_filename:
+                raise MsgException(self.tr("Operation canceled."))
+            
+            file = open(export_filename, "w", newline='')
+            for row in rows:
+                textline = self.active_repo.base_path + \
+                    os.sep + self.model.items[row].data_ref.url + os.linesep
+                file.write(textline)
+            file.close()
 
         except Exception as ex:
             show_exc_info(self, ex)

@@ -245,11 +245,6 @@
     <string>Delete item's reference to file</string>
    </property>
   </action>
-  <action name="action_fix_file_not_found_try_find_else_delete">
-   <property name="text">
-    <string>Try find file else delete link</string>
-   </property>
-  </action>
   <action name="action_item_rebuild_thumbnail">
    <property name="text">
     <string>Rebuild &amp;thumbnail</string>
