@@ -22,23 +22,18 @@ Created on 20.08.2010
 @author: vlkv
 '''
 import os.path
-import sys
 import datetime
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
-from PyQt4.QtCore import Qt
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import RepoMgr, UnitOfWork, BackgrThread, UpdateGroupOfItemsThread, CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
-    ItemIntegrityCheckerThread, ItemIntegrityFixerThread
+from repo_mgr import RepoMgr
 from helpers import tr, show_exc_info, DialogMode, is_none_or_empty,\
-    WaitDialog, raise_exc, format_exc_info, HTMLDelegate, ImageThumbDelegate,\
-    RatingDelegate, Completer
-from db_schema import Base, User, Item, DataRef, Tag, Field, Item_Field
+    WaitDialog, raise_exc, format_exc_info
+from db_schema import User, Item, DataRef
 from user_config import UserConfig
 from user_dialog import UserDialog
-from exceptions import LoginError, MsgException, CannotOpenRepoError, DataRefAlreadyExistsError
-from parsers import query_parser
+from exceptions import LoginError, MsgException, CannotOpenRepoError
 from tag_cloud import TagCloud
 import consts
 from items_dialog import ItemsDialog
@@ -46,27 +41,15 @@ from ext_app_mgr import ExtAppMgr
 import helpers
 import time
 from image_viewer import ImageViewer
-import traceback
 import ui_aboutdialog
 from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
     FileNotFoundFixer
-import math
 from file_browser import FileBrowser, FileBrowserTableModel
-import locale
-import shutil
-
-
-
-
-#TODO Добавить поиск и отображение объектов DataRef, не привязанных ни к одному Item-у
-#TODO Реализовать до конца грамматику языка запросов (прежде всего фильтрацию по директориям и пользователям)
-#TODO Сделать функции экспорта результатов поиска во внешнюю директорию
-#TODO Сделать проект механизма клонирования/синхронизации хранилищ
-#TODO Сделать возможность привязывать несколько файлов к одному Item-у при помощи архивирования их на лету (при помощи zip, например)
-#TODO Сделать новый тип объекта DataRef для сохранения ссылок на директории. Тогда можно будет привязывать теги и поля к директориям внутри хранилища. Надо еще подумать, стоит ли такое реализовывать или нет.
-#TODO Довести до ума встроенный просмотрщик графических файлов.
-#TODO Сделать всплывающие подсказки на элементах GUI
-#TODO Если запрос возвращает очень много элементов, и указан limit. То нельзя передать ВСЕ элементы в просмотрщик изображений, передаются только отображенные limit штук. 
+from worker_threads import BackgrThread, UpdateGroupOfItemsThread, \
+    CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
+    ItemIntegrityCheckerThread, ItemIntegrityFixerThread, ExportItemsThread
+from items_table_dock_widget import ItemsTableDockWidget
+from table_models import RepoItemTableModel
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -91,77 +74,17 @@ class MainWindow(QtGui.QMainWindow):
         #Это замок, который нужен для синхронизации доступа к списку элементов (результатов поиска)
         self.items_lock = QtCore.QReadWriteLock()
         
-        #Context menu of items table
-        self.menu = QtGui.QMenu()
-        self.menu.addAction(self.ui.action_item_view)
-        self.menu.addAction(self.ui.action_item_view_m3u)
-        self.menu.addAction(self.ui.action_item_view_image_viewer)
-        self.menu.addAction(self.ui.action_item_to_external_filemanager)
-        self.menu.addAction(self.ui.action_export_selected_items)
-        self.menu.addSeparator()
-        self.menu.addAction(self.ui.action_item_edit)
-        self.menu.addAction(self.ui.action_item_rebuild_thumbnail)        
-        self.menu.addSeparator()
-        self.menu.addAction(self.ui.action_item_delete)
-        self.menu.addSeparator()
-        self.menu.addAction(self.ui.action_item_check_integrity)
-        self.menu.addMenu(self.ui.menuFix_integrity_errors)        
-        #Adding this menu to items table
-        self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
+        self.menu = self.create_items_table_context_menu()
+        
+        #Create ItemsTableDockWidget
+        self.ui.dockWidget_items_table = ItemsTableDockWidget(self)
+        self.ui.dockWidget_items_table.addContextMenu(self.menu)
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_items_table)
+        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("query_exec"), self.query_exec)
+        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("query_reset"), self.query_reset)
         
                 
-        self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
-        self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
-        self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
-        
-        self.connect(self.ui.action_user_create, QtCore.SIGNAL("triggered()"), self.action_user_create)
-        self.connect(self.ui.action_user_login, QtCore.SIGNAL("triggered()"), self.action_user_login)
-        self.connect(self.ui.action_user_logout, QtCore.SIGNAL("triggered()"), self.action_user_logout)
-        self.connect(self.ui.action_user_change_pass, QtCore.SIGNAL("triggered()"), self.action_user_change_pass)
-        
-        self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
-        self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
-        self.connect(self.ui.action_item_rebuild_thumbnail, QtCore.SIGNAL("triggered()"), self.action_item_rebuild_thumbnail)
-        self.connect(self.ui.action_item_to_external_filemanager, QtCore.SIGNAL("triggered()"), self.action_item_to_external_filemanager)
-        self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
-        self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
-        self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
-        self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
-        self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
-        self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u)
-        self.connect(self.ui.action_export_selected_items, QtCore.SIGNAL("triggered()"), self.action_export_selected_items)
-        self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
-        self.connect(self.ui.action_item_fix_history_rec_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
-        self.connect(self.ui.action_item_fix_hash_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
-        self.connect(self.ui.action_item_update_file_hash, QtCore.SIGNAL("triggered()"), self.action_item_update_file_hash)
-        self.connect(self.ui.action_fix_file_not_found_try_find, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find)
-        self.connect(self.ui.action_fix_file_not_found_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
-        self.connect(self.ui.action_fix_file_not_found_try_find_else_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find_else_delete)
-        
-        #About dialog
-        self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
-        
-        #Widgets for text queries
-        self.ui.lineEdit_query = helpers.TextEdit(self, one_line=True)
-        tmp = QtGui.QHBoxLayout(self.ui.widget_lineEdit_query)
-        tmp.addWidget(self.ui.lineEdit_query)        
-        self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
-        self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
-        self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
-        
-        #self.ui.horizontalLayout.addWidget(helpers.TextEdit(self, one_line=True))
-        
-        #TODO limit page function sometimes works not correct!!! It sometimes shows less items, than specified in limit spinbox!
-        #Initialization of limit and page spinboxes 
-        self.ui.spinBox_limit.setValue(int(UserConfig().get("spinBox_limit.value", 0)))
-        self.ui.spinBox_limit.setSingleStep(int(UserConfig().get("spinBox_limit.step", 5)))
-        self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
-        self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), lambda: UserConfig().store("spinBox_limit.value", self.ui.spinBox_limit.value()))
-        self.connect(self.ui.spinBox_limit, QtCore.SIGNAL("valueChanged(int)"), lambda val: self.ui.spinBox_page.setEnabled(val > 0))
-        self.connect(self.ui.spinBox_page, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
-        self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
-        
+        self.connect_menu_actions()
 
         #Creating status bar widgets
         self.ui.label_repo = QtGui.QLabel()
@@ -176,7 +99,7 @@ class MainWindow(QtGui.QMainWindow):
         #Items table
         self.connect(self.ui.action_tools_items_table, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_items_table.setVisible(b))
         self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_items_table.setChecked(b))
-        #Note that dock widget for items table is created in Qt Designer         
+
         
         #Adding tag cloud
         self.ui.tag_cloud = TagCloud(self)
@@ -184,7 +107,7 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.dockWidget_tag_cloud.setObjectName("dockWidget_tag_cloud")
         self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
-        self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), self.selected_tags_changed)
+        self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), self.ui.dockWidget_items_table.selected_tags_changed)
         self.connect(self.ui.action_tools_tag_cloud, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_tag_cloud.setVisible(b))
         self.connect(self.ui.dockWidget_tag_cloud, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
                 
@@ -212,18 +135,9 @@ class MainWindow(QtGui.QMainWindow):
             self.active_user = None
         except Exception as ex:
             self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), 5000)
-        
-        
-        #Tuning table cell rendering
-        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.TITLE, HTMLDelegate(self))
-        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate(self))                 
-        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.RATING, RatingDelegate(self))
-        
-        #Turn on table sorting
-        self.ui.tableView_items.setSortingEnabled(True)
-        
+                
         #Restoring columns width of items table
-        self.restore_items_table_state()
+        self.ui.dockWidget_items_table.restore_columns_width()
         
         #Restoring columns width of file browser
         self.restore_file_browser_state()
@@ -239,6 +153,63 @@ class MainWindow(QtGui.QMainWindow):
             state = eval(state)
             self.restoreState(state)
 
+    def connect_menu_actions(self):
+        #MENU: Repository
+        self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
+        self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
+        self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
+        
+        #MENU: User
+        self.connect(self.ui.action_user_create, QtCore.SIGNAL("triggered()"), self.action_user_create)
+        self.connect(self.ui.action_user_login, QtCore.SIGNAL("triggered()"), self.action_user_login)
+        self.connect(self.ui.action_user_logout, QtCore.SIGNAL("triggered()"), self.action_user_logout)
+        self.connect(self.ui.action_user_change_pass, QtCore.SIGNAL("triggered()"), self.action_user_change_pass)
+        
+        #MENU: Item
+        self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
+        self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
+        self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
+        #SEPARATOR
+        self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
+        self.connect(self.ui.action_item_rebuild_thumbnail, QtCore.SIGNAL("triggered()"), self.action_item_rebuild_thumbnail)
+        #SEPARATOR
+        self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
+        #SEPARATOR
+        self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
+        self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
+        self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u)
+        self.connect(self.ui.action_item_to_external_filemanager, QtCore.SIGNAL("triggered()"), self.action_item_to_external_filemanager)
+        self.connect(self.ui.action_export_selected_items, QtCore.SIGNAL("triggered()"), self.action_export_selected_items)
+        self.connect(self.ui.action_export_items_file_paths, QtCore.SIGNAL("triggered()"), self.action_export_items_file_paths)
+        #SEPARATOR
+        self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
+        self.connect(self.ui.action_item_fix_hash_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
+        self.connect(self.ui.action_item_update_file_hash, QtCore.SIGNAL("triggered()"), self.action_item_update_file_hash)
+        self.connect(self.ui.action_item_fix_history_rec_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
+        self.connect(self.ui.action_fix_file_not_found_try_find, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find)
+        self.connect(self.ui.action_fix_file_not_found_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
+        
+        #MENU: Help
+        self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
+                        
+
+    def create_items_table_context_menu(self):
+        menu = QtGui.QMenu(self)
+        menu.addAction(self.ui.action_item_view)
+        menu.addAction(self.ui.action_item_view_m3u)
+        menu.addAction(self.ui.action_item_view_image_viewer)
+        menu.addAction(self.ui.action_item_to_external_filemanager)
+        menu.addMenu(self.ui.menuExport_items)
+        menu.addSeparator()
+        menu.addAction(self.ui.action_item_edit)
+        menu.addAction(self.ui.action_item_rebuild_thumbnail)        
+        menu.addSeparator()
+        menu.addAction(self.ui.action_item_delete)
+        menu.addSeparator()
+        menu.addAction(self.ui.action_item_check_integrity)
+        menu.addMenu(self.ui.menuFix_integrity_errors)
+        return menu
+        
 
     def closeEvent(self, event):
         #Storing all dock widgets position and size
@@ -248,8 +219,7 @@ class MainWindow(QtGui.QMainWindow):
         #Storing main window size
         UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
         
-        #Storing items table columns width
-        self.save_items_table_state()
+        self.ui.dockWidget_items_table.save_columns_width()
         
         #Storing file browser table columns width
         self.save_file_browser_state()
@@ -257,36 +227,7 @@ class MainWindow(QtGui.QMainWindow):
         print("========= Reggata stopped at {} =========".format(datetime.datetime.now()))
         print()
         
-    def save_items_table_state(self):
-        #Storing items table columns width
-        width_id = self.ui.tableView_items.columnWidth(RepoItemTableModel.ID)
-        if width_id > 0:            
-            UserConfig().store("items_table.ID.width", str(width_id))
-                        
-        width_title = self.ui.tableView_items.columnWidth(RepoItemTableModel.TITLE)
-        if width_title > 0:
-            UserConfig().store("items_table.TITLE.width", str(width_title))
-        
-        width_list_of_tags = self.ui.tableView_items.columnWidth(RepoItemTableModel.LIST_OF_TAGS)
-        if width_list_of_tags > 0:
-            UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
-        
-        width_state = self.ui.tableView_items.columnWidth(RepoItemTableModel.STATE)
-        if width_state > 0:
-            UserConfig().store("items_table.STATE.width", str(width_state))
-        
-        width_rating = self.ui.tableView_items.columnWidth(RepoItemTableModel.RATING)
-        if width_rating > 0:
-            UserConfig().store("items_table.RATING.width", str(width_rating))
-
-    def restore_items_table_state(self):
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.ID, int(UserConfig().get("items_table.ID.width", 55)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 430)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 220)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 100)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 100)))
-        
+    
     
     def restore_file_browser_state(self):
         self.ui.file_browser.setColumnWidth(FileBrowserTableModel.FILENAME, int(UserConfig().get("file_browser.FILENAME.width", 450)))
@@ -317,44 +258,20 @@ class MainWindow(QtGui.QMainWindow):
         width = self.ui.file_browser.columnWidth(FileBrowserTableModel.RATING)
         if width > 0:
             UserConfig().store("file_browser.RATING.width", str(width))
-    
-    
-    def _resize_row_to_contents(self, top_left, bottom_right):
-        '''Обработчик сигнала, который посылает модель RepoItemTableModel, когда просит обновить 
-        часть ячеек таблицы. Данный обработчик подгоняет высоту строк под новое содержимое.'''        
-        if top_left.row() == bottom_right.row():
-            self.ui.tableView_items.resizeRowToContents(top_left.row())
-            
-        elif top_left.row() < bottom_right.row():
-            for row in range(top_left.row(), bottom_right.row()):
-                self.ui.tableView_items.resizeRowToContents(row)
-                
+                    
 
     def event(self, e):
         return super(MainWindow, self).event(e)
 
-    def showContextMenu(self, pos):
-        self.menu.exec_(self.ui.tableView_items.mapToGlobal(pos))
-
     def reset_tag_cloud(self):
         self.ui.tag_cloud.reset()
-    
-    def selected_tags_changed(self):
-        #TODO Нужно заключать в кавычки имена тегов, содержащие недопустимые символы
-        text = ""
-        for tag in self.ui.tag_cloud.tags:
-            text = text + tag + " "
-        for tag in self.ui.tag_cloud.not_tags:
-            text = text + query_parser.NOT_OPERATOR + " " + tag + " "
-        text = self.ui.lineEdit_query.setText(text)
-        self.query_exec()
     
     
         
     def query_reset(self):
-        self.ui.lineEdit_query.setText("")
         if self.model:
             self.model.query("")
+        self.ui.dockWidget_items_table.query_text_reset()
         self.ui.tag_cloud.reset()
         
         
@@ -362,11 +279,11 @@ class MainWindow(QtGui.QMainWindow):
         try:
             if not self.active_repo:
                 raise MsgException(self.tr("Open a repository first."))
-            query_text = self.ui.lineEdit_query.text()
-            limit = self.ui.spinBox_limit.value()
-            page = self.ui.spinBox_page.value()
+            query_text = self.ui.dockWidget_items_table.query_text()
+            limit = self.ui.dockWidget_items_table.query_limit()
+            page = self.ui.dockWidget_items_table.query_page()
             self.model.query(query_text, limit, page)
-            self.ui.tableView_items.resizeRowsToContents()
+            self.ui.dockWidget_items_table.resize_rows_to_contents()
             
         except Exception as ex:
             show_exc_info(self, ex)
@@ -454,31 +371,26 @@ class MainWindow(QtGui.QMainWindow):
                 
                 #Строим новую модель для таблицы
                 self.model = RepoItemTableModel(repo, self.items_lock, self.active_user.login if self.active_user is not None else None)
-                self.ui.tableView_items.setModel(self.model)
-                self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
-                #self.connect(self.model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeColumnsToContents)
-                self.connect(self.model, QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), self._resize_row_to_contents)
+                self.ui.dockWidget_items_table.setTableModel(self.model)                
                 
-                self.ui.file_browser.repo = repo                
+                self.ui.file_browser.repo = repo         
+                 
+                completer = helpers.Completer(repo=repo, parent=self.ui.dockWidget_items_table)
+                self.ui.dockWidget_items_table.set_tag_completer(completer)
                 
-                completer = helpers.Completer(repo, self)
-                self.ui.lineEdit_query.set_completer(completer)
-                
-                #Restore column widths
                 self.restore_file_browser_state()
-                self.restore_items_table_state()
+                self.ui.dockWidget_items_table.restore_columns_width()
                 
-            else:                
-                #Save column widths
+            else:
                 self.save_file_browser_state()
-                self.save_items_table_state()
+                self.ui.dockWidget_items_table.save_columns_width()
                 
                 self.ui.label_repo.setText("")
                 self.model = None
-                self.ui.tableView_items.setModel(None)
+                self.ui.dockWidget_items_table.setTableModel(None)
                 self.ui.file_browser.repo = None
-                
-                self.ui.lineEdit_query.set_completer(None)
+            
+                self.ui.dockWidget_items_table.set_tag_completer(None)
                 
                 
                 
@@ -558,11 +470,7 @@ class MainWindow(QtGui.QMainWindow):
             if self.active_user is None:
                 raise MsgException(self.tr("Login to a repository first."))
             
-            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
-            rows = set()
-            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-                rows.add(idx.row())
-            
+            rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -608,11 +516,11 @@ class MainWindow(QtGui.QMainWindow):
             
     def action_item_view(self):
         try:
-            sel_indexes = self.ui.tableView_items.selectionModel().selectedIndexes()
-            if len(sel_indexes) != 1:
+            sel_rows = self.ui.dockWidget_items_table.selected_rows()
+            if len(sel_rows) != 1:
                 raise MsgException(self.tr("Select one item, please."))
             
-            sel_row = sel_indexes[0].row()            
+            sel_row = sel_rows[0]
             data_ref = self.model.items[sel_row].data_ref
             
             if not data_ref or data_ref.type != DataRef.FILE:
@@ -634,11 +542,7 @@ class MainWindow(QtGui.QMainWindow):
             if self.active_user is None:
                 raise MsgException(self.tr("Login to a repository first."))
             
-            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
-            rows = set()
-            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-                rows.add(idx.row())
-            
+            rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -646,7 +550,7 @@ class MainWindow(QtGui.QMainWindow):
             abs_paths = []
             if len(rows) == 1:
                 #If there is only one selected item, pass to viewer all items in this table model
-                for row in range(self.ui.tableView_items.model().rowCount()):
+                for row in range(self.model.rowCount()):
                     abs_paths.append(os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url))
                 #This is the index of the first image to show
                 start_index = rows.pop()
@@ -672,10 +576,6 @@ class MainWindow(QtGui.QMainWindow):
         
     def action_fix_file_not_found_delete(self):
         strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
-        self._fix_integrity_error(strategy)
-        
-    def action_fix_file_not_found_try_find_else_delete(self):
-        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND_ELSE_DELETE}
         self._fix_integrity_error(strategy)
 
     def action_item_update_file_hash(self):
@@ -704,11 +604,7 @@ class MainWindow(QtGui.QMainWindow):
             if self.active_user is None:
                 raise MsgException(self.tr("Login to a repository first."))
             
-            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
-            rows = set()
-            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-                rows.add(idx.row())
-            
+            rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -730,46 +626,6 @@ class MainWindow(QtGui.QMainWindow):
         else:
             pass
 
-    
-        
-#        def refresh(percent, row):
-#            self.ui.statusbar.showMessage(self.tr("Integrity fix {0}%").format(percent))
-#            self.model.reset_single_row(row)
-#            QtCore.QCoreApplication.processEvents()
-#        
-#        try:
-#            if self.active_repo is None:
-#                raise MsgException(self.tr("Open a repository first."))
-#            
-#            if self.active_user is None:
-#                raise MsgException(self.tr("Login to a repository first."))
-#            
-#            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
-#            rows = set()
-#            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-#                rows.add(idx.row())
-#            
-#            if len(rows) == 0:
-#                raise MsgException(self.tr("There are no selected items."))
-#            
-#            items = []
-#            for row in rows:
-#                #Нужно в элементе сохранить номер строки таблицы, откуда взят элемент
-#                self.model.items[row].table_row = row
-#                items.append(self.model.items[row])
-#            
-#            strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
-#            thread = ItemIntegrityFixerThread(self, self.active_repo, items, self.items_lock, strategy, self.active_user.login)
-#            
-#            self.connect(thread, QtCore.SIGNAL("exception"), lambda exc_info: show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
-#            self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Integrity fixing is done.")))
-#            self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
-#            thread.start()
-#            
-#        except Exception as ex:
-#            show_exc_info(self, ex)
-#        else:
-#            pass
 
     def action_item_check_integrity(self):
         
@@ -785,11 +641,7 @@ class MainWindow(QtGui.QMainWindow):
             if self.active_user is None:
                 raise MsgException(self.tr("Login to a repository first."))
             
-            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
-            rows = set()
-            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-                rows.add(idx.row())
-            
+            rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -812,46 +664,63 @@ class MainWindow(QtGui.QMainWindow):
 
 
     def action_export_selected_items(self):
-        count = 0
         try:
             if self.active_repo is None:
                 raise MsgException(self.tr("Open a repository first."))
             
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
-            
-            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
-            rows = set()
-            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-                rows.add(idx.row())
-            
-            if len(rows) == 0:
+            item_ids = self.ui.dockWidget_items_table.selected_item_ids()
+            if len(item_ids) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            #Ask user for destination directory path            
             export_dir_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a directory path to export files into."))
             if not export_dir_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
-            #TODO should execute copying in a separate thread!
-            for row in rows:
-                src_file_path = os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url)
-                unique_path = dst_file_path = os.path.join(export_dir_path, os.path.basename(src_file_path))
-                i = 1
-                
-                #Generate unique file name. I don't want different files with same name to overwrite each other
-                while os.path.exists(unique_path):
-                    name, ext = os.path.splitext(dst_file_path)
-                    unique_path = name + str(i) + ext
-                    i += 1
-                    
-                shutil.copy(src_file_path, unique_path)
-                count += 1
+            thread = ExportItemsThread(self, self.active_repo, item_ids, export_dir_path)
+            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+                                    
+            wd = WaitDialog(self)
+            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
             
+            thread.start()
+            thread.wait(1000)
+            if thread.isRunning():
+                wd.exec_()
+
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed. Exported {} files.").format(count), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+
+    def action_export_items_file_paths(self):
+        try:
+            if self.active_repo is None:
+                raise MsgException(self.tr("Open a repository first."))
+            
+            rows = self.ui.dockWidget_items_table.selected_rows()
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            export_filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption=self.tr('Save results in a file.')) 
+            if not export_filename:
+                raise MsgException(self.tr("Operation canceled."))
+            
+            file = open(export_filename, "w", newline='')
+            for row in rows:
+                item = self.model.items[row]
+                if item.is_data_ref_null():
+                    continue
+                textline = self.active_repo.base_path + \
+                    os.sep + self.model.items[row].data_ref.url + os.linesep
+                file.write(textline)
+            file.close()
+
+        except Exception as ex:
+            show_exc_info(self, ex)
+        else:
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
 
     def action_item_view_m3u(self):
         try:
@@ -861,11 +730,7 @@ class MainWindow(QtGui.QMainWindow):
             if self.active_user is None:
                 raise MsgException(self.tr("Login to a repository first."))
             
-            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
-            rows = set()
-            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-                rows.add(idx.row())
-            
+            rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -1116,11 +981,7 @@ class MainWindow(QtGui.QMainWindow):
             if self.active_user is None:
                 raise MsgException(self.tr("Login to a repository first."))
             
-            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
-            rows = set()
-            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-                rows.add(idx.row())
-            
+            rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -1152,11 +1013,11 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_item_to_external_filemanager(self):
         try:
-            sel_indexes = self.ui.tableView_items.selectionModel().selectedIndexes()
-            if len(sel_indexes) != 1:
+            sel_rows = self.ui.dockWidget_items_table.selected_rows()
+            if len(sel_rows) != 1:
                 raise MsgException(self.tr("Select one item, please."))
             
-            sel_row = sel_indexes[0].row()
+            sel_row = sel_rows[0]
             data_ref = self.model.items[sel_row].data_ref
             
             if not data_ref or data_ref.type != DataRef.FILE:
@@ -1180,11 +1041,7 @@ class MainWindow(QtGui.QMainWindow):
             if self.active_user is None:
                 raise MsgException(self.tr("Login to a repository first."))
             
-            #Нужно множество, т.к. в результате selectedIndexes() могут быть дубликаты
-            rows = set()
-            for idx in self.ui.tableView_items.selectionModel().selectedIndexes():
-                rows.add(idx.row())
-            
+            rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -1258,265 +1115,6 @@ class MainWindow(QtGui.QMainWindow):
             
 
 
-
-class RepoItemTableModel(QtCore.QAbstractTableModel):
-    '''Модель таблицы, отображающей элементы хранилища.'''
-    
-    ID = 0
-    TITLE = 1
-    IMAGE_THUMB = 2
-    LIST_OF_TAGS = 3
-    STATE = 4 #Состояние элемента (в смысле целостности его данных)
-    RATING = 5
-    
-    def __init__(self, repo, items_lock, user_login):
-        super(RepoItemTableModel, self).__init__()
-        self.repo = repo
-        self.items = []
-        self._user_login = user_login
-        
-        
-        #Это поток, который генерирует миниатюры в фоне
-        self.thread = None
-        
-        #Это замок, который нужен для синхронизации доступа к списку self.items
-        self.lock = items_lock
-
-        #This fields are required for table sorting
-        self.query_text = ""
-        self.limit = 0
-        self.page = 1
-        
-        self.order_by_column = None
-        self.order_dir = None
-
-
-    def reset_single_row(self, row):
-        topL = self.createIndex(row, self.ID)
-        bottomR = self.createIndex(row, self.RATING)
-        self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
-
-    def _set_user_login(self, user_login):
-        self._user_login = user_login
-        
-    def _get_user_login(self):
-        return self._user_login
-    
-    user_login = property(_get_user_login, _set_user_login, doc="Current active user login.")
-    
-    
-    def sort(self, column, order=Qt.AscendingOrder):
-        if column not in [self.ID, self.TITLE, self.RATING]:
-            return
-        
-        self.order_by_column = column
-        self.order_dir = order
-                
-        self.query(self.query_text, self.limit, self.page)
-        
-    
-    def query(self, query_text, limit=0, page=1):
-        '''Выполняет извлечение элементов из хранилища.'''
-        
-        self.query_text = query_text
-        self.limit = limit
-        self.page = page
-        
-        if self.order_dir == Qt.AscendingOrder:
-            dir = "ASC"
-        else:
-            dir = "DESC"
-        
-        order_by = []        
-        if self.order_by_column is not None:
-            column = self.order_by_column
-            if column == self.ID:
-                order_by.append(("id", dir))                
-            elif column == self.TITLE:
-                order_by.append(("title", dir))
-            #This is not exactly sorting by pure rating, but by fields and their values...
-            elif column == self.RATING:
-                order_by.append(("items_fields_field_id", "DESC"))
-                order_by.append(("items_fields_field_value", dir))
-    
-        
-        def reset_row(row):
-            self.reset_single_row(row)
-            QtCore.QCoreApplication.processEvents()
-        
-        uow = self.repo.create_unit_of_work()
-        try:
-            #Нужно остановить поток (запущенный от предыдущего запроса), если будет выполнен новый запрос (этот)
-            if self.thread is not None and self.thread.isRunning():
-                #Нужно остановить поток, если будет выполнен другой запрос
-                self.thread.interrupt = True
-                self.thread.wait(5*1000) #TODO Тут может надо ждать бесконечно?
-                        
-            if query_text is None or query_text.strip()=="":
-                #Если запрос пустой, тогда извлекаем элементы не имеющие тегов
-                self.items = uow.get_untagged_items(limit, page, order_by)
-            else:
-                query_tree = query_parser.parse(query_text)
-                self.items = uow.query_items_by_tree(query_tree, limit, page, order_by)
-            
-            #Нужно запустить поток, который будет генерировать миниатюры
-            self.thread = ThumbnailBuilderThread(self, self.repo, self.items, self.lock)
-            self.connect(self.thread, QtCore.SIGNAL("progress"), lambda percents, row: reset_row(row))            
-            self.thread.start()
-                
-            self.reset()
-        finally:
-            uow.close()
-    
-        
-                
-        
-    
-    def rowCount(self, index=QtCore.QModelIndex()):
-        return len(self.items)
-    
-    def columnCount(self, index=QtCore.QModelIndex()):
-        return 6
-    
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if orientation == Qt.Horizontal:
-            if role == Qt.DisplayRole:
-                if section == self.ID:
-                    return self.tr("Id")
-                elif section == self.TITLE:
-                    return self.tr("Title")
-                elif section == self.IMAGE_THUMB:
-                    return self.tr("Thumbnail")
-                elif section == self.LIST_OF_TAGS:
-                    return self.tr("Tags")
-                elif section == self.STATE:
-                    return self.tr("State")
-                elif section == self.RATING:
-                    return self.tr("Rating")
-            else:
-                return None
-        elif orientation == Qt.Vertical and role == Qt.DisplayRole:
-            return section + 1
-        else:
-            return None
-
-    
-    def data(self, index, role=QtCore.Qt.DisplayRole):
-        if not index.isValid() or not (0 <= index.row() < len(self.items)):
-            return None
-        
-        item = self.items[index.row()]
-        column = index.column()
-        
-        if role == QtCore.Qt.DisplayRole:
-            if column == self.ID:
-                return item.id
-            
-            elif column == self.TITLE:
-                return "<b>" + item.title + "</b>" + ("<br/><font>" + item.data_ref.url + "</font>" if item.data_ref else "")
-            
-            elif column == self.LIST_OF_TAGS:
-                return item.format_tags()
-            
-            elif column == self.STATE:
-                try:
-                    self.lock.lockForRead()
-                    return Item.format_error_set_short(item.error)
-                finally:
-                    self.lock.unlock()
-            elif column == self.RATING:
-                #Should display only rating field owned by current active user
-                rating_str = item.get_field_value(consts.RATING_FIELD, self.user_login)
-                try:
-                    rating = int(rating_str)
-                except:
-                    rating = 0
-                return rating
-        
-        elif role == Qt.ToolTipRole:            
-            if column == self.TITLE:
-                if item.data_ref is not None:
-                    s  =  str(item.data_ref.type) + ": " + item.data_ref.url
-                    if  item.data_ref.type == DataRef.FILE:
-                        s += os.linesep + self.tr("Checksum (hash): {}").format(item.data_ref.hash)
-                        s += os.linesep + self.tr("File size: {} bytes").format(item.data_ref.size)
-                        s += os.linesep + self.tr("Date hashed: {}").format(item.data_ref.date_hashed)
-                    s += os.linesep + self.tr("Created by: {}").format(item.data_ref.user_login)
-                    s += os.linesep + self.tr("Date created: {}").format(item.data_ref.date_created)
-                    
-                    
-                    return s
-            elif column == self.LIST_OF_TAGS:
-                return item.format_field_vals()
-            elif column == self.STATE:
-                try:
-                    self.lock.lockForRead()
-                    return Item.format_error_set(item.error)
-                finally:
-                    self.lock.unlock()
-            
-
-        #Данная роль используется для отображения миниатюр графических файлов
-        elif role == QtCore.Qt.UserRole:
-            if column == self.IMAGE_THUMB and item.data_ref is not None:
-                if item.data_ref.is_image():
-                    pixmap = QtGui.QPixmap()
-                    try:                    
-                        self.lock.lockForRead()
-                        if len(item.data_ref.thumbnails) > 0:
-                            pixmap.loadFromData(item.data_ref.thumbnails[0].data)
-                    except Exception:
-                        traceback.format_exc()
-                    finally:
-                        self.lock.unlock()
-                    return pixmap
-        
-
-        elif role == QtCore.Qt.TextAlignmentRole:
-            if column == self.ID:
-                return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-            elif column == self.TITLE:
-                return int(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
-        
-        #Во всех остальных случаях возвращаем None    
-        return None
-    
-    def flags(self, index):
-        default_flags = super(RepoItemTableModel, self).flags(index)
-        
-        if index.column() == self.RATING:
-            return Qt.ItemFlags(default_flags | QtCore.Qt.ItemIsEditable)             
-        else:
-            return default_flags
-    
-    def setData(self, index, value, role=QtCore.Qt.EditRole):
-        
-        if role == Qt.EditRole and index.column() == self.RATING:
-            item = self.items[index.row()]
-            
-            #Remember old rating value
-            old_value = item.get_field_value(consts.RATING_FIELD, self.user_login)
-            
-            if old_value == value:
-                return False
-            
-            item.set_field_value(consts.RATING_FIELD, value, self.user_login)
-            
-            #Store new rating value into database
-            uow = self.repo.create_unit_of_work()
-            try:
-                uow.update_existing_item(item, self.user_login)
-                self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
-                return True
-            except:
-                #Restore old value
-                item.set_field_value(consts.RATING_FIELD, old_value, self.user_login)
-            finally:
-                uow.close()
-        
-        return False
-
-
 class AboutDialog(QtGui.QDialog):
     
     def __init__(self, parent=None):
@@ -1572,38 +1170,3 @@ along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses<
                 f.close()
                         
         self.ui.textEdit.setHtml(title + text)
-        
-
-
-if __name__ == '__main__':
-    
-    if not os.path.exists(consts.DEFAULT_TMP_DIR):
-        os.makedirs(consts.DEFAULT_TMP_DIR)
-    
-    if UserConfig().get("redirect_stdout", "True") in ["True", "true", "TRUE", "1"]:
-        sys.stdout = open(os.path.join(consts.DEFAULT_TMP_DIR, "stdout.txt"), "a+")
-        
-    if UserConfig().get("redirect_stderr", "True") in ["True", "true", "TRUE", "1"]:
-        sys.stderr = open(os.path.join(consts.DEFAULT_TMP_DIR, "stderr.txt"), "a+")
-    
-    print()
-    print("========= Reggata started at {} =========".format(datetime.datetime.now()))
-    print("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
-    print("qt_version = {}".format(QtCore.QT_VERSION_STR))
-    
-    app = QtGui.QApplication(sys.argv)
-        
-    qtr = QtCore.QTranslator()
-    language = UserConfig().get("language")
-    if language:
-        qm_filename = "reggata_{}.qm".format(language)
-        if qtr.load(qm_filename, ".") or qtr.load(qm_filename, ".."):
-            app.installTranslator(qtr)
-        else:
-            print("Cannot find translation file {}.".format(qm_filename))
-    
-    form = MainWindow()
-    form.show()
-    app.exec_()
-
-
