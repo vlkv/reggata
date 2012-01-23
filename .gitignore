@@ -3,3 +3,6 @@
 /parser.out
 /bin
 /.settings/*.prefs
+/build_set_env.bat
+/reggata_set_env.bat
+/version.txt
