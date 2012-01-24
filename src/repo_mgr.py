@@ -32,7 +32,7 @@ from sqlalchemy.orm import sessionmaker, contains_eager,\
 from db_schema import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
     Thumbnail, HistoryRec
 from exceptions import LoginError, AccessError, FileAlreadyExistsError,\
-    CannotOpenRepoError, DataRefAlreadyExistsError
+    CannotOpenRepoError, DataRefAlreadyExistsError, NotFoundError
 import shutil
 import datetime
 from sqlalchemy.exc import ResourceClosedError
@@ -310,6 +310,7 @@ class UnitOfWork(object):
                 
         return finfo
     
+    #TODO: Remane into getExpungedItem or getDetachedItem
     def get_item(self, id):
         '''Возвращает detached-объект класса Item, с заданным значением id. '''
         item = self._session.query(Item)\
@@ -317,6 +318,10 @@ class UnitOfWork(object):
             .options(joinedload_all('item_tags.tag'))\
             .options(joinedload_all('item_fields.field'))\
             .get(id)
+            
+        if item is None:
+            raise NotFoundError()
+        
         self._session.expunge(item)
         return item
     
