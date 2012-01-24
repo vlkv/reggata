@@ -3,19 +3,20 @@ import os
 import shutil
 from repo_mgr import RepoMgr
 from exceptions import NotFoundError
+import tests_context
 
 
 class GetItemTest(unittest.TestCase):
 
     def setUp(self):
-        self.repoBasePath = "./testrepo.rgt"
-        self.repoCopyBasePath = "./copy_of_testrepo.rgt"
+        self.repoBasePath = tests_context.TEST_REPO_BASE_PATH
+        self.copyOfRepoBasePath = tests_context.COPY_OF_TEST_REPO_BASE_PATH
         
-        if (os.path.exists(self.repoCopyBasePath)):
-            shutil.rmtree(self.repoCopyBasePath)
-        shutil.copytree(self.repoBasePath, self.repoCopyBasePath)
+        if (os.path.exists(self.copyOfRepoBasePath)):
+            shutil.rmtree(self.copyOfRepoBasePath)
+        shutil.copytree(self.repoBasePath, self.copyOfRepoBasePath)
         
-        self.repo = RepoMgr(self.repoCopyBasePath)
+        self.repo = RepoMgr(self.copyOfRepoBasePath)
         self.uow = self.repo.create_unit_of_work()
 
 
@@ -23,7 +24,7 @@ class GetItemTest(unittest.TestCase):
         self.uow.close()
         self.uow = None
         self.repo = None
-        shutil.rmtree(self.repoCopyBasePath)
+        shutil.rmtree(self.copyOfRepoBasePath)
 
     def test_getExistingItem(self):
         item = self.uow.get_item(2)

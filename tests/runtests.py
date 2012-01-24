@@ -1,13 +1,17 @@
 import unittest
 import helpers_test
 import repo_mgr_test
-import os
+import tests_context
+import sys
 
 
 if __name__ == '__main__':
-
-    #TODO: pass path to testrepo.rgt as a command line argument    
-    print(os.path.abspath("."))
+    
+    # sys.argv[0] contains the name of the executing script
+    if (len(sys.argv) >= 2):
+        tests_context.TEST_REPO_BASE_PATH = sys.argv[1]
+    if (len(sys.argv) >= 3):
+        tests_context.COPY_OF_TEST_REPO_BASE_PATH = sys.argv[2]
     
     suite = unittest.TestSuite()
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(helpers_test.IsNoneOrEmptyTest))
