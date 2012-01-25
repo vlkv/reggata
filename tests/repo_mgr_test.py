@@ -5,9 +5,8 @@ from repo_mgr import RepoMgr
 from exceptions import NotFoundError
 import tests_context
 
-
-class GetItemTest(unittest.TestCase):
-
+class AbstractTestCaseWithRepoAndSingleUOW(unittest.TestCase):
+    
     def setUp(self):
         self.repoBasePath = tests_context.TEST_REPO_BASE_PATH
         self.copyOfRepoBasePath = tests_context.COPY_OF_TEST_REPO_BASE_PATH
@@ -19,13 +18,15 @@ class GetItemTest(unittest.TestCase):
         self.repo = RepoMgr(self.copyOfRepoBasePath)
         self.uow = self.repo.create_unit_of_work()
 
-
     def tearDown(self):        
         self.uow.close()
         self.uow = None
         self.repo = None
         shutil.rmtree(self.copyOfRepoBasePath)
 
+
+class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):
+    
     def test_getExistingItem(self):
         item = self.uow.get_item(2)
         self.assertEqual(item.title, "Dont_Forget_Me_Outro_Jam_Montreal 2006.txt")
