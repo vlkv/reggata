@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#REGGATA_HOME should point to the root of Reggata source tree
+export REGGATA_HOME=/home/vlkv/projects/reggata.git
+export PYTHONPATH=$REGGATA_HOME/ui/:$REGGATA_HOME/lib/
