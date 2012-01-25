@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export REGGATA_HOME=~/projects/reggata.git
+export PYTHONPATH=$REGGATA_HOME/ui/:$REGGATA_HOME/lib/:$REGGATA_HOME/src/
+
+python3 $REGGATA_HOME/tests/runtests.py $REGGATA_HOME/tests/testrepo.rgt $REGGATA_HOME/tests/testrepocopy.rgt

@@ -1,5 +1,0 @@
-#!/bin/bash
-
-./reggata_set_env
-
-python3 $REGGATA_HOME/src/reggata.py &
