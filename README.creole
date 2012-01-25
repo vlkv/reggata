@@ -56,7 +56,7 @@ To run reggata you need to manually install:
   # Qt (>= 4.4.3) [[http://qt.nokia.com/]].
   # SIP (>= 4.11.2) [[http://www.riverbankcomputing.co.uk/software/sip/download]].
   # PyQt4 (>= 4.8.1) [[http://www.riverbankcomputing.co.uk/software/pyqt/download]].
-  # SQLAlchemy (>= 0.6.5) [[http://www.sqlalchemy.org/]].
+  # SQLAlchemy (>= 0.7.4) [[http://www.sqlalchemy.org/]].
   # SQLite3 (>= 3.5.9) [[http://www.sqlite.org/]].
   # Ply (>= 3.3) [[http://www.dabeaz.com/ply/]].
 
