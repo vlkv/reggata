@@ -15,6 +15,9 @@ if __name__ == '__main__':
     
     suite = unittest.TestSuite()
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(helpers_test.IsNoneOrEmptyTest))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(repo_mgr_test.GetItemTest))
+    #suite.addTests(unittest.TestLoader().loadTestsFromTestCase(repo_mgr_test.GetItemTest))
+    suite.addTest(repo_mgr_test.GetItemTest('test_getExistingItem'))
+    suite.addTest(repo_mgr_test.GetItemTest('test_getNonExistingItem'))
+    suite.addTest(repo_mgr_test.GetItemTest('test_passBadIdToGetItem'))
     unittest.TextTestRunner(verbosity=2).run(suite)
     
