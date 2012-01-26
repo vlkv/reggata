@@ -164,6 +164,7 @@ class Item(Base):
     ERROR_FILE_HASH_MISMATCH = 2    
     ERROR_HISTORY_REC_NOT_FOUND = 4
     
+    
     id = sqa.Column(sqa.Integer, primary_key=True)
     
     title = sqa.Column(sqa.String, nullable=False)
@@ -175,8 +176,7 @@ class Item(Base):
     data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"))
     
     #Удаляемые элементы, не будут удаляться из базы, им просто будет установлено значение alive=False
-    alive = sqa.Column(sqa.Boolean, default=True)
-        
+    alive = sqa.Column(sqa.Boolean, default=True)    
     
     #пользователь-владелец данного элемента
     user = relationship(User, cascade="merge, expunge, refresh-expire")

@@ -890,8 +890,7 @@ class MainWindow(QtGui.QMainWindow):
             if d.exec_():
                 uow = self.active_repo.create_unit_of_work()
                 try:
-                    #uow.save_new_item(d.item, self.active_user.login)
-                    thread = BackgrThread(self, uow.save_new_item, d.item, self.active_user.login)
+                    thread = BackgrThread(self, uow.save_new_item, d.item)
                     
                     wd = WaitDialog(self, indeterminate=True)
                     self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)

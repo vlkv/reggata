@@ -5,7 +5,7 @@ from abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests_context import COPY_OF_TEST_REPO_BASE_PATH, existingAliveItem, nonExistingItem
 from repo_mgr import UnitOfWork
-from db_schema import HistoryRec
+from db_schema import HistoryRec, Item
 
 
 class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):
@@ -20,6 +20,32 @@ class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):
         self.assertRaises(NotFoundError, self.uow.get_item, ("This str is NOT a valid item id!"))
 
 
+class SaveNewItemTest(AbstractTestCaseWithRepo):
+    
+    def test_saveNewMinimalItem(self):
+        # "Minimal item" here means that this item has no data references, tags or fields
+        item = Item("user", "Minimal Item")
+        try:
+            uow = self.repo.create_unit_of_work()
+            self.savedItemId = uow.save_new_item(item)
+        finally:
+            uow.close()
+            
+        try:
+            uow = self.repo.create_unit_of_work()
+            savedItem = uow.get_item(self.savedItemId)
+            self.assertEqual(savedItem.title, item.title)
+            
+            histRec = UnitOfWork._find_item_latest_history_rec(uow.session, savedItem)
+            self.assertIsNotNone(histRec)
+            self.assertEqual(histRec.operation, HistoryRec.CREATE)
+            self.assertEqual(histRec.user_login, savedItem.user_login)
+            self.assertIsNone(histRec.parent1_id)
+            self.assertIsNone(histRec.parent2_id)
+        finally:
+            uow.close()
+
+    
 
 class DeleteItemTest(AbstractTestCaseWithRepo):
     def test_deleteExistingItemWithExistingPhysicalFileByOwner(self):

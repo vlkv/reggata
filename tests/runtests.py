@@ -20,6 +20,7 @@ if __name__ == '__main__':
     
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(repo_mgr_test.GetItemTest))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(repo_mgr_test.DeleteItemTest))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(repo_mgr_test.SaveNewItemTest))
     
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(worker_threads_test.DeleteGroupOfItemsThreadTest))
 
