@@ -520,7 +520,7 @@ class MainWindow(QtGui.QMainWindow):
             if len(sel_rows) != 1:
                 raise MsgException(self.tr("Select one item, please."))
             
-            sel_row = sel_rows[0]
+            sel_row = sel_rows.pop()
             data_ref = self.model.items[sel_row].data_ref
             
             if not data_ref or data_ref.type != DataRef.FILE:
@@ -1016,7 +1016,7 @@ class MainWindow(QtGui.QMainWindow):
             if len(sel_rows) != 1:
                 raise MsgException(self.tr("Select one item, please."))
             
-            sel_row = sel_rows[0]
+            sel_row = sel_rows.pop()
             data_ref = self.model.items[sel_row].data_ref
             
             if not data_ref or data_ref.type != DataRef.FILE:
