@@ -17,7 +17,10 @@ if __name__ == '__main__':
     suite = unittest.TestSuite()
 
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(helpers_test.IsNoneOrEmptyTest))
+    
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(repo_mgr_test.GetItemTest))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(repo_mgr_test.DeleteItemTest))
+    
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(worker_threads_test.DeleteGroupOfItemsThreadTest))
 
     unittest.TextTestRunner(verbosity=2).run(suite)
