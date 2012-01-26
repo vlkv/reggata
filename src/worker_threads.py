@@ -339,7 +339,7 @@ class CreateGroupIfItemsThread(QtCore.QThread):
             for item in self.items:
                 try:
                     #Every item is saved in a separate transaction
-                    uow.save_new_item(item, item.user_login)
+                    uow.save_new_item(item)
                     self.created_objects_count += 1
                     
                 except  (FileAlreadyExistsError, DataRefAlreadyExistsError):

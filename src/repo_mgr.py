@@ -920,18 +920,18 @@ class UnitOfWork(object):
         
         
     
-    def save_new_item(self, item, user_login):
+    def save_new_item(self, item):
         '''Method saves in database given item. 
-        Parameter user_login specifies owner of this item 
+        item.user_login specifies owner of this item 
         (and all tags/fields linked with it).
         
         item.data_ref.dst_path is an absolute path.
-        '''
         
+        Returns id of created item, or raises an exception if something wrong.
+        '''
+        user_login = item.user_login
         if is_none_or_empty(user_login):
             raise AccessError(tr("Argument user_login shouldn't be null or empty."))
-                    
-        item.user_login = user_login
         
         #Original absolute path to the file, linked with item.data_ref. This is a SRC path (mentioned below...)
         data_ref_original_url = None
@@ -1040,7 +1040,7 @@ class UnitOfWork(object):
                 pass
             
         self._session.commit()
-    
+        return item.id
 
 
 
