@@ -928,6 +928,7 @@ class UnitOfWork(object):
         item.data_ref.dst_path is an absolute path.
         
         Returns id of created item, or raises an exception if something wrong.
+        When this function returns, item object is expunged from the current Session.
         '''
         user_login = item.user_login
         if is_none_or_empty(user_login):
@@ -1043,7 +1044,9 @@ class UnitOfWork(object):
                 pass
             
         self._session.commit()
-        return item.id
+        id = item.id
+        self._session.expunge(item)
+        return id
 
 
 
