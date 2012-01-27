@@ -932,6 +932,9 @@ class UnitOfWork(object):
         user_login = item.user_login
         if is_none_or_empty(user_login):
             raise AccessError(tr("Argument user_login shouldn't be null or empty."))
+        user = self._session.query(db_schema.User).get(user_login)
+        if user is None:
+            raise AccessError(tr("User with login {} doesn't exists.").format(user_login))
         
         #Original absolute path to the file, linked with item.data_ref. This is a SRC path (mentioned below...)
         data_ref_original_url = None

@@ -1,6 +1,6 @@
 import unittest
 import os
-from exceptions import NotFoundError
+from exceptions import NotFoundError, AccessError
 from abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests_context import COPY_OF_TEST_REPO_BASE_PATH, existingAliveItem, nonExistingItem
@@ -42,6 +42,31 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             self.assertEqual(histRec.user_login, savedItem.user_login)
             self.assertIsNone(histRec.parent1_id)
             self.assertIsNone(histRec.parent2_id)
+        finally:
+            uow.close()
+            
+    def test_saveNewItemByNonExistentUserLogin(self):
+        item = Item("such_user_login_doesn't_exist", "Item's title")
+        try:
+            uow = self.repo.create_unit_of_work()
+            self.assertRaises(AccessError, uow.save_new_item, (item))
+            
+        finally:
+            uow.close()
+            
+    def test_saveNewItemByNullUserLogin(self):
+        item = Item(None, "Item's title")
+        try:
+            uow = self.repo.create_unit_of_work()
+            self.assertRaises(AccessError, uow.save_new_item, (item))
+        finally:
+            uow.close()
+            
+    def test_saveNewItemByEmptyUserLogin(self):
+        item = Item("", "Item's title")
+        try:
+            uow = self.repo.create_unit_of_work()
+            self.assertRaises(AccessError, uow.save_new_item, (item))
         finally:
             uow.close()
 
