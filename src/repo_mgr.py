@@ -1044,9 +1044,9 @@ class UnitOfWork(object):
                 pass
             
         self._session.commit()
-        id = item.id
+        item_id = item.id
         self._session.expunge(item)
-        return id
+        return item_id
 
 
 
