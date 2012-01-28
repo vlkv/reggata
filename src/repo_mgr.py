@@ -963,7 +963,8 @@ class UnitOfWork(object):
             
             dstRelPath = helpers.removeTrailingOsSeps(dstRelPath)
             dstRelPath = os.path.normpath(dstRelPath)
-            dstAbsPath = os.path.normpath(os.path.join(self._repo_base_path, dstRelPath))
+            dstAbsPath = os.path.abspath(os.path.join(self._repo_base_path, dstRelPath))
+            dstAbsPath = os.path.normpath(dstAbsPath)
             if srcAbsPath != dstAbsPath and os.path.exists(dstAbsPath):
                 raise ValueError(tr("{} should not point to an existing file.").format(dstAbsPath))
                 
