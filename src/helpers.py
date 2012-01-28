@@ -179,8 +179,14 @@ def is_none_or_empty(s):
             raise TypeError(tr("is_none_or_empty() can be applied only to str objects."))    
         return True if s == "" else False
 
+#TODO: Rename into isInternalPath() or isSubDirectoryOf() or isSubPathOf()
 def is_internal(url, base_path):
-        '''Метод проверяет, находится ли путь url внутри директории base_path или нет.'''
+        '''Returns True if url is a path to subdirectory inside base_path directory, else False.
+        Method doesn't check existence of tested paths.
+        '''
+        if is_none_or_empty(base_path):
+            raise ValueError(tr("base_path cannot be empty."))
+        
         url = os.path.normpath(url)
         base_path = os.path.normpath(base_path)
         com_pref = os.path.commonprefix([base_path, url])
@@ -188,7 +194,11 @@ def is_internal(url, base_path):
             return True
         else:
             return False
-        
+
+def removeTrailingOsSeps(path):
+    while path.endswith(os.sep):
+        path = path[0:len(path)-1]
+    return path
         
 def compute_hash(filename, chunksize=131072, algorithm="sha1"):
     '''Возвращает хэш от содержимого файла filename.'''

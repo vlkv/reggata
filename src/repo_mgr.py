@@ -919,13 +919,148 @@ class UnitOfWork(object):
         self._session.commit()
         
         
+    def saveNewItem(self, item, srcAbsPath=None, dstRelPath=None):
+        '''Method saves in database given item.
+        Returns id of created item, or raises an exception if something wrong.
+        When this function returns, item object is expunged from the current Session.
+            item.user_login - specifies owner of this item (and all tags/fields linked with it).
+            srcAbsPath - absolute path to a file which will be referenced by this item.
+            dstRelPath - relative (to repository root) path where to put the file.
+        File is always copyied from srcAbsPath to <repo_base_path>/dstRelPath, except when 
+        srcAbsPath is the same as <repo_base_path>/dstRelPath.
+        
+        Use cases:
+                0) OK: both srcAbsPath and dstRelPath are None, so User wants to create an Item without 
+            DataRef object.
+                1) OK: User wants to add some external file into the repo. File is copied to the repo.
+                2) OK: There is an untracked file inside the repo tree. User wants to add such file 
+            into the repo to make it a stored file. File is not copied, because it is alredy in 
+            the repo tree.
+                3) OK: User wants to add a copy of a stored file from the repo into the same repo 
+            but to the another location. The copy of the original file will be attached 
+            to the new Item object.
+                4) ERROR: User wants to attach to a stored file another new Item object.
+            This is FORBIDDEN! Because existing item may be not integral with the file.
+            
+            NOTE: Use cases 1,2,3 require creation of a new DataRef object.
+        '''
+        
+        isDataRefRequired = not is_none_or_empty(srcAbsPath)
+        if isDataRefRequired:
+            assert(not is_none_or_empty(dstRelPath))
+        
+            srcAbsPath = os.path.normpath(srcAbsPath)
+            if not os.path.isabs(srcAbsPath):
+                raise ValueError(tr("srcAbsPath must be an absolute path."))
+            
+            if not os.path.exists(srcAbsPath):
+                raise ValueError(tr("srcAbsPath must point to an existing file."))
+            
+            if os.path.isabs(dstRelPath):
+                raise ValueError(tr("dstRelPath must be a relative to repository root path."))
+            
+            dstRelPath = helpers.removeTrailingOsSeps(dstRelPath)
+            dstRelPath = os.path.normpath(dstRelPath)
+            dstAbsPath = os.path.normpath(os.path.join(self._repo_base_path, dstRelPath))
+            if srcAbsPath != dstAbsPath and os.path.exists(dstAbsPath):
+                raise ValueError(tr("{} should not point to an existing file.").format(dstAbsPath))
+                
+            dataRef = self._session.query(DataRef).filter(
+                DataRef.url_raw==helpers.to_db_format(dstRelPath)).first()
+            if dataRef is not None:
+                raise DataRefAlreadyExistsError(tr("DataRef instance with url='{}' "
+                                                   "already in database. ").format(dstRelPath))
+        
+        user_login = item.user_login
+        if is_none_or_empty(user_login):
+            raise AccessError(tr("Argument user_login shouldn't be null or empty."))
+        
+        user = self._session.query(db_schema.User).get(user_login)
+        if user is None:
+            raise AccessError(tr("User with login {} doesn't exist.").format(user_login))
+        
+                
+        #Remove from item those tags, which have corresponding Tag objects in database
+        item_tags_copy = item.item_tags[:] #Making list copy
+        existing_item_tags = []
+        for item_tag in item_tags_copy:
+            item_tag.user_login = user_login
+            tag = item_tag.tag
+            t = self._session.query(Tag).filter(Tag.name==tag.name).first()
+            if t is not None:
+                item_tag.tag = t
+                existing_item_tags.append(item_tag)
+                item.item_tags.remove(item_tag)
+                
+        #Remove from item those fields, which have corresponding Field objects in database
+        item_fields_copy = item.item_fields[:] #Making list copy
+        existing_item_fields = []
+        for item_field in item_fields_copy:
+            item_field.user_login = user_login
+            field = item_field.field
+            f = self._session.query(Field).filter(Field.name==field.name).first()
+            if f is not None:
+                item_field.field = f
+                existing_item_fields.append(item_field)
+                item.item_fields.remove(item_field)
+                
+        #Saving item with just absolutely new tags and fields
+        self._session.add(item)
+        self._session.flush()
+        
+        #Adding to the item existent tags
+        for it in existing_item_tags:
+            item.item_tags.append(it)
+        #Adding to the item existent fields
+        for if_ in existing_item_fields:
+            item.item_fields.append(if_)
+        #Saving item with existent tags and fields
+        self._session.flush()
+        
+        if isDataRefRequired:
+            #Creating and saving in database DataRef object
+            item.data_ref = DataRef(url=dstRelPath, type=DataRef.FILE)
+            item.data_ref.user_login = user_login
+            item.data_ref.size = os.path.getsize(srcAbsPath)
+            item.data_ref.hash = compute_hash(srcAbsPath)
+            item.data_ref.date_hashed = datetime.datetime.today()
+            self._session.add(item.data_ref)
+            self._session.flush()
+                
+            #Linking data_ref to the item
+            item.data_ref_id = item.data_ref.id
+            self._session.flush()
+        
+        #Saving HistoryRec object about this CREATE new item operation
+        UnitOfWork._save_history_rec(self._session, item, operation=HistoryRec.CREATE, \
+                                     user_login=user_login)
+        self._session.flush()
+        
+        #Now it's time to COPY physical file to the repository
+        if isDataRefRequired and srcAbsPath != dstAbsPath:
+            try:
+                #Making dirs
+                head, tail = os.path.split(dstAbsPath)
+                os.makedirs(head)
+            except:
+                pass
+            shutil.copy(srcAbsPath, dstAbsPath)
+            #TODO should not use shutil.copy() function, because I cannot specify block size! 
+            #On very large files (about 15Gb) shutil.copy() function takes really A LOT OF TIME.
+            #Because of small block size, I think.
+        
+        self._session.commit()
+        item_id = item.id
+        self._session.expunge(item)
+        return item_id
+
+        
     
     def save_new_item(self, item):
         '''Method saves in database given item. 
-        item.user_login specifies owner of this item 
-        (and all tags/fields linked with it).
+        item.user_login specifies owner of this item (and all tags/fields linked with it).
         
-        item.data_ref.dst_path is an absolute path.
+        item.data_ref.dst_path must be an absolute path.
         
         Returns id of created item, or raises an exception if something wrong.
         When this function returns, item object is expunged from the current Session.

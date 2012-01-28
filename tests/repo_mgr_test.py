@@ -6,6 +6,7 @@ from abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
 from tests_context import COPY_OF_TEST_REPO_BASE_PATH, existingAliveItem, nonExistingItem
 from repo_mgr import UnitOfWork
 from db_schema import HistoryRec, Item
+import helpers
 
 
 class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):
@@ -27,7 +28,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         item = Item("user", "Minimal Item")
         try:
             uow = self.repo.create_unit_of_work()
-            self.savedItemId = uow.save_new_item(item)
+            self.savedItemId = uow.saveNewItem(item)
         finally:
             uow.close()
             
@@ -49,7 +50,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         item = Item("such_user_login_doesn't_exist", "Item's title")
         try:
             uow = self.repo.create_unit_of_work()
-            self.assertRaises(AccessError, uow.save_new_item, (item))
+            self.assertRaises(AccessError, uow.saveNewItem, (item))
             
         finally:
             uow.close()
@@ -58,7 +59,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         item = Item(None, "Item's title")
         try:
             uow = self.repo.create_unit_of_work()
-            self.assertRaises(AccessError, uow.save_new_item, (item))
+            self.assertRaises(AccessError, uow.saveNewItem, (item))
         finally:
             uow.close()
             
@@ -66,10 +67,43 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         item = Item("", "Item's title")
         try:
             uow = self.repo.create_unit_of_work()
-            self.assertRaises(AccessError, uow.save_new_item, (item))
+            self.assertRaises(AccessError, uow.saveNewItem, (item))
         finally:
             uow.close()
 
+    def test_saveNewItemWithFileOutsizeRepo(self):
+        #User saves an item with data reference to a file which is located outside the repository.
+        #He wants to put this file in the root of repository (default behavior).
+        #Original file (outside the repo) is just copied, and must be unchanged after the operation.
+        item = Item("user", "Item's title")
+        self.srcAbsPath = os.path.abspath(os.path.join(COPY_OF_TEST_REPO_BASE_PATH, 
+                                                       "..", "tmp", "file.txt"))
+        self.dstRelPath = "newFile.txt"
+        try:
+            uow = self.repo.create_unit_of_work()    
+            self.savedItemId = uow.saveNewItem(item, self.srcAbsPath, self.dstRelPath)
+        finally:
+            uow.close()
+            
+        try:
+            uow = self.repo.create_unit_of_work()
+            savedItem = uow.get_item(self.savedItemId)
+            self.assertEqual(savedItem.title, item.title)
+            
+            self.assertIsNotNone(savedItem.data_ref)
+            self.assertEqual(savedItem.data_ref.url_raw, helpers.to_db_format(self.dstRelPath))
+            self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, savedItem.data_ref.url)))
+            
+            histRec = UnitOfWork._find_item_latest_history_rec(uow.session, savedItem)
+            self.assertIsNotNone(histRec)
+            self.assertEqual(histRec.operation, HistoryRec.CREATE)
+            self.assertEqual(histRec.user_login, savedItem.user_login)
+            self.assertIsNone(histRec.parent1_id)
+            self.assertIsNone(histRec.parent2_id)
+            
+            self.assertTrue(os.path.exists(self.srcAbsPath))
+        finally:
+            uow.close()
     
 
 class DeleteItemTest(AbstractTestCaseWithRepo):
