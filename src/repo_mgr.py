@@ -930,17 +930,19 @@ class UnitOfWork(object):
         srcAbsPath is the same as <repo_base_path>/dstRelPath.
         
         Use cases:
-                0) OK: both srcAbsPath and dstRelPath are None, so User wants to create an Item without 
-            DataRef object.
-                1) OK: User wants to add some external file into the repo. File is copied to the repo.
-                2) OK: There is an untracked file inside the repo tree. User wants to add such file 
+                0) Both srcAbsPath and dstRelPath are None, so User wants to create an Item 
+            without DataRef object.
+                1) User wants to add an external file into the repo. File is copied to the 
+            repo.
+                2) There is an untracked file inside the repo tree. User wants to add such file 
             into the repo to make it a stored file. File is not copied, because it is alredy in 
             the repo tree.
-                3) OK: User wants to add a copy of a stored file from the repo into the same repo 
+                3) User wants to add a copy of a stored file from the repo into the same repo 
             but to the another location. The copy of the original file will be attached 
             to the new Item object.
                 4) ERROR: User wants to attach to a stored file another new Item object.
             This is FORBIDDEN! Because existing item may be not integral with the file.
+            TODO: We can allow this operation, if integrity check returns OK.
             
             NOTE: Use cases 1,2,3 require creation of a new DataRef object.
         '''
@@ -1019,7 +1021,7 @@ class UnitOfWork(object):
         
         if isDataRefRequired:
             #Creating and saving in database DataRef object
-            item.data_ref = DataRef(url=dstRelPath, type=DataRef.FILE)
+            item.data_ref = DataRef(type=DataRef.FILE, url=dstRelPath)
             item.data_ref.user_login = user_login
             item.data_ref.size = os.path.getsize(srcAbsPath)
             item.data_ref.hash = compute_hash(srcAbsPath)

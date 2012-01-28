@@ -781,7 +781,7 @@ class MainWindow(QtGui.QMainWindow):
                     abs_file = os.path.join(root, file)
                     item = Item(user_login=self.active_user.login)
                     item.title = file
-                    item.data_ref = DataRef(url=abs_file, type=DataRef.FILE)
+                    item.data_ref = DataRef(type=DataRef.FILE, url=abs_file)
                     item.data_ref.dst_subpath = os.path.relpath(root, dir)
                     items.append(item)
             
@@ -833,7 +833,7 @@ class MainWindow(QtGui.QMainWindow):
                 file = os.path.normpath(file)
                 item = Item(user_login=self.active_user.login)
                 item.title = os.path.basename(file)
-                item.data_ref = DataRef(url=file, type=DataRef.FILE)
+                item.data_ref = DataRef(type=DataRef.FILE, url=file)
                 items.append(item)
             
             #Открываем диалог для ввода информации о тегах и полях
@@ -880,7 +880,7 @@ class MainWindow(QtGui.QMainWindow):
                 #Сразу привязываем выбранный файл к новому элементу
                 file = os.path.normpath(file)
                 item.title = os.path.basename(file) #Предлагаем назвать элемент по имени файла            
-                item.data_ref = DataRef(url=file, type=DataRef.FILE)
+                item.data_ref = DataRef(type=DataRef.FILE, url=file)
             
                         
             

@@ -260,7 +260,7 @@ class FileHashMismatchFixer(IntegrityFixer):
                     if hash == item.data_ref.hash:
                         #Нужно создать новый data_ref
                         new_url = os.path.relpath(os.path.join(root, file), self.repo_base_path)
-                        new_dr = DataRef(url=new_url, date_created=datetime.datetime.today(), type=DataRef.FILE)
+                        new_dr = DataRef(type=DataRef.FILE, url=new_url, date_created=datetime.datetime.today())
                         new_dr.hash = hash
                         new_dr.size = os.path.getsize(os.path.join(root, file))
                         self.uow.session.add(new_dr)

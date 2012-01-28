@@ -456,14 +456,14 @@ class DataRef(Base):
         self.dst_path = None
         self.dst_subpath = None
 
-    def __init__(self, url=None, date_created=None, type=None):
+    def __init__(self, type=None, url=None, date_created=None):
+        self.type = type
         self.url = url
         
         if date_created is not None:
             self.date_created = date_created
         else:
             self.date_created = datetime.datetime.today()
-        self.type = type
         
         #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
         #их необходимо скопировать. Данное поле в БД не сохраняется.

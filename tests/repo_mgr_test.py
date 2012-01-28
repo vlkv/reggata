@@ -71,16 +71,16 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         finally:
             uow.close()
 
+    
     def test_saveNewItemWithFileOutsizeRepo(self):
-        #User saves an item with data reference to a file which is located outside the repository.
-        #He wants to put this file in the root of repository (default behavior).
-        #Original file (outside the repo) is just copied, and must be unchanged after the operation.
+        '''
+        User wants to add an external file into the repo. File is copied to the repo.
+        '''
         item = Item("user", "Item's title")
-        self.srcAbsPath = os.path.abspath(os.path.join(COPY_OF_TEST_REPO_BASE_PATH, 
-                                                       "..", "tmp", "file.txt"))
-        self.dstRelPath = "newFile.txt"
+        self.srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
+        self.dstRelPath = os.path.join("dir1", "dir2", "dir3", "newFile.txt")
         try:
-            uow = self.repo.create_unit_of_work()    
+            uow = self.repo.create_unit_of_work()
             self.savedItemId = uow.saveNewItem(item, self.srcAbsPath, self.dstRelPath)
         finally:
             uow.close()

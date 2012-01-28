@@ -242,7 +242,7 @@ class ItemDialog(QtGui.QDialog):
             self.ui.lineEdit_title.setText(os.path.basename(file))
             
         #Создаем DataRef объект и привязываем его к self.item
-        data_ref = DataRef(url=file, type=DataRef.FILE)
+        data_ref = DataRef(type=DataRef.FILE, url=file)
         data_ref.dst_path = self.ui.lineEdit_dst_path.text()
         self.item.data_ref = data_ref
                         
