@@ -113,7 +113,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         the repo tree.
         '''
         item = Item("user", "Item's title")
-        self.srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "this", "is", "untracked", "file.txt"))
+        self.srcAbsPath = os.path.abspath(os.path.join(
+            self.repo.base_path, "this", "is", "untracked", "file.txt"))
         self.dstRelPath = os.path.join("this", "is", "untracked", "file.txt")
         try:
             uow = self.repo.create_unit_of_work()
@@ -128,7 +129,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             
             self.assertIsNotNone(savedItem.data_ref)
             self.assertEqual(savedItem.data_ref.url_raw, helpers.to_db_format(self.dstRelPath))
-            self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, savedItem.data_ref.url)))
+            self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, 
+                                                        savedItem.data_ref.url)))
             
             histRec = UnitOfWork._find_item_latest_history_rec(uow.session, savedItem)
             self.assertIsNotNone(histRec)
@@ -136,6 +138,43 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             self.assertEqual(histRec.user_login, savedItem.user_login)
             self.assertIsNone(histRec.parent1_id)
             self.assertIsNone(histRec.parent2_id)
+        finally:
+            uow.close()
+            
+    def test_saveNewItemWithACopyOfAStoredFileInRepo(self):
+        '''
+        User wants to add a copy of a stored file from the repo into the same repo 
+        but to the another location. The copy of the original file will be attached 
+        to the new Item object.
+        '''
+        item = Item("user", "Item's title")
+        self.srcAbsPath = os.path.abspath(os.path.join(
+            self.repo.base_path, "lyrics", "led_zeppelin", "stairway_to_heaven.txt"))
+        self.dstRelPath = os.path.join("dir1", "dir2", "dir3", "copy_of_stairway_to_heaven.txt")
+        try:
+            uow = self.repo.create_unit_of_work()
+            self.savedItemId = uow.saveNewItem(item, self.srcAbsPath, self.dstRelPath)
+        finally:
+            uow.close()
+            
+        try:
+            uow = self.repo.create_unit_of_work()
+            savedItem = uow.get_item(self.savedItemId)
+            self.assertEqual(savedItem.title, item.title)
+            
+            self.assertIsNotNone(savedItem.data_ref)
+            self.assertEqual(savedItem.data_ref.url_raw, helpers.to_db_format(self.dstRelPath))
+            self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, 
+                                                        savedItem.data_ref.url)))
+            
+            histRec = UnitOfWork._find_item_latest_history_rec(uow.session, savedItem)
+            self.assertIsNotNone(histRec)
+            self.assertEqual(histRec.operation, HistoryRec.CREATE)
+            self.assertEqual(histRec.user_login, savedItem.user_login)
+            self.assertIsNone(histRec.parent1_id)
+            self.assertIsNone(histRec.parent2_id)
+            
+            self.assertTrue(os.path.exists(self.srcAbsPath))
         finally:
             uow.close()
     

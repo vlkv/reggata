@@ -942,7 +942,7 @@ class UnitOfWork(object):
             to the new Item object.
                 4) ERROR: User wants to attach to a stored file another new Item object.
             This is FORBIDDEN! Because existing item may be not integral with the file.
-            TODO: We can allow this operation, if integrity check returns OK.
+            TODO: We can allow this operation only if integrity check returns OK.
             
             NOTE: Use cases 1,2,3 require creation of a new DataRef object.
         '''
