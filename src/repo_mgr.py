@@ -951,7 +951,8 @@ class UnitOfWork(object):
         
         isDataRefRequired = not is_none_or_empty(srcAbsPath)
         if isDataRefRequired:
-            assert(not is_none_or_empty(dstRelPath))
+            assert(dstRelPath is not None) 
+            #NOTE: If dstRelPath is an empty string it means the root of repository
         
             srcAbsPath = os.path.normpath(srcAbsPath)
             if not os.path.isabs(srcAbsPath):
@@ -1061,7 +1062,7 @@ class UnitOfWork(object):
         return item_id
 
         
-    
+    #TODO: remove function. It should be replaced with saveNewItem
     def save_new_item(self, item):
         '''Method saves in database given item. 
         item.user_login specifies owner of this item (and all tags/fields linked with it).

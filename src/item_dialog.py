@@ -29,7 +29,7 @@ import ui_itemdialog
 import consts
 from db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
 import helpers
-from helpers import show_exc_info, DialogMode, is_none_or_empty, is_internal
+from helpers import show_exc_info, is_none_or_empty, is_internal
 from parsers import definition_parser
 from parsers.util import quote
 from exceptions import MsgException
@@ -184,19 +184,24 @@ class ItemDialog(QtGui.QDialog):
         #Processing DataRef object
         if self.item.data_ref is not None:
             self.item.data_ref.srcAbsPath = self.ui.fileAbsPath.text()
-            self.item.data_ref.dstRelPath = self.ui.fileLocationDirRelPath.text()
+            
+            filename = os.path.basename(self.item.data_ref.srcAbsPath)
+            self.item.data_ref.dstRelPath = os.path.join(self.ui.fileLocationDirRelPath.text(), filename)
             #TODO: check that abs and rel paths are valid
         
         
     def button_ok(self):
         try:
-            if self.mode == DialogMode.VIEW:
+            if self.mode == ItemDialog.VIEW_MODE:
                 self.accept()
                 
-            elif self.mode == DialogMode.CREATE or self.mode == DialogMode.EDIT:
+            elif self.mode == ItemDialog.CREATE_MODE or self.mode == ItemDialog.EDIT_MODE:
                 self.write()
                 self.item.check_valid()
                 self.accept()
+                
+            else:
+                raise ValueError(self.tr("self.mode has bad value."))
         
         except Exception as ex:
             show_exc_info(self, ex)

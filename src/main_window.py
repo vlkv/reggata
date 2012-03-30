@@ -886,7 +886,13 @@ class MainWindow(QtGui.QMainWindow):
             if dialog.exec_():
                 uow = self.active_repo.create_unit_of_work()
                 try:
-                    thread = BackgrThread(self, uow.save_new_item, dialog.item)
+                    srcAbsPath = None
+                    dstRelPath = None
+                    if dialog.item.data_ref is not None:
+                        srcAbsPath = dialog.item.data_ref.srcAbsPath
+                        dstRelPath = dialog.item.data_ref.dstRelPath
+
+                    thread = BackgrThread(self, uow.saveNewItem, dialog.item, srcAbsPath, dstRelPath)
                     
                     wd = WaitDialog(self, indeterminate=True)
                     self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
