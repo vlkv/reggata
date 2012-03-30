@@ -408,8 +408,8 @@ class DataRef(Base):
     Ссылка на файл или URL.
     '''
     
-    FILE = "FILE"
-    URL = "URL"
+    FILE = "FILE"  
+    URL = "URL" #TODO: URL type is deprecated. Do not use it anymore. User can always save an url for an item with a field
     
     __tablename__ = "data_refs"
     

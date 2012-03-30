@@ -106,6 +106,7 @@ def show_exc_info(parent, ex, tracebk=True, details=None, title=None):
 def format_exc_info(type, value, tb):    
     return ''.join(traceback.format_exception(type, value, tb))
 
+#Deprecated: every dialog class should use it's own enumeration of modes!
 class DialogMode(object):
     CREATE = 0
     EDIT = 1
