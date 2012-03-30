@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ItemDialog</class>
- <widget class="QDialog" name="ItemDialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="ItemDialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,93 +10,93 @@
     <height>439</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Repository item</string>
   </property>
-  <property name="locale" >
-   <locale country="UnitedStates" language="English" />
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2" >
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QGridLayout" name="gridLayout" >
-     <item row="3" column="0" >
-      <widget class="QLabel" name="label_2" >
-       <property name="text" >
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
         <string>Title:</string>
        </property>
-       <property name="alignment" >
+       <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="0" column="0" >
-      <widget class="QLabel" name="label" >
-       <property name="text" >
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
         <string>Id:</string>
        </property>
-       <property name="alignment" >
+       <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="0" column="1" >
-      <widget class="QLabel" name="lineEdit_id" >
-       <property name="font" >
+     <item row="0" column="1">
+      <widget class="QLabel" name="lineEdit_id">
+       <property name="font">
         <font>
          <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>TextLabel</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1" colspan="7" >
-      <widget class="QLineEdit" name="lineEdit_title" />
+     <item row="3" column="1" colspan="7">
+      <widget class="QLineEdit" name="lineEdit_title"/>
      </item>
-     <item row="0" column="3" >
-      <widget class="QLabel" name="label_5" >
-       <property name="text" >
+     <item row="0" column="3">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
         <string>User:</string>
        </property>
-       <property name="alignment" >
+       <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="0" column="4" >
-      <widget class="QLabel" name="lineEdit_user_login" >
-       <property name="font" >
+     <item row="0" column="4">
+      <widget class="QLabel" name="lineEdit_user_login">
+       <property name="font">
         <font>
          <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>TextLabel</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="6" >
-      <widget class="QLabel" name="label_9" >
-       <property name="text" >
+     <item row="0" column="6">
+      <widget class="QLabel" name="label_9">
+       <property name="text">
         <string>Rating:</string>
        </property>
-       <property name="alignment" >
+       <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="0" column="7" >
-      <widget class="QSpinBox" name="spinBox_rating" >
-       <property name="maximum" >
+     <item row="0" column="7">
+      <widget class="QSpinBox" name="spinBox_rating">
+       <property name="maximum">
         <number>5</number>
        </property>
       </widget>
@@ -103,17 +104,17 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_4" >
+    <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
-      <widget class="QLabel" name="label_3" >
-       <property name="text" >
+      <widget class="QLabel" name="label_3">
+       <property name="text">
         <string>Notes:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPlainTextEdit" name="plainTextEdit_notes" >
-       <property name="minimumSize" >
+      <widget class="QPlainTextEdit" name="plainTextEdit_notes">
+       <property name="minimumSize">
         <size>
          <width>0</width>
          <height>46</height>
@@ -124,12 +125,12 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4" >
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_text_edit_fields" >
+      <layout class="QVBoxLayout" name="verticalLayout_text_edit_fields">
        <item>
-        <widget class="QLabel" name="label_7" >
-         <property name="text" >
+        <widget class="QLabel" name="label_7">
+         <property name="text">
           <string>Fields:</string>
          </property>
         </widget>
@@ -137,10 +138,10 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_text_edit_tags" >
+      <layout class="QVBoxLayout" name="verticalLayout_text_edit_tags">
        <item>
-        <widget class="QLabel" name="label_6" >
-         <property name="text" >
+        <widget class="QLabel" name="label_6">
+         <property name="text">
           <string>Tags:</string>
          </property>
         </widget>
@@ -150,62 +151,59 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" >
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLabel" name="label_4" >
-       <property name="text" >
-        <string>Data references:</string>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Data Reference to File:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QListWidget" name="listWidget_data_refs" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize" >
-        <size>
-         <width>16777215</width>
-         <height>40</height>
-        </size>
-       </property>
-       <property name="selectionMode" >
-        <enum>QAbstractItemView::ExtendedSelection</enum>
+      <widget class="QLineEdit" name="lineEditDataRefURL">
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout" >
+      <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QPushButton" name="pushButton_add_files" >
-         <property name="text" >
-          <string>Add files</string>
+        <widget class="QPushButton" name="pushButtonAddDataRef">
+         <property name="toolTip">
+          <string>Add Data Reference to this Item</string>
+         </property>
+         <property name="text">
+          <string>Add</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_add_URL" >
-         <property name="text" >
-          <string>Add URLs</string>
+        <widget class="QPushButton" name="pushButtonRemoveDataRef">
+         <property name="toolTip">
+          <string>Remove Data Reference from this Item. File will not be deleted.</string>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_remove" >
-         <property name="text" >
+         <property name="text">
           <string>Remove</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer" >
-         <property name="orientation" >
+        <widget class="QPushButton" name="pushButtonMoveFile">
+         <property name="toolTip">
+          <string>Move Data Reference File to another location in the same repository.</string>
+         </property>
+         <property name="text">
+          <string>Move File</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>40</width>
            <height>20</height>
@@ -218,42 +216,11 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5" >
-     <item>
-      <widget class="QLabel" name="label_8" >
-       <property name="text" >
-        <string>Destination path:</string>
-       </property>
-       <property name="alignment" >
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lineEdit_dst_path" >
-       <property name="toolTip" >
-        <string>Path where to put the file in the repository.</string>
-       </property>
-       <property name="readOnly" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButton_select_dst_path" >
-       <property name="text" >
-        <string>Select</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>

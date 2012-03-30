@@ -21,33 +21,37 @@ Created on 15.10.2010
 
 @author: vlkv
 '''
+import os
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
-from PyQt4.QtCore import Qt
+
 import ui_itemdialog
-from db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
-from helpers import tr, show_exc_info, DialogMode, index_of, is_none_or_empty, \
-                    is_internal
-import os
-from parsers import definition_parser, definition_tokens
-from parsers.util import quote, unquote
 import consts
-from exceptions import MsgException
+from db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
 import helpers
+from helpers import show_exc_info, DialogMode, is_none_or_empty, is_internal
+from parsers import definition_parser
+from parsers.util import quote
+from exceptions import MsgException
+
 
 class ItemDialog(QtGui.QDialog):
     '''
-    Диалог для представления одного элемента хранилища
+    This dialog is for create/edit/view single repository Item.
     '''
+    
+    CREATE_MODE = "CREATE_MODE"
+    EDIT_MODE = "EDIT_MODE"
+    VIEW_MODE = "VIEW_MODE"
 
-    def __init__(self, item, parent=None, mode=DialogMode.VIEW, completer=None):
+    def __init__(self, parent, item, mode, completer=None):
         super(ItemDialog, self).__init__(parent)
         self.ui = ui_itemdialog.Ui_ItemDialog()
         self.ui.setupUi(self)
         
         self.completer = completer
         
-        #Adding my custom widgets into design
+        #Adding my custom widgets to dialog
         self.ui.plainTextEdit_fields = helpers.TextEdit(self, self.completer, completer_end_str=": ")
         self.ui.verticalLayout_text_edit_fields.addWidget(self.ui.plainTextEdit_fields)
         
@@ -57,72 +61,39 @@ class ItemDialog(QtGui.QDialog):
         if type(item) != Item:
             raise TypeError(self.tr("Argument item should be an instance of Item class."))
 
-        #parent обязательно должен быть экземпляром MainWindow
-        #потому, что дальше будут обращения к полю parent.active_repo 
-        if parent.__class__.__name__ != "MainWindow": 
+        #parent should be a MainWindow instance
+        #because, we will need to access to parent.active_repo
+        if parent.__class__.__name__ != "MainWindow":
             raise TypeError(self.tr("Parent must be an instance of MainWindow class."))
                     
         self.parent = parent
         self.mode = mode
-        self.item = item        
+        self.item = item
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.button_ok)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.button_cancel)
-        self.connect(self.ui.pushButton_add_files, QtCore.SIGNAL("clicked()"), self.button_add_files)
-        self.connect(self.ui.pushButton_remove, QtCore.SIGNAL("clicked()"), self.button_remove)
-        self.connect(self.ui.pushButton_select_dst_path, QtCore.SIGNAL("clicked()"), self.button_sel_dst_path)
-        
-        
-#        self.ui.action_popup_compl = QtGui.QAction(self)
-#        self.ui.action_popup_compl.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+Space")))
-#        self.ui.action_popup_compl.setShortcutContext(Qt.WidgetShortcut)
-#        self.connect(self.ui.action_popup_compl, QtCore.SIGNAL("triggered()"), self.action_popup_compl)
-#        self.ui.plainTextEdit_tags.addAction(self.ui.action_popup_compl)
-#        
-#        self.ui.text_edit = helpers.TextEdit(self, self.completer)
-#        self.ui.verticalLayout_text_edit_tags.addWidget(self.ui.text_edit)
+        self.connect(self.ui.pushButtonAddDataRef, QtCore.SIGNAL("clicked()"), self.buttonAddDataRef)
+        self.connect(self.ui.pushButtonRemoveDataRef, QtCore.SIGNAL("clicked()"), self.buttonRemoveDataRef)
+        self.connect(self.ui.pushButtonMoveFile, QtCore.SIGNAL("clicked()"), self.buttonMoveFile)
         
         self.read()
         
-#    def action_popup_compl(self):
-#        
-#        cursor = self.ui.plainTextEdit_tags.textCursor()
-#        cursor.select(QtGui.QTextCursor.WordUnderCursor)
-#        word =  cursor.selectedText()
-#        if is_none_or_empty(word):
-#            return
-#        
-#        list = QtGui.QListWidget(self)
-#        list.addItem(word)
-#        list.addItem("456")
-#        list.addItem("656")
-#        list.addItem("sdfsdf")
-#        list.addItem("1sdf")
-#        list.addItem("1234")
-#        list.addItem("12")
-#        
-#        rect = self.ui.plainTextEdit_tags.cursorRect()
-#        point = rect.bottomLeft()
-#        list.move(self.ui.plainTextEdit_tags.mapToParent(point))
-#        list.show()
-#        list.setFocus(Qt.PopupFocusReason)
-        
     
     def read(self):
+        '''
+        Function updates all dialog GUI elements according to self.item object data.
+        '''
         self.ui.lineEdit_id.setText(str(self.item.id))
         self.ui.lineEdit_user_login.setText(self.item.user_login)
-        self.ui.lineEdit_title.setText(self.item.title)        
+        self.ui.lineEdit_title.setText(self.item.title)
         
-        #Добавляем в список единственный файл
+        
         if self.item.data_ref:
-            #TODO если файл --- это архив, то на лету распаковать его и вывести в этот список все содержимое архива
-            lwitem = QtGui.QListWidgetItem(self.item.data_ref.url)
-            self.ui.listWidget_data_refs.addItem(lwitem)        
-            #Проверяем, существует ли файл
+            self.ui.lineEditDataRefURL.setText(self.item.data_ref.url)
             test_url = self.item.data_ref.url
             if not os.path.isabs(test_url):
                 test_url = self.parent.active_repo.base_path + os.sep + test_url
             if not os.path.exists(test_url):
-                lwitem.setTextColor(QtCore.Qt.red)
+                self.ui.lineEditDataRefURL.setText("FILE NOT FOUND: " + self.item.data_ref.url)
         
         #Displaying item's list of field-values
         s = ""
@@ -138,11 +109,14 @@ class ItemDialog(QtGui.QDialog):
                         rating = 0
                     self.ui.spinBox_rating.setValue(rating)
                 else:
-                    raise MsgException(self.tr("Unknown reserved field name '{}'").format(itf.field.name))            
+                    raise MsgException(
+                        self.tr("Unknown reserved field name '{}'").format(itf.field.name))            
             #Processing all other fields
             else:
-                name = quote(itf.field.name) if definition_parser.needs_quote(itf.field.name) else itf.field.name
-                value = quote(itf.field_value) if definition_parser.needs_quote(itf.field_value) else itf.field_value
+                name = quote(itf.field.name) if definition_parser.needs_quote(itf.field.name) \
+                    else itf.field.name
+                value = quote(itf.field_value) if definition_parser.needs_quote(itf.field_value) \
+                    else itf.field_value
                 s = s + name + ": " + value + os.linesep
         self.ui.plainTextEdit_fields.setPlainText(s)
         
@@ -156,10 +130,12 @@ class ItemDialog(QtGui.QDialog):
         
     
     def write(self):
-        '''Запись введенной в элементы gui информации в поля объекта.'''
+        '''Writes all data from dialog GUI elements to the self.item object.'''
+        
         self.item.title = self.ui.lineEdit_title.text()
         
-        #Создаем объекты Tag
+        #Processing Tags
+        del self.item.item_tags[:]
         text = self.ui.plainTextEdit_tags.toPlainText()
         tags, tmp = definition_parser.parse(text)
         for t in tags:
@@ -168,8 +144,8 @@ class ItemDialog(QtGui.QDialog):
             item_tag.user_login = self.item.user_login
             self.item.item_tags.append(item_tag)
         
-        
-        #Создаем объекты Field
+        #Processing Fields
+        del self.item.item_fields[:]
         text = self.ui.plainTextEdit_fields.toPlainText()
         tmp, fields = definition_parser.parse(text)
         for (f, v) in fields:
@@ -180,8 +156,7 @@ class ItemDialog(QtGui.QDialog):
             item_field.user_login = self.item.user_login
             self.item.item_fields.append(item_field)
         
-        #Creating reserved fields (NOTES and RATING)
-        #create NOTES_FIELD
+        #Processing reserved field NOTES_FIELD
         notes = self.ui.plainTextEdit_notes.toPlainText()
         if not is_none_or_empty(notes):
             field = Field(name=consts.NOTES_FIELD)
@@ -189,70 +164,53 @@ class ItemDialog(QtGui.QDialog):
             item_field.user_login = self.item.user_login
             self.item.item_fields.append(item_field)
         
-        #create RATING_FIELD
+        #Processing reserved field RATING_FIELD
         rating = self.ui.spinBox_rating.value()
         if rating > 0:
             field = Field(name=consts.RATING_FIELD)
             item_field = Item_Field(field, rating)
             item_field.user_login = self.item.user_login
             self.item.item_fields.append(item_field)
+            
+        #DataRefs should be already processed (in action buttons' callback functions)
+        
         
     def button_ok(self):
         try:
             if self.mode == DialogMode.VIEW:
                 self.accept()
                 
-            elif self.mode == DialogMode.CREATE:
-                #Очищаем коллекции тегов/полей
-                #Т.к. возможно уже write() один раз вызывался, но потом check_valid() выкинул исключение
-                del self.item.item_tags[:]
-                del self.item.item_fields[:]
-                
+            elif self.mode == DialogMode.CREATE or self.mode == DialogMode.EDIT:
                 self.write()
                 self.item.check_valid()
                 self.accept()
-                
-            elif self.mode == DialogMode.EDIT:
-                #Очищаем коллекции тегов/полей
-                del self.item.item_tags[:]
-                del self.item.item_fields[:]
-                
-                #Метод write() создаст все необходимые теги/поля (как бы заново)
-                self.write()
-                self.item.check_valid()
-                self.accept()
-                                
+        
         except Exception as ex:
             show_exc_info(self, ex)
     
+    
     def button_cancel(self):
         self.reject()
+    
         
-    def button_add_files(self):
+    def buttonAddDataRef(self):
         
-        #Пока что эта кнопка будет менять текущий DataRef на другой файл.
-        #В будущем можно сделать выбор файлов и добавление их в архив, с которым связан данный Item
-        
-        file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select file"))
+        file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select a file to link with the Item."))
         if is_none_or_empty(file):
             return
-        #Если lineEdit для title еще пустой, то предлагаем туда записать имя первого файла
+        
+        #Suggest a title for the Item, if it has not any title yet
         title = self.ui.lineEdit_title.text()
         if is_none_or_empty(title):
             self.ui.lineEdit_title.setText(os.path.basename(file))
-            
-        #Создаем DataRef объект и привязываем его к self.item
+        
         data_ref = DataRef(type=DataRef.FILE, url=file)
-        data_ref.dst_path = self.ui.lineEdit_dst_path.text()
         self.item.data_ref = data_ref
                         
-        #Отображаем в списке файлов диалога
-        self.ui.listWidget_data_refs.clear() #Удаляем все файлы, что есть сейчас
-        lwitem = QtGui.QListWidgetItem(file) #Создаем и
-        self.ui.listWidget_data_refs.addItem(lwitem) #добавляем новый файл в список
+        self.ui.lineEditDataRefURL.setText(data_ref.url)
         
     
-    def button_sel_dst_path(self):
+    def buttonMoveFile(self):
         try:
             if self.item.data_ref is None:
                 raise Exception(self.tr("You must define a data reference first."))
@@ -282,7 +240,7 @@ class ItemDialog(QtGui.QDialog):
         except Exception as ex:
             show_exc_info(self, ex)
     
-    def button_remove(self):
+    def buttonRemoveDataRef(self):
         if self.ui.listWidget_data_refs.count() == 0:
             return
         

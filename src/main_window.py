@@ -863,7 +863,7 @@ class MainWindow(QtGui.QMainWindow):
         
         
     def action_item_add(self):
-        '''Добавление одного элемента в хранилище.'''
+        '''Add single Item to the repo.'''
         try:
             if self.active_repo is None:
                 raise MsgException(self.tr("Open a repository first."))
@@ -871,26 +871,22 @@ class MainWindow(QtGui.QMainWindow):
             if self.active_user is None:
                 raise MsgException(self.tr("Login to a repository first."))
             
-            #Создаем новый (пустой пока) элемент
             item = Item(user_login=self.active_user.login)
             
-            #Просим пользователя выбрать один файл
-            file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select file to add"))
+            #User can push Cancel button and do not select a file now
+            file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select a file to link with new Item."))
             if not is_none_or_empty(file):
-                #Сразу привязываем выбранный файл к новому элементу
                 file = os.path.normpath(file)
-                item.title = os.path.basename(file) #Предлагаем назвать элемент по имени файла            
+                item.title = os.path.basename(file)
                 item.data_ref = DataRef(type=DataRef.FILE, url=file)
             
-                        
             
-            #Открываем диалог для ввода остальной информации об элементе
             completer = helpers.Completer(self.active_repo, self)
-            d = ItemDialog(item, self, DialogMode.CREATE, completer=completer)
-            if d.exec_():
+            dialog = ItemDialog(self, item, ItemDialog.CREATE_MODE, completer=completer)
+            if dialog.exec_():
                 uow = self.active_repo.create_unit_of_work()
                 try:
-                    thread = BackgrThread(self, uow.save_new_item, d.item)
+                    thread = BackgrThread(self, uow.save_new_item, dialog.item)
                     
                     wd = WaitDialog(self, indeterminate=True)
                     self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
@@ -1081,7 +1077,7 @@ class MainWindow(QtGui.QMainWindow):
                 try:
                     item = uow.get_item(item_id)
                     completer = helpers.Completer(self.active_repo, self)
-                    item_dialog = ItemDialog(item, self, DialogMode.EDIT, completer=completer)
+                    item_dialog = ItemDialog(self, item, DialogMode.EDIT, completer=completer)
                     if item_dialog.exec_():
                         uow.update_existing_item(item_dialog.item, self.active_user.login)
                 finally:
