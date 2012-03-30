@@ -946,6 +946,7 @@ class UnitOfWork(object):
             in the future.
             
             NOTE: Use cases 1,2,3 require creation of a new DataRef object.
+            If given item has not null item.data_ref object, it is ignored anyway.
         '''
         
         isDataRefRequired = not is_none_or_empty(srcAbsPath)
@@ -1021,8 +1022,8 @@ class UnitOfWork(object):
         #Saving item with existent tags and fields
         self._session.flush()
         
+        
         if isDataRefRequired:
-            #Creating and saving in database DataRef object
             item.data_ref = DataRef(type=DataRef.FILE, url=dstRelPath)
             item.data_ref.user_login = user_login
             item.data_ref.size = os.path.getsize(srcAbsPath)
@@ -1030,10 +1031,11 @@ class UnitOfWork(object):
             item.data_ref.date_hashed = datetime.datetime.today()
             self._session.add(item.data_ref)
             self._session.flush()
-                
-            #Linking data_ref to the item
+            
             item.data_ref_id = item.data_ref.id
             self._session.flush()
+        else:
+            item.data_ref = None
         
         #Saving HistoryRec object about this CREATE new item operation
         UnitOfWork._save_history_rec(self._session, item, operation=HistoryRec.CREATE, \

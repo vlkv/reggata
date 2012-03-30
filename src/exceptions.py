@@ -35,8 +35,8 @@ class UnsupportedDialogModeError(Exception):
         super(LoginError, self).__init__(msg)
         
 class MsgException(Exception):
-    '''Исключение для тех случаев, когда ошибок нет, но нужно отобразить
-    пользователю какую-нибудь информацию.'''
+    '''This exception is used in situations when no error occurred,
+    but we have to tell the user some text information.'''
     def __init__(self, msg=None):
         super(MsgException, self).__init__(msg)
         
