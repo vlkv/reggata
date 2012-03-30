@@ -88,12 +88,21 @@ class ItemDialog(QtGui.QDialog):
         
         
         if self.item.data_ref:
-            self.ui.lineEditDataRefURL.setText(self.item.data_ref.url)
-            test_url = self.item.data_ref.url
-            if not os.path.isabs(test_url):
-                test_url = self.parent.active_repo.base_path + os.sep + test_url
-            if not os.path.exists(test_url):
-                self.ui.lineEditDataRefURL.setText("FILE NOT FOUND: " + self.item.data_ref.url)
+            #Make an absolute path to the DataRef file
+            fileAbsPath = self.item.data_ref.url
+            if not os.path.isabs(fileAbsPath):
+                fileAbsPath = os.path.join(self.parent.active_repo.base_path, fileAbsPath)
+            if not os.path.exists(fileAbsPath):
+                self.ui.fileAbsPath.setText("FILE NOT FOUND: " + fileAbsPath)
+            else:
+                self.ui.fileAbsPath.setText(fileAbsPath)
+            
+            locationDirRelPath = ""
+            if self.mode == ItemDialog.EDIT_MODE or self.mode == ItemDialog.VIEW_MODE:
+                #Make a relative path to the directory where DataRef file is located
+                locationDirRelPath = os.path.dirname(self.item.data_ref.url)
+            self.ui.fileLocationDirRelPath.setText(locationDirRelPath)
+            
         
         #Displaying item's list of field-values
         s = ""
@@ -172,7 +181,11 @@ class ItemDialog(QtGui.QDialog):
             item_field.user_login = self.item.user_login
             self.item.item_fields.append(item_field)
             
-        #DataRefs should be already processed (in action buttons' callback functions)
+        #Processing DataRef object
+        if self.item.data_ref is not None:
+            self.item.data_ref.srcAbsPath = self.ui.fileAbsPath.text()
+            self.item.data_ref.dstRelPath = self.ui.fileLocationDirRelPath.text()
+            #TODO: check that abs and rel paths are valid
         
         
     def button_ok(self):
@@ -207,52 +220,40 @@ class ItemDialog(QtGui.QDialog):
         data_ref = DataRef(type=DataRef.FILE, url=file)
         self.item.data_ref = data_ref
                         
-        self.ui.lineEditDataRefURL.setText(data_ref.url)
-        
+        assert(os.path.isabs(data_ref.url))
+        self.ui.fileAbsPath.setText(data_ref.url)
+    
+    
+    def buttonRemoveDataRef(self):
+        self.item.data_ref = None
+        self.item.data_ref_id = None
+        self.ui.fileAbsPath.setText(None)
+        self.ui.fileLocationDirRelPath.setText(None)
+            
     
     def buttonMoveFile(self):
         try:
             if self.item.data_ref is None:
-                raise Exception(self.tr("You must define a data reference first."))
+                raise Exception(self.tr("You must add a Data Reference first."))
             
-            dir = QtGui.QFileDialog.getExistingDirectory(self, 
+            directory = QtGui.QFileDialog.getExistingDirectory(
+                self, 
                 self.tr("Select destination path within repository"), 
                 self.parent.active_repo.base_path)
-            if dir:
-                if not is_internal(dir, self.parent.active_repo.base_path):
-                    #Выбрана директория снаружи хранилища
-                    raise Exception(self.tr("Chosen directory is out of active repository."))
-                else:
-                    new_dst_path = os.path.relpath(dir, self.parent.active_repo.base_path)
-                    self.ui.lineEdit_dst_path.setText(new_dst_path)
-#                    #Присваиваем новое значение dst_path объекту DataRef, если он ссылается
-#                    #на новый внешний файл (его путь абсолютный и вне хранилища)                
-#                    if os.path.isabs(self.item.data_ref.url) and \
-#                    not is_internal(self.item.data_ref.url, self.parent.active_repo.base_path):
-#                        #Этот файл еще не в хранилище
-#                        self.item.data_ref.dst_path = new_dst_path
-                    self.item.data_ref.dst_path = new_dst_path
-                    #Если файл self.item.data_ref уже в хранилище и в БД, то изменение 
-                    #dst_path означает ПЕРЕМЕЩЕНИЕ его в другую поддиректорию внутри хранилища
-                    #Если файл self.item.data_ref - новый и в хранилище и БД еще
-                    #не сохранен, то dst_path - это директория, куда данный файл
-                    #будет СКОПИРОВАН 
+            
+            if is_none_or_empty(directory):
+                return
+            
+            if not is_internal(directory, self.parent.active_repo.base_path):
+                raise MsgException(self.tr("Chosen directory is out of active repository."))
+            else:
+                new_dst_path = os.path.relpath(directory, self.parent.active_repo.base_path)
+                self.ui.fileLocationDirRelPath.setText(new_dst_path)
+                
         except Exception as ex:
             show_exc_info(self, ex)
     
-    def buttonRemoveDataRef(self):
-        if self.ui.listWidget_data_refs.count() == 0:
-            return
-        
-#        sel_items = self.ui.listWidget_data_refs.selectedItems()
-#        for list_item in sel_items:
-#            row = self.ui.listWidget_data_refs.row(list_item)
-#            self.ui.listWidget_data_refs.takeItem(row)
-        self.item.data_ref = None
-        self.item.data_ref_id = None
-        self.ui.listWidget_data_refs.clear()
-        self.ui.lineEdit_dst_path.clear()
-            
+    
             
             
             

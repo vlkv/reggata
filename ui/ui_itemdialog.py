@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemdialog.ui'
 #
-# Created: Fri Mar 30 11:47:44 2012
+# Created: Fri Mar 30 23:13:26 2012
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -96,10 +96,17 @@ class Ui_ItemDialog(object):
         self.label_4 = QtGui.QLabel(ItemDialog)
         self.label_4.setObjectName(_fromUtf8("label_4"))
         self.verticalLayout.addWidget(self.label_4)
-        self.lineEditDataRefURL = QtGui.QLineEdit(ItemDialog)
-        self.lineEditDataRefURL.setReadOnly(True)
-        self.lineEditDataRefURL.setObjectName(_fromUtf8("lineEditDataRefURL"))
-        self.verticalLayout.addWidget(self.lineEditDataRefURL)
+        self.fileAbsPath = QtGui.QLineEdit(ItemDialog)
+        self.fileAbsPath.setReadOnly(True)
+        self.fileAbsPath.setObjectName(_fromUtf8("fileAbsPath"))
+        self.verticalLayout.addWidget(self.fileAbsPath)
+        self.label_8 = QtGui.QLabel(ItemDialog)
+        self.label_8.setObjectName(_fromUtf8("label_8"))
+        self.verticalLayout.addWidget(self.label_8)
+        self.fileLocationDirRelPath = QtGui.QLineEdit(ItemDialog)
+        self.fileLocationDirRelPath.setReadOnly(True)
+        self.fileLocationDirRelPath.setObjectName(_fromUtf8("fileLocationDirRelPath"))
+        self.verticalLayout.addWidget(self.fileLocationDirRelPath)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.pushButtonAddDataRef = QtGui.QPushButton(ItemDialog)
@@ -135,7 +142,8 @@ class Ui_ItemDialog(object):
         self.label_3.setText(QtGui.QApplication.translate("ItemDialog", "Notes:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_7.setText(QtGui.QApplication.translate("ItemDialog", "Fields:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_6.setText(QtGui.QApplication.translate("ItemDialog", "Tags:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("ItemDialog", "Data Reference to File:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("ItemDialog", "Absolute path to referenced File:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setText(QtGui.QApplication.translate("ItemDialog", "Location of referenced File in the Repository:", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonAddDataRef.setToolTip(QtGui.QApplication.translate("ItemDialog", "Add Data Reference to this Item", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonAddDataRef.setText(QtGui.QApplication.translate("ItemDialog", "Add", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonRemoveDataRef.setToolTip(QtGui.QApplication.translate("ItemDialog", "Remove Data Reference from this Item. File will not be deleted.", None, QtGui.QApplication.UnicodeUTF8))

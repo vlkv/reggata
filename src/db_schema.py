@@ -467,11 +467,17 @@ class DataRef(Base):
         
         #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
         #их необходимо скопировать. Данное поле в БД не сохраняется.
+        #TODO: remove this member, it is deprecated!
         self.dst_path = None
         
         #Это доп. поле для функции Добавления файлов из директории рекурсивно.
         #В поле хранится относительный путь внутри исходной сканируемой директории.
+        #TODO: remove this member, it is deprecated!
         self.dst_subpath = None
+        
+        
+        self.srcAbsPath = None
+        self.dstRelPath = None
     
     def _get_url(self):
         if self.type == DataRef.FILE:

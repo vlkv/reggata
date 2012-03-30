@@ -155,12 +155,26 @@
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Data Reference to File:</string>
+        <string>Absolute path to referenced File:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEditDataRefURL">
+      <widget class="QLineEdit" name="fileAbsPath">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Location of referenced File in the Repository:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="fileLocationDirRelPath">
        <property name="readOnly">
         <bool>true</bool>
        </property>
