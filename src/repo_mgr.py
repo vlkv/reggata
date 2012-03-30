@@ -938,11 +938,12 @@ class UnitOfWork(object):
             into the repo to make it a stored file. File is not copied, because it is alredy in 
             the repo tree.
                 3) User wants to add a copy of a stored file from the repo into the same repo 
-            but to the another location. The copy of the original file will be attached 
-            to the new Item object.
+            but to the another location. Original file is copyied. The copy of the original file 
+            will be attached to the new Item object.
                 4) ERROR: User wants to attach to a stored file another new Item object.
             This is FORBIDDEN! Because existing item may be not integral with the file.
-            TODO: We can allow this operation only if integrity check returns OK.
+            TODO: We can allow this operation only if integrity check returns OK. May be implemented
+            in the future.
             
             NOTE: Use cases 1,2,3 require creation of a new DataRef object.
         '''
