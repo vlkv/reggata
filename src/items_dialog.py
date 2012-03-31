@@ -51,7 +51,10 @@ class ItemsDialog(QtGui.QDialog):
         
         self.parent = parent
         self.items = items
-        self.dst_path = None
+        
+        #This is a relative (to repo root) path where all files in the group are located or will be moved to
+        self.dst_path = None 
+        
         self.group_has_files = False
         
         #If this field is true, all items will be moved into one selected destination path
@@ -113,59 +116,61 @@ class ItemsDialog(QtGui.QDialog):
     
     def write(self):
         
-        #Если пользователь выберет другую директорию назначения, то мы ее 
-        #сохраняем в поле DataRef.dst_path (это будет только имя директории!!!)
-        
-        if self.mode == ItemsDialog.EDIT_MODE and self.group_has_files and not is_none_or_empty(self.dst_path):
-            for item in self.items:
-                if item.data_ref and item.data_ref.type != DataRef.FILE:
-                    continue
-                item.data_ref.dst_path = self.dst_path
-        
-        elif self.mode == ItemsDialog.CREATE_MODE:
-            for item in self.items:
-                if item.data_ref and item.data_ref.type != DataRef.FILE:
-                    continue                
-                if self.same_dst_path:
-                    item.data_ref.dst_path = self.dst_path
-                else:
-                    if self.dst_path:
-                        item.data_ref.dst_path = os.path.normpath(os.path.join(self.dst_path, item.data_ref.dst_subpath))
+        # self.dst_path must be a relative (to root of repo) path to a directory where to put the files.
+        # If self.dst_path is none or empty then items will be
+        #    a) in CREATE_MODE - put in the root of repo (in the case of recursive adding: tree hierarchy 
+        # of the source will be copyied);
+        #    b) in EDIT_MODE - files of repository will not be moved anywhere.
+        if self.group_has_files:
+            
+            if self.mode == ItemsDialog.EDIT_MODE and not is_none_or_empty(self.dst_path):
+                for item in self.items:
+                    if (item.data_ref is None) or (item.data_ref.type != DataRef.FILE):
+                        continue
+                    item.data_ref.dstRelPath = os.path.join(self.dst_path, os.path.basename(item.data_ref.url))
+            
+            elif self.mode == ItemsDialog.CREATE_MODE:
+                # In CREATE_MODE item.data_ref.url for all items will be None at this point
+                # We should use item.data_ref.srcAbsPath instead
+                for item in self.items:
+                    if (item.data_ref is None) or (item.data_ref.type != DataRef.FILE):
+                        continue
+                    if self.same_dst_path:
+                        item.data_ref.dstRelPath = os.path.join(self.dst_path, os.path.basename(item.data_ref.srcAbsPath))
                     else:
-                        item.data_ref.dst_path = os.path.normpath(item.data_ref.dst_subpath)
-#                        if item.data_ref.dst_path == os.curdir:
-#                            item.data_ref.dst_path = ""
-                
-                 
+                        if self.dst_path:
+                            relPathToFile = os.path.relpath(item.data_ref.srcAbsPath, item.data_ref.srcAbsPathToRecursionRoot)
+                            item.data_ref.dstRelPath = os.path.join(self.dst_path, relPathToFile)
+                        else:
+                            item.data_ref.dstRelPath = os.path.join(".", os.path.basename(item.data_ref.srcAbsPath))
         
-        #Теги, которые нужно добавить        
+        #Processing Tags to add        
         text = self.ui.plainTextEdit_tags_add.toPlainText()
         tags, tmp = parsers.definition_parser.parse(text)
         tags_add = set(tags)
         
-        #Теги, которые нужно удалить
+        #Processing Tags to remove
         text = self.ui.plainTextEdit_tags_rm.toPlainText()
         tags, tmp = parsers.definition_parser.parse(text)
         tags_rm = set(tags)
         
-        #Поля, которые нужно добавить
+        #Processing (Field,Value) pairs to add
         text = self.ui.plainTextEdit_fields_add.toPlainText()
         tmp, fields = parsers.definition_parser.parse(text)
         fieldvals_add = set(fields)
         
-        #Имена полей, которые нужно удалить
+        #Processing Field names to remove
         text = self.ui.plainTextEdit_fields_rm.toPlainText()
         tmp, fields = parsers.definition_parser.parse(text)
-        fields_rm = set(fields) #Здесь используется парсер для тегов!
+        fields_rm = set(fields)
             
             
-        
-        #Выполняем проверку, чтобы добавляемые и удаляемые теги не пересекались
+        #Check that added and removed Tags do not intersect
         intersection = tags_add.intersection(tags_rm)
         if len(intersection) > 0:
             raise ValueError(self.tr("Tags {} cannot be in both add and remove lists.").format(str(intersection)))
         
-        #Выполняем проверку, чтобы добавляемые и удаляемые поля не пересекались
+        #Check that added and removed Fields do not intersect
         intersection = set()
         for f, v in fieldvals_add:
             if f in fields_rm:
@@ -174,23 +179,21 @@ class ItemsDialog(QtGui.QDialog):
             raise ValueError(self.tr("Fields {} cannot be in both add and remove lists.").format(str(intersection)))
             
         for item in self.items:
-            #Добавляем новые теги
+            #Adding Tags
             for t in tags_add:
                 if not item.has_tag(t):
                     item.add_tag(name=t)
             
-            #Удаляем теги
+            #Removing Tags
             for t in tags_rm:
                 item.remove_tag(t)
 
-            #Добавляем новые поля
+            #Adding new (Field,Value) pairs
             for f, v in fieldvals_add:
-                #Сначала удаляем
                 item.remove_field(f)
-                #Теперь добавляем (вдруг, значение поля изменилось?)
                 item.set_field_value(f, v)
             
-            #Удаляем поля
+            #Removing Fields
             for f in fields_rm:
                 item.remove_field(f)
                     
@@ -294,7 +297,13 @@ class ItemsDialog(QtGui.QDialog):
                 self.ui.locationDirRelPath.setText(self.tr('<different values>'))
                 
         elif self.mode == ItemsDialog.CREATE_MODE:
-            pass
+            for item in self.items:
+                if item.data_ref is not None and item.data_ref.type == DataRef.FILE:
+                    self.group_has_files = True
+                    break
+                else:
+                    self.group_has_files = False
+                    #Maybe assert here?
             
                 
         

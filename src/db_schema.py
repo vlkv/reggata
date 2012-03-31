@@ -453,8 +453,14 @@ class DataRef(Base):
 
     @orm.reconstructor
     def __init_on_load__(self):
+        #TODO: remove this member, it is deprecated!
         self.dst_path = None
-        self.dst_subpath = None
+        
+        self.srcAbsPathToRecursionRoot = None
+        
+        self.srcAbsPath = None
+        self.dstRelPath = None
+        
 
     def __init__(self, type=None, url=None, date_created=None):
         self.type = type
@@ -470,24 +476,24 @@ class DataRef(Base):
         #TODO: remove this member, it is deprecated!
         self.dst_path = None
         
-        #Это доп. поле для функции Добавления файлов из директории рекурсивно.
-        #В поле хранится относительный путь внутри исходной сканируемой директории.
-        #TODO: remove this member, it is deprecated!
-        self.dst_subpath = None
-        
+        # This field is used only in function "Add many items recursively"
+        # This is a absolute path to the root directory 
+        # from where recursive scanning was started.
+        self.srcAbsPathToRecursionRoot = None
         
         self.srcAbsPath = None
         self.dstRelPath = None
+        
     
     def _get_url(self):
-        if self.type == DataRef.FILE:
+        if self.type == DataRef.FILE and self.url_raw is not None:
             return helpers.from_db_format(self.url_raw)
         else:
             return self.url_raw
         
     def _set_url(self, value):
         #Сохранять в БД этот url и  HistoryRec.url нужно всегда в формате Unix (т.е. с прямыми слешами)
-        if self.type == DataRef.FILE:
+        if self.type == DataRef.FILE and value is not None:
             value = helpers.to_db_format(value)
         self.url_raw = value
                 

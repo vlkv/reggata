@@ -339,11 +339,16 @@ class CreateGroupIfItemsThread(QtCore.QThread):
             for item in self.items:
                 try:
                     #Every item is saved in a separate transaction
-                    uow.save_new_item(item)
+                    srcAbsPath = None
+                    dstRelPath = None
+                    if item.data_ref:
+                        srcAbsPath = item.data_ref.srcAbsPath
+                        dstRelPath = item.data_ref.dstRelPath
+                    uow.saveNewItem(item, srcAbsPath, dstRelPath)
                     self.created_objects_count += 1
                     
-                except  (FileAlreadyExistsError, DataRefAlreadyExistsError):
-                    #Skip this item and remember it's data_ref.url)                    
+                except (ValueError, DataRefAlreadyExistsError):
+                    #Skip this item and remember it's data_ref.url)
                     if item.data_ref:
                         self.error_log.append(item.data_ref.url)
                         

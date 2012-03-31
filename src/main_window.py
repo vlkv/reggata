@@ -778,11 +778,12 @@ class MainWindow(QtGui.QMainWindow):
             items = []
             for root, dirs, files in os.walk(dir):
                 for file in files:
-                    abs_file = os.path.join(root, file)
+                    absPathToFile = os.path.join(root, file)
                     item = Item(user_login=self.active_user.login)
                     item.title = file
-                    item.data_ref = DataRef(type=DataRef.FILE, url=abs_file)
-                    item.data_ref.dst_subpath = os.path.relpath(root, dir)
+                    item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
+                    item.data_ref.srcAbsPath = absPathToFile
+                    item.data_ref.srcAbsPathToRecursionRoot = dir
                     items.append(item)
             
             completer = helpers.Completer(self.active_repo, self)
@@ -833,7 +834,8 @@ class MainWindow(QtGui.QMainWindow):
                 file = os.path.normpath(file)
                 item = Item(user_login=self.active_user.login)
                 item.title = os.path.basename(file)
-                item.data_ref = DataRef(type=DataRef.FILE, url=file)
+                item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
+                item.data_ref.srcAbsPath = file
                 items.append(item)
             
             #Открываем диалог для ввода информации о тегах и полях
