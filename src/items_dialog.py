@@ -54,9 +54,9 @@ class ItemsDialog(QtGui.QDialog):
         self.dst_path = None
         self.group_has_files = False
         
-        #If this field is true, all items will be moved into selected destination path
+        #If this field is true, all items will be moved into one selected destination path
         self.same_dst_path = same_dst_path
-                
+        
         self.completer = completer
         
         if len(items) <= 1:
@@ -66,7 +66,7 @@ class ItemsDialog(QtGui.QDialog):
         
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.button_ok)
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.button_cancel)
-        self.connect(self.ui.pushButton_select_dst_path, QtCore.SIGNAL("clicked()"), self.select_dst_path)
+        self.connect(self.ui.buttonSelectLocationDirRelPath, QtCore.SIGNAL("clicked()"), self.selectLocationDirRelPath)
         
         
         self.ui.textEdit_tags = CustomTextEdit()
@@ -282,23 +282,23 @@ class ItemsDialog(QtGui.QDialog):
                 #Все элементы не содержат ссылок на файлы (Либо нет DataRef объектов, либо они есть но не типа FILE)
                 self.dst_path = None
                 self.group_has_files = False
-                self.ui.lineEdit_dst_path.setText(self.tr('<not applicable>'))
+                self.ui.locationDirRelPath.setText(self.tr('<not applicable>'))
             elif same_path == 'yes':
                 #Все элементы, связанные с DataRef-ами типа FILE, находятся в ОДНОЙ директории
                 self.group_has_files = True
-                self.ui.lineEdit_dst_path.setText(self.dst_path)
+                self.ui.locationDirRelPath.setText(self.dst_path)
             else:
                 #Элементы, связанные с DataRef-ами типа FILE, находятся в РАЗНЫХ директориях
                 self.dst_path = None #Обнуляем это поле
                 self.group_has_files = True
-                self.ui.lineEdit_dst_path.setText(self.tr('<different values>'))
+                self.ui.locationDirRelPath.setText(self.tr('<different values>'))
                 
         elif self.mode == ItemsDialog.CREATE_MODE:
             pass
             
                 
         
-    def select_dst_path(self):
+    def selectLocationDirRelPath(self):
         try:
             if self.mode == ItemsDialog.EDIT_MODE and not self.group_has_files:
                 raise MsgException(self.tr("Selected group of items doesn't reference any physical files on filesysem."))
@@ -312,7 +312,7 @@ class ItemsDialog(QtGui.QDialog):
                     raise MsgException(self.tr("Chosen directory is out of active repository."))
                 else:
                     self.dst_path = os.path.relpath(dir, self.parent.active_repo.base_path)
-                    self.ui.lineEdit_dst_path.setText(self.dst_path)
+                    self.ui.locationDirRelPath.setText(self.dst_path)
         
         except Exception as ex:
             helpers.show_exc_info(self, ex)

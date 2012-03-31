@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ItemsDialog</class>
- <widget class="QDialog" name="ItemsDialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="ItemsDialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,32 +10,32 @@
     <height>411</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>ItemsDialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" >
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4" >
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <widget class="QLabel" name="label" >
-       <property name="text" >
+      <widget class="QLabel" name="label">
+       <property name="text">
         <string>Number of items: </string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_num_of_items" >
-       <property name="text" >
+      <widget class="QLabel" name="label_num_of_items">
+       <property name="text">
         <string>0</string>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer" >
-       <property name="orientation" >
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -45,27 +46,27 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5" >
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
-      <widget class="QLabel" name="label_8" >
-       <property name="text" >
-        <string>Destination path:</string>
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Location in repository:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_dst_path" >
-       <property name="toolTip" >
+      <widget class="QLineEdit" name="locationDirRelPath">
+       <property name="toolTip">
         <string>Path where to put the files in the repository.</string>
        </property>
-       <property name="readOnly" >
+       <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_select_dst_path" >
-       <property name="text" >
+      <widget class="QPushButton" name="buttonSelectLocationDirRelPath">
+       <property name="text">
         <string>Select</string>
        </property>
       </widget>
@@ -73,12 +74,12 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" >
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_fields" >
+      <layout class="QVBoxLayout" name="verticalLayout_fields">
        <item>
-        <widget class="QLabel" name="label_fields" >
-         <property name="text" >
+        <widget class="QLabel" name="label_fields">
+         <property name="text">
           <string>Fields:</string>
          </property>
         </widget>
@@ -86,10 +87,10 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_tags" >
+      <layout class="QVBoxLayout" name="verticalLayout_tags">
        <item>
-        <widget class="QLabel" name="label_tags" >
-         <property name="text" >
+        <widget class="QLabel" name="label_tags">
+         <property name="text">
           <string>Tags:</string>
          </property>
         </widget>
@@ -99,12 +100,12 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2" >
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_fields_add" >
+      <layout class="QVBoxLayout" name="verticalLayout_fields_add">
        <item>
-        <widget class="QLabel" name="label_9" >
-         <property name="text" >
+        <widget class="QLabel" name="label_9">
+         <property name="text">
           <string>Fields to add:</string>
          </property>
         </widget>
@@ -112,10 +113,10 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_tags_add" >
+      <layout class="QVBoxLayout" name="verticalLayout_tags_add">
        <item>
-        <widget class="QLabel" name="label_10" >
-         <property name="text" >
+        <widget class="QLabel" name="label_10">
+         <property name="text">
           <string>Tags to add:</string>
          </property>
         </widget>
@@ -125,12 +126,12 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3" >
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_fields_rm" >
+      <layout class="QVBoxLayout" name="verticalLayout_fields_rm">
        <item>
-        <widget class="QLabel" name="label_fields_rm" >
-         <property name="text" >
+        <widget class="QLabel" name="label_fields_rm">
+         <property name="text">
           <string>Field names to remove:</string>
          </property>
         </widget>
@@ -138,10 +139,10 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_tags_rm" >
+      <layout class="QVBoxLayout" name="verticalLayout_tags_rm">
        <item>
-        <widget class="QLabel" name="label_tags_rm" >
-         <property name="text" >
+        <widget class="QLabel" name="label_tags_rm">
+         <property name="text">
           <string>Tags to remove:</string>
          </property>
         </widget>
@@ -151,11 +152,11 @@
     </layout>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
@@ -170,11 +171,11 @@
    <receiver>ItemsDialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>248</x>
      <y>254</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -186,11 +187,11 @@
    <receiver>ItemsDialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>316</x>
      <y>260</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>

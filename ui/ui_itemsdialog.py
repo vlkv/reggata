@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemsdialog.ui'
 #
-# Created: Thu Jan 13 15:40:15 2011
+# Created: Sat Mar 31 15:25:42 2012
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -36,13 +36,13 @@ class Ui_ItemsDialog(object):
         self.label_8 = QtGui.QLabel(ItemsDialog)
         self.label_8.setObjectName(_fromUtf8("label_8"))
         self.horizontalLayout_5.addWidget(self.label_8)
-        self.lineEdit_dst_path = QtGui.QLineEdit(ItemsDialog)
-        self.lineEdit_dst_path.setReadOnly(True)
-        self.lineEdit_dst_path.setObjectName(_fromUtf8("lineEdit_dst_path"))
-        self.horizontalLayout_5.addWidget(self.lineEdit_dst_path)
-        self.pushButton_select_dst_path = QtGui.QPushButton(ItemsDialog)
-        self.pushButton_select_dst_path.setObjectName(_fromUtf8("pushButton_select_dst_path"))
-        self.horizontalLayout_5.addWidget(self.pushButton_select_dst_path)
+        self.locationDirRelPath = QtGui.QLineEdit(ItemsDialog)
+        self.locationDirRelPath.setReadOnly(True)
+        self.locationDirRelPath.setObjectName(_fromUtf8("locationDirRelPath"))
+        self.horizontalLayout_5.addWidget(self.locationDirRelPath)
+        self.buttonSelectLocationDirRelPath = QtGui.QPushButton(ItemsDialog)
+        self.buttonSelectLocationDirRelPath.setObjectName(_fromUtf8("buttonSelectLocationDirRelPath"))
+        self.horizontalLayout_5.addWidget(self.buttonSelectLocationDirRelPath)
         self.verticalLayout.addLayout(self.horizontalLayout_5)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
@@ -104,9 +104,9 @@ class Ui_ItemsDialog(object):
         ItemsDialog.setWindowTitle(QtGui.QApplication.translate("ItemsDialog", "ItemsDialog", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("ItemsDialog", "Number of items: ", None, QtGui.QApplication.UnicodeUTF8))
         self.label_num_of_items.setText(QtGui.QApplication.translate("ItemsDialog", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setText(QtGui.QApplication.translate("ItemsDialog", "Destination path:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_dst_path.setToolTip(QtGui.QApplication.translate("ItemsDialog", "Path where to put the files in the repository.", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_select_dst_path.setText(QtGui.QApplication.translate("ItemsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setText(QtGui.QApplication.translate("ItemsDialog", "Location in repository:", None, QtGui.QApplication.UnicodeUTF8))
+        self.locationDirRelPath.setToolTip(QtGui.QApplication.translate("ItemsDialog", "Path where to put the files in the repository.", None, QtGui.QApplication.UnicodeUTF8))
+        self.buttonSelectLocationDirRelPath.setText(QtGui.QApplication.translate("ItemsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
         self.label_fields.setText(QtGui.QApplication.translate("ItemsDialog", "Fields:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_tags.setText(QtGui.QApplication.translate("ItemsDialog", "Tags:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_9.setText(QtGui.QApplication.translate("ItemsDialog", "Fields to add:", None, QtGui.QApplication.UnicodeUTF8))
