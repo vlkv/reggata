@@ -786,7 +786,7 @@ class MainWindow(QtGui.QMainWindow):
                     items.append(item)
             
             completer = helpers.Completer(self.active_repo, self)
-            d = ItemsDialog(self, items, DialogMode.CREATE, same_dst_path=False, completer=completer)
+            d = ItemsDialog(self, items, ItemsDialog.CREATE_MODE, same_dst_path=False, completer=completer)
             if d.exec_():
                 
                 thread = CreateGroupIfItemsThread(self, self.active_repo, items)
@@ -838,7 +838,7 @@ class MainWindow(QtGui.QMainWindow):
             
             #Открываем диалог для ввода информации о тегах и полях
             completer = helpers.Completer(self.active_repo, self)
-            d = ItemsDialog(self, items, DialogMode.CREATE, completer=completer)
+            d = ItemsDialog(self, items, ItemsDialog.CREATE_MODE, completer=completer)
             if d.exec_():
                 
                 thread = CreateGroupIfItemsThread(self, self.active_repo, items)
@@ -1058,7 +1058,7 @@ class MainWindow(QtGui.QMainWindow):
                         id = self.model.items[row].id
                         sel_items.append(uow.get_item(id))
                     completer = helpers.Completer(self.active_repo, self)
-                    dlg = ItemsDialog(self, sel_items, DialogMode.EDIT, completer=completer)
+                    dlg = ItemsDialog(self, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
                     if dlg.exec_():
                         thread = UpdateGroupOfItemsThread(self, self.active_repo, sel_items)
                         self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))

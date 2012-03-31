@@ -4,17 +4,18 @@ Created on 30.11.2010
 
 @author: vlkv
 '''
+import os
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
+
 import ui_itemsdialog
-import os
 import helpers
-from exceptions import MsgException
-from helpers import is_internal, DialogMode, is_none_or_empty
+from helpers import is_internal, is_none_or_empty
 import parsers
 from db_schema import DataRef
+from exceptions import MsgException
 
-
+#TODO: Rename this class to some more meaningful name
 class CustomTextEdit(QtGui.QTextEdit):
     '''Немного модифицированный QTextEdit, который отображает весь вводимый 
     пользователем текст выделяющимся шрифтом (вне зависимости от текущего 
@@ -37,20 +38,13 @@ class CustomTextEdit(QtGui.QTextEdit):
 
 class ItemsDialog(QtGui.QDialog):
     '''
-    Диалог для выполнения операций над группой элементов. Очень удобно, если у 
-    пользователя будет возможность добавлять элементы в хранилище группами
-    (при этом ко всем добавляемым элементам привязывается одинаковый набор тегов
-    и полей-значений), а также
-    редактировать их (операции с тегами/полями и с физическим расположением файлов) 
-    группами.
+    This dialog is for create/edit a group of repository Items.
     '''
-    
-    
 
-    
-    
+    CREATE_MODE = "CREATE_MODE"
+    EDIT_MODE = "EDIT_MODE"
 
-    def __init__(self, parent=None, items=[], mode=DialogMode.EDIT, same_dst_path=True, completer=None):
+    def __init__(self, parent=None, items=[], mode=EDIT_MODE, same_dst_path=True, completer=None):
         super(ItemsDialog, self).__init__(parent)
         self.ui = ui_itemsdialog.Ui_ItemsDialog()
         self.ui.setupUi(self)
@@ -99,7 +93,7 @@ class ItemsDialog(QtGui.QDialog):
         
     
     def set_dialog_mode(self, mode):
-        if mode == DialogMode.CREATE:
+        if mode == ItemsDialog.CREATE_MODE:
             self.ui.label_tags.setVisible(False)
             self.ui.textEdit_tags.setVisible(False)
             
@@ -111,7 +105,7 @@ class ItemsDialog(QtGui.QDialog):
             
             self.ui.label_fields_rm.setVisible(False)
             self.ui.plainTextEdit_fields_rm.setVisible(False)
-        elif mode == DialogMode.EDIT:
+        elif mode == ItemsDialog.EDIT_MODE:
             pass
         else:
             raise ValueError(self.tr("ItemsDialog does not support DialogMode = {}.").format(mode))
@@ -122,13 +116,13 @@ class ItemsDialog(QtGui.QDialog):
         #Если пользователь выберет другую директорию назначения, то мы ее 
         #сохраняем в поле DataRef.dst_path (это будет только имя директории!!!)
         
-        if self.mode == DialogMode.EDIT and self.group_has_files and not is_none_or_empty(self.dst_path):
+        if self.mode == ItemsDialog.EDIT_MODE and self.group_has_files and not is_none_or_empty(self.dst_path):
             for item in self.items:
                 if item.data_ref and item.data_ref.type != DataRef.FILE:
                     continue
                 item.data_ref.dst_path = self.dst_path
         
-        elif self.mode == DialogMode.CREATE:
+        elif self.mode == ItemsDialog.CREATE_MODE:
             for item in self.items:
                 if item.data_ref and item.data_ref.type != DataRef.FILE:
                     continue                
@@ -214,7 +208,7 @@ class ItemsDialog(QtGui.QDialog):
         if not (len(self.items) > 1):
             return
     
-        if self.mode == DialogMode.EDIT:
+        if self.mode == ItemsDialog.EDIT_MODE:
         
             tags_str = ""
             seen_tags = set()
@@ -299,14 +293,14 @@ class ItemsDialog(QtGui.QDialog):
                 self.group_has_files = True
                 self.ui.lineEdit_dst_path.setText(self.tr('<different values>'))
                 
-        elif self.mode == DialogMode.CREATE:
+        elif self.mode == ItemsDialog.CREATE_MODE:
             pass
             
                 
         
     def select_dst_path(self):
         try:
-            if self.mode == DialogMode.EDIT and not self.group_has_files:
+            if self.mode == ItemsDialog.EDIT_MODE and not self.group_has_files:
                 raise MsgException(self.tr("Selected group of items doesn't reference any physical files on filesysem."))
             
             dir = QtGui.QFileDialog.getExistingDirectory(self, 
