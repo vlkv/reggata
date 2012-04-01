@@ -101,6 +101,7 @@ class ItemDialog(QtGui.QDialog):
             if self.mode == ItemDialog.EDIT_MODE or self.mode == ItemDialog.VIEW_MODE:
                 #Make a relative path to the directory where DataRef file is located
                 locationDirRelPath = os.path.dirname(self.item.data_ref.url)
+                locationDirRelPath = "." if locationDirRelPath.strip() == "" else locationDirRelPath 
             self.ui.fileLocationDirRelPath.setText(locationDirRelPath)
             
         
