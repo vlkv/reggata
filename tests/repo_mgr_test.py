@@ -11,14 +11,14 @@ import helpers
 
 class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):
     def test_getExistingItem(self):
-        item = self.uow.get_item(existingAliveItem.id)
+        item = self.uow.getExpungedItem(existingAliveItem.id)
         self.assertEqual(item.title, existingAliveItem.title)
         
     def test_getNonExistingItem(self):
-        self.assertRaises(NotFoundError, self.uow.get_item, (nonExistingItem.id))
+        self.assertRaises(NotFoundError, self.uow.getExpungedItem, (nonExistingItem.id))
         
     def test_passBadIdToGetItem(self):
-        self.assertRaises(NotFoundError, self.uow.get_item, ("This str is NOT a valid item id!"))
+        self.assertRaises(NotFoundError, self.uow.getExpungedItem, ("This str is NOT a valid item id!"))
 
 
 class SaveNewItemTest(AbstractTestCaseWithRepo):
@@ -34,7 +34,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             
         try:
             uow = self.repo.create_unit_of_work()
-            savedItem = uow.get_item(self.savedItemId)
+            savedItem = uow.getExpungedItem(self.savedItemId)
             self.assertEqual(savedItem.title, item.title)
             
             histRec = UnitOfWork._find_item_latest_history_rec(uow.session, savedItem)
@@ -87,7 +87,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             
         try:
             uow = self.repo.create_unit_of_work()
-            savedItem = uow.get_item(self.savedItemId)
+            savedItem = uow.getExpungedItem(self.savedItemId)
             self.assertEqual(savedItem.title, item.title)
             
             self.assertIsNotNone(savedItem.data_ref)
@@ -124,7 +124,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             
         try:
             uow = self.repo.create_unit_of_work()
-            savedItem = uow.get_item(self.savedItemId)
+            savedItem = uow.getExpungedItem(self.savedItemId)
             self.assertEqual(savedItem.title, item.title)
             
             self.assertIsNotNone(savedItem.data_ref)
@@ -159,7 +159,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             
         try:
             uow = self.repo.create_unit_of_work()
-            savedItem = uow.get_item(self.savedItemId)
+            savedItem = uow.getExpungedItem(self.savedItemId)
             self.assertEqual(savedItem.title, item.title)
             
             self.assertIsNotNone(savedItem.data_ref)
@@ -184,7 +184,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
         userThatDeletesItem = existingAliveItem.ownerUserLogin
         try:
             uow = self.repo.create_unit_of_work()
-            itemBeforeDelete = uow.get_item(existingAliveItem.id)
+            itemBeforeDelete = uow.getExpungedItem(existingAliveItem.id)
             uow.deleteItem(existingAliveItem.id, 
                         userThatDeletesItem, 
                         delete_physical_file=True)
@@ -193,7 +193,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
         
         try:
             uow = self.repo.create_unit_of_work()
-            deletedItem = uow.get_item(existingAliveItem.id)
+            deletedItem = uow.getExpungedItem(existingAliveItem.id)
             self.assertFalse(deletedItem.alive)
             self.assertIsNone(deletedItem.data_ref)
             

@@ -1058,7 +1058,7 @@ class MainWindow(QtGui.QMainWindow):
                         #Выполняется отдельный SQL запрос (и не один...) для каждого из выбранных элементов
                         #Потом надо бы исправить (хотя бы теги/поля/датарефы извлекать по join-стратегии
                         id = self.model.items[row].id
-                        sel_items.append(uow.get_item(id))
+                        sel_items.append(uow.getExpungedItem(id))
                     completer = helpers.Completer(self.active_repo, self)
                     dlg = ItemsDialog(self, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
                     if dlg.exec_():
@@ -1083,7 +1083,7 @@ class MainWindow(QtGui.QMainWindow):
                 item_id = self.model.items[rows.pop()].id
                 uow = self.active_repo.create_unit_of_work()
                 try:
-                    item = uow.get_item(item_id)
+                    item = uow.getExpungedItem(item_id)
                     completer = helpers.Completer(self.active_repo, self)
                     item_dialog = ItemDialog(self, item, ItemDialog.EDIT_MODE, completer=completer)
                     if item_dialog.exec_():

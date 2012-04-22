@@ -310,9 +310,8 @@ class UnitOfWork(object):
                 
         return finfo
     
-    #TODO: Remane into getExpungedItem or getDetachedItem
-    def get_item(self, id):
-        '''Возвращает detached-объект класса Item, с заданным значением id. '''
+    def getExpungedItem(self, id):
+        '''Returns expunged (detached) object of Item class from database with given id.'''
         item = self._session.query(Item)\
             .options(joinedload_all('data_ref'))\
             .options(joinedload_all('item_tags.tag'))\

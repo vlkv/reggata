@@ -20,9 +20,9 @@ class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):
         
         try:
             uow = self.repo.create_unit_of_work()
-            self.assertFalse(uow.get_item(1).alive)
-            self.assertFalse(uow.get_item(2).alive)
-            self.assertFalse(uow.get_item(3).alive)
+            self.assertFalse(uow.getExpungedItem(1).alive)
+            self.assertFalse(uow.getExpungedItem(2).alive)
+            self.assertFalse(uow.getExpungedItem(3).alive)
         finally:
             uow.close()
         
