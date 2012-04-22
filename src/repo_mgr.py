@@ -844,78 +844,65 @@ class UnitOfWork(object):
         _prepare_data_ref_url(data_ref)
     
     def delete_item(self, item_id, user_login, delete_physical_file=True):
+        # We should not delete Item objects from database, because
+        # we do not want hanging references in HistoryRec table.
+        # So we just mark Items as deleted. 
         
-        #При удалении элемента Item, в таблице HistoryRec
-        #остаются висячие ссылки! Поэтому нужно не удалять Item, а только помечать его как удаленный.
-        #чтобы значение Item.id оставалось занятым. 
+        # DataRef objects are deleted from database, if there are no references to it from other alive Items.
         
-        #TODO Если user_login является админом, то ему можно удалять любые файлы
+        # TODO: Make admin users to be able to delete any files, owned by anybody.
         
         item = self._session.query(Item).get(item_id)
         if item.user_login != user_login:
-            raise AccessError(tr("Cannot delete item id={0} because it is owned by another user {1}.").format(item_id, item.user_login))
+            raise AccessError(tr("Cannot delete item id={0} because it is owned by another user {1}.")
+                              .format(item_id, item.user_login))
         
         if item.has_tags_except_of(user_login):
-            raise AccessError(tr("Cannot delete item id={0} because another user tagged it.").format(item_id))
+            raise AccessError(tr("Cannot delete item id={0} because another user tagged it.")
+                              .format(item_id))
         
         if item.has_fields_except_of(user_login):
-            raise AccessError(tr("Cannot delete item id={0} because another user attached a field to it.").format(item_id))
+            raise AccessError(tr("Cannot delete item id={0} because another user attached a field to it.")
+                              .format(item_id))
         
-        
-        #Нужно взять из истории запись, соответствующую состоянию удаляемого объекта item
-        parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, item)
-        #Если parent_hr равен None, то сохранять информацию об удалении может не надо?            
+        parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, item)            
         if parent_hr is None:
-            #Лучше выкинуть исключение
-            raise Exception(tr("Cannot find corresponding history record for item id={0}.").format(item.id))
+            raise Exception(tr("Cannot find corresponding history record for item id={0}.")
+                            .format(item.id))
         
-        #Запоминаем объект
         data_ref = item.data_ref
-        
-        #Сохраняем в историю запись о совершенной операции (если что не так, то rollback откатит все назад)
+
         UnitOfWork._save_history_rec(self._session, item, user_login, HistoryRec.DELETE, parent_hr.id)
         
-        #Отвязываем элемент от data_ref-объекта (потому, что data_ref объект возможно надо будет удалить) 
-        #и помечаем элемент как удаленный
         item.data_ref = None
         item.data_ref_id = None
         item.alive = False
         self._session.flush()
-        #Все связанные ItemTag и ItemField объекты тоже остаются в базе
+        #All bounded ItemTag and ItemField objects stays in database with the Item 
         
-        #Если сохранять запись в историю операций тут, то не сохраняется путь и хеш файла!!!
+        #If data_ref is not referenced by other Items, we delete it
         
-        #Если на data_ref больше нет ссылок, то его будем удалять
-        
-        #Пытаться удалять data_ref нужно только если он имеется
         delete_data_ref = data_ref is not None
         
-        #Нужно узнать, принадлежит ли data_ref пользователю user_login
-        #Если нет, то удалять data_ref нельзя
+        #We should not delete DataRef if it is owned by another user
         if delete_data_ref and data_ref.user_login != user_login:
             delete_data_ref = False
             
         if delete_data_ref:
-            #Нужно узнать, есть ли другие элементы, которые ссылаются на данный data_ref
-            #Если есть, то data_ref и файл удалять нельзя
             another_item = self._session.query(Item).filter(Item.data_ref==data_ref).first()
             if another_item:
                 delete_data_ref = False
         
         if delete_data_ref:
-            #Запоминаем кое-что
-            is_file = data_ref.type == DataRef.FILE
+            is_file = (data_ref.type == DataRef.FILE)
             abs_path = os.path.join(self._repo_base_path, data_ref.url)
             
-            #Удаляем data_ref из БД
             self._session.delete(data_ref)
             self._session.flush()
             
-            #Теперь пробуем удалить физический файл
             if is_file and delete_physical_file and os.path.exists(abs_path):
                 os.remove(abs_path)
 
-        #Если все получилось --- завершаем транзакцию                
         self._session.commit()
         
         
