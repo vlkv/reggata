@@ -185,7 +185,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
         try:
             uow = self.repo.create_unit_of_work()
             itemBeforeDelete = uow.get_item(existingAliveItem.id)
-            uow.delete_item(existingAliveItem.id, 
+            uow.deleteItem(existingAliveItem.id, 
                         userThatDeletesItem, 
                         delete_physical_file=True)
         finally:

@@ -306,7 +306,7 @@ class DeleteGroupOfItemsThread(QtCore.QThread):
             for id in self.item_ids:
                 #Удаляем каждый item по одному
                 try:
-                    uow.delete_item(id, self.user_login)
+                    uow.deleteItem(id, self.user_login)
                 except AccessError as ex:
                     #У пользователя self.user_login нет прав удалять данный элемент
                     self.errors += 1

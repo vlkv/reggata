@@ -843,7 +843,7 @@ class UnitOfWork(object):
         #Делаем путь относительным, относительно корня хранилища
         _prepare_data_ref_url(data_ref)
     
-    def delete_item(self, item_id, user_login, delete_physical_file=True):
+    def deleteItem(self, item_id, user_login, delete_physical_file=True):
         # We should not delete Item objects from database, because
         # we do not want hanging references in HistoryRec table.
         # So we just mark Items as deleted. 
