@@ -180,7 +180,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="">
+    <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Data Reference</string>
      </property>
@@ -238,7 +238,7 @@
         <item>
          <widget class="QPushButton" name="pushButtonMoveFile">
           <property name="toolTip">
-           <string>Move Data Reference File to another location in the same repository.</string>
+           <string>Move referenced File to another location in the same repository.</string>
           </property>
           <property name="text">
            <string>Move File</string>
@@ -274,6 +274,7 @@
     </widget>
    </item>
   </layout>
+  <zorder>groupBox</zorder>
   <zorder>buttonBox</zorder>
   <zorder></zorder>
   <zorder></zorder>
