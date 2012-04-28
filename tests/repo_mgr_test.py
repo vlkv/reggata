@@ -221,7 +221,6 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
 class UpdateItemTest(AbstractTestCaseWithRepo):
     
     def test_updateItemTitleByOwner(self):
-        
         #Get an item from repo
         try:
             uow = self.repo.create_unit_of_work()
@@ -229,6 +228,16 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
             self.assertEqual(item.title, existingAliveItem.title)
         finally:
             uow.close()
+            
+        #Get item's the latest historyRec before the change
+        historyRecBefore = None
+        try:
+            uow = self.repo.create_unit_of_work()
+            historyRecBefore = UnitOfWork._find_item_latest_history_rec(uow.session, item)
+            self.assertIsNotNone(historyRecBefore)
+        finally:
+            uow.close()
+         
             
         #Change item's title
         newItemTitle = "ABCDEF"
@@ -250,7 +259,26 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         finally:
             uow.close()
     
+    
+        #Get item's the latest historyRec after the change
+        historyRecAfter = None
+        try:
+            uow = self.repo.create_unit_of_work()
+            historyRecAfter = UnitOfWork._find_item_latest_history_rec(uow.session, item)
+            self.assertIsNotNone(historyRecAfter)
+        finally:
+            uow.close()
 
+        self.assertNotEqual(historyRecBefore.item_hash, historyRecAfter.item_hash)
+        self.assertEqual(historyRecBefore.item_id, historyRecAfter.item_id)
+        self.assertEqual(historyRecBefore.item_id, item.id)
+        self.assertEqual(historyRecBefore.data_ref_hash, historyRecAfter.data_ref_hash)
+        self.assertEqual(historyRecBefore.data_ref_url, historyRecAfter.data_ref_url)
+        self.assertEqual(historyRecAfter.parent1_id, historyRecBefore.id)
+        self.assertGreater(historyRecAfter.id, historyRecBefore.id)
+        self.assertIsNone(historyRecAfter.parent2_id)
+        self.assertEqual(historyRecAfter.operation, "UPDATE")
+        self.assertEqual(historyRecAfter.user_login, "user")
 
 
 
