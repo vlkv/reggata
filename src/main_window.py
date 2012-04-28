@@ -71,7 +71,6 @@ class MainWindow(QtGui.QMainWindow):
         #Table model for items table
         self.model = None
         
-        #Это замок, который нужен для синхронизации доступа к списку элементов (результатов поиска)
         self.items_lock = QtCore.QReadWriteLock()
         
         self.menu = self.create_items_table_context_menu()
@@ -80,8 +79,10 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.dockWidget_items_table = ItemsTableDockWidget(self)
         self.ui.dockWidget_items_table.addContextMenu(self.menu)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_items_table)
-        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("query_exec"), self.query_exec)
-        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("query_reset"), self.query_reset)
+        self.connect(self.ui.dockWidget_items_table, 
+                     QtCore.SIGNAL("query_exec"), self.query_exec)
+        self.connect(self.ui.dockWidget_items_table, 
+                     QtCore.SIGNAL("query_reset"), self.query_reset)
         
                 
         self.connect_menu_actions()
@@ -97,8 +98,12 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(None)
         
         #Items table
-        self.connect(self.ui.action_tools_items_table, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_items_table.setVisible(b))
-        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_items_table.setChecked(b))
+        self.connect(self.ui.action_tools_items_table, 
+                     QtCore.SIGNAL("triggered(bool)"), 
+                     lambda b: self.ui.dockWidget_items_table.setVisible(b))
+        self.connect(self.ui.dockWidget_items_table, 
+                     QtCore.SIGNAL("visibilityChanged(bool)"), 
+                     lambda b: self.ui.action_tools_items_table.setChecked(b))
 
         
         #Adding tag cloud
@@ -107,9 +112,15 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.dockWidget_tag_cloud.setObjectName("dockWidget_tag_cloud")
         self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
-        self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), self.ui.dockWidget_items_table.selected_tags_changed)
-        self.connect(self.ui.action_tools_tag_cloud, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_tag_cloud.setVisible(b))
-        self.connect(self.ui.dockWidget_tag_cloud, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
+        self.connect(self.ui.tag_cloud, 
+                     QtCore.SIGNAL("selectedTagsChanged"), 
+                     self.ui.dockWidget_items_table.selected_tags_changed)
+        self.connect(self.ui.action_tools_tag_cloud, 
+                     QtCore.SIGNAL("triggered(bool)"), 
+                     lambda b: self.ui.dockWidget_tag_cloud.setVisible(b))
+        self.connect(self.ui.dockWidget_tag_cloud, 
+                     QtCore.SIGNAL("visibilityChanged(bool)"), 
+                     lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
                 
         #Adding file browser
         self.ui.file_browser = FileBrowser(self)
@@ -117,8 +128,12 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.dockWidget_file_browser.setObjectName("dockWidget_file_browser")
         self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)        
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.ui.dockWidget_file_browser)
-        self.connect(self.ui.action_tools_file_browser, QtCore.SIGNAL("triggered(bool)"), lambda b: self.ui.dockWidget_file_browser.setVisible(b))
-        self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b: self.ui.action_tools_file_browser.setChecked(b))
+        self.connect(self.ui.action_tools_file_browser, 
+                     QtCore.SIGNAL("triggered(bool)"), 
+                     lambda b: self.ui.dockWidget_file_browser.setVisible(b))
+        self.connect(self.ui.dockWidget_file_browser, 
+                     QtCore.SIGNAL("visibilityChanged(bool)"), 
+                     lambda b: self.ui.action_tools_file_browser.setChecked(b))
         
         self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.dockWidget_items_table)        
         
@@ -155,42 +170,68 @@ class MainWindow(QtGui.QMainWindow):
 
     def connect_menu_actions(self):
         #MENU: Repository
-        self.connect(self.ui.action_repo_create, QtCore.SIGNAL("triggered()"), self.action_repo_create)
-        self.connect(self.ui.action_repo_close, QtCore.SIGNAL("triggered()"), self.action_repo_close)
-        self.connect(self.ui.action_repo_open, QtCore.SIGNAL("triggered()"), self.action_repo_open)
+        self.connect(self.ui.action_repo_create, 
+                     QtCore.SIGNAL("triggered()"), self.action_repo_create)
+        self.connect(self.ui.action_repo_close, 
+                     QtCore.SIGNAL("triggered()"), self.action_repo_close)
+        self.connect(self.ui.action_repo_open, 
+                     QtCore.SIGNAL("triggered()"), self.action_repo_open)
         
         #MENU: User
-        self.connect(self.ui.action_user_create, QtCore.SIGNAL("triggered()"), self.action_user_create)
-        self.connect(self.ui.action_user_login, QtCore.SIGNAL("triggered()"), self.action_user_login)
-        self.connect(self.ui.action_user_logout, QtCore.SIGNAL("triggered()"), self.action_user_logout)
-        self.connect(self.ui.action_user_change_pass, QtCore.SIGNAL("triggered()"), self.action_user_change_pass)
+        self.connect(self.ui.action_user_create, 
+                     QtCore.SIGNAL("triggered()"), self.action_user_create)
+        self.connect(self.ui.action_user_login, 
+                     QtCore.SIGNAL("triggered()"), self.action_user_login)
+        self.connect(self.ui.action_user_logout, 
+                     QtCore.SIGNAL("triggered()"), self.action_user_logout)
+        self.connect(self.ui.action_user_change_pass, 
+                     QtCore.SIGNAL("triggered()"), self.action_user_change_pass)
         
         #MENU: Item
-        self.connect(self.ui.action_item_add, QtCore.SIGNAL("triggered()"), self.action_item_add)
-        self.connect(self.ui.action_item_add_many, QtCore.SIGNAL("triggered()"), self.action_item_add_many)
-        self.connect(self.ui.action_item_add_many_rec, QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
+        self.connect(self.ui.action_item_add, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_add)
+        self.connect(self.ui.action_item_add_many, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_add_many)
+        self.connect(self.ui.action_item_add_many_rec, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
         #SEPARATOR
-        self.connect(self.ui.action_item_edit, QtCore.SIGNAL("triggered()"), self.action_item_edit)
-        self.connect(self.ui.action_item_rebuild_thumbnail, QtCore.SIGNAL("triggered()"), self.action_item_rebuild_thumbnail)
+        self.connect(self.ui.action_item_edit, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_edit)
+        self.connect(self.ui.action_item_rebuild_thumbnail, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_rebuild_thumbnail)
         #SEPARATOR
-        self.connect(self.ui.action_item_delete, QtCore.SIGNAL("triggered()"), self.action_item_delete)
+        self.connect(self.ui.action_item_delete, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_delete)
         #SEPARATOR
-        self.connect(self.ui.action_item_view, QtCore.SIGNAL("triggered()"), self.action_item_view)
-        self.connect(self.ui.action_item_view_image_viewer, QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
-        self.connect(self.ui.action_item_view_m3u, QtCore.SIGNAL("triggered()"), self.action_item_view_m3u)
-        self.connect(self.ui.action_item_to_external_filemanager, QtCore.SIGNAL("triggered()"), self.action_item_to_external_filemanager)
-        self.connect(self.ui.action_export_selected_items, QtCore.SIGNAL("triggered()"), self.action_export_selected_items)
-        self.connect(self.ui.action_export_items_file_paths, QtCore.SIGNAL("triggered()"), self.action_export_items_file_paths)
+        self.connect(self.ui.action_item_view, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_view)
+        self.connect(self.ui.action_item_view_image_viewer, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
+        self.connect(self.ui.action_item_view_m3u, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_view_m3u)
+        self.connect(self.ui.action_item_to_external_filemanager, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_to_external_filemanager)
+        self.connect(self.ui.action_export_selected_items, 
+                     QtCore.SIGNAL("triggered()"), self.action_export_selected_items)
+        self.connect(self.ui.action_export_items_file_paths, 
+                     QtCore.SIGNAL("triggered()"), self.action_export_items_file_paths)
         #SEPARATOR
-        self.connect(self.ui.action_item_check_integrity, QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
-        self.connect(self.ui.action_item_fix_hash_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
-        self.connect(self.ui.action_item_update_file_hash, QtCore.SIGNAL("triggered()"), self.action_item_update_file_hash)
-        self.connect(self.ui.action_item_fix_history_rec_error, QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
-        self.connect(self.ui.action_fix_file_not_found_try_find, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find)
-        self.connect(self.ui.action_fix_file_not_found_delete, QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
+        self.connect(self.ui.action_item_check_integrity, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
+        self.connect(self.ui.action_item_fix_hash_error, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
+        self.connect(self.ui.action_item_update_file_hash, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_update_file_hash)
+        self.connect(self.ui.action_item_fix_history_rec_error, 
+                     QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
+        self.connect(self.ui.action_fix_file_not_found_try_find, 
+                     QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find)
+        self.connect(self.ui.action_fix_file_not_found_delete, 
+                     QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
         
         #MENU: Help
-        self.connect(self.ui.action_help_about, QtCore.SIGNAL("triggered()"), self.action_help_about)
+        self.connect(self.ui.action_help_about, 
+                     QtCore.SIGNAL("triggered()"), self.action_help_about)
                         
 
     def create_items_table_context_menu(self):
@@ -230,11 +271,16 @@ class MainWindow(QtGui.QMainWindow):
     
     
     def restore_file_browser_state(self):
-        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.FILENAME, int(UserConfig().get("file_browser.FILENAME.width", 450)))
-        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.TAGS, int(UserConfig().get("file_browser.TAGS.width", 280)))
-        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.USERS, int(UserConfig().get("file_browser.USERS.width", 100)))
-        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.STATUS, int(UserConfig().get("file_browser.STATUS.width", 100)))
-        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.RATING, int(UserConfig().get("file_browser.RATING.width", 100)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.FILENAME, 
+                                            int(UserConfig().get("file_browser.FILENAME.width", 450)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.TAGS, 
+                                            int(UserConfig().get("file_browser.TAGS.width", 280)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.USERS, 
+                                            int(UserConfig().get("file_browser.USERS.width", 100)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.STATUS, 
+                                            int(UserConfig().get("file_browser.STATUS.width", 100)))
+        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.RATING, 
+                                            int(UserConfig().get("file_browser.RATING.width", 100)))
 
 
     def save_file_browser_state(self):
@@ -291,16 +337,11 @@ class MainWindow(QtGui.QMainWindow):
         
     
     def _login_recent_user(self):
-        '''Функция пробует выполнить вход в текущее хранилище под логином/паролем последнего юзера.
-        Если что не так, данная функция выкидывает исключение.'''
-        
         if self.active_repo is None:
             raise MsgException(self.tr("You cannot login because there is no opened repo."))
         
         login = UserConfig().get("recent_user.login")
         password = UserConfig().get("recent_user.password")
-        #login и password могут оказаться равны None (если не найдены). 
-        #Это значит, что uow.login_user() выкинет LoginError
         
         uow = self.active_repo.create_unit_of_work()
         try:
@@ -313,7 +354,6 @@ class MainWindow(QtGui.QMainWindow):
         if type(user) != User and user is not None:
             raise TypeError(self.tr("Argument must be an instance of User class."))
         
-        #Убираем из облака старый логин
         if self.__active_user is not None:
             self.ui.tag_cloud.remove_user(self.__active_user.login)            
         
@@ -321,7 +361,6 @@ class MainWindow(QtGui.QMainWindow):
         
         
         if user is not None:
-            #Добавляем в облако новый логин
             self.ui.tag_cloud.add_user(user.login)
         
             #Tell to table model that current active user has changed
@@ -330,7 +369,6 @@ class MainWindow(QtGui.QMainWindow):
         
             self.ui.label_user.setText("<b>" + user.login + "</b>")
             
-            #Запоминаем пользователя
             UserConfig().storeAll({"recent_user.login":user.login, "recent_user.password":user.password})
             
             self.ui.file_browser.model().user_login = user.login
@@ -342,7 +380,9 @@ class MainWindow(QtGui.QMainWindow):
     def _get_active_user(self):
         return self.__active_user
     
-    active_user = property(_get_active_user, _set_active_user, doc="Текущий пользователь, который выполнил вход в хранилище.")
+    active_user = property(_get_active_user, 
+                           _set_active_user, 
+                           doc="Active user is a user after sucessfull login.")
     
     
     def _set_active_repo(self, repo):
@@ -352,25 +392,22 @@ class MainWindow(QtGui.QMainWindow):
         try:
             self.__active_repo = repo
             
-            #Передаем новое хранилище виджету "облако тегов"
             self.ui.tag_cloud.repo = repo
             
             if repo is not None:
-                #Запоминаем путь к хранилищу
                 UserConfig().store("recent_repo.base_path", repo.base_path)
                     
-                #Отображаем в статус-баре имя хранилища
-                #Если путь оканчивается на os.sep то os.path.split() возвращает ""
                 (head, tail) = os.path.split(repo.base_path)
                 while tail == "" and head != "":
                     (head, tail) = os.path.split(head)
                 self.ui.label_repo.setText("<b>" + tail + "</b>")
                 
-                #Выводим сообщение
-                self.ui.statusbar.showMessage(self.tr("Opened repository from {}.").format(repo.base_path), 5000)
+                self.ui.statusbar.showMessage(self.tr("Opened repository from {}.")
+                                              .format(repo.base_path), 5000)
                 
-                #Строим новую модель для таблицы
-                self.model = RepoItemTableModel(repo, self.items_lock, self.active_user.login if self.active_user is not None else None)
+                self.model = RepoItemTableModel(
+                    repo, self.items_lock, 
+                    self.active_user.login if self.active_user is not None else None)
                 self.ui.dockWidget_items_table.setTableModel(self.model)                
                 
                 self.ui.file_browser.repo = repo         
@@ -400,12 +437,15 @@ class MainWindow(QtGui.QMainWindow):
     def _get_active_repo(self):
         return self.__active_repo
     
-    active_repo = property(_get_active_repo, _set_active_repo, doc="Текущее открытое хранилище.")
+    active_repo = property(_get_active_repo, 
+                           _set_active_repo, 
+                           doc="Repo that has been opened.")
         
         
     def action_repo_create(self):
         try:
-            base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a base path for new repository"))
+            base_path = QtGui.QFileDialog.getExistingDirectory(
+                self, self.tr("Choose a base path for new repository"))
             if not base_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
@@ -424,7 +464,7 @@ class MainWindow(QtGui.QMainWindow):
         try:
             if self.active_repo is None:
                 raise MsgException(self.tr("There is no opened repository."))
-            self.active_repo = None #Сборщик мусора и деструктор сделают свое дело
+            self.active_repo = None
             self.active_user = None
         except Exception as ex:
             show_exc_info(self, ex)
@@ -446,7 +486,6 @@ class MainWindow(QtGui.QMainWindow):
             
         
         except LoginError:
-            #Отображаем диалог ввода логина/пароля (с возможностью отмены или создания нового юзера)
             ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
             if ud.exec_():
                 uow = self.active_repo.create_unit_of_work()
@@ -474,12 +513,10 @@ class MainWindow(QtGui.QMainWindow):
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            #TODO Нужно сделать свой диалог, содержащий checkbox "Удалить связанные физические файлы"
             mb = QtGui.QMessageBox()
             mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(rows)))
             mb.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if mb.exec_() == QtGui.QMessageBox.Yes:
-                #Получаем id всех объектов, которые будем удалять
                 item_ids = []
                 for row in rows:
                     item_ids.append(self.model.items[row].id)
@@ -610,15 +647,17 @@ class MainWindow(QtGui.QMainWindow):
             
             items = []
             for row in rows:
-                #Нужно в элементе сохранить номер строки таблицы, откуда взят элемент
                 self.model.items[row].table_row = row
                 items.append(self.model.items[row])
                         
             thread = ItemIntegrityFixerThread(self, self.active_repo, items, self.items_lock, strategy, self.active_user.login)
             
-            self.connect(thread, QtCore.SIGNAL("exception"), lambda exc_info: show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
-            self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Integrity fixing is done.")))
-            self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
+            self.connect(thread, QtCore.SIGNAL("exception"), 
+                         lambda exc_info: show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
+            self.connect(thread, QtCore.SIGNAL("finished"), 
+                         lambda: self.ui.statusbar.showMessage(self.tr("Integrity fixing is done.")))
+            self.connect(thread, QtCore.SIGNAL("progress"), 
+                         lambda percents, row: refresh(percents, row))
             thread.start()
             
         except Exception as ex:
@@ -647,14 +686,16 @@ class MainWindow(QtGui.QMainWindow):
             
             items = []
             for row in rows:
-                #Нужно в элементе сохранить номер строки таблицы, откуда взят элемент
                 self.model.items[row].table_row = row
                 items.append(self.model.items[row])
              
             thread = ItemIntegrityCheckerThread(self, self.active_repo, items, self.items_lock)
-            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
-            self.connect(thread, QtCore.SIGNAL("finished"), lambda error_count: self.ui.statusbar.showMessage(self.tr("Integrity check is done. {0} Items with errors.").format(error_count)))            
-            self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
+            self.connect(thread, QtCore.SIGNAL("exception"), 
+                         lambda msg: raise_exc(msg))
+            self.connect(thread, QtCore.SIGNAL("finished"), 
+                         lambda error_count: self.ui.statusbar.showMessage(self.tr("Integrity check is done. {0} Items with errors.").format(error_count)))            
+            self.connect(thread, QtCore.SIGNAL("progress"), 
+                         lambda percents, row: refresh(percents, row))
             thread.start()
             
         except Exception as ex:
@@ -672,7 +713,8 @@ class MainWindow(QtGui.QMainWindow):
             if len(item_ids) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            export_dir_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a directory path to export files into."))
+            export_dir_path = QtGui.QFileDialog.getExistingDirectory(
+                self, self.tr("Choose a directory path to export files into."))
             if not export_dir_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
@@ -740,7 +782,8 @@ class MainWindow(QtGui.QMainWindow):
             m3u_filename = str(os.getpid()) + self.active_user.login + str(time.time()) + ".m3u"
             m3u_file = open(os.path.join(tmp_dir, m3u_filename), "wt")
             for row in rows:
-                m3u_file.write(os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url) + os.linesep)                                            
+                m3u_file.write(os.path.join(self.active_repo.base_path, 
+                                            self.model.items[row].data_ref.url) + os.linesep)                                            
             m3u_file.close()
             
             eam = ExtAppMgr()
@@ -753,13 +796,8 @@ class MainWindow(QtGui.QMainWindow):
 
 
     def action_item_add_many_rec(self):
-        '''Добавление всех файлов, содержащихся в одной директории, в виде 
-        отдельных элементов в хранилище. При этом ко всем добавляемым
-        файлам привязываются одинаковые теги и поля. 
-        Расположение файлов в хранилище будет соответствовать их расположению в 
-        исходной директории.
-        Название title каждого элемента будет совпадать с
-        именем добавляемого файла.'''
+        ''' Add many items recursively from given directory to the repo.
+        '''
         thread = None
         try:
             if self.active_repo is None:
@@ -813,10 +851,7 @@ class MainWindow(QtGui.QMainWindow):
             
         
     def action_item_add_many(self):
-        '''Добавление нескольких элементов в хранилище. При этом ко всем добавляемым
-        файлам привязываются одинаковые теги и поля. И они копируются в одну и ту 
-        же директорию хранилища. Название title каждого элемента будет совпадать с
-        именем добавляемого файла.'''
+        '''Add many Items to the repo.'''
         thread = None
         try:
             if self.active_repo is None:
@@ -838,7 +873,6 @@ class MainWindow(QtGui.QMainWindow):
                 item.data_ref.srcAbsPath = file
                 items.append(item)
             
-            #Открываем диалог для ввода информации о тегах и полях
             completer = helpers.Completer(self.active_repo, self)
             d = ItemsDialog(self, items, ItemsDialog.CREATE_MODE, completer=completer)
             if d.exec_():
@@ -927,7 +961,6 @@ class MainWindow(QtGui.QMainWindow):
                 try:
                     uow.save_new_user(u.user)
                     
-                    #Выполняем "вход" под новым юзером
                     self.active_user = u.user                    
                 finally:
                     uow.close()
@@ -937,7 +970,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_user_change_pass(self):
         try:
-            #TODO
+            #TODO should be implemented...
             raise NotImplementedError("This function is not implemented yet.")
         except Exception as ex:
             show_exc_info(self, ex)
@@ -992,15 +1025,17 @@ class MainWindow(QtGui.QMainWindow):
             uow = self.active_repo.create_unit_of_work()
             try:
                 items = []
-                for row in rows:
-                    #Нужно в элементе сохранить номер строки таблицы, откуда взят элемент
+                for row in rows:                    
                     self.model.items[row].table_row = row
                     items.append(self.model.items[row])
                  
                 thread = ThumbnailBuilderThread(self, self.active_repo, items, self.items_lock, rebuild=True)
-                self.connect(thread, QtCore.SIGNAL("exception"), lambda exc_info: helpers.show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
-                self.connect(thread, QtCore.SIGNAL("finished"), lambda: self.ui.statusbar.showMessage(self.tr("Rebuild thumbnails is done.")))            
-                self.connect(thread, QtCore.SIGNAL("progress"), lambda percents, row: refresh(percents, row))
+                self.connect(thread, QtCore.SIGNAL("exception"), 
+                             lambda exc_info: helpers.show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
+                self.connect(thread, QtCore.SIGNAL("finished"), 
+                             lambda: self.ui.statusbar.showMessage(self.tr("Rebuild thumbnails is done.")))            
+                self.connect(thread, QtCore.SIGNAL("progress"), 
+                             lambda percents, row: refresh(percents, row))
                 thread.start()
                     
             finally:
@@ -1048,22 +1083,19 @@ class MainWindow(QtGui.QMainWindow):
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            if len(rows) > 1:
-                #Была выбрана группа элементов более 1-го                
+            if len(rows) > 1:                
                 uow = self.active_repo.create_unit_of_work()
                 try:
                     sel_items = []
                     for row in rows:
-                        #Я понимаю, что это жутко неоптимально, но пока что пусть будет так.
-                        #Выполняется отдельный SQL запрос (и не один...) для каждого из выбранных элементов
-                        #Потом надо бы исправить (хотя бы теги/поля/датарефы извлекать по join-стратегии
                         id = self.model.items[row].id
                         sel_items.append(uow.getExpungedItem(id))
                     completer = helpers.Completer(self.active_repo, self)
                     dlg = ItemsDialog(self, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
                     if dlg.exec_():
                         thread = UpdateGroupOfItemsThread(self, self.active_repo, sel_items)
-                        self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+                        self.connect(thread, QtCore.SIGNAL("exception"), 
+                                     lambda msg: raise_exc(msg))
                                                                         
                         wd = WaitDialog(self)
                         self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
@@ -1079,7 +1111,6 @@ class MainWindow(QtGui.QMainWindow):
                     uow.close()
                     
             else:
-                #Был выбран ровно 1 элемент
                 item_id = self.model.items[rows.pop()].id
                 uow = self.active_repo.create_unit_of_work()
                 try:
