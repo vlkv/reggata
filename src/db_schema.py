@@ -304,6 +304,7 @@ class Item(Base):
         return False
     
     def add_tag(self, name, user_login=None):
+        # TODO: Maybe raise exception if (such tag, user_login) already in item?
         tag = Tag(name)
         item_tag = Item_Tag(tag, user_login)
         self.item_tags.append(item_tag)

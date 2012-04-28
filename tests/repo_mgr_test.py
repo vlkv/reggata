@@ -3,7 +3,8 @@ import os
 from exceptions import NotFoundError, AccessError
 from abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
-from tests_context import COPY_OF_TEST_REPO_BASE_PATH, existingAliveItem, nonExistingItem
+from tests_context import COPY_OF_TEST_REPO_BASE_PATH, existingAliveItem, nonExistingItem,\
+    itemWithTagsAndFields
 from repo_mgr import UnitOfWork
 from db_schema import HistoryRec, Item
 import helpers
@@ -221,23 +222,10 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
 class UpdateItemTest(AbstractTestCaseWithRepo):
     
     def test_updateItemTitleByOwner(self):
-        #Get an item from repo
-        try:
-            uow = self.repo.create_unit_of_work()
-            item = uow.getExpungedItem(existingAliveItem.id)
-            self.assertEqual(item.title, existingAliveItem.title)
-        finally:
-            uow.close()
+        item = self.getExistingItem(existingAliveItem.id)
+        self.assertEqual(item.title, existingAliveItem.title)
             
-        #Get item's the latest historyRec before the change
-        historyRecBefore = None
-        try:
-            uow = self.repo.create_unit_of_work()
-            historyRecBefore = UnitOfWork._find_item_latest_history_rec(uow.session, item)
-            self.assertIsNotNone(historyRecBefore)
-        finally:
-            uow.close()
-         
+        historyRecBefore = self.getItemsMostRecentHistoryRec(item) 
             
         #Change item's title
         newItemTitle = "ABCDEF"
@@ -252,23 +240,10 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
             uow.close()
             
         #Get an item from repo again and check it's title
-        try:
-            uow = self.repo.create_unit_of_work()
-            item = uow.getExpungedItem(existingAliveItem.id)
-            self.assertEqual(item.title, newItemTitle)
-        finally:
-            uow.close()
-    
-    
-        #Get item's the latest historyRec after the change
-        historyRecAfter = None
-        try:
-            uow = self.repo.create_unit_of_work()
-            historyRecAfter = UnitOfWork._find_item_latest_history_rec(uow.session, item)
-            self.assertIsNotNone(historyRecAfter)
-        finally:
-            uow.close()
-
+        item = self.getExistingItem(existingAliveItem.id)
+        self.assertEqual(item.title, newItemTitle)
+        
+        historyRecAfter = self.getItemsMostRecentHistoryRec(item)
         self.assertNotEqual(historyRecBefore.item_hash, historyRecAfter.item_hash)
         self.assertEqual(historyRecBefore.item_id, historyRecAfter.item_id)
         self.assertEqual(historyRecBefore.item_id, item.id)
@@ -280,9 +255,68 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertEqual(historyRecAfter.operation, "UPDATE")
         self.assertEqual(historyRecAfter.user_login, "user")
 
+    
 
-
-
+    def test_updateItemTagsByOwner(self):
+        
+        item = self.getExistingItem(itemWithTagsAndFields.id)
+        self.assertEqual(item.title, itemWithTagsAndFields.title)
+        self.assertEqual(len(item.item_tags), len(itemWithTagsAndFields.tags))
+        self.assertGreaterEqual(len(itemWithTagsAndFields.tags), 2)
+        
+        historyRecBefore = self.getItemsMostRecentHistoryRec(item)
+        
+        #Remove one existing tag
+        tagNameToRemove = itemWithTagsAndFields.tags[0]
+        self.assertTrue(item.remove_tag(tagNameToRemove))
+        
+        #Add one new tag
+        tagNameToAdd = "TagNameToAdd"
+        item.add_tag(tagNameToAdd)
+        
+        #Save changes to the repo
+        try:
+            uow = self.repo.create_unit_of_work()
+            uow.updateExistingItem(item, item.user_login)
+        finally:
+            uow.close()
+        
+        item = self.getExistingItem(itemWithTagsAndFields.id)
+        self.assertFalse(item.has_tag(tagNameToRemove))
+        self.assertTrue(item.has_tag(tagNameToAdd))
+        self.assertTrue(item.has_tag(itemWithTagsAndFields.tags[1]))
+               
+        historyRecAfter = self.getItemsMostRecentHistoryRec(item)
+        self.assertNotEqual(historyRecBefore.item_hash, historyRecAfter.item_hash)
+        self.assertEqual(historyRecBefore.item_id, historyRecAfter.item_id)
+        self.assertEqual(historyRecBefore.item_id, item.id)
+        self.assertEqual(historyRecBefore.data_ref_hash, historyRecAfter.data_ref_hash)
+        self.assertEqual(historyRecBefore.data_ref_url, historyRecAfter.data_ref_url)
+        self.assertEqual(historyRecAfter.parent1_id, historyRecBefore.id)
+        self.assertGreater(historyRecAfter.id, historyRecBefore.id)
+        self.assertIsNone(historyRecAfter.parent2_id)
+        self.assertEqual(historyRecAfter.operation, "UPDATE")
+        self.assertEqual(historyRecAfter.user_login, "user")
+    
+    
+    def getItemsMostRecentHistoryRec(self, item):
+        historyRec = None
+        try:
+            uow = self.repo.create_unit_of_work()
+            historyRec = UnitOfWork._find_item_latest_history_rec(uow.session, item)
+            self.assertIsNotNone(historyRec)
+        finally:
+            uow.close()
+        return historyRec
+    
+    def getExistingItem(self, id):
+        try:
+            uow = self.repo.create_unit_of_work()
+            item = uow.getExpungedItem(id)
+            self.assertIsNotNone(item)
+        finally:
+            uow.close()
+        return item
 
 
 if __name__ == "__main__":
