@@ -215,6 +215,48 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
         
 
 
+
+
+
+class UpdateItemTest(AbstractTestCaseWithRepo):
+    
+    def test_updateItemTitleByOwner(self):
+        
+        #Get an item from repo
+        try:
+            uow = self.repo.create_unit_of_work()
+            item = uow.getExpungedItem(existingAliveItem.id)
+            self.assertEqual(item.title, existingAliveItem.title)
+        finally:
+            uow.close()
+            
+        #Change item's title
+        newItemTitle = "ABCDEF"
+        self.assertNotEqual(item.title, newItemTitle, "You should change item's title to some different value.") 
+        item.title = newItemTitle
+            
+        #Save changes to the repo
+        try:
+            uow = self.repo.create_unit_of_work()
+            uow.updateExistingItem(item, item.user_login)
+        finally:
+            uow.close()
+            
+        #Get an item from repo again and check it's title
+        try:
+            uow = self.repo.create_unit_of_work()
+            item = uow.getExpungedItem(existingAliveItem.id)
+            self.assertEqual(item.title, newItemTitle)
+        finally:
+            uow.close()
+    
+
+
+
+
+
+
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
