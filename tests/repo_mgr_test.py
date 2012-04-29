@@ -181,6 +181,36 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             self.assertTrue(os.path.exists(self.srcAbsPath))
         finally:
             uow.close()
+            
+    def test_saveNewItemWithTags(self):
+        item = Item("user", "Item with tags")
+        
+        tagNameThatExistsInRepo = "Lyrics"
+        tagNameNew = "No items in test repo with such Tag!"
+        
+        item.add_tag(tagNameThatExistsInRepo)
+        item.add_tag(tagNameNew)
+        
+        try:
+            uow = self.repo.create_unit_of_work()
+            savedItemId = uow.saveNewItem(item)
+        finally:
+            uow.close()
+            
+        savedItem = self.getExistingItem(savedItemId)
+        self.assertEqual(savedItem.title, item.title)
+        self.assertTrue(savedItem.has_tag(tagNameThatExistsInRepo))
+        self.assertTrue(savedItem.has_tag(tagNameNew))
+        self.assertEqual(len(savedItem.item_tags), 2)
+        
+        histRec = self.getItemsMostRecentHistoryRec(savedItem)
+        self.assertIsNotNone(histRec)
+        self.assertEqual(histRec.operation, HistoryRec.CREATE)
+        self.assertEqual(histRec.user_login, savedItem.user_login)
+        self.assertIsNone(histRec.parent1_id)
+        self.assertIsNone(histRec.parent2_id)
+        
+        
     
 
 class DeleteItemTest(AbstractTestCaseWithRepo):
@@ -356,26 +386,6 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertIsNone(historyRecAfter.parent2_id)
         self.assertEqual(historyRecAfter.operation, "UPDATE")
         self.assertEqual(historyRecAfter.user_login, "user")
-    
-    
-    def getItemsMostRecentHistoryRec(self, item):
-        historyRec = None
-        try:
-            uow = self.repo.create_unit_of_work()
-            historyRec = UnitOfWork._find_item_latest_history_rec(uow.session, item)
-            self.assertIsNotNone(historyRec)
-        finally:
-            uow.close()
-        return historyRec
-    
-    def getExistingItem(self, id):
-        try:
-            uow = self.repo.create_unit_of_work()
-            item = uow.getExpungedItem(id)
-            self.assertIsNotNone(item)
-        finally:
-            uow.close()
-        return item
 
 
 if __name__ == "__main__":
