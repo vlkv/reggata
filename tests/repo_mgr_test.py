@@ -225,11 +225,12 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         item = self.getExistingItem(existingAliveItem.id)
         self.assertEqual(item.title, existingAliveItem.title)
             
-        historyRecBefore = self.getItemsMostRecentHistoryRec(item) 
+        historyRecBefore = self.getItemsMostRecentHistoryRec(item)
             
         #Change item's title
         newItemTitle = "ABCDEF"
-        self.assertNotEqual(item.title, newItemTitle, "You should change item's title to some different value.") 
+        self.assertNotEqual(item.title, newItemTitle, 
+                            "You should change item's title to some different value.") 
         item.title = newItemTitle
             
         #Save changes to the repo
@@ -254,24 +255,26 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertIsNone(historyRecAfter.parent2_id)
         self.assertEqual(historyRecAfter.operation, "UPDATE")
         self.assertEqual(historyRecAfter.user_login, "user")
-
-    
+        
+        
 
     def test_updateItemTagsByOwner(self):
-        
         item = self.getExistingItem(itemWithTagsAndFields.id)
         self.assertEqual(item.title, itemWithTagsAndFields.title)
         self.assertEqual(len(item.item_tags), len(itemWithTagsAndFields.tags))
-        self.assertGreaterEqual(len(itemWithTagsAndFields.tags), 2)
+        self.assertEqual(len(itemWithTagsAndFields.tags), 2)
         
         historyRecBefore = self.getItemsMostRecentHistoryRec(item)
         
         #Remove one existing tag
-        tagNameToRemove = itemWithTagsAndFields.tags[0]
+        tagNameToRemove = "RHCP"
+        self.assertTrue(item.has_tag(tagNameToRemove))
         self.assertTrue(item.remove_tag(tagNameToRemove))
         
         #Add one new tag
         tagNameToAdd = "TagNameToAdd"
+        self.assertNotEqual(tagNameToRemove, tagNameToAdd)
+        self.assertFalse(item.has_tag(tagNameToAdd))
         item.add_tag(tagNameToAdd)
         
         #Save changes to the repo
@@ -284,7 +287,60 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         item = self.getExistingItem(itemWithTagsAndFields.id)
         self.assertFalse(item.has_tag(tagNameToRemove))
         self.assertTrue(item.has_tag(tagNameToAdd))
-        self.assertTrue(item.has_tag(itemWithTagsAndFields.tags[1]))
+        self.assertTrue(item.has_tag("Lyrics"))
+        self.assertEqual(len(item.item_tags), 2)
+               
+        historyRecAfter = self.getItemsMostRecentHistoryRec(item)
+        self.assertNotEqual(historyRecBefore.item_hash, historyRecAfter.item_hash)
+        self.assertEqual(historyRecBefore.item_id, historyRecAfter.item_id)
+        self.assertEqual(historyRecBefore.item_id, item.id)
+        self.assertEqual(historyRecBefore.data_ref_hash, historyRecAfter.data_ref_hash)
+        self.assertEqual(historyRecBefore.data_ref_url, historyRecAfter.data_ref_url)
+        self.assertEqual(historyRecAfter.parent1_id, historyRecBefore.id)
+        self.assertGreater(historyRecAfter.id, historyRecBefore.id)
+        self.assertIsNone(historyRecAfter.parent2_id)
+        self.assertEqual(historyRecAfter.operation, "UPDATE")
+        self.assertEqual(historyRecAfter.user_login, "user")
+        
+        
+    def test_updateItemFieldsByOwner(self):
+        item = self.getExistingItem(itemWithTagsAndFields.id)
+        self.assertEqual(item.title, itemWithTagsAndFields.title)
+        self.assertEqual(len(item.item_fields), len(itemWithTagsAndFields.fields))
+        self.assertEqual(len(itemWithTagsAndFields.fields), 4)
+        
+        historyRecBefore = self.getItemsMostRecentHistoryRec(item)
+        
+        #Remove one existing field
+        fieldNameToRemove = "Year"
+        self.assertTrue(item.has_field(fieldNameToRemove, 1991))
+        self.assertTrue(item.remove_field(fieldNameToRemove))
+        
+        #Add one new field
+        fieldToAdd = ("FieldNameToAdd", "Some value")
+        self.assertFalse(item.has_field(fieldToAdd[0]))
+        item.set_field_value(fieldToAdd[0], fieldToAdd[1])
+        
+        #Edit one existing field
+        fieldToEdit = ("Notes", "Some new notes")
+        self.assertTrue(item.has_field(fieldToEdit[0]))
+        self.assertFalse(item.has_field(fieldToEdit[0], fieldToEdit[1]))
+        item.set_field_value(fieldToEdit[0], fieldToEdit[1])
+        
+        #Save changes to the repo
+        try:
+            uow = self.repo.create_unit_of_work()
+            uow.updateExistingItem(item, item.user_login)
+        finally:
+            uow.close()
+        
+        item = self.getExistingItem(itemWithTagsAndFields.id)
+        self.assertFalse(item.has_field(fieldNameToRemove))
+        self.assertTrue(item.has_field(fieldToAdd[0], fieldToAdd[1]))
+        self.assertTrue(item.has_field(fieldToEdit[0], fieldToEdit[1]))
+        self.assertTrue(item.has_field("Rating", 5))
+        self.assertTrue(item.has_field("Albom", "Blood Sugar Sex Magik"))
+        self.assertEqual(len(item.item_fields), 4)
                
         historyRecAfter = self.getItemsMostRecentHistoryRec(item)
         self.assertNotEqual(historyRecBefore.item_hash, historyRecAfter.item_hash)

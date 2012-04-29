@@ -390,7 +390,7 @@ class Item(Base):
         Если field_value не None, то проверяется еще и равно ли данное поле этому значению.'''
         for item_field in self.item_fields:
             if item_field.field.name == field_name:
-                if field_value is None or item_field.field_value == field_value:
+                if field_value is None or item_field.field_value == str(field_value):
                     return True
         return False
         
