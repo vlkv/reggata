@@ -48,7 +48,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             uow.close()
             
     def test_saveNewItemByNonExistentUserLogin(self):
-        item = Item("such_user_login_doesn't_exist", "Item's title")
+        nonExistentUserLogin = "NonExistentUserLogin" 
+        item = Item(nonExistentUserLogin, "Item's title")
         try:
             uow = self.repo.create_unit_of_work()
             self.assertRaises(AccessError, uow.saveNewItem, (item))
@@ -57,7 +58,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             uow.close()
             
     def test_saveNewItemByNullUserLogin(self):
-        item = Item(None, "Item's title")
+        userLogin = None
+        item = Item(userLogin, "Item's title")
         try:
             uow = self.repo.create_unit_of_work()
             self.assertRaises(AccessError, uow.saveNewItem, (item))
@@ -65,7 +67,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             uow.close()
             
     def test_saveNewItemByEmptyUserLogin(self):
-        item = Item("", "Item's title")
+        userLogin = ""
+        item = Item(userLogin, "Item's title")
         try:
             uow = self.repo.create_unit_of_work()
             self.assertRaises(AccessError, uow.saveNewItem, (item))
@@ -111,7 +114,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         '''
         There is an untracked file inside the repo tree. User wants to add such file 
         into the repo to make it a stored file. File is not copied, because it is alredy in 
-        the repo tree.
+        the repo tree. It's essential that srcAbsPath and dstRelPath point to the same file.
         '''
         item = Item("user", "Item's title")
         self.srcAbsPath = os.path.abspath(os.path.join(
