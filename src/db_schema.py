@@ -303,29 +303,26 @@ class Item(Base):
                 return True
         return False
     
-    def add_tag(self, name, user_login=None):
-        # TODO: Maybe raise exception if (such tag, user_login) already in item?
+    def add_tag(self, name, user_login):
+        # TODO: Maybe raise exception if this item already has such (tag, user_login)?
+        assert user_login is not None
         tag = Tag(name)
         item_tag = Item_Tag(tag, user_login)
         self.item_tags.append(item_tag)
         
-    def set_field_value(self, name, value, user_login=None):
-        '''Changes field value if it exists, or creates new field and sets a value to it.'''    
-        #Search field with name 'name'
+    def set_field_value(self, name, value, user_login):
+        '''Changes field value if it exists, or creates new field and sets a value to it.'''
+        assert user_login is not None
+        
         itf = None
         for item_field in self.item_fields:
-            if item_field.field.name == name:
-                if user_login is None or item_field.user_login == user_login: 
-                    itf = item_field
-                    break
+            if item_field.field.name == name and item_field.user_login == user_login: 
+                itf = item_field
+                break
                 
-        #Change field value to 'value'
         if itf is not None:
             itf.field_value = value
-            itf.user_login = user_login if user_login is not None else itf.user_login
-              
         else:
-            #Create new field and set it's value
             field = Field(name)
             item_field = Item_Field(field, value, user_login)
             self.item_fields.append(item_field)
@@ -348,6 +345,7 @@ class Item(Base):
         return s
     
     def remove_tag(self, tag_name):
+        #TODO: Maybe should pass userLogin to this fun?
         i = 0
         while i < len(self.item_tags):
             item_tag = self.item_tags[i]
@@ -363,6 +361,7 @@ class Item(Base):
             return None
 
     def remove_field(self, field_name):
+        #TODO: Maybe should pass userLogin to this fun?
         i = 0
         while i < len(self.item_fields):
             item_field = self.item_fields[i] 

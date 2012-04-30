@@ -183,13 +183,14 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             uow.close()
             
     def test_saveNewItemWithTags(self):
-        item = Item("user", "Item with tags")
+        userLogin = "user"
+        item = Item(userLogin, "Item with tags")
         
         tagNameThatExistsInRepo = "Lyrics"
         tagNameNew = "No items in test repo with such Tag!"
         
-        item.add_tag(tagNameThatExistsInRepo)
-        item.add_tag(tagNameNew)
+        item.add_tag(tagNameThatExistsInRepo, userLogin)
+        item.add_tag(tagNameNew, userLogin)
         
         try:
             uow = self.repo.create_unit_of_work()
@@ -202,6 +203,35 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         self.assertTrue(savedItem.has_tag(tagNameThatExistsInRepo))
         self.assertTrue(savedItem.has_tag(tagNameNew))
         self.assertEqual(len(savedItem.item_tags), 2)
+        
+        histRec = self.getItemsMostRecentHistoryRec(savedItem)
+        self.assertIsNotNone(histRec)
+        self.assertEqual(histRec.operation, HistoryRec.CREATE)
+        self.assertEqual(histRec.user_login, savedItem.user_login)
+        self.assertIsNone(histRec.parent1_id)
+        self.assertIsNone(histRec.parent2_id)
+        
+    def test_saveNewItemWithFields(self):
+        userLogin = "user"
+        item = Item(userLogin, "Item with fields")
+        
+        fieldOne = ("Year", 2012)
+        fieldTwo = ("No items in test repo with such Field!", "Some value")
+        
+        item.set_field_value(fieldOne[0], fieldOne[1], userLogin)
+        item.set_field_value(fieldTwo[0], fieldTwo[1], userLogin)
+        
+        try:
+            uow = self.repo.create_unit_of_work()
+            savedItemId = uow.saveNewItem(item)
+        finally:
+            uow.close()
+            
+        savedItem = self.getExistingItem(savedItemId)
+        self.assertEqual(savedItem.title, item.title)
+        self.assertTrue(savedItem.has_field(fieldOne[0], fieldOne[1]))
+        self.assertTrue(savedItem.has_field(fieldTwo[0], fieldTwo[1]))
+        self.assertEqual(len(savedItem.item_fields), 2)
         
         histRec = self.getItemsMostRecentHistoryRec(savedItem)
         self.assertIsNotNone(histRec)
@@ -292,6 +322,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         
 
     def test_updateItemTagsByOwner(self):
+        userLogin = "user"
         item = self.getExistingItem(itemWithTagsAndFields.id)
         self.assertEqual(item.title, itemWithTagsAndFields.title)
         self.assertEqual(len(item.item_tags), len(itemWithTagsAndFields.tags))
@@ -308,7 +339,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         tagNameToAdd = "TagNameToAdd"
         self.assertNotEqual(tagNameToRemove, tagNameToAdd)
         self.assertFalse(item.has_tag(tagNameToAdd))
-        item.add_tag(tagNameToAdd)
+        item.add_tag(tagNameToAdd, userLogin)
         
         #Save changes to the repo
         try:
@@ -337,6 +368,8 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         
         
     def test_updateItemFieldsByOwner(self):
+        userLogin = itemWithTagsAndFields.ownerUserLogin
+        
         item = self.getExistingItem(itemWithTagsAndFields.id)
         self.assertEqual(item.title, itemWithTagsAndFields.title)
         self.assertEqual(len(item.item_fields), len(itemWithTagsAndFields.fields))
@@ -352,13 +385,13 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         #Add one new field
         fieldToAdd = ("FieldNameToAdd", "Some value")
         self.assertFalse(item.has_field(fieldToAdd[0]))
-        item.set_field_value(fieldToAdd[0], fieldToAdd[1])
+        item.set_field_value(fieldToAdd[0], fieldToAdd[1], userLogin)
         
         #Edit one existing field
         fieldToEdit = ("Notes", "Some new notes")
         self.assertTrue(item.has_field(fieldToEdit[0]))
         self.assertFalse(item.has_field(fieldToEdit[0], fieldToEdit[1]))
-        item.set_field_value(fieldToEdit[0], fieldToEdit[1])
+        item.set_field_value(fieldToEdit[0], fieldToEdit[1], userLogin)
         
         #Save changes to the repo
         try:
