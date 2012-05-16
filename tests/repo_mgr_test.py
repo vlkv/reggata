@@ -420,6 +420,33 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertEqual(historyRecAfter.operation, "UPDATE")
         self.assertEqual(historyRecAfter.user_login, "user")
 
+    def test_addFileToItemWithoutFile(self):
+        #TODO implement test. Referenced file for new DataRef will be from the outside of the repo 
+        pass
+
+    def test_replaceFileOfItemWithAnotherFile(self):
+        #TODO implement test. Referenced file for new DataRef will be from the outside of the repo
+        pass
+
+    def test_removeFileFromItem(self):
+        #TODO implement test
+        #DataRef should not be deleted after this operation
+        pass
+    
+    def test_moveFileOfItemToAnotherLocationWithinRepo(self):
+        #TODO implement test
+        pass
+    
+    def test_addTagsToItemByNotOwnerUser(self):
+        #TODO implement test
+        pass
+    
+    def test_removeTagsFromItemByNotOwnerUser(self):
+        #TODO implement test
+        pass
+    
+    
+    
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
