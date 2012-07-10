@@ -551,7 +551,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, itemWithTagsAndFields.relFilePath)))
         
         #DataRef should not be deleted after this operation
-        dataRef = self.getDataRef("lyrics/RHCP/I Could Have Lied.txt")
+        dataRef = self.getDataRef(itemWithTagsAndFields.relFilePath)
         self.assertIsNotNone(dataRef)
         
 
