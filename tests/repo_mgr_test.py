@@ -484,6 +484,29 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertIsNotNone(item.data_ref)
         
         # Move linked file to another location within the repository
+        path = ["new", "location", "for", "file", "I Could Have Lied.txt"]
+        item.data_ref.dstRelPath = os.path.join(*path)
+        
+        # Save changes to the repo
+        try:
+            uow = self.repo.create_unit_of_work()
+            uow.updateExistingItem(item, item.user_login)
+        finally:
+            uow.close()
+            
+        item = self.getExistingItem(itemWithTagsAndFields.id)
+        self.assertEqual(item.title, itemWithTagsAndFields.title)
+        self.assertIsNotNone(item.data_ref)
+        self.assertEqual(item.data_ref.url, "new/location/for/file/I Could Have Lied.txt")
+        self.assertFalse(os.path.isdir(os.path.join(self.repo.base_path, *path)))
+        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, *path)))
+    
+    def test_moveFileOfItemToAnotherLocationWithinRepoAndRename(self):
+        item = self.getExistingItem(itemWithTagsAndFields.id)
+        self.assertEqual(item.title, itemWithTagsAndFields.title)
+        self.assertIsNotNone(item.data_ref)
+        
+        # Move linked file to another location within the repository
         # NOTE: File will be not only moved, but also renamed
         path = ["new", "location", "for", "file", "could_have_lied_lyrics.txt"]
         item.data_ref.dstRelPath = os.path.join(*path)

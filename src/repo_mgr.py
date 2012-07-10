@@ -675,13 +675,20 @@ class UnitOfWork(object):
         
         # Perform operations with the file in os filesystem
         dstAbsPath2 = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
-        if not is_none_or_empty(need_file_operation) and srcAbsPath != dstAbsPath2:
+        if not is_none_or_empty(need_file_operation) \
+        and srcAbsPath is not None \
+        and srcAbsPath != dstAbsPath2:
             if not os.path.exists(os.path.split(dstAbsPath2)[0]):
                 os.makedirs(os.path.split(dstAbsPath2)[0])    
             if need_file_operation == "copy" and persistentItem.data_ref.type == DataRef.FILE:
                     shutil.copy(srcAbsPath, dstAbsPath2)
             elif need_file_operation == "move" and persistentItem.data_ref.type == DataRef.FILE:
-                shutil.move(srcAbsPath, os.path.split(dstAbsPath2)[0])
+                dstAbsPathDir, dstFilename = os.path.split(dstAbsPath2) 
+                shutil.move(srcAbsPath, dstAbsPathDir)
+                
+                oldName = os.path.join(dstAbsPathDir, os.path.basename(srcAbsPath))
+                newName = os.path.join(dstAbsPathDir, dstFilename)
+                os.rename(oldName, newName)
         
         self._session.commit()
         
