@@ -27,5 +27,16 @@ itemWithTagsAndFields.fields = {"Rating": 5,
                                 "Notes": "This item has both tags and fields",
                                 "Albom": "Blood Sugar Sex Magik"}
 
+#This is an existing correct alive item
+itemWithoutFile = ItemReliableFacts()
+itemWithoutFile.id = 6
+itemWithoutFile.title = "Item without file"
+itemWithoutFile.ownerUserLogin = "user"
+itemWithoutFile.tags = ["Tag"]
+itemWithoutFile.fields = {"Field": "test",
+                          "Rating": 1,
+                          "Notes": "This item has tags and fields, but it doesn't refereneces to any file"}
+
+
 
 
