@@ -632,46 +632,26 @@ class UnitOfWork(object):
         
         persistentItem = self._session.query(Item).get(item.id)
         
-        
-        parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, persistentItem)
-        if parent_hr is None:
-            raise Exception(tr("HistoryRec for Item object id={0} not found.").format(persistentItem.id))
-            #TODO Пользователю нужно сказать, чтобы он вызывал функцию проверки целостности и исправления ошибок
-        
-        #Here we update simple data memers of item
-        persistentItem.title = item.title
-        persistentItem.user_login = item.user_login
-        self._session.flush()
-                        
-        self.__updateTags(item, persistentItem, user_login)
-        
-        self.__updateFields(item, persistentItem, user_login)
-        
+        #We must gather some information before any changes have been made
         srcAbsPathForFileOperation = None
         if persistentItem.data_ref is not None:
             srcAbsPathForFileOperation = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
         else:
             srcAbsPathForFileOperation = item.data_ref.url
             
-        fileOperation = self.__updateDataRefObject(item, persistentItem, user_login)
+        parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, persistentItem)
+        if parent_hr is None:
+            raise Exception(tr("HistoryRec for Item object id={0} not found.").format(persistentItem.id))
+            #TODO We should give user more detailed info about how to recover from this case
         
+        self.__updatePlainDataMembers(item, persistentItem)
+        self.__updateTags(item, persistentItem, user_login)
+        self.__updateFields(item, persistentItem, user_login)
+        fileOperation = self.__updateDataRefObject(item, persistentItem, user_login)        
         
         self._session.refresh(persistentItem)
         
-        
-        # Now we should update History Records
-        # TODO: we shouldn't touch History Records if the item hasn't changed
-        hr = HistoryRec(item_id = persistentItem.id, item_hash=persistentItem.hash(), \
-                        operation=HistoryRec.UPDATE, \
-                        user_login=user_login, \
-                        parent1_id=parent_hr.id)
-        if persistentItem.data_ref is not None:
-            hr.data_ref_hash = persistentItem.data_ref.hash
-            hr.data_ref_url = persistentItem.data_ref.url    
-        if parent_hr != hr:
-            self._session.add(hr)
-        self._session.flush()
-        
+        self.__updateHistoryRecords(persistentItem, user_login, parent_hr)
         self.__updateFilesystem(persistentItem, fileOperation, srcAbsPathForFileOperation)
         
         self._session.commit()
@@ -679,6 +659,12 @@ class UnitOfWork(object):
         self._session.refresh(persistentItem)
         self._session.expunge(persistentItem)
         return persistentItem
+    
+    def __updatePlainDataMembers(self, item, persistentItem):
+        #Here we update simple data members of the item
+        persistentItem.title = item.title
+        persistentItem.user_login = item.user_login
+        self._session.flush()
     
     def __updateTags(self, item, persistentItem, user_login):
         # Removing tags
@@ -801,6 +787,19 @@ class UnitOfWork(object):
             need_file_operation = "move"
             self._session.flush()
             return need_file_operation
+
+    def __updateHistoryRecords(self, persistentItem, user_login, parent_hr):
+        # TODO: we shouldn't touch History Records if the item hasn't changed
+        hr = HistoryRec(item_id = persistentItem.id, item_hash=persistentItem.hash(), \
+                        operation=HistoryRec.UPDATE, \
+                        user_login=user_login, \
+                        parent1_id=parent_hr.id)
+        if persistentItem.data_ref is not None:
+            hr.data_ref_hash = persistentItem.data_ref.hash
+            hr.data_ref_url = persistentItem.data_ref.url    
+        if parent_hr != hr:
+            self._session.add(hr)
+        self._session.flush()
 
     def __updateFilesystem(self, persistentItem, fileOperation, srcAbsPathForFileOperation):
         # Performs operations with the file in OS filesystem
