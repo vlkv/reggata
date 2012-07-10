@@ -566,10 +566,39 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertIsNotNone(dataRef)
     
     def test_replaceFileOfItemWithAnotherInnerStoredFile(self):
-        #TODO implement test. Referenced file for new DataRef will be from the same repo
-        pass
+        # File of new DataRef will be from the same repo, and it will be 
+        # a stored file (linked with some other item)
+        item = self.getExistingItem(itemWithTagsAndFields.id)
+        self.assertIsNotNone(item)
+        self.assertIsNotNone(item.data_ref)
+        self.assertEqual(item.data_ref.url, itemWithTagsAndFields.relFilePath)
+        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, item.data_ref.url)))
+        
+        # Link file with the item
+        relUrl = itemWithFile.relFilePath
+        absUrl = os.path.abspath(os.path.join(self.repo.base_path, relUrl))
+        self.assertTrue(os.path.exists(absUrl))
+        item.data_ref = DataRef(DataRef.FILE, absUrl)
+        
+        self.updateExistingItem(item, item.user_login)
+        
+        item = self.getExistingItem(itemWithTagsAndFields.id)
+        self.assertEqual(item.title, itemWithTagsAndFields.title)
+        self.assertIsNotNone(item.data_ref)
+        self.assertEqual(item.data_ref.url, relUrl)
+        self.assertTrue(os.path.exists(absUrl))
+        
+        #Two different items now share same DataRef
+        otherItem = self.getExistingItem(itemWithFile.id)
+        self.assertIsNotNone(otherItem.data_ref)
+        self.assertEquals(item.data_ref.id, otherItem.data_ref.id)
+        
+        # Old physical file should not be deleted
+        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, itemWithTagsAndFields.relFilePath)))
+        #Old DataRef should not be deleted after this operation
+        dataRef = self.getDataRef(itemWithTagsAndFields.relFilePath)
+        self.assertIsNotNone(dataRef)
 
-    
     
         
     def test_addTagsToItemByNotOwnerUser(self):
