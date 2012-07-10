@@ -818,7 +818,7 @@ class UnitOfWork(object):
                 dr.url = dr.url[0:len(dr.url)-1]
                 
             #Определяем, находится ли данный файл уже внутри хранилища
-            if is_internal(dr.url, self._repo_base_path):
+            if is_internal(dr.url, os.path.abspath(self._repo_base_path)):
                 #Файл уже внутри
                 #Делаем путь dr.url относительным и всё
                 #Если dr.dstRelPath имеет непустое значение --- оно игнорируется!
