@@ -630,84 +630,74 @@ class UnitOfWork(object):
         TODO: We should deny any user to change tags/fields/files of items, owned by another user.   
         '''
         
-        #Ищем в БД элемент в его первоначальном состоянии
-        #item_0 это объект, который будет принадлежать текущей сессии self._session
-        item_0 = self._session.query(Item).get(item.id)
+        persistentItem = self._session.query(Item).get(item.id)
         
-        #Нужно взять из истории запись, соответствующую состоянию объекта item_0
-        parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, item_0)
+        
+        parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, persistentItem)
         if parent_hr is None:
-            raise Exception(tr("HistoryRec for Item object id={0} not found.").format(item_0.id))
+            raise Exception(tr("HistoryRec for Item object id={0} not found.").format(persistentItem.id))
             #TODO Пользователю нужно сказать, чтобы он вызывал функцию проверки целостности и исправления ошибок
         
-        #Редактирование полей, которые можно редактировать (вообще у item-а есть еще и другие поля).
-        item_0.title = item.title        
-        item_0.user_login = item.user_login
+        #Here we update simple data memers of item
+        persistentItem.title = item.title
+        persistentItem.user_login = item.user_login
         self._session.flush()
         
                 
-        #Удаление тегов
-        #Если в item_0 есть теги, которых нет в item, то их нужно удалить
-        for itag in item_0.item_tags:
+        # Removing tags
+        for itag in persistentItem.item_tags:
             i = index_of(item.item_tags, lambda x: True if x.tag.name==itag.tag.name else False)
             if i is None:
-                #Помечаем для удаления соответствующий Item_Tag объект
-                #Объект Tag остается в БД (даже если на него не останется ссылок)
+                #NOTE: Tag object would still persist in DB (even if no items would use it)
                 self._session.delete(itag)
         self._session.flush()
         
-        #Добавление тегов
-        #Если в item есть теги, которых нет в item_0, то их нужно создать
+        # Adding tags
         for itag in item.item_tags:
-            i = index_of(item_0.item_tags, lambda x: True if x.tag.name==itag.tag.name else False)
+            i = index_of(persistentItem.item_tags, lambda x: True if x.tag.name==itag.tag.name else False)
             if i is None:
-                #Ищем в БД тег, который нужно добавить к item_0
                 tag = self._session.query(Tag).filter(Tag.name==itag.tag.name).first()
                 if tag is None:
-                    #Такого тега нет, нужно сначала его создать
+                    # Such a tag is not in DB yet
                     tag = Tag(itag.tag.name)
                     self._session.add(tag)
                     self._session.flush()
-                #Теперь тег точно есть, просто привязываем его к item_0
+                # Link the tag with the item
                 item_tag = Item_Tag(tag, user_login)
                 self._session.add(item_tag)
-                item_tag.item = item_0
-                item_0.item_tags.append(item_tag) #Почему нужно обе стороны связывать? Ведь relation?
+                item_tag.item = persistentItem
+                persistentItem.item_tags.append(item_tag)
         self._session.flush()
                 
-        #Удаление полей (Ищем какие поля присутствуют в item_0 и отсутствуют в item)
-        for ifield in item_0.item_fields:
+        # Removing fields
+        for ifield in persistentItem.item_fields:
             i = index_of(item.item_fields, lambda o: True if o.field.name==ifield.field.name else False)
             if i is None:
                 self._session.delete(ifield)
         self._session.flush()
         
-        #Добавление новых полей, либо изменение значений существующих
-        #Ищем какие поля есть в item, которых нет в item_0 (либо есть в item_0, но имеют другое значение)
+        # Adding fields
         for ifield in item.item_fields:
-            i = index_of(item_0.item_fields, \
+            i = index_of(persistentItem.item_fields, \
                          lambda o: True if o.field.name==ifield.field.name else False)
             if i is None:
-                #К элементу нужно привязать новое поле
-                #Ищем сначала в БД соответствующий объект Field
                 field = self._session.query(Field).filter(Field.name==ifield.field.name).first()
                 if field is None: 
-                    #Такого поля нет, нужно создать
                     field = Field(ifield.field.name)
                     self._session.add(field)
                     self._session.flush()
                 item_field = Item_Field(field, ifield.field_value, user_login)
                 self._session.add(item_field)
-                item_field.item = item_0
-                item_0.item_fields.append(item_field)
-            elif ifield.field_value != item_0.item_fields[i].field_value:
-                #У элемента данное поле есть, но нужно изменить его значение
-                self._session.add(item_0.item_fields[i]) #Вот тут не могу понять, почему этот объект Item_Field нужно явно добавлять в сессию?
-                item_0.item_fields[i].field_value = ifield.field_value
+                item_field.item = persistentItem
+                persistentItem.item_fields.append(item_field)
+            elif ifield.field_value != persistentItem.item_fields[i].field_value:
+                # Item already has such a field, we should just change it's value
+                self._session.add(persistentItem.item_fields[i])
+                persistentItem.item_fields[i].field_value = ifield.field_value
         self._session.flush()
         
         
-        #Проведение операций со связанным DataRef объектом (и физическим файлом)
+        # Processing DataRef object 
         srcAbsPath = None
         dstAbsPath = None
         need_file_operation = None
@@ -716,9 +706,9 @@ class UnitOfWork(object):
             #У элемента удалили ссылку на на DataRef (либо она и раньше была пустой).
             #Сам DataRef объект и файл удалять не хочется... пока что так
             #TODO Сделать удаление, если на данный DataRef не ссылаются другие элементы
-            item_0.data_ref = None
-            item_0.data_ref_id = None
-        elif item_0.data_ref is None or item_0.data_ref.url != item.data_ref.url:
+            persistentItem.data_ref = None
+            persistentItem.data_ref_id = None
+        elif persistentItem.data_ref is None or persistentItem.data_ref.url != item.data_ref.url:
             #Элемент привязывается к DataRef-у впервые либо перепривязывается к другому DataRef объекту.
             #Смотрим, может быть привязываемый файл уже внутри хранилища, и уже может быть есть даже объект DataRef?
             #Надо сделать адрес относительным, если тип DataRef-а равен FILE
@@ -728,7 +718,7 @@ class UnitOfWork(object):
                 url = item.data_ref.url            
             existing_data_ref = self._session.query(DataRef).filter(DataRef.url_raw==helpers.to_db_format(url)).first()            
             if existing_data_ref is not None:
-                item_0.data_ref = existing_data_ref
+                persistentItem.data_ref = existing_data_ref
             else:
                 #Объекта DataRef в БД не существует, нужно его создавать
                 #Две ситуации: файл уже внутри хранилища, либо он снаружи
@@ -737,7 +727,7 @@ class UnitOfWork(object):
                 self._prepare_data_ref(item.data_ref, user_login)
                 self._session.add(item.data_ref)
                 self._session.flush()
-                item_0.data_ref = item.data_ref
+                persistentItem.data_ref = item.data_ref
                 #Если был создан DataRef типа FILE, то файл потом нужно скопировать
                 if item.data_ref.type == DataRef.FILE:
                     need_file_operation = "copy"
@@ -749,7 +739,7 @@ class UnitOfWork(object):
             #dst_path в данном случае должен содержать относительный путь до директории назначения.
                         
             #Запоминаем исходное расположение файла
-            srcAbsPath = os.path.join(self._repo_base_path, item_0.data_ref.url)
+            srcAbsPath = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
             
             #Преобразуем dstRelPath в абсолютный путь ДО ФАЙЛА 
             dstAbsPath = os.path.join(self._repo_base_path, item.data_ref.dstRelPath)
@@ -757,7 +747,7 @@ class UnitOfWork(object):
             if not os.path.exists(srcAbsPath):
                 raise Exception(tr("File {0} not found!").format(srcAbsPath))
             if not os.path.exists(dstAbsPath):
-                item_0.data_ref.url = item.data_ref.dstRelPath
+                persistentItem.data_ref.url = item.data_ref.dstRelPath
                 need_file_operation = "move"
             elif os.path.abspath(srcAbsPath) != os.path.abspath(dstAbsPath):
                 raise Exception(tr("Pathname {1} already exists. File {0} would not be moved.")\
@@ -767,15 +757,15 @@ class UnitOfWork(object):
         
         #TODO Если элемент реально не изменился, сохранять в историю ничего не нужно!!!
                 
-        self._session.refresh(item_0)
+        self._session.refresh(persistentItem)
         
-        hr = HistoryRec(item_id = item_0.id, item_hash=item_0.hash(), \
+        hr = HistoryRec(item_id = persistentItem.id, item_hash=persistentItem.hash(), \
                         operation=HistoryRec.UPDATE, \
                         user_login=user_login, \
                         parent1_id=parent_hr.id)
-        if item_0.data_ref is not None:
-            hr.data_ref_hash = item_0.data_ref.hash
-            hr.data_ref_url = item_0.data_ref.url    
+        if persistentItem.data_ref is not None:
+            hr.data_ref_hash = persistentItem.data_ref.hash
+            hr.data_ref_url = persistentItem.data_ref.url    
         if parent_hr != hr:
             self._session.add(hr)
         
@@ -785,25 +775,22 @@ class UnitOfWork(object):
         print(str(hr))
                 
         
-        
-        #Копируем или перемещаем файл (если необходимо, конечно)
-        dstAbsPath2 = os.path.join(self._repo_base_path, item_0.data_ref.url)    
-        if srcAbsPath != dstAbsPath2:
+        # Perform operations with the file in os filesystem
+        dstAbsPath2 = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
+        if is_none_or_empty(need_file_operation) and srcAbsPath != dstAbsPath2:    
             if not os.path.exists(os.path.split(dstAbsPath2)[0]):
-                os.makedirs(os.path.split(dstAbsPath2)[0])
-                
-            if need_file_operation == "copy" and item_0.data_ref.type == DataRef.FILE:
+                os.makedirs(os.path.split(dstAbsPath2)[0])    
+            if need_file_operation == "copy" and persistentItem.data_ref.type == DataRef.FILE:
                     shutil.copy(srcAbsPath, dstAbsPath2)
-            elif need_file_operation == "move" and item_0.data_ref.type == DataRef.FILE:
-                #Теперь начинаем перемещение файла
+            elif need_file_operation == "move" and persistentItem.data_ref.type == DataRef.FILE:
                 shutil.move(srcAbsPath, os.path.split(dstAbsPath2)[0])
         
             
         self._session.commit()
         
-        self._session.refresh(item_0)
-        self._session.expunge(item_0)
-        return item_0
+        self._session.refresh(persistentItem)
+        self._session.expunge(persistentItem)
+        return persistentItem
    
         
     def _prepare_data_ref(self, data_ref, user_login):
