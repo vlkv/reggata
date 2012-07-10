@@ -182,7 +182,7 @@ class ItemsDialog(QtGui.QDialog):
             #Adding Tags
             for t in tags_add:
                 if not item.has_tag(t):
-                    item.add_tag(name=t)
+                    item.add_tag(t, item.user_login)
             
             #Removing Tags
             for t in tags_rm:
@@ -191,7 +191,7 @@ class ItemsDialog(QtGui.QDialog):
             #Adding new (Field,Value) pairs
             for f, v in fieldvals_add:
                 item.remove_field(f)
-                item.set_field_value(f, v)
+                item.set_field_value(f, v, item.user_login)
             
             #Removing Fields
             for f in fields_rm:
