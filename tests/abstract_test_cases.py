@@ -3,6 +3,8 @@ import tests_context
 import os
 import shutil
 from repo_mgr import RepoMgr, UnitOfWork
+from db_schema import DataRef
+import helpers
 
 
 class AbstractTestCaseWithRepo(unittest.TestCase):
@@ -39,6 +41,17 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
         finally:
             uow.close()
         return item
+    
+    def getDataRef(self, url):
+        # In the case when this DataRef is a file, url should be a relative path
+        try:
+            uow = self.repo.create_unit_of_work()
+            dataRef = uow._session.query(DataRef) \
+                    .filter(DataRef.url_raw==helpers.to_db_format(url)).first()
+            self.assertIsNotNone(dataRef)
+        finally:
+            uow.close()
+        return dataRef
 
 
 class AbstractTestCaseWithRepoAndSingleUOW(unittest.TestCase):
