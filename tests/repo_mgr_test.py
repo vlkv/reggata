@@ -3,7 +3,7 @@ import os
 from exceptions import NotFoundError, AccessError
 from abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
-from tests_context import COPY_OF_TEST_REPO_BASE_PATH, existingAliveItem, nonExistingItem,\
+from tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonExistingItem,\
     itemWithTagsAndFields
 from repo_mgr import UnitOfWork
 from db_schema import HistoryRec, Item
@@ -12,8 +12,8 @@ import helpers
 
 class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):
     def test_getExistingItem(self):
-        item = self.uow.getExpungedItem(existingAliveItem.id)
-        self.assertEqual(item.title, existingAliveItem.title)
+        item = self.uow.getExpungedItem(itemWithFile.id)
+        self.assertEqual(item.title, itemWithFile.title)
         
     def test_getNonExistingItem(self):
         self.assertRaises(NotFoundError, self.uow.getExpungedItem, (nonExistingItem.id))
@@ -245,11 +245,11 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
 
 class DeleteItemTest(AbstractTestCaseWithRepo):
     def test_deleteExistingItemWithExistingPhysicalFileByOwner(self):
-        userThatDeletesItem = existingAliveItem.ownerUserLogin
+        userThatDeletesItem = itemWithFile.ownerUserLogin
         try:
             uow = self.repo.create_unit_of_work()
-            itemBeforeDelete = uow.getExpungedItem(existingAliveItem.id)
-            uow.deleteItem(existingAliveItem.id, 
+            itemBeforeDelete = uow.getExpungedItem(itemWithFile.id)
+            uow.deleteItem(itemWithFile.id, 
                         userThatDeletesItem, 
                         delete_physical_file=True)
         finally:
@@ -257,7 +257,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
         
         try:
             uow = self.repo.create_unit_of_work()
-            deletedItem = uow.getExpungedItem(existingAliveItem.id)
+            deletedItem = uow.getExpungedItem(itemWithFile.id)
             self.assertFalse(deletedItem.alive)
             self.assertIsNone(deletedItem.data_ref)
             
@@ -275,7 +275,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
             
         finally:
             uow.close()
-        self.assertFalse(os.path.exists(os.path.join(COPY_OF_TEST_REPO_BASE_PATH, existingAliveItem.relFilePath)))
+        self.assertFalse(os.path.exists(os.path.join(COPY_OF_TEST_REPO_BASE_PATH, itemWithFile.relFilePath)))
         
 
 
@@ -285,8 +285,8 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
 class UpdateItemTest(AbstractTestCaseWithRepo):
     
     def test_updateItemTitleByOwner(self):
-        item = self.getExistingItem(existingAliveItem.id)
-        self.assertEqual(item.title, existingAliveItem.title)
+        item = self.getExistingItem(itemWithFile.id)
+        self.assertEqual(item.title, itemWithFile.title)
             
         historyRecBefore = self.getItemsMostRecentHistoryRec(item)
             
@@ -304,7 +304,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
             uow.close()
             
         #Get an item from repo again and check it's title
-        item = self.getExistingItem(existingAliveItem.id)
+        item = self.getExistingItem(itemWithFile.id)
         self.assertEqual(item.title, newItemTitle)
         
         historyRecAfter = self.getItemsMostRecentHistoryRec(item)
