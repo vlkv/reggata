@@ -376,7 +376,7 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
             i = 0
             for item in self.items:
                 #Редактируем каждый item
-                uow.update_existing_item(item, item.user_login)
+                uow.updateExistingItem(item, item.user_login)
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
                 

@@ -617,18 +617,17 @@ class UnitOfWork(object):
     
     
     def updateExistingItem(self, item, user_login):
-        #TODO: This function will be refactored
         '''Изменяет состояние существующего элемента хранилища. Поскольку в принципе, пользователь
         может добавлять свои теги к чужому элементу, то необходимо передавать логин
         пользователя, который осуществляет редактирование (т.е. user_login).
         
         То, что у item.data_ref может быть изменен url, означает, что пользователь
         хочет привязать данный item к другому файлу (data_ref-объекту). При этом, 
-        поле item.data_ref.dst_path определяет в какую поддиректорию хранилища будет
+        поле item.data_ref.dstRelPath определяет в какую поддиректорию хранилища будет
         СКОПИРОВАН привязываемый файл.
         
         Если у item.data_ref поле url не изменено, но имеется значение в поле 
-        item.data_ref.dst_path, тогда это означает, что пользователь хочет
+        item.data_ref.dstRelPath, тогда это означает, что пользователь хочет
         ПЕРЕМЕСТИТЬ существующий (уже связанный с данным item-ом) файл в другую 
         поддиректорию хранилища (также нужна модификация соотв. data_ref-объекта).
         
@@ -715,7 +714,8 @@ class UnitOfWork(object):
         
         
         #Проведение операций со связанным DataRef объектом (и физическим файлом)
-        abs_src_path = None
+        srcAbsPath = None
+        dstAbsPath = None
         need_file_operation = None
         
         if item.data_ref is None:
@@ -739,7 +739,7 @@ class UnitOfWork(object):
                 #Объекта DataRef в БД не существует, нужно его создавать
                 #Две ситуации: файл уже внутри хранилища, либо он снаружи
                 #В любом случае item.data_ref.url содержит изначально абсолютный адрес (или URL-ссылку!)                                
-                abs_src_path = item.data_ref.url
+                srcAbsPath = item.data_ref.url
                 self._prepare_data_ref(item.data_ref, user_login)
                 self._session.add(item.data_ref)
                 self._session.flush()
@@ -748,27 +748,26 @@ class UnitOfWork(object):
                 if item.data_ref.type == DataRef.FILE:
                     need_file_operation = "copy"
                 
-        elif item.data_ref.type == DataRef.FILE and not is_none_or_empty(item.data_ref.dst_path):
+        elif item.data_ref.type == DataRef.FILE and not is_none_or_empty(item.data_ref.dstRelPath):
             #У элемента не меняется его привязка к DataRef объекту
-            #Но, возможно, было задано поле data_ref.dst_path и data_ref нужно
+            #Но, возможно, было задано поле data_ref.dstRelPath и data_ref нужно
             #ПЕРЕМЕСТИТЬ в другую директорию хранилища
             #dst_path в данном случае должен содержать относительный путь до директории назначения.
                         
             #Запоминаем исходное расположение файла
-            abs_src_path = os.path.join(self._repo_base_path, item_0.data_ref.url)
+            srcAbsPath = os.path.join(self._repo_base_path, item_0.data_ref.url)
             
-            #Преобразуем dst_path в абсолютный путь ДО ФАЙЛА
-            dst_path = os.path.join(item.data_ref.dst_path, os.path.basename(item.data_ref.url)) 
-            abs_dst_path = os.path.join(self._repo_base_path, dst_path)
+            #Преобразуем dstRelPath в абсолютный путь ДО ФАЙЛА 
+            dstAbspath = os.path.join(self._repo_base_path, item.data_ref.dstRelPath)
             
-            if not os.path.exists(abs_src_path):
-                raise Exception(tr("File {0} not found!").format(abs_src_path))
-            if not os.path.exists(abs_dst_path):
-                item_0.data_ref.url = dst_path
+            if not os.path.exists(srcAbsPath):
+                raise Exception(tr("File {0} not found!").format(srcAbsPath))
+            if not os.path.exists(dstAbspath):
+                item_0.data_ref.url = item.data_ref.dstRelPath
                 need_file_operation = "move"
-            elif os.path.abspath(abs_src_path) != os.path.abspath(abs_dst_path):
+            elif os.path.abspath(srcAbsPath) != os.path.abspath(dstAbspath):
                 raise Exception(tr("Pathname {1} already exists. File {0} would not be moved.")\
-                                .format(abs_src_path, abs_dst_path))            
+                                .format(srcAbsPath, dstAbspath))            
                     
         self._session.flush()
         
@@ -794,11 +793,14 @@ class UnitOfWork(object):
         
         #Копируем или перемещаем файл (если необходимо, конечно)
         if need_file_operation == "copy" and item_0.data_ref.type == DataRef.FILE:
-            if abs_src_path != os.path.join(self._repo_base_path, item_0.data_ref.url):
-                shutil.copy(abs_src_path, os.path.join(self._repo_base_path, item_0.data_ref.url))
+            dstAbsPath = os.path.join(self._repo_base_path, item_0.data_ref.url)
+            if srcAbsPath != dstAbsPath:
+                if not  os.path.exists(os.path.split(dstAbsPath)[0]):
+                    os.makedirs(os.path.split(dstAbsPath)[0])
+                shutil.copy(srcAbsPath, dstAbsPath)
         elif need_file_operation == "move" and item_0.data_ref.type == DataRef.FILE:
             #Теперь начинаем перемещение файла
-            shutil.move(abs_src_path, abs_dst_path)
+            shutil.move(srcAbsPath, dstAbsPath)
             
         self._session.commit()
         
@@ -1005,24 +1007,25 @@ class UnitOfWork(object):
         def _prepare_data_ref_url(dr):                   
             #Нормализация пути
             dr.url = os.path.normpath(dr.url)
+            
             #Убираем слеш, если есть в конце пути
             if dr.url.endswith(os.sep):
                 dr.url = dr.url[0:len(dr.url)-1]
+                
             #Определяем, находится ли данный файл уже внутри хранилища
             if is_internal(dr.url, self._repo_base_path):
                 #Файл уже внутри
                 #Делаем путь dr.url относительным и всё
-                #Если dr.dst_path имеет непустое значение --- оно игнорируется!
+                #Если dr.dstRelPath имеет непустое значение --- оно игнорируется!
                 #TODO Как сделать, чтобы в GUI это было понятно пользователю?
                 dr.url = os.path.relpath(dr.url, self._repo_base_path)
             else:
                 #Файл снаружи                
-                if not is_none_or_empty(dr.dst_path) and dr.dst_path != os.curdir:
-                    #Такой файл будет скопирован в хранилище в директорию dr.dst_path
-                    dr.url = os.path.join(dr.dst_path, os.path.basename(dr.url))
-                    #TODO insert check to be sure that dr.dst_path inside a repository!!!
+                if not is_none_or_empty(dr.dstRelPath) and dr.dstRelPath != ".":
+                    dr.url = dr.dstRelPath
+                    #TODO insert check to be sure that dr.dstRelPath inside a repository!!!
                 else:
-                    #Если dst_path пустая, тогда копируем в корень хранилища
+                    #Если dstRelPath пустая или равна ".", тогда копируем в корень хранилища
                     dr.url = os.path.basename(dr.url)
         
         #Привязываем к пользователю

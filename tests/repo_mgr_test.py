@@ -457,7 +457,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         # Link file with the item
         srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
         item.data_ref = DataRef(DataRef.FILE, srcAbsPath)
-        item.data_ref.dstRelPath = os.path.join("dir1", "dir2")
+        item.data_ref.dstRelPath = os.path.join("dir1", "dir2", "copied_file.txt")
         
         # Save changes to the repo
         try:
@@ -469,8 +469,9 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         item = self.getExistingItem(itemWithoutFile.id)
         self.assertEqual(item.title, itemWithoutFile.title)
         self.assertIsNotNone(item.data_ref)
-        self.assertEqual(item.data_ref.url, "file.txt")
-        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, "dir1", "dir2", "file.txt")))
+        self.assertEqual(item.data_ref.url, "dir1/dir2/copied_file.txt")
+        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, "dir1", "dir2", "copied_file.txt")))
+        self.assertFalse(os.path.isdir(os.path.join(self.repo.base_path, "dir1", "dir2", "copied_file.txt")))
         
 
     def test_replaceFileOfItemWithAnotherFile(self):

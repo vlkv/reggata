@@ -453,11 +453,7 @@ class DataRef(Base):
 
     @orm.reconstructor
     def __init_on_load__(self):
-        #TODO: remove this member, it is deprecated!
-        self.dst_path = None
-        
         self.srcAbsPathToRecursionRoot = None
-        
         self.srcAbsPath = None
         self.dstRelPath = None
         
@@ -471,17 +467,14 @@ class DataRef(Base):
         else:
             self.date_created = datetime.datetime.today()
         
-        #При добавлении в хранилище файлов это поле определяет, куда внутри хранилища
-        #их необходимо скопировать. Данное поле в БД не сохраняется.
-        #TODO: remove this member, it is deprecated!
-        self.dst_path = None
-        
-        # This field is used only in function "Add many items recursively"
-        # This is a absolute path to the root directory 
+        # This two fields is used only in function "Add many items recursively"
+        # srcAbsPathToRecursionRoot is a absolute path to the root directory 
         # from where recursive scanning was started.
         self.srcAbsPathToRecursionRoot = None
-        
         self.srcAbsPath = None
+        
+        # This is a relative path to file in repository (where you want to put it)
+        # NOTE: This is not a path to directory!
         self.dstRelPath = None
         
     

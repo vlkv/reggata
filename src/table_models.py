@@ -260,7 +260,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             #Store new rating value into database
             uow = self.repo.create_unit_of_work()
             try:
-                uow.update_existing_item(item, self.user_login)
+                uow.updateExistingItem(item, self.user_login)
                 self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
                 return True
             except:
