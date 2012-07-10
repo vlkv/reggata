@@ -617,24 +617,18 @@ class UnitOfWork(object):
     
     
     def updateExistingItem(self, item, user_login):
-        '''Изменяет состояние существующего элемента хранилища. Поскольку в принципе, пользователь
-        может добавлять свои теги к чужому элементу, то необходимо передавать логин
-        пользователя, который осуществляет редактирование (т.е. user_login).
+        ''' item - is a detached object, representing a new state for stored item with id == item.id.
+            user_login - is a login of user, who is doing the modifications of the item.
+            Returns detached updated item or raises an exception, if something goes wrong. 
         
-        То, что у item.data_ref может быть изменен url, означает, что пользователь
-        хочет привязать данный item к другому файлу (data_ref-объекту). При этом, 
-        поле item.data_ref.dstRelPath определяет в какую поддиректорию хранилища будет
-        СКОПИРОВАН привязываемый файл.
+            If item.data_ref.url is changed --- that means that user wants this item 
+        to reference to another file. 
+            If item.data_ref.dstRelPath is not None --- that means that user wants
+        to move (and maybe rename) original referenced file withing the repository.
         
-        Если у item.data_ref поле url не изменено, но имеется значение в поле 
-        item.data_ref.dstRelPath, тогда это означает, что пользователь хочет
-        ПЕРЕМЕСТИТЬ существующий (уже связанный с данным item-ом) файл в другую 
-        поддиректорию хранилища (также нужна модификация соотв. data_ref-объекта).
-        
-        Передаваемый item должен быть в detached состоянии.
+        TODO: Maybe we should use item.data_ref.srcAbsPath instead of item.data_ref.url... ?
+        TODO: We should deny any user to change tags/fields/files of items, owned by another user.   
         '''
-        #TODO Тут наверное нужно запрещать пользователю удалять чужие теги, поля и data_ref-ы!!!
-        #Редактировать чужие item-ы
         
         #Ищем в БД элемент в его первоначальном состоянии
         #item_0 это объект, который будет принадлежать текущей сессии self._session
