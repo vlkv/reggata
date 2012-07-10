@@ -703,62 +703,60 @@ class UnitOfWork(object):
         need_file_operation = None
         
         if item.data_ref is None:
-            #У элемента удалили ссылку на на DataRef (либо она и раньше была пустой).
-            #Сам DataRef объект и файл удалять не хочется... пока что так
-            #TODO Сделать удаление, если на данный DataRef не ссылаются другие элементы
+            # User removed the DataRef object from item (or it was None before..)
+            #TODO Maybe remove DataRef if there are no items that reference to it?
             persistentItem.data_ref = None
             persistentItem.data_ref_id = None
         elif persistentItem.data_ref is None or persistentItem.data_ref.url != item.data_ref.url:
-            #Элемент привязывается к DataRef-у впервые либо перепривязывается к другому DataRef объекту.
-            #Смотрим, может быть привязываемый файл уже внутри хранилища, и уже может быть есть даже объект DataRef?
-            #Надо сделать адрес относительным, если тип DataRef-а равен FILE
-            if item.data_ref.type == DataRef.FILE and item.data_ref.url.startswith(self._repo_base_path):
-                url = os.path.relpath(item.data_ref.url, self._repo_base_path)
-            else:
-                url = item.data_ref.url            
+            # The item is attached to DataRef object at the first time or
+            # it changes his DataRef object to another DataRef object
+            
+            url = item.data_ref.url
+            if item.data_ref.type == DataRef.FILE:
+                assert os.path.isabs(url), "item.data_ref.url should be an absolute path"
+                url = os.path.relpath(url, self._repo_base_path)
+                
             existing_data_ref = self._session.query(DataRef).filter(DataRef.url_raw==helpers.to_db_format(url)).first()            
             if existing_data_ref is not None:
                 persistentItem.data_ref = existing_data_ref
             else:
-                #Объекта DataRef в БД не существует, нужно его создавать
-                #Две ситуации: файл уже внутри хранилища, либо он снаружи
-                #В любом случае item.data_ref.url содержит изначально абсолютный адрес (или URL-ссылку!)                                
+                #We should create new DataRef object in this case
                 srcAbsPath = item.data_ref.url
                 self._prepare_data_ref(item.data_ref, user_login)
                 self._session.add(item.data_ref)
                 self._session.flush()
                 persistentItem.data_ref = item.data_ref
-                #Если был создан DataRef типа FILE, то файл потом нужно скопировать
                 if item.data_ref.type == DataRef.FILE:
                     need_file_operation = "copy"
                 
         elif item.data_ref.type == DataRef.FILE and not is_none_or_empty(item.data_ref.dstRelPath):
-            #У элемента не меняется его привязка к DataRef объекту
-            #Но, возможно, было задано поле data_ref.dstRelPath и data_ref нужно
-            #ПЕРЕМЕСТИТЬ в другую директорию хранилища
-            #dst_path в данном случае должен содержать относительный путь до директории назначения.
-                        
-            #Запоминаем исходное расположение файла
+            # A file referenced by the item is going to be moved to some another location
+            # within the repository. item.data_ref.dstRelPath is the new relative
+            # path to this file. File will be copied.
+            
             srcAbsPath = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
-            
-            #Преобразуем dstRelPath в абсолютный путь ДО ФАЙЛА 
             dstAbsPath = os.path.join(self._repo_base_path, item.data_ref.dstRelPath)
-            
             if not os.path.exists(srcAbsPath):
                 raise Exception(tr("File {0} not found!").format(srcAbsPath))
-            if not os.path.exists(dstAbsPath):
-                persistentItem.data_ref.url = item.data_ref.dstRelPath
-                need_file_operation = "move"
-            elif os.path.abspath(srcAbsPath) != os.path.abspath(dstAbsPath):
-                raise Exception(tr("Pathname {1} already exists. File {0} would not be moved.")\
-                                .format(srcAbsPath, dstAbsPath))            
-                    
+            
+            if os.path.exists(dstAbsPath):
+                raise Exception(tr("Pathname {0} already exists. File {1} would not be moved.")\
+                                .format(dstAbsPath, srcAbsPath))
+                
+            if os.path.abspath(srcAbsPath) == os.path.abspath(dstAbsPath):
+                raise Exception(tr("Destination path {0} should be different from item's DataRef.url {1}")
+                                .format(dstAbsPath, srcAbsPath))
+            
+            persistentItem.data_ref.url = item.data_ref.dstRelPath
+            need_file_operation = "move"
         self._session.flush()
         
-        #TODO Если элемент реально не изменился, сохранять в историю ничего не нужно!!!
-                
+        
         self._session.refresh(persistentItem)
         
+        
+        # Now we should update History Records
+        # TODO: we shouldn't touch History Records if the item hasn't changed
         hr = HistoryRec(item_id = persistentItem.id, item_hash=persistentItem.hash(), \
                         operation=HistoryRec.UPDATE, \
                         user_login=user_login, \
@@ -768,16 +766,12 @@ class UnitOfWork(object):
             hr.data_ref_url = persistentItem.data_ref.url    
         if parent_hr != hr:
             self._session.add(hr)
-        
         self._session.flush()
         
-        print(str(parent_hr))
-        print(str(hr))
-                
         
         # Perform operations with the file in os filesystem
         dstAbsPath2 = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
-        if is_none_or_empty(need_file_operation) and srcAbsPath != dstAbsPath2:    
+        if not is_none_or_empty(need_file_operation) and srcAbsPath != dstAbsPath2:    
             if not os.path.exists(os.path.split(dstAbsPath2)[0]):
                 os.makedirs(os.path.split(dstAbsPath2)[0])    
             if need_file_operation == "copy" and persistentItem.data_ref.type == DataRef.FILE:
@@ -785,7 +779,6 @@ class UnitOfWork(object):
             elif need_file_operation == "move" and persistentItem.data_ref.type == DataRef.FILE:
                 shutil.move(srcAbsPath, os.path.split(dstAbsPath2)[0])
         
-            
         self._session.commit()
         
         self._session.refresh(persistentItem)
