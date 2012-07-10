@@ -803,33 +803,37 @@ class UnitOfWork(object):
             return need_file_operation
 
     def __updateFilesystem(self, persistentItem, fileOperation, srcAbsPathForFileOperation):
-        # Perform operations with the file in os filesystem
+        # Performs operations with the file in OS filesystem
         
         assert fileOperation in [None, "copy", "move"]
         if is_none_or_empty(fileOperation):
             return
         
-        if persistentItem.data_ref is None:
-            return
+        assert persistentItem.data_ref is not None, \
+        "Item must have a DataRef object to be able to do some filesystem operations."
     
-        if srcAbsPathForFileOperation is None:
-            return
+        assert srcAbsPathForFileOperation is not None, \
+        "Path to target file is not given. We couldn't do any filesystem operations without it."
     
-        dstAbsPath2 = os.path.join(self._repo_base_path, persistentItem.data_ref.url)        
-        if srcAbsPathForFileOperation == dstAbsPath2:
-            return
+        assert persistentItem.data_ref.type == DataRef.FILE, \
+        "Filesystem operations can be done only when type is DataRef.FILE"
+    
+        dstAbsPath = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
+        if srcAbsPathForFileOperation == dstAbsPath:
+            return # There is nothing to do in this case
         
-        if not os.path.exists(os.path.split(dstAbsPath2)[0]):
-            os.makedirs(os.path.split(dstAbsPath2)[0])    
-        if fileOperation == "copy" and persistentItem.data_ref.type == DataRef.FILE:
-                shutil.copy(srcAbsPathForFileOperation, dstAbsPath2)
-        elif fileOperation == "move" and persistentItem.data_ref.type == DataRef.FILE:
-            dstAbsPathDir, dstFilename = os.path.split(dstAbsPath2) 
+        dstAbsPathDir, dstFilename = os.path.split(dstAbsPath)
+        if not os.path.exists(dstAbsPathDir):
+            os.makedirs(dstAbsPathDir)
+                
+        if fileOperation == "copy":
+            shutil.copy(srcAbsPathForFileOperation, dstAbsPath)
+        elif fileOperation == "move":
             shutil.move(srcAbsPathForFileOperation, dstAbsPathDir)
-            
             oldName = os.path.join(dstAbsPathDir, os.path.basename(srcAbsPathForFileOperation))
             newName = os.path.join(dstAbsPathDir, dstFilename)
             os.rename(oldName, newName)
+
 
     def _prepare_data_ref(self, data_ref, user_login):
         
