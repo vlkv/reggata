@@ -52,6 +52,16 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
         finally:
             uow.close()
         return dataRef
+    
+    def updateExistingItem(self, detachedItem, user_login):
+        item = None
+        try:
+            uow = self.repo.create_unit_of_work()
+            item = uow.updateExistingItem(detachedItem, user_login)
+        finally:
+            uow.close()
+        return item
+        
 
 
 class AbstractTestCaseWithRepoAndSingleUOW(unittest.TestCase):
