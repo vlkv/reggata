@@ -764,10 +764,12 @@ class UnitOfWork(object):
             #TODO Maybe remove DataRef if there are no items that reference to it?
             persistentItem.data_ref = None
             persistentItem.data_ref_id = None
+            
+            self._session.flush()
             return need_file_operation
         
-        shouldAttachAnotherDataRef = item.data_ref is not None and \
-            (persistentItem.data_ref.url != item.data_ref.url or persistentItem.data_ref is None)
+        shouldAttachAnotherDataRef = persistentItem.data_ref is None \
+            or persistentItem.data_ref.url != item.data_ref.url 
         if shouldAttachAnotherDataRef:
             # The item is attached to DataRef object at the first time or
             # it changes his DataRef object to another DataRef object
@@ -787,10 +789,14 @@ class UnitOfWork(object):
                 persistentItem.data_ref = item.data_ref
                 if item.data_ref.type == DataRef.FILE:
                     need_file_operation = "copy"
+            
+            self._session.flush()
             return need_file_operation
                 
-        should
-        if item.data_ref.type == DataRef.FILE and not is_none_or_empty(item.data_ref.dstRelPath):
+        shouldMoveReferencedFile = item.data_ref.type == DataRef.FILE \
+            and not is_none_or_empty(item.data_ref.dstRelPath) \
+            and os.path.normpath(persistentItem.data_ref.url) != os.path.normpath(item.data_ref.dstRelPath)
+        if shouldMoveReferencedFile:
             # A file referenced by the item is going to be moved to some another location
             # within the repository. item.data_ref.dstRelPath is the new relative
             # path to this file. File will be copied.
@@ -810,8 +816,8 @@ class UnitOfWork(object):
             
             persistentItem.data_ref.url = item.data_ref.dstRelPath
             need_file_operation = "move"
-        self._session.flush()
-        return need_file_operation
+            self._session.flush()
+            return need_file_operation
                 
     
     def _prepare_data_ref(self, data_ref, user_login):
