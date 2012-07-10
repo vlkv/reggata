@@ -4,9 +4,9 @@ from exceptions import NotFoundError, AccessError
 from abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonExistingItem,\
-    itemWithTagsAndFields
+    itemWithTagsAndFields, itemWithoutFile
 from repo_mgr import UnitOfWork
-from db_schema import HistoryRec, Item
+from db_schema import HistoryRec, Item, DataRef
 import helpers
 
 
@@ -421,8 +421,57 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertEqual(historyRecAfter.user_login, "user")
 
     def test_addFileToItemWithoutFile(self):
-        #TODO implement test. Referenced file for new DataRef will be from the outside of the repo 
-        pass
+        # Referenced file for new DataRef will be from the outside of the repo
+        item = self.getExistingItem(itemWithoutFile.id)
+        self.assertEqual(item.title, itemWithoutFile.title)
+        self.assertIsNone(item.data_ref)
+        self.assertFalse(os.path.exists(os.path.join(self.repo.base_path, "file.txt")))
+        
+        # Link file with the item
+        srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
+        item.data_ref = DataRef(DataRef.FILE, srcAbsPath)
+        
+        # Save changes to the repo
+        try:
+            uow = self.repo.create_unit_of_work()
+            uow.updateExistingItem(item, item.user_login)
+        finally:
+            uow.close()
+            
+        item = self.getExistingItem(itemWithoutFile.id)
+        self.assertEqual(item.title, itemWithoutFile.title)
+        self.assertIsNotNone(item.data_ref)
+        self.assertEqual(item.data_ref.url, "file.txt")
+        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, "file.txt")))
+        
+        
+    def test_addFileToItemWithoutFileWithDestinationInsideRepo(self):
+        # Referenced file for new DataRef will be from the outside of the repo
+        # We will specify the destination path in the repo - where to put the file
+        
+        item = self.getExistingItem(itemWithoutFile.id)
+        self.assertEqual(item.title, itemWithoutFile.title)
+        self.assertIsNone(item.data_ref)
+        self.assertFalse(os.path.exists(os.path.join(self.repo.base_path, "dir1", "dir2", "file.txt")))
+        
+        # Link file with the item
+        srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
+        item.data_ref = DataRef(DataRef.FILE, srcAbsPath)
+        item.data_ref.dstRelPath = os.path.join("dir1", "dir2")
+        
+        # Save changes to the repo
+        try:
+            uow = self.repo.create_unit_of_work()
+            uow.updateExistingItem(item, item.user_login)
+        finally:
+            uow.close()
+            
+        item = self.getExistingItem(itemWithoutFile.id)
+        self.assertEqual(item.title, itemWithoutFile.title)
+        self.assertIsNotNone(item.data_ref)
+        self.assertEqual(item.data_ref.url, "file.txt")
+        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, "dir1", "dir2", "file.txt")))
+        
 
     def test_replaceFileOfItemWithAnotherFile(self):
         #TODO implement test. Referenced file for new DataRef will be from the outside of the repo
