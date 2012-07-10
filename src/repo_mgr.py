@@ -642,8 +642,54 @@ class UnitOfWork(object):
         persistentItem.title = item.title
         persistentItem.user_login = item.user_login
         self._session.flush()
+                        
+        self.__updateTags(item, persistentItem, user_login)
         
-                
+        self.__updateFields(item, persistentItem, user_login)
+        
+        srcAbsPath = None
+        if persistentItem.data_ref is not None:
+            srcAbsPath = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
+        else:
+            srcAbsPath = item.data_ref.url
+            
+        need_file_operation = self.__updateDataRefObject(item, persistentItem, user_login)
+        
+        
+        self._session.refresh(persistentItem)
+        
+        
+        # Now we should update History Records
+        # TODO: we shouldn't touch History Records if the item hasn't changed
+        hr = HistoryRec(item_id = persistentItem.id, item_hash=persistentItem.hash(), \
+                        operation=HistoryRec.UPDATE, \
+                        user_login=user_login, \
+                        parent1_id=parent_hr.id)
+        if persistentItem.data_ref is not None:
+            hr.data_ref_hash = persistentItem.data_ref.hash
+            hr.data_ref_url = persistentItem.data_ref.url    
+        if parent_hr != hr:
+            self._session.add(hr)
+        self._session.flush()
+        
+        
+        # Perform operations with the file in os filesystem
+        dstAbsPath2 = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
+        if not is_none_or_empty(need_file_operation) and srcAbsPath != dstAbsPath2:
+            if not os.path.exists(os.path.split(dstAbsPath2)[0]):
+                os.makedirs(os.path.split(dstAbsPath2)[0])    
+            if need_file_operation == "copy" and persistentItem.data_ref.type == DataRef.FILE:
+                    shutil.copy(srcAbsPath, dstAbsPath2)
+            elif need_file_operation == "move" and persistentItem.data_ref.type == DataRef.FILE:
+                shutil.move(srcAbsPath, os.path.split(dstAbsPath2)[0])
+        
+        self._session.commit()
+        
+        self._session.refresh(persistentItem)
+        self._session.expunge(persistentItem)
+        return persistentItem
+    
+    def __updateTags(self, item, persistentItem, user_login):
         # Removing tags
         for itag in persistentItem.item_tags:
             i = index_of(item.item_tags, lambda x: True if x.tag.name==itag.tag.name else False)
@@ -667,8 +713,9 @@ class UnitOfWork(object):
                 self._session.add(item_tag)
                 item_tag.item = persistentItem
                 persistentItem.item_tags.append(item_tag)
-        self._session.flush()
-                
+        self._session.flush() 
+    
+    def __updateFields(self, item, persistentItem, user_login):
         # Removing fields
         for ifield in persistentItem.item_fields:
             i = index_of(item.item_fields, lambda o: True if o.field.name==ifield.field.name else False)
@@ -695,8 +742,8 @@ class UnitOfWork(object):
                 self._session.add(persistentItem.item_fields[i])
                 persistentItem.item_fields[i].field_value = ifield.field_value
         self._session.flush()
-        
-        
+    
+    def __updateDataRefObject(self, item, persistentItem, user_login):
         # Processing DataRef object 
         srcAbsPath = None
         dstAbsPath = None
@@ -720,8 +767,7 @@ class UnitOfWork(object):
             if existing_data_ref is not None:
                 persistentItem.data_ref = existing_data_ref
             else:
-                #We should create new DataRef object in this case
-                srcAbsPath = item.data_ref.url
+                #We should create new DataRef object in this case                
                 self._prepare_data_ref(item.data_ref, user_login)
                 self._session.add(item.data_ref)
                 self._session.flush()
@@ -750,42 +796,9 @@ class UnitOfWork(object):
             persistentItem.data_ref.url = item.data_ref.dstRelPath
             need_file_operation = "move"
         self._session.flush()
-        
-        
-        self._session.refresh(persistentItem)
-        
-        
-        # Now we should update History Records
-        # TODO: we shouldn't touch History Records if the item hasn't changed
-        hr = HistoryRec(item_id = persistentItem.id, item_hash=persistentItem.hash(), \
-                        operation=HistoryRec.UPDATE, \
-                        user_login=user_login, \
-                        parent1_id=parent_hr.id)
-        if persistentItem.data_ref is not None:
-            hr.data_ref_hash = persistentItem.data_ref.hash
-            hr.data_ref_url = persistentItem.data_ref.url    
-        if parent_hr != hr:
-            self._session.add(hr)
-        self._session.flush()
-        
-        
-        # Perform operations with the file in os filesystem
-        dstAbsPath2 = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
-        if not is_none_or_empty(need_file_operation) and srcAbsPath != dstAbsPath2:    
-            if not os.path.exists(os.path.split(dstAbsPath2)[0]):
-                os.makedirs(os.path.split(dstAbsPath2)[0])    
-            if need_file_operation == "copy" and persistentItem.data_ref.type == DataRef.FILE:
-                    shutil.copy(srcAbsPath, dstAbsPath2)
-            elif need_file_operation == "move" and persistentItem.data_ref.type == DataRef.FILE:
-                shutil.move(srcAbsPath, os.path.split(dstAbsPath2)[0])
-        
-        self._session.commit()
-        
-        self._session.refresh(persistentItem)
-        self._session.expunge(persistentItem)
-        return persistentItem
-   
-        
+        return need_file_operation
+                
+    
     def _prepare_data_ref(self, data_ref, user_login):
         
         def _prepare_data_ref_url(dr):                   
