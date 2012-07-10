@@ -421,6 +421,8 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertEqual(historyRecAfter.user_login, "user")
 
     def test_addFileToItemWithoutFile(self):
+        #TODO: Add HistoryRec checking
+        
         # Referenced file for new DataRef will be from the outside of the repo
         item = self.getExistingItem(itemWithoutFile.id)
         self.assertEqual(item.title, itemWithoutFile.title)
@@ -446,6 +448,8 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         
         
     def test_addFileToItemWithoutFileWithDestinationInsideRepo(self):
+        #TODO: Add HistoryRec checking
+        
         # Referenced file for new DataRef will be from the outside of the repo
         # We will specify the destination path in the repo - where to put the file
         
@@ -472,6 +476,31 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertEqual(item.data_ref.url, "dir1/dir2/copied_file.txt")
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, "dir1", "dir2", "copied_file.txt")))
         self.assertFalse(os.path.isdir(os.path.join(self.repo.base_path, "dir1", "dir2", "copied_file.txt")))
+    
+    
+    def test_moveFileOfItemToAnotherLocationWithinRepo(self):
+        item = self.getExistingItem(itemWithTagsAndFields.id)
+        self.assertEqual(item.title, itemWithTagsAndFields.title)
+        self.assertIsNotNone(item.data_ref)
+        
+        # Move linked file to another location within the repository
+        # NOTE: File will be not only moved, but also renamed
+        path = ["new", "location", "for", "file", "could_have_lied_lyrics.txt"]
+        item.data_ref.dstRelPath = os.path.join(*path)
+        
+        # Save changes to the repo
+        try:
+            uow = self.repo.create_unit_of_work()
+            uow.updateExistingItem(item, item.user_login)
+        finally:
+            uow.close()
+            
+        item = self.getExistingItem(itemWithTagsAndFields.id)
+        self.assertEqual(item.title, itemWithTagsAndFields.title)
+        self.assertIsNotNone(item.data_ref)
+        self.assertEqual(item.data_ref.url, "new/location/for/file/could_have_lied_lyrics.txt")
+        self.assertFalse(os.path.isdir(os.path.join(self.repo.base_path, *path)))
+        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, *path)))
         
 
     def test_replaceFileOfItemWithAnotherFile(self):
@@ -483,10 +512,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         #DataRef should not be deleted after this operation
         pass
     
-    def test_moveFileOfItemToAnotherLocationWithinRepo(self):
-        #TODO implement test
-        pass
-    
+        
     def test_addTagsToItemByNotOwnerUser(self):
         #TODO implement test
         pass

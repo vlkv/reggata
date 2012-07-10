@@ -758,16 +758,16 @@ class UnitOfWork(object):
             srcAbsPath = os.path.join(self._repo_base_path, item_0.data_ref.url)
             
             #Преобразуем dstRelPath в абсолютный путь ДО ФАЙЛА 
-            dstAbspath = os.path.join(self._repo_base_path, item.data_ref.dstRelPath)
+            dstAbsPath = os.path.join(self._repo_base_path, item.data_ref.dstRelPath)
             
             if not os.path.exists(srcAbsPath):
                 raise Exception(tr("File {0} not found!").format(srcAbsPath))
-            if not os.path.exists(dstAbspath):
+            if not os.path.exists(dstAbsPath):
                 item_0.data_ref.url = item.data_ref.dstRelPath
                 need_file_operation = "move"
-            elif os.path.abspath(srcAbsPath) != os.path.abspath(dstAbspath):
+            elif os.path.abspath(srcAbsPath) != os.path.abspath(dstAbsPath):
                 raise Exception(tr("Pathname {1} already exists. File {0} would not be moved.")\
-                                .format(srcAbsPath, dstAbspath))            
+                                .format(srcAbsPath, dstAbsPath))            
                     
         self._session.flush()
         
@@ -791,16 +791,19 @@ class UnitOfWork(object):
         print(str(hr))
                 
         
+        
         #Копируем или перемещаем файл (если необходимо, конечно)
-        if need_file_operation == "copy" and item_0.data_ref.type == DataRef.FILE:
-            dstAbsPath = os.path.join(self._repo_base_path, item_0.data_ref.url)
-            if srcAbsPath != dstAbsPath:
-                if not  os.path.exists(os.path.split(dstAbsPath)[0]):
-                    os.makedirs(os.path.split(dstAbsPath)[0])
-                shutil.copy(srcAbsPath, dstAbsPath)
-        elif need_file_operation == "move" and item_0.data_ref.type == DataRef.FILE:
-            #Теперь начинаем перемещение файла
-            shutil.move(srcAbsPath, dstAbsPath)
+        dstAbsPath2 = os.path.join(self._repo_base_path, item_0.data_ref.url)    
+        if srcAbsPath != dstAbsPath2:
+            if not os.path.exists(os.path.split(dstAbsPath2)[0]):
+                os.makedirs(os.path.split(dstAbsPath2)[0])
+                
+            if need_file_operation == "copy" and item_0.data_ref.type == DataRef.FILE:
+                    shutil.copy(srcAbsPath, dstAbsPath2)
+            elif need_file_operation == "move" and item_0.data_ref.type == DataRef.FILE:
+                #Теперь начинаем перемещение файла
+                shutil.move(srcAbsPath, os.path.split(dstAbsPath2)[0])
+        
             
         self._session.commit()
         
