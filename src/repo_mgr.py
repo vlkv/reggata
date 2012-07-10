@@ -626,7 +626,7 @@ class UnitOfWork(object):
             If item.data_ref.dstRelPath is not None --- that means that user wants
         to move (and maybe rename) original referenced file withing the repository.
         
-        TODO: Maybe we should use item.data_ref.srcAbsPath instead of item.data_ref.url... ?
+        TODO: Maybe we should use item.data_ref.srcAbsPathForFileOperation instead of item.data_ref.url... ?
         TODO: We should deny any user to change tags/fields/files of items, owned by another user.   
         '''
         
@@ -647,13 +647,13 @@ class UnitOfWork(object):
         
         self.__updateFields(item, persistentItem, user_login)
         
-        srcAbsPath = None
+        srcAbsPathForFileOperation = None
         if persistentItem.data_ref is not None:
-            srcAbsPath = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
+            srcAbsPathForFileOperation = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
         else:
-            srcAbsPath = item.data_ref.url
+            srcAbsPathForFileOperation = item.data_ref.url
             
-        need_file_operation = self.__updateDataRefObject(item, persistentItem, user_login)
+        fileOperation = self.__updateDataRefObject(item, persistentItem, user_login)
         
         
         self._session.refresh(persistentItem)
@@ -672,24 +672,7 @@ class UnitOfWork(object):
             self._session.add(hr)
         self._session.flush()
         
-        
-        # Perform operations with the file in os filesystem
-        if persistentItem.data_ref is not None:
-            dstAbsPath2 = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
-            if not is_none_or_empty(need_file_operation) \
-            and srcAbsPath is not None \
-            and srcAbsPath != dstAbsPath2:
-                if not os.path.exists(os.path.split(dstAbsPath2)[0]):
-                    os.makedirs(os.path.split(dstAbsPath2)[0])    
-                if need_file_operation == "copy" and persistentItem.data_ref.type == DataRef.FILE:
-                        shutil.copy(srcAbsPath, dstAbsPath2)
-                elif need_file_operation == "move" and persistentItem.data_ref.type == DataRef.FILE:
-                    dstAbsPathDir, dstFilename = os.path.split(dstAbsPath2) 
-                    shutil.move(srcAbsPath, dstAbsPathDir)
-                    
-                    oldName = os.path.join(dstAbsPathDir, os.path.basename(srcAbsPath))
-                    newName = os.path.join(dstAbsPathDir, dstFilename)
-                    os.rename(oldName, newName)
+        self.__updateFilesystem(persistentItem, fileOperation, srcAbsPathForFileOperation)
         
         self._session.commit()
         
@@ -818,8 +801,36 @@ class UnitOfWork(object):
             need_file_operation = "move"
             self._session.flush()
             return need_file_operation
-                
+
+    def __updateFilesystem(self, persistentItem, fileOperation, srcAbsPathForFileOperation):
+        # Perform operations with the file in os filesystem
+        
+        assert fileOperation in [None, "copy", "move"]
+        if is_none_or_empty(fileOperation):
+            return
+        
+        if persistentItem.data_ref is None:
+            return
     
+        if srcAbsPathForFileOperation is None:
+            return
+    
+        dstAbsPath2 = os.path.join(self._repo_base_path, persistentItem.data_ref.url)        
+        if srcAbsPathForFileOperation == dstAbsPath2:
+            return
+        
+        if not os.path.exists(os.path.split(dstAbsPath2)[0]):
+            os.makedirs(os.path.split(dstAbsPath2)[0])    
+        if fileOperation == "copy" and persistentItem.data_ref.type == DataRef.FILE:
+                shutil.copy(srcAbsPathForFileOperation, dstAbsPath2)
+        elif fileOperation == "move" and persistentItem.data_ref.type == DataRef.FILE:
+            dstAbsPathDir, dstFilename = os.path.split(dstAbsPath2) 
+            shutil.move(srcAbsPathForFileOperation, dstAbsPathDir)
+            
+            oldName = os.path.join(dstAbsPathDir, os.path.basename(srcAbsPathForFileOperation))
+            newName = os.path.join(dstAbsPathDir, dstFilename)
+            os.rename(oldName, newName)
+
     def _prepare_data_ref(self, data_ref, user_login):
         
         def _prepare_data_ref_url(dr):                   
