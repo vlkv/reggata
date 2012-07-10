@@ -752,20 +752,25 @@ class UnitOfWork(object):
         self._session.flush()
     
     def __updateDataRefObject(self, item, persistentItem, user_login):
+        
         # Processing DataRef object 
         srcAbsPath = None
         dstAbsPath = None
         need_file_operation = None
         
-        if item.data_ref is None:
+        shouldRemoveDataRef = item.data_ref is None
+        if shouldRemoveDataRef:
             # User removed the DataRef object from item (or it was None before..)
             #TODO Maybe remove DataRef if there are no items that reference to it?
             persistentItem.data_ref = None
             persistentItem.data_ref_id = None
-        elif persistentItem.data_ref is None or persistentItem.data_ref.url != item.data_ref.url:
+            return need_file_operation
+        
+        shouldAttachAnotherDataRef = item.data_ref is not None and \
+            (persistentItem.data_ref.url != item.data_ref.url or persistentItem.data_ref is None)
+        if shouldAttachAnotherDataRef:
             # The item is attached to DataRef object at the first time or
             # it changes his DataRef object to another DataRef object
-            
             url = item.data_ref.url
             if item.data_ref.type == DataRef.FILE:
                 assert os.path.isabs(url), "item.data_ref.url should be an absolute path"
@@ -782,8 +787,10 @@ class UnitOfWork(object):
                 persistentItem.data_ref = item.data_ref
                 if item.data_ref.type == DataRef.FILE:
                     need_file_operation = "copy"
+            return need_file_operation
                 
-        elif item.data_ref.type == DataRef.FILE and not is_none_or_empty(item.data_ref.dstRelPath):
+        should
+        if item.data_ref.type == DataRef.FILE and not is_none_or_empty(item.data_ref.dstRelPath):
             # A file referenced by the item is going to be moved to some another location
             # within the repository. item.data_ref.dstRelPath is the new relative
             # path to this file. File will be copied.
@@ -793,7 +800,7 @@ class UnitOfWork(object):
             if not os.path.exists(srcAbsPath):
                 raise Exception(tr("File {0} not found!").format(srcAbsPath))
             
-            if os.path.exists(dstAbsPath):
+            if os.path.exists(dstAbsPath) and os.path.abspath(srcAbsPath) != os.path.abspath(dstAbsPath):
                 raise Exception(tr("Pathname {0} already exists. File {1} would not be moved.")\
                                 .format(dstAbsPath, srcAbsPath))
                 

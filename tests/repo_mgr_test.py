@@ -601,13 +601,13 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
     
         
-    def test_addTagsToItemByNotOwnerUser(self):
+    #def test_addTagsToItemByNotOwnerUser(self):
         #TODO implement test
-        pass
+    #    pass
     
-    def test_removeTagsFromItemByNotOwnerUser(self):
+    #def test_removeTagsFromItemByNotOwnerUser(self):
         #TODO implement test
-        pass
+    #    pass
     
     
     
