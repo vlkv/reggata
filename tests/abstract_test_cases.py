@@ -2,7 +2,8 @@ import unittest
 import tests_context
 import os
 import shutil
-from repo_mgr import RepoMgr, UnitOfWork, UpdateExistingItemCommand
+from repo_mgr import RepoMgr, UnitOfWork, UpdateExistingItemCommand,\
+    GetExpungedItem
 from db_schema import DataRef
 import helpers
 
@@ -36,7 +37,7 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
     def getExistingItem(self, id):
         try:
             uow = self.repo.create_unit_of_work()
-            item = uow.getExpungedItem(id)
+            item = uow.executeCommand(GetExpungedItem(id))
             self.assertIsNotNone(item)
         finally:
             uow.close()

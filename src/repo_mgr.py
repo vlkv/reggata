@@ -143,26 +143,7 @@ class UnitOfWork(object):
         return command._execute(self)
         
         
-        
-    
-    
-    def getExpungedItem(self, id):
-        '''Returns expunged (detached) object of Item class from database with given id.'''
-        item = self._session.query(Item)\
-            .options(joinedload_all('data_ref'))\
-            .options(joinedload_all('item_tags.tag'))\
-            .options(joinedload_all('item_fields.field'))\
-            .get(id)
-            
-        if item is None:
-            raise NotFoundError()
-        
-        self._session.expunge(item)
-        return item
-    
-    
-
-
+    #TODO: extract this fun to separate command class..
     @staticmethod
     def _check_item_integrity(session, item, repo_base_path):
         '''Возвращает множество целых чисел (кодов ошибок). Коды ошибок (константы)
@@ -192,6 +173,7 @@ class UnitOfWork(object):
         
         return error_set
 
+    #TODO: extract this fun to separate command class..
     @staticmethod
     def _find_item_latest_history_rec(session, item_0):
         '''
@@ -210,6 +192,7 @@ class UnitOfWork(object):
                 .order_by(HistoryRec.id.desc()).first()
         return parent_hr
     
+    #TODO: extract this fun to separate command class..
     @staticmethod
     def _save_history_rec(session, item_0, user_login, operation, parent1_id=None, parent2_id=None):
         
@@ -237,6 +220,31 @@ class UnitOfWork(object):
 class AbstractCommand:
     def _execute(self, unitOfWork):
         raise NotImplementedError("Override this function in a subclass")
+    
+    
+class GetExpungedItem(AbstractCommand):
+    def __init__(self, id):
+        self.__itemId = id
+    
+    def _execute(self, uow):
+        self._session = uow.session
+        return self.__getExpungedItem(self.__itemId)
+    
+    def __getExpungedItem(self, id):
+        '''Returns expunged (detached) object of Item class from database with given id.'''
+        item = self._session.query(Item)\
+            .options(joinedload_all('data_ref'))\
+            .options(joinedload_all('item_tags.tag'))\
+            .options(joinedload_all('item_fields.field'))\
+            .get(id)
+            
+        if item is None:
+            raise NotFoundError()
+        
+        self._session.expunge(item)
+        return item
+    
+    
     
     
 class SaveThumbnailCommand(AbstractCommand):

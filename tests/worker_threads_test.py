@@ -4,10 +4,7 @@ Created on 25.01.2012
 @author: vvolkov
 '''
 import unittest
-import tests_context
-import os
-import shutil
-from repo_mgr import RepoMgr
+from repo_mgr import *
 from worker_threads import DeleteGroupOfItemsThread
 from abstract_test_cases import AbstractTestCaseWithRepo
 
@@ -20,9 +17,9 @@ class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):
         
         try:
             uow = self.repo.create_unit_of_work()
-            self.assertFalse(uow.getExpungedItem(1).alive)
-            self.assertFalse(uow.getExpungedItem(2).alive)
-            self.assertFalse(uow.getExpungedItem(3).alive)
+            self.assertFalse(uow.executeCommand(GetExpungedItem(1)).alive)
+            self.assertFalse(uow.executeCommand(GetExpungedItem(2)).alive)
+            self.assertFalse(uow.executeCommand(GetExpungedItem(3)).alive)            
         finally:
             uow.close()
         

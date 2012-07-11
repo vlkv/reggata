@@ -1091,7 +1091,7 @@ class MainWindow(QtGui.QMainWindow):
                     sel_items = []
                     for row in rows:
                         id = self.model.items[row].id
-                        sel_items.append(uow.getExpungedItem(id))
+                        sel_items.append(uow.executeCommand(GetExpungedItem(id)))
                     completer = Completer(self.active_repo, self)
                     dlg = ItemsDialog(self, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
                     if dlg.exec_():
@@ -1116,7 +1116,7 @@ class MainWindow(QtGui.QMainWindow):
                 item_id = self.model.items[rows.pop()].id
                 uow = self.active_repo.create_unit_of_work()
                 try:
-                    item = uow.getExpungedItem(item_id)
+                    item = uow.executeCommand(GetExpungedItem(item_id))
                     completer = Completer(self.active_repo, self)
                     item_dialog = ItemDialog(self, item, ItemDialog.EDIT_MODE, completer=completer)
                     if item_dialog.exec_():
