@@ -27,7 +27,7 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import RepoMgr
+from repo_mgr import RepoMgr, UpdateExistingItemCommand
 from helpers import tr, show_exc_info, DialogMode, is_none_or_empty,\
     WaitDialog, raise_exc, format_exc_info
 from db_schema import User, Item, DataRef
@@ -1118,7 +1118,8 @@ class MainWindow(QtGui.QMainWindow):
                     completer = helpers.Completer(self.active_repo, self)
                     item_dialog = ItemDialog(self, item, ItemDialog.EDIT_MODE, completer=completer)
                     if item_dialog.exec_():
-                        uow.updateExistingItem(item_dialog.item, self.active_user.login)
+                        cmd = UpdateExistingItemCommand(item_dialog.item, self.active_user.login)
+                        uow.executeCommand(cmd)
                 finally:
                     uow.close()
             

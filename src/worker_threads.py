@@ -9,7 +9,7 @@ import os
 import traceback
 import shutil
 from integrity_fixer import IntegrityFixer
-from repo_mgr import UnitOfWork
+from repo_mgr import UnitOfWork, UpdateExistingItemCommand
 import sys
 from user_config import UserConfig
 import consts
@@ -375,8 +375,8 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
         try:
             i = 0
             for item in self.items:
-                #Редактируем каждый item
-                uow.updateExistingItem(item, item.user_login)
+                cmd = UpdateExistingItemCommand(item, item.user_login)
+                uow.executeCommand(cmd)
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
                 

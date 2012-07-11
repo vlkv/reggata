@@ -2,7 +2,7 @@ import unittest
 import tests_context
 import os
 import shutil
-from repo_mgr import RepoMgr, UnitOfWork
+from repo_mgr import RepoMgr, UnitOfWork, UpdateExistingItemCommand
 from db_schema import DataRef
 import helpers
 
@@ -57,7 +57,8 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
         item = None
         try:
             uow = self.repo.create_unit_of_work()
-            item = uow.updateExistingItem(detachedItem, user_login)
+            cmd = UpdateExistingItemCommand(detachedItem, user_login)
+            item = uow.executeCommand(cmd)
         finally:
             uow.close()
         return item

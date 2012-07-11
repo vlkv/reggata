@@ -12,6 +12,7 @@ from db_schema import Item, DataRef
 import os
 from parsers import query_parser
 from worker_threads import ThumbnailBuilderThread
+from repo_mgr import UpdateExistingItemCommand
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
     '''
@@ -260,7 +261,8 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             #Store new rating value into database
             uow = self.repo.create_unit_of_work()
             try:
-                uow.updateExistingItem(item, self.user_login)
+                cmd = UpdateExistingItemCommand(item, self.user_login)
+                uow.executeCommand(cmd)
                 self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
                 return True
             except:
