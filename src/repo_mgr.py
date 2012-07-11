@@ -840,7 +840,7 @@ class UpdateExistingItemCommand(AbstractCommand):
     
     def _execute(self, uow):
         self._session = uow.session
-        self._repo_base_path = uow._repo_base_path
+        self._repoBasePath = uow._repo_base_path
         self.updateExistingItem(self.__item, self.__userLogin)
     
     def updateExistingItem(self, item, user_login):
@@ -862,7 +862,7 @@ class UpdateExistingItemCommand(AbstractCommand):
         #We must gather some information before any changes have been made
         srcAbsPathForFileOperation = None
         if persistentItem.data_ref is not None:
-            srcAbsPathForFileOperation = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
+            srcAbsPathForFileOperation = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
         else:
             srcAbsPathForFileOperation = item.data_ref.url
             
@@ -972,7 +972,7 @@ class UpdateExistingItemCommand(AbstractCommand):
             url = item.data_ref.url
             if item.data_ref.type == DataRef.FILE:
                 assert os.path.isabs(url), "item.data_ref.url should be an absolute path"
-                url = os.path.relpath(url, self._repo_base_path)
+                url = os.path.relpath(url, self._repoBasePath)
                 
             existing_data_ref = self._session.query(DataRef).filter(DataRef.url_raw==helpers.to_db_format(url)).first()            
             if existing_data_ref is not None:
@@ -997,8 +997,8 @@ class UpdateExistingItemCommand(AbstractCommand):
             # within the repository. item.data_ref.dstRelPath is the new relative
             # path to this file. File will be copied.
             
-            srcAbsPath = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
-            dstAbsPath = os.path.join(self._repo_base_path, item.data_ref.dstRelPath)
+            srcAbsPath = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
+            dstAbsPath = os.path.join(self._repoBasePath, item.data_ref.dstRelPath)
             if not os.path.exists(srcAbsPath):
                 raise Exception(tr("File {0} not found!").format(srcAbsPath))
             
@@ -1044,7 +1044,7 @@ class UpdateExistingItemCommand(AbstractCommand):
         assert persistentItem.data_ref.type == DataRef.FILE, \
         "Filesystem operations can be done only when type is DataRef.FILE"
     
-        dstAbsPath = os.path.join(self._repo_base_path, persistentItem.data_ref.url)
+        dstAbsPath = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
         if srcAbsPathForFileOperation == dstAbsPath:
             return # There is nothing to do in this case
         
@@ -1072,12 +1072,12 @@ class UpdateExistingItemCommand(AbstractCommand):
                 dr.url = dr.url[0:len(dr.url)-1]
                 
             #Определяем, находится ли данный файл уже внутри хранилища
-            if is_internal(dr.url, os.path.abspath(self._repo_base_path)):
+            if is_internal(dr.url, os.path.abspath(self._repoBasePath)):
                 #Файл уже внутри
                 #Делаем путь dr.url относительным и всё
                 #Если dr.dstRelPath имеет непустое значение --- оно игнорируется!
                 #TODO Как сделать, чтобы в GUI это было понятно пользователю?
-                dr.url = os.path.relpath(dr.url, self._repo_base_path)
+                dr.url = os.path.relpath(dr.url, self._repoBasePath)
             else:
                 #Файл снаружи                
                 if not is_none_or_empty(dr.dstRelPath) and dr.dstRelPath != ".":
