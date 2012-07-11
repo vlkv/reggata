@@ -5,7 +5,7 @@ from abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonExistingItem,\
     itemWithTagsAndFields, itemWithoutFile
-from repo_mgr import UnitOfWork, SaveNewItemCommand
+from repo_mgr import UnitOfWork, SaveNewItemCommand, DeleteItemCommand
 from db_schema import HistoryRec, Item, DataRef
 import helpers
 
@@ -258,9 +258,10 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
         try:
             uow = self.repo.create_unit_of_work()
             itemBeforeDelete = uow.getExpungedItem(itemWithFile.id)
-            uow.deleteItem(itemWithFile.id, 
-                        userThatDeletesItem, 
-                        delete_physical_file=True)
+            
+            cmd = DeleteItemCommand(itemWithFile.id, userThatDeletesItem, 
+                                    delete_physical_file=True)
+            uow.executeCommand(cmd)
         finally:
             uow.close()
         

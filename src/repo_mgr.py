@@ -621,7 +621,24 @@ class UnitOfWork(object):
     
     
     
-    def deleteItem(self, item_id, user_login, delete_physical_file=True):
+
+class AbstractCommand:
+    def _execute(self, unitOfWork):
+        raise NotImplementedError("Override this function in a subclass")
+
+class DeleteItemCommand(AbstractCommand):
+    
+    def __init__(self, item_id, user_login, delete_physical_file=True):
+        self.__itemId = item_id
+        self.__userLogin = user_login
+        self.__deletePhysicalFile = delete_physical_file        
+    
+    def _execute(self, uow):
+        self._session = uow.session
+        self._repoBasePath = uow._repo_base_path
+        return self.__deleteItem(self.__itemId, self.__userLogin, self.__deletePhysicalFile)
+    
+    def __deleteItem(self, item_id, user_login, delete_physical_file=True):
         # We should not delete Item objects from database, because
         # we do not want hanging references in HistoryRec table.
         # So we just mark Items as deleted. 
@@ -673,7 +690,7 @@ class UnitOfWork(object):
         
         if delete_data_ref:
             is_file = (data_ref.type == DataRef.FILE)
-            abs_path = os.path.join(self._repo_base_path, data_ref.url)
+            abs_path = os.path.join(self._repoBasePath, data_ref.url)
             
             self._session.delete(data_ref)
             self._session.flush()
@@ -684,12 +701,6 @@ class UnitOfWork(object):
         self._session.commit()
         
         
-    
-
-class AbstractCommand:
-    def _execute(self, unitOfWork):
-        raise NotImplementedError("Override this function in a subclass")
-
 
 
 class SaveNewItemCommand(AbstractCommand):

@@ -9,7 +9,8 @@ import os
 import traceback
 import shutil
 from integrity_fixer import IntegrityFixer
-from repo_mgr import UnitOfWork, UpdateExistingItemCommand, SaveNewItemCommand
+from repo_mgr import UnitOfWork, UpdateExistingItemCommand, SaveNewItemCommand,\
+    DeleteItemCommand
 import sys
 from user_config import UserConfig
 import consts
@@ -304,9 +305,9 @@ class DeleteGroupOfItemsThread(QtCore.QThread):
         try:
             i = 0
             for id in self.item_ids:
-                #Удаляем каждый item по одному
                 try:
-                    uow.deleteItem(id, self.user_login)
+                    cmd = DeleteItemCommand(id, self.user_login)
+                    uow.executeCommand(cmd)
                 except AccessError as ex:
                     #У пользователя self.user_login нет прав удалять данный элемент
                     self.errors += 1
