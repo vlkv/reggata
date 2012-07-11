@@ -190,8 +190,9 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.action_item_add_many_rec, 
                      QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
         #SEPARATOR
-        self.connect(self.ui.action_item_edit, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_edit)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_edit, EditItemActionHandler(self))
+        
         self.connect(self.ui.action_item_rebuild_thumbnail, 
                      QtCore.SIGNAL("triggered()"), self.action_item_rebuild_thumbnail)
         #SEPARATOR
@@ -1067,79 +1068,85 @@ class MainWindow(QtGui.QMainWindow):
         else:
             pass
 
-    def action_item_edit(self):
-        try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
-            
-            rows = self.ui.dockWidget_items_table.selected_rows()
-            if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
-            
-            if len(rows) > 1:                
-                uow = self.active_repo.create_unit_of_work()
-                try:
-                    sel_items = []
-                    for row in rows:
-                        id = self.model.items[row].id
-                        sel_items.append(uow.executeCommand(GetExpungedItemCommand(id)))
-                    completer = Completer(self.active_repo, self)
-                    dlg = ItemsDialog(self, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
-                    if dlg.exec_():
-                        thread = UpdateGroupOfItemsThread(self, self.active_repo, sel_items)
-                        self.connect(thread, QtCore.SIGNAL("exception"), 
-                                     lambda msg: raise_exc(msg))
-                                                                        
-                        wd = WaitDialog(self)
-                        self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-                        self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                        self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                                            
-                        thread.start()
-                        thread.wait(1000)
-                        if thread.isRunning():
-                            wd.exec_()
-                        
-                finally:
-                    uow.close()
-                    
-            else:
-                item_id = self.model.items[rows.pop()].id
-                uow = self.active_repo.create_unit_of_work()
-                try:
-                    item = uow.executeCommand(GetExpungedItemCommand(item_id))
-                    completer = Completer(self.active_repo, self)
-                    item_dialog = ItemDialog(self, item, ItemDialog.EDIT_MODE, completer=completer)
-                    if item_dialog.exec_():
-                        cmd = UpdateExistingItemCommand(item_dialog.item, self.active_user.login)
-                        uow.executeCommand(cmd)
-                finally:
-                    uow.close()
-            
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
-            self.query_exec()
-            self.ui.tag_cloud.refresh()
     
     
-    
-    def action_template(self):
-        try:
-            pass
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             
 
 class AbstractActionHandler():
     def handle(self):
         raise NotImplementedError("This function should be overriden in subclass")
+
+    def tr(self, text):
+        '''tr function is here just to be able to write in child class self.tr("something").'''
+        return helpers.tr(text)
+    
+class EditItemActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        self._gui = gui
+        
+    def handle(self):
+        try:
+            if self._gui.active_repo is None:
+                raise MsgException(self.tr("Open a repository first."))
+            
+            if self._gui.active_user is None:
+                raise MsgException(self.tr("Login to a repository first."))
+            
+            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            if len(rows) > 1:
+                self.__editManyItems(rows)
+            else:
+                self.__editSingleItem(rows.pop())
+                            
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.query_exec()
+            self._gui.ui.tag_cloud.refresh()
+    
+    def __editSingleItem(self, row):
+        item_id = self._gui.model.items[row].id
+        uow = self._gui.active_repo.create_unit_of_work()
+        try:
+            item = uow.executeCommand(GetExpungedItemCommand(item_id))
+            completer = Completer(self._gui.active_repo, self._gui)
+            item_dialog = ItemDialog(self._gui, item, ItemDialog.EDIT_MODE, completer=completer)
+            if item_dialog.exec_():
+                cmd = UpdateExistingItemCommand(item_dialog.item, self._gui.active_user.login)
+                uow.executeCommand(cmd)
+        finally:
+            uow.close()
+    
+    def __editManyItems(self, rows):
+        uow = self._gui.active_repo.create_unit_of_work()
+        try:
+            sel_items = []
+            for row in rows:
+                id = self._gui.model.items[row].id
+                sel_items.append(uow.executeCommand(GetExpungedItemCommand(id)))
+            completer = Completer(self._gui.active_repo, self._gui)
+            dlg = ItemsDialog(self._gui, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
+            if dlg.exec_():
+                thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, sel_items)
+                self.connect(thread, QtCore.SIGNAL("exception"), 
+                             lambda msg: raise_exc(msg))
+                                                                
+                wd = WaitDialog(self._gui)
+                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+                self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+                                    
+                thread.start()
+                thread.wait(1000)
+                if thread.isRunning():
+                    wd.exec_()
+        finally:
+            uow.close()
+        
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
     def __init__(self, gui):
