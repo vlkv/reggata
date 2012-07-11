@@ -222,7 +222,7 @@ class AbstractCommand:
         raise NotImplementedError("Override this function in a subclass")
     
     
-class GetExpungedItem(AbstractCommand):
+class GetExpungedItemCommand(AbstractCommand):
     def __init__(self, id):
         self.__itemId = id
     

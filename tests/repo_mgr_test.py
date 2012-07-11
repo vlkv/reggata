@@ -8,15 +8,15 @@ from repo_mgr import *
 
 class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):
     def test_getExistingItem(self):
-        item = self.uow.executeCommand(GetExpungedItem(itemWithFile.id))
+        item = self.uow.executeCommand(GetExpungedItemCommand(itemWithFile.id))
         self.assertEqual(item.title, itemWithFile.title)
         
     def test_getNonExistingItem(self):
-        cmd = GetExpungedItem(nonExistingItem.id)
+        cmd = GetExpungedItemCommand(nonExistingItem.id)
         self.assertRaises(NotFoundError, self.uow.executeCommand, (cmd))
         
     def test_passBadIdToGetItem(self):
-        cmd = GetExpungedItem("This str is NOT a valid item id!")
+        cmd = GetExpungedItemCommand("This str is NOT a valid item id!")
         self.assertRaises(NotFoundError, self.uow.executeCommand, (cmd))
 
 
@@ -34,7 +34,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             
         try:
             uow = self.repo.create_unit_of_work()
-            savedItem = uow.executeCommand(GetExpungedItem(self.savedItemId))
+            savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
             self.assertEqual(savedItem.title, item.title)
             
             histRec = UnitOfWork._find_item_latest_history_rec(uow.session, savedItem)
@@ -94,7 +94,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             
         try:
             uow = self.repo.create_unit_of_work()
-            savedItem = uow.executeCommand(GetExpungedItem(self.savedItemId))
+            savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
             self.assertEqual(savedItem.title, item.title)
             
             self.assertIsNotNone(savedItem.data_ref)
@@ -132,7 +132,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             
         try:
             uow = self.repo.create_unit_of_work()
-            savedItem = uow.executeCommand(GetExpungedItem(self.savedItemId))
+            savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
             self.assertEqual(savedItem.title, item.title)
             
             self.assertIsNotNone(savedItem.data_ref)
@@ -168,7 +168,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             
         try:
             uow = self.repo.create_unit_of_work()
-            savedItem = uow.executeCommand(GetExpungedItem(self.savedItemId))
+            savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
             self.assertEqual(savedItem.title, item.title)
             
             self.assertIsNotNone(savedItem.data_ref)
@@ -255,7 +255,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
         userThatDeletesItem = itemWithFile.ownerUserLogin
         try:
             uow = self.repo.create_unit_of_work()
-            itemBeforeDelete = uow.executeCommand(GetExpungedItem(itemWithFile.id))
+            itemBeforeDelete = uow.executeCommand(GetExpungedItemCommand(itemWithFile.id))
             
             cmd = DeleteItemCommand(itemWithFile.id, userThatDeletesItem, 
                                     delete_physical_file=True)
@@ -265,7 +265,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
         
         try:
             uow = self.repo.create_unit_of_work()
-            deletedItem = uow.executeCommand(GetExpungedItem(itemWithFile.id))
+            deletedItem = uow.executeCommand(GetExpungedItemCommand(itemWithFile.id))
             self.assertFalse(deletedItem.alive)
             self.assertIsNone(deletedItem.data_ref)
             
