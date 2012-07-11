@@ -189,6 +189,11 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
      
 
     def _read_root_path(self):
+        
+        # TODO: if there are a lot of files in repo root
+        # This function is called always on start, even when file browser is hidden
+        # Have to make it more lazy
+        
         self.file_infos = []
         
         if self.repo is None or self.root_path is None:
