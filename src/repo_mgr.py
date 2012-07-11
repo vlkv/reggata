@@ -684,7 +684,27 @@ class UnitOfWork(object):
         self._session.commit()
         
         
-    def saveNewItem(self, item, srcAbsPath=None, dstRelPath=None):
+    
+
+class AbstractCommand:
+    def _execute(self, unitOfWork):
+        raise NotImplementedError("Override this function in a subclass")
+
+
+
+class SaveNewItemCommand(AbstractCommand):
+
+    def __init__(self, item, srcAbsPath=None, dstRelPath=None):
+        self.__item = item
+        self.__srcAbsPath = srcAbsPath
+        self.__dstRelPath = dstRelPath
+    
+    def _execute(self, uow):
+        self._session = uow.session
+        self._repo_base_path = uow._repo_base_path
+        return self.__saveNewItem(self.__item, self.__srcAbsPath, self.__dstRelPath)
+    
+    def __saveNewItem(self, item, srcAbsPath=None, dstRelPath=None):
         '''Method saves in database given item.
         Returns id of created item, or raises an exception if something wrong.
         When this function returns, item object is expunged from the current Session.
@@ -826,11 +846,8 @@ class UnitOfWork(object):
         self._session.expunge(item)
         return item_id
 
-
-class AbstractCommand:
-    def _execute(self, unitOfWork):
-        raise NotImplementedError("Override this function in a subclass")
     
+
     
 class UpdateExistingItemCommand(AbstractCommand):
     
@@ -841,9 +858,9 @@ class UpdateExistingItemCommand(AbstractCommand):
     def _execute(self, uow):
         self._session = uow.session
         self._repoBasePath = uow._repo_base_path
-        self.updateExistingItem(self.__item, self.__userLogin)
+        self.__updateExistingItem(self.__item, self.__userLogin)
     
-    def updateExistingItem(self, item, user_login):
+    def __updateExistingItem(self, item, user_login):
         ''' item - is a detached object, representing a new state for stored item with id == item.id.
             user_login - is a login of user, who is doing the modifications of the item.
             Returns detached updated item or raises an exception, if something goes wrong. 

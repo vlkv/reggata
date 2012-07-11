@@ -5,7 +5,7 @@ from abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonExistingItem,\
     itemWithTagsAndFields, itemWithoutFile
-from repo_mgr import UnitOfWork
+from repo_mgr import UnitOfWork, SaveNewItemCommand
 from db_schema import HistoryRec, Item, DataRef
 import helpers
 
@@ -29,7 +29,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         item = Item("user", "Minimal Item")
         try:
             uow = self.repo.create_unit_of_work()
-            self.savedItemId = uow.saveNewItem(item)
+            cmd = SaveNewItemCommand(item)
+            self.savedItemId = uow.executeCommand(cmd)
         finally:
             uow.close()
             
@@ -52,7 +53,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         item = Item(nonExistentUserLogin, "Item's title")
         try:
             uow = self.repo.create_unit_of_work()
-            self.assertRaises(AccessError, uow.saveNewItem, (item))
+            cmd = SaveNewItemCommand(item)
+            self.assertRaises(AccessError, uow.executeCommand, (cmd))
             
         finally:
             uow.close()
@@ -62,7 +64,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         item = Item(userLogin, "Item's title")
         try:
             uow = self.repo.create_unit_of_work()
-            self.assertRaises(AccessError, uow.saveNewItem, (item))
+            cmd = SaveNewItemCommand(item)
+            self.assertRaises(AccessError, uow.executeCommand, (cmd))
         finally:
             uow.close()
             
@@ -71,7 +74,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         item = Item(userLogin, "Item's title")
         try:
             uow = self.repo.create_unit_of_work()
-            self.assertRaises(AccessError, uow.saveNewItem, (item))
+            cmd = SaveNewItemCommand(item)
+            self.assertRaises(AccessError, uow.executeCommand, (cmd))
         finally:
             uow.close()
 
@@ -85,7 +89,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         self.dstRelPath = os.path.join("dir1", "dir2", "dir3", "newFile.txt")
         try:
             uow = self.repo.create_unit_of_work()
-            self.savedItemId = uow.saveNewItem(item, self.srcAbsPath, self.dstRelPath)
+            cmd = SaveNewItemCommand(item, self.srcAbsPath, self.dstRelPath)
+            self.savedItemId = uow.executeCommand(cmd)
         finally:
             uow.close()
             
@@ -122,7 +127,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         self.dstRelPath = os.path.join("this", "is", "untracked", "file.txt")
         try:
             uow = self.repo.create_unit_of_work()
-            self.savedItemId = uow.saveNewItem(item, self.srcAbsPath, self.dstRelPath)
+            cmd = SaveNewItemCommand(item, self.srcAbsPath, self.dstRelPath)
+            self.savedItemId = uow.executeCommand(cmd)
         finally:
             uow.close()
             
@@ -157,7 +163,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         self.dstRelPath = os.path.join("dir1", "dir2", "dir3", "copy_of_stairway_to_heaven.txt")
         try:
             uow = self.repo.create_unit_of_work()
-            self.savedItemId = uow.saveNewItem(item, self.srcAbsPath, self.dstRelPath)
+            cmd = SaveNewItemCommand(item, self.srcAbsPath, self.dstRelPath)
+            self.savedItemId = uow.executeCommand(cmd)
         finally:
             uow.close()
             
@@ -194,7 +201,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         
         try:
             uow = self.repo.create_unit_of_work()
-            savedItemId = uow.saveNewItem(item)
+            cmd = SaveNewItemCommand(item)
+            savedItemId = uow.executeCommand(cmd)
         finally:
             uow.close()
             
@@ -223,7 +231,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         
         try:
             uow = self.repo.create_unit_of_work()
-            savedItemId = uow.saveNewItem(item)
+            cmd = SaveNewItemCommand(item)
+            savedItemId = uow.executeCommand(cmd)
         finally:
             uow.close()
             

@@ -9,7 +9,7 @@ import os
 import traceback
 import shutil
 from integrity_fixer import IntegrityFixer
-from repo_mgr import UnitOfWork, UpdateExistingItemCommand
+from repo_mgr import UnitOfWork, UpdateExistingItemCommand, SaveNewItemCommand
 import sys
 from user_config import UserConfig
 import consts
@@ -344,7 +344,7 @@ class CreateGroupIfItemsThread(QtCore.QThread):
                     if item.data_ref:
                         srcAbsPath = item.data_ref.srcAbsPath
                         dstRelPath = item.data_ref.dstRelPath
-                    uow.saveNewItem(item, srcAbsPath, dstRelPath)
+                    uow.executeCommand(SaveNewItemCommand(item, srcAbsPath, dstRelPath))
                     self.created_objects_count += 1
                     
                 except (ValueError, DataRefAlreadyExistsError):

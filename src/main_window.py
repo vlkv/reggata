@@ -27,7 +27,7 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import RepoMgr, UpdateExistingItemCommand
+from repo_mgr import RepoMgr, UpdateExistingItemCommand, SaveNewItemCommand
 from helpers import tr, show_exc_info, DialogMode, is_none_or_empty,\
     WaitDialog, raise_exc, format_exc_info
 from db_schema import User, Item, DataRef
@@ -928,7 +928,8 @@ class MainWindow(QtGui.QMainWindow):
                         srcAbsPath = dialog.item.data_ref.srcAbsPath
                         dstRelPath = dialog.item.data_ref.dstRelPath
 
-                    thread = BackgrThread(self, uow.saveNewItem, dialog.item, srcAbsPath, dstRelPath)
+                    cmd = SaveNewItemCommand(dialog.item, srcAbsPath, dstRelPath)
+                    thread = BackgrThread(self, uow.executeCommand, cmd)
                     
                     wd = WaitDialog(self, indeterminate=True)
                     self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
