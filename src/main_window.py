@@ -66,7 +66,8 @@ class MainWindow(QtGui.QMainWindow):
         
         self.items_lock = QtCore.QReadWriteLock()
         
-        self.__actionHandlers = ActionHandlerStorage()
+        self.__widgetsUpdateManager = WidgetsUpdateManager()
+        self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
         
         self.menu = self.create_items_table_context_menu()
         
@@ -1080,6 +1081,10 @@ class AbstractActionHandler():
         '''tr function is here just to be able to write in child class self.tr("something").'''
         return helpers.tr(text)
     
+    def connectSignals(self, widgetsUpdateManager):
+        # Does nothing by default. Override in subclass.
+        pass
+    
 class EditItemActionHandler(AbstractActionHandler):
     def __init__(self, gui):
         self._gui = gui
@@ -1162,17 +1167,76 @@ class ShowAboutDialogActionHandler(AbstractActionHandler):
     
     
 class ActionHandlerStorage(QtCore.QObject):
-    def __init__(self):
+    def __init__(self, widgetsUpdateManager):
         self.__actions = dict()
+        self.__widgetsUpdateManager = widgetsUpdateManager
         
     def registerActionHandler(self, qAction, actionHandler):
         assert not (qAction in self.__actions), "Given qAction already registered"
         self.connect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
+        actionHandler.connectSignals(self.__widgetsUpdateManager)
         self.__actions[qAction] = actionHandler
     
     def clear(self):
+        #TODO disconnect signals from widgetsUpdateManager
         self.__actions.clear()
     
+class HandlerSignals():
+    ITEM_CREATED = "itemCreated"
+    ITEM_CHANGED = "itemChanged"
+    ITEM_DELETED = "itemDeleted"
+    
+class WidgetsUpdateManager():
+    def __init__(self):
+        self.__signalsWidgets = dict()
+        self.__signalsWidgets[HandlerSignals.ITEM_DELETED] = []
+        self.__signalsWidgets[HandlerSignals.ITEM_CHANGED] = []
+        self.__signalsWidgets[HandlerSignals.ITEM_CREATED] = []
+        
+    def subscribe(self, widget, widgetUpdateCallable, repoSignals):
+        ''' widget --- some widget that is subscribed to be updated on a number of signals.
+            widgetUpdateCallable --- function that performs widget update.
+            repoSignals --- list of signal names on which widget is subscribed.
+        '''
+        for repoSignal in repoSignals:
+            self.__signalsWidgets[repoSignal].append((widget, widgetUpdateCallable))
+            
+    def unsubscribe(self, widget):
+        ''' Unsubscribes given widget from all previously registered signals.
+        '''
+        for widgets in self.__signalsWidgets.values():
+            j = None
+            for i in range(len(widgets)):
+                aWidget, aCallable = widgets[i]
+                if widget == aWidget:
+                    j = i
+                    break
+            if j is not None:
+                widgets.pop(j)
+    
+    def acceptRepoSignals(self, repoSignals):
+        alreadyUpdatedWidgets = []
+        for repoSignal in repoSignals:
+            widgets = self.__signalsWidgets[repoSignal]
+            for aWidget, aCallable in widgets:
+                if not (aWidget in alreadyUpdatedWidgets):
+                    aCallable()
+                    alreadyUpdatedWidgets.append(aWidget)
+    
+    def acceptRepoSignal(self, repoSignal):
+        widgets = self.__signalsWidgets[repoSignal]
+        for aWidget, aCallable in widgets:
+            aCallable()
+            
+    def onItemDeleted(self):
+        self.acceptRepoSignal(HandlerSignals.ITEM_DELETED)
+        
+    def onItemChanged(self):
+        self.acceptRepoSignal(HandlerSignals.ITEM_CHANGED)
+        
+    def onItemCreated(self):
+        self.acceptRepoSignal(HandlerSignals.ITEM_CREATED)
+        
 
 
 class AboutDialog(QtGui.QDialog):
