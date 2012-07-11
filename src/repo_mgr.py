@@ -701,7 +701,7 @@ class SaveNewItemCommand(AbstractCommand):
     
     def _execute(self, uow):
         self._session = uow.session
-        self._repo_base_path = uow._repo_base_path
+        self._repoBasePath = uow._repo_base_path
         return self.__saveNewItem(self.__item, self.__srcAbsPath, self.__dstRelPath)
     
     def __saveNewItem(self, item, srcAbsPath=None, dstRelPath=None):
@@ -751,7 +751,7 @@ class SaveNewItemCommand(AbstractCommand):
             
             dstRelPath = helpers.removeTrailingOsSeps(dstRelPath)
             dstRelPath = os.path.normpath(dstRelPath)
-            dstAbsPath = os.path.abspath(os.path.join(self._repo_base_path, dstRelPath))
+            dstAbsPath = os.path.abspath(os.path.join(self._repoBasePath, dstRelPath))
             dstAbsPath = os.path.normpath(dstAbsPath)
             if srcAbsPath != dstAbsPath and os.path.exists(dstAbsPath):
                 raise ValueError(tr("{} should not point to an existing file.").format(dstAbsPath))
