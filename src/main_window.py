@@ -21,33 +21,25 @@ Created on 20.08.2010
 
 @author: vlkv
 '''
-import os.path
-import datetime
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import *
-from helpers import tr, show_exc_info, DialogMode, is_none_or_empty,\
-    WaitDialog, raise_exc, format_exc_info
-from db_schema import User, Item, DataRef
-from user_config import UserConfig
-from user_dialog import UserDialog
-from exceptions import LoginError, MsgException, CannotOpenRepoError
-from tag_cloud import TagCloud
 import consts
+from consts import *
+from repo_mgr import *
+from worker_threads import *
+from integrity_fixer import *
+import helpers
+from helpers import *
+from db_schema import *
+from user_dialog import UserDialog
+from tag_cloud import TagCloud
 from items_dialog import ItemsDialog
 from ext_app_mgr import ExtAppMgr
-import helpers
-import time
 from image_viewer import ImageViewer
 import ui_aboutdialog
-from integrity_fixer import HistoryRecNotFoundFixer, FileHashMismatchFixer,\
-    FileNotFoundFixer
 from file_browser import FileBrowser, FileBrowserTableModel
-from worker_threads import BackgrThread, UpdateGroupOfItemsThread, \
-    CreateGroupIfItemsThread, DeleteGroupOfItemsThread, ThumbnailBuilderThread,\
-    ItemIntegrityCheckerThread, ItemIntegrityFixerThread, ExportItemsThread
 from items_table_dock_widget import ItemsTableDockWidget
 from table_models import RepoItemTableModel
 from common_widgets import Completer
@@ -74,6 +66,8 @@ class MainWindow(QtGui.QMainWindow):
         
         self.items_lock = QtCore.QReadWriteLock()
         
+        self.__actionHandlers = ActionHandlerStorage()
+        
         self.menu = self.create_items_table_context_menu()
         
         #Create ItemsTableDockWidget
@@ -85,7 +79,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.dockWidget_items_table, 
                      QtCore.SIGNAL("query_reset"), self.query_reset)
         
-                
+             
         self.connect_menu_actions()
 
         #Creating status bar widgets
@@ -144,13 +138,13 @@ class MainWindow(QtGui.QMainWindow):
             self.active_repo = RepoMgr(tmp)
             self._login_recent_user()
         except CannotOpenRepoError:
-            self.ui.statusbar.showMessage(self.tr("Cannot open recent repository."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Cannot open recent repository."), STATUSBAR_TIMEOUT)
             self.active_repo = None
         except LoginError:
-            self.ui.statusbar.showMessage(self.tr("Cannot login recent repository."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Cannot login recent repository."), STATUSBAR_TIMEOUT)
             self.active_user = None
         except Exception as ex:
-            self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), STATUSBAR_TIMEOUT)
                 
         #Restoring columns width of items table
         self.ui.dockWidget_items_table.restore_columns_width()
@@ -231,9 +225,9 @@ class MainWindow(QtGui.QMainWindow):
                      QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
         
         #MENU: Help
-        self.connect(self.ui.action_help_about, 
-                     QtCore.SIGNAL("triggered()"), self.action_help_about)
-                        
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_help_about, ShowAboutDialogActionHandler(self))
+                                
 
     def create_items_table_context_menu(self):
         menu = QtGui.QMenu(self)
@@ -404,7 +398,7 @@ class MainWindow(QtGui.QMainWindow):
                 self.ui.label_repo.setText("<b>" + tail + "</b>")
                 
                 self.ui.statusbar.showMessage(self.tr("Opened repository from {}.")
-                                              .format(repo.base_path), 5000)
+                                              .format(repo.base_path), STATUSBAR_TIMEOUT)
                 
                 self.model = RepoItemTableModel(
                     repo, self.items_lock, 
@@ -543,12 +537,12 @@ class MainWindow(QtGui.QMainWindow):
                     mb.exec_()
                 
             else:
-                self.ui.statusbar.showMessage(self.tr("Cancelled."), 5000)
+                self.ui.statusbar.showMessage(self.tr("Cancelled."), STATUSBAR_TIMEOUT)
             
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             self.query_exec()
             self.ui.tag_cloud.refresh()
             
@@ -570,7 +564,7 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
     def action_item_view_image_viewer(self):
         try:
@@ -606,7 +600,7 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
     def action_fix_file_not_found_try_find(self):
         strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
@@ -735,7 +729,7 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
     def action_export_items_file_paths(self):
         try:
@@ -763,7 +757,7 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
     def action_item_view_m3u(self):
         try:
@@ -793,7 +787,7 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 
     def action_item_add_many_rec(self):
@@ -948,7 +942,7 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             self.query_exec()
             self.ui.tag_cloud.refresh()
     
@@ -977,7 +971,7 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
         
         
 
@@ -1128,19 +1122,11 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             self.query_exec()
             self.ui.tag_cloud.refresh()
     
-    def action_help_about(self):
-        try:
-            ad = AboutDialog(self)
-            ad.exec_()
-            
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+    
     
     def action_template(self):
         try:
@@ -1148,8 +1134,38 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), 5000)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             
+
+class AbstractActionHandler():
+    def handle(self):
+        raise NotImplementedError("This function should be overriden in subclass")
+    
+class ShowAboutDialogActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        self._gui = gui
+    def handle(self):
+        try:
+            ad = AboutDialog(self._gui)
+            ad.exec_()
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            self._gui.ui.statusbar.showMessage(tr("Operation completed."), STATUSBAR_TIMEOUT)
+    
+    
+class ActionHandlerStorage(QtCore.QObject):
+    def __init__(self):
+        self.__actions = dict()
+        
+    def registerActionHandler(self, qAction, actionHandler):
+        assert not (qAction in self.__actions), "Given qAction already registered"
+        self.connect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
+        self.__actions[qAction] = actionHandler
+    
+    def clear(self):
+        self.__actions.clear()
+    
 
 
 class AboutDialog(QtGui.QDialog):

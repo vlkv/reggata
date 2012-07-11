@@ -45,3 +45,5 @@ RESERVED_FIELDS = [RATING_FIELD, NOTES_FIELD]
 #Some custom logger (from logging module) can be substituted here
 yacc_errorlog = ply.yacc.NullLogger()
 lex_errorlog = ply.lex.NullLogger()
+
+STATUSBAR_TIMEOUT = 5000
