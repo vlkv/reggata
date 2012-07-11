@@ -12,7 +12,7 @@ from db_schema import Item, DataRef
 import os
 from parsers import query_parser
 from worker_threads import ThumbnailBuilderThread
-from repo_mgr import UpdateExistingItemCommand
+from repo_mgr import UpdateExistingItemCommand, QueryItemsByParseTree
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
     '''
@@ -113,7 +113,8 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                 self.items = uow.get_untagged_items(limit, page, order_by)
             else:
                 query_tree = query_parser.parse(query_text)
-                self.items = uow.query_items_by_tree(query_tree, limit, page, order_by)
+                cmd = QueryItemsByParseTree(query_tree, limit, page, order_by)
+                self.items = uow.executeCommand(cmd)
             
             #Нужно запустить поток, который будет генерировать миниатюры
             self.thread = ThumbnailBuilderThread(self, self.repo, self.items, self.lock)
