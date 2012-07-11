@@ -346,7 +346,7 @@ class MainWindow(QtGui.QMainWindow):
         
         uow = self.active_repo.create_unit_of_work()
         try:
-            self.active_user = uow.login_user(login, password)
+            self.active_user = uow.executeCommand(LoginUserCommand(login, password))
         finally:
             uow.close()
         
@@ -490,8 +490,8 @@ class MainWindow(QtGui.QMainWindow):
             ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
             if ud.exec_():
                 uow = self.active_repo.create_unit_of_work()
-                try:                
-                    user = uow.login_user(ud.user.login, ud.user.password)
+                try:
+                    user = uow.executeCommand(LoginUserCommand(ud.user.login, ud.user.password))
                     self.active_user = user
                 except Exception as ex:
                     show_exc_info(self, ex)
@@ -990,7 +990,7 @@ class MainWindow(QtGui.QMainWindow):
             if ud.exec_():                    
                 uow = self.active_repo.create_unit_of_work()
                 try:                
-                    user = uow.login_user(ud.user.login, ud.user.password)
+                    user = uow.executeCommand(LoginUserCommand(ud.user.login, ud.user.password))
                     self.active_user = user
                 finally:
                     uow.close()

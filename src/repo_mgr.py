@@ -406,21 +406,7 @@ class UnitOfWork(object):
     
   
 
-    def login_user(self, login, password):
-        '''
-    	password - это SHA1 hexdigest() хеш. В случае неверного логина или пароля, 
-    	выкидывается LoginError.
-    	'''
-        if is_none_or_empty(login):
-            raise LoginError(tr("User login cannot be empty."))
-        user = self._session.query(User).get(login)
-        if user is None:
-            raise LoginError(tr("User {} doesn't exist.").format(login))
-        if user.password != password:
-            raise LoginError(tr("Password incorrect."))
-        
-        self._session.expunge(user)
-        return user
+
 
     @staticmethod
     def _check_item_integrity(session, item, repo_base_path):
@@ -496,6 +482,31 @@ class UnitOfWork(object):
 class AbstractCommand:
     def _execute(self, unitOfWork):
         raise NotImplementedError("Override this function in a subclass")
+
+class LoginUserCommand(AbstractCommand):
+    def __init__(self, login, password):
+        self.__login = login
+        self.__password = password
+    
+    def _execute(self, uow):
+        self._session = uow.session
+        return self.__loginUser(self.__login, self.__password) 
+    
+    def __loginUser(self, login, password):
+        '''
+        password - это SHA1 hexdigest() хеш. В случае неверного логина или пароля, 
+        выкидывается LoginError.
+        '''
+        if is_none_or_empty(login):
+            raise LoginError(tr("User login cannot be empty."))
+        user = self._session.query(User).get(login)
+        if user is None:
+            raise LoginError(tr("User {} doesn't exist.").format(login))
+        if user.password != password:
+            raise LoginError(tr("Password incorrect."))
+        
+        self._session.expunge(user)
+        return user
 
 class SaveNewUserCommand(AbstractCommand):
     def __init__(self, user):
