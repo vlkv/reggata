@@ -39,7 +39,6 @@ from sqlalchemy.exc import ResourceClosedError
 from user_config import UserConfig
 import db_schema
 import helpers
-from file_browser import FileInfo
 
 
 class RepoMgr(object):
@@ -167,28 +166,7 @@ class UnitOfWork(object):
         self._session.expunge(data_ref)
         
         
-    def get_file_info(self, path):
-        data_ref = self._session.query(DataRef)\
-            .filter(DataRef.url_raw==helpers.to_db_format(path))\
-            .options(joinedload_all("items"))\
-            .options(joinedload_all("items.item_tags.tag"))\
-            .options(joinedload_all("items.item_fields.field"))\
-            .one()
-        self._session.expunge(data_ref)
-        finfo = FileInfo(data_ref.url, status = FileInfo.STORED_STATUS)
-        
-        for item in data_ref.items:            
-            for item_tag in item.item_tags:
-                if item_tag.user_login not in finfo.user_tags: #finfo.user_tags is a dict()
-                    finfo.user_tags[item_tag.user_login] = []
-                finfo.user_tags[item_tag.user_login].append(item_tag.tag.name)
-            
-            for item_field in item.item_fields:
-                if item_field.user_login not in finfo.user_fields:
-                    finfo.user_fields[item_field.user_login] = dict()
-                finfo.user_fields[item_field.user_login][item_field.field.name] = item_field.field_value 
-                
-        return finfo
+    
     
     def getExpungedItem(self, id):
         '''Returns expunged (detached) object of Item class from database with given id.'''
@@ -482,6 +460,98 @@ class UnitOfWork(object):
 class AbstractCommand:
     def _execute(self, unitOfWork):
         raise NotImplementedError("Override this function in a subclass")
+    
+class FileInfo(object):
+    FILE = 0
+    DIR = 1
+    OTHER = 2 #Maybe link, device file or mount point
+    
+    UNTRACKED_STATUS = tr("UNTRACKED")
+    STORED_STATUS = tr("STORED")
+    
+    def __init__(self, path, filename=None, status=None):
+        
+        if filename is not None:
+            self.path = path
+            self.filename = filename
+        else:
+            #remove trailing slashes in the path
+            while path.endswith(os.sep):
+                path = path[0:-1]
+            self.path, self.filename = os.path.split(path)
+        
+        #Determine type of this path
+        if os.path.isdir(self.full_path):
+            self.type = self.DIR
+        elif os.path.isfile(self.full_path):
+            self.type = self.FILE
+        else:
+            self.type = self.OTHER
+        
+        self.user_tags = dict() #Key is user_login, value is a list of tags
+                
+        self.status = status
+        
+        self.user_fields = dict() #Key is user_login, value is a dict of fields and values 
+        
+    def _get_full_path(self):
+        return os.path.join(self.path, self.filename)
+    full_path = property(fget=_get_full_path)
+    
+    def tags_of_user(self, user_login):
+        return self.user_tags.get(user_login, set())
+
+    def users(self):
+        logins = set()
+        for user_login, tag_names in self.user_tags.items():
+            logins.add(user_login)
+        return logins
+    
+    def tags(self):
+        tags = set()
+        for user_login, tag_names in self.user_tags.items():
+            for tag_name in tag_names:
+                tags.add(tag_name)
+        return tags
+            
+    def get_field_value(self, field_name, user_login):
+        fields = self.user_fields.get(user_login)
+        if fields:
+            return fields.get(field_name)
+        else:
+            return None
+        
+        
+    
+class GetFileInfoCommand(AbstractCommand):
+    def __init__(self, path):
+        self.__path = path
+
+    def _execute(self, uow):
+        self._session = uow.session
+        return self.__getFileInfo(self.__path) 
+        
+    def __getFileInfo(self, path):
+        data_ref = self._session.query(DataRef)\
+            .filter(DataRef.url_raw==helpers.to_db_format(path))\
+            .options(joinedload_all("items"))\
+            .options(joinedload_all("items.item_tags.tag"))\
+            .options(joinedload_all("items.item_fields.field"))\
+            .one()
+        self._session.expunge(data_ref)
+        finfo = FileInfo(data_ref.url, status = FileInfo.STORED_STATUS)
+        
+        for item in data_ref.items:            
+            for item_tag in item.item_tags:
+                if item_tag.user_login not in finfo.user_tags: #finfo.user_tags is a dict()
+                    finfo.user_tags[item_tag.user_login] = []
+                finfo.user_tags[item_tag.user_login].append(item_tag.tag.name)
+            
+            for item_field in item.item_fields:
+                if item_field.user_login not in finfo.user_fields:
+                    finfo.user_fields[item_field.user_login] = dict()
+                finfo.user_fields[item_field.user_login][item_field.field.name] = item_field.field_value 
+        return finfo
 
 class LoginUserCommand(AbstractCommand):
     def __init__(self, login, password):

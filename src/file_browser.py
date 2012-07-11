@@ -29,7 +29,7 @@ import helpers
 from sqlalchemy import orm
 from helpers import tr, HTMLDelegate
 import consts
-import unicodedata
+from repo_mgr import GetFileInfoCommand, FileInfo
 
 
 class FileBrowser(QtGui.QTableView):
@@ -75,67 +75,7 @@ class FileBrowser(QtGui.QTableView):
 
 
 
-class FileInfo(object):
-    FILE = 0
-    DIR = 1
-    OTHER = 2 #Maybe link, device file or mount point
-    
-    UNTRACKED_STATUS = tr("UNTRACKED")
-    STORED_STATUS = tr("STORED")
-    
-    def __init__(self, path, filename=None, status=None):
-        
-        if filename is not None:
-            self.path = path
-            self.filename = filename
-        else:
-            #remove trailing slashes in the path
-            while path.endswith(os.sep):
-                path = path[0:-1]
-            self.path, self.filename = os.path.split(path)
-        
-        #Determine type of this path
-        if os.path.isdir(self.full_path):
-            self.type = self.DIR
-        elif os.path.isfile(self.full_path):
-            self.type = self.FILE
-        else:
-            self.type = self.OTHER
-        
-        self.user_tags = dict() #Key is user_login, value is a list of tags
-                
-        self.status = status
-        
-        self.user_fields = dict() #Key is user_login, value is a dict of fields and values 
-        
-    def _get_full_path(self):
-        return os.path.join(self.path, self.filename)
-    full_path = property(fget=_get_full_path)
-    
-    def tags_of_user(self, user_login):
-        return self.user_tags.get(user_login, set())
 
-    def users(self):
-        logins = set()
-        for user_login, tag_names in self.user_tags.items():
-            logins.add(user_login)
-        return logins
-    
-    def tags(self):
-        tags = set()
-        for user_login, tag_names in self.user_tags.items():
-            for tag_name in tag_names:
-                tags.add(tag_name)
-        return tags
-            
-    def get_field_value(self, field_name, user_login):
-        fields = self.user_fields.get(user_login)
-        if fields:
-            return fields.get(field_name)
-        else:
-            return None
-        
-        
         
         
         
@@ -211,7 +151,8 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
             for fname in listdir:
                 if os.path.isfile(os.path.join(self._root_path, fname)):
                     try:
-                        finfo = uow.get_file_info(os.path.relpath(os.path.join(self._root_path, fname), self.repo.base_path))
+                        cmd = GetFileInfoCommand(os.path.relpath(os.path.join(self._root_path, fname), self.repo.base_path))
+                        finfo = uow.executeCommand(cmd)
                     except (orm.exc.NoResultFound, orm.exc.MultipleResultsFound):
                         finfo = FileInfo(self._root_path, fname, status=FileInfo.UNTRACKED_STATUS)
                 else:
