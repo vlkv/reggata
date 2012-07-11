@@ -880,7 +880,7 @@ class UpdateExistingItemCommand(AbstractCommand):
         srcAbsPathForFileOperation = None
         if persistentItem.data_ref is not None:
             srcAbsPathForFileOperation = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
-        else:
+        elif item.data_ref is not None:
             srcAbsPathForFileOperation = item.data_ref.url
             
         parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, persistentItem)
