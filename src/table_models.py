@@ -12,7 +12,7 @@ from db_schema import Item, DataRef
 import os
 from parsers import query_parser
 from worker_threads import ThumbnailBuilderThread
-from repo_mgr import UpdateExistingItemCommand, QueryItemsByParseTree
+from repo_mgr import *
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
     '''
@@ -110,7 +110,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                         
             if query_text is None or query_text.strip()=="":
                 #Если запрос пустой, тогда извлекаем элементы не имеющие тегов
-                self.items = uow.get_untagged_items(limit, page, order_by)
+                self.items = uow.executeCommand(GetUntaggedItems(limit, page, order_by))
             else:
                 query_tree = query_parser.parse(query_text)
                 cmd = QueryItemsByParseTree(query_tree, limit, page, order_by)

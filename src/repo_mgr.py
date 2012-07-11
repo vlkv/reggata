@@ -182,7 +182,96 @@ class UnitOfWork(object):
         self._session.expunge(item)
         return item
     
-    def get_untagged_items(self, limit=0, page=1, order_by=""):
+    
+
+
+    @staticmethod
+    def _check_item_integrity(session, item, repo_base_path):
+        '''Возвращает множество целых чисел (кодов ошибок). Коды ошибок (константы)
+        объявлены как статические члены класса Item.
+        
+        Если ошибок нет, то возвращает пустое множество.
+        '''
+        
+        error_set = set()
+        
+        #Нужно проверить, есть ли запись в истории
+        hr = UnitOfWork._find_item_latest_history_rec(session, item)
+        if hr is None:
+            error_set.add(Item.ERROR_HISTORY_REC_NOT_FOUND)
+        
+        #Если есть связанный DataRef объект типа FILE,
+        if item.data_ref is not None and item.data_ref.type == DataRef.FILE:                    
+            #    нужно проверить есть ли файл
+            abs_path = os.path.join(repo_base_path, item.data_ref.url)
+            if not os.path.exists(abs_path):
+                error_set.add(Item.ERROR_FILE_NOT_FOUND)
+            else:
+                hash = helpers.compute_hash(abs_path)
+                size = os.path.getsize(abs_path)
+                if item.data_ref.hash != hash or item.data_ref.size != size:
+                    error_set.add(Item.ERROR_FILE_HASH_MISMATCH)                
+        
+        return error_set
+
+    @staticmethod
+    def _find_item_latest_history_rec(session, item_0):
+        '''
+        Возвращает последнюю запись из истории, относящуюся к элементу item_0.
+        Либо возвращает None, если не удалось найти такую запись.
+        '''
+        data_ref_hash = None
+        data_ref_url = None
+        if item_0.data_ref is not None:
+            data_ref_hash = item_0.data_ref.hash
+            data_ref_url = item_0.data_ref.url_raw
+        parent_hr = session.query(HistoryRec).filter(HistoryRec.item_id==item_0.id)\
+                .filter(HistoryRec.item_hash==item_0.hash())\
+                .filter(HistoryRec.data_ref_hash==data_ref_hash)\
+                .filter(HistoryRec.data_ref_url_raw==data_ref_url)\
+                .order_by(HistoryRec.id.desc()).first()
+        return parent_hr
+    
+    @staticmethod
+    def _save_history_rec(session, item_0, user_login, operation, parent1_id=None, parent2_id=None):
+        
+        if operation is None:
+            raise ValueError(tr("Argument operation cannot be None."))
+        
+        if operation != HistoryRec.CREATE and parent1_id is None:
+            raise ValueError(tr("Argument parent1_id cannot be None in CREATE operation."))
+        
+        #Сохраняем историю изменения данного элемента
+        hr = HistoryRec(item_id = item_0.id, item_hash=item_0.hash(), \
+                        operation=operation, \
+                        user_login=user_login, \
+                        parent1_id = parent1_id, parent2_id = parent2_id)
+        if item_0.data_ref is not None:
+            hr.data_ref_hash = item_0.data_ref.hash
+            hr.data_ref_url = item_0.data_ref.url
+        session.add(hr)
+    
+    
+    
+    
+    
+
+class AbstractCommand:
+    def _execute(self, unitOfWork):
+        raise NotImplementedError("Override this function in a subclass")
+    
+class GetUntaggedItems(AbstractCommand):
+    
+    def __init__(self, limit=0, page=1, order_by=""):
+        self.__limit = limit
+        self.__page = page
+        self.__orderBy = order_by
+    
+    def _execute(self, uow):
+        self._session = uow.session
+        return self.__getUntaggedItems(self.__limit, self.__page, self.__orderBy)
+    
+    def __getUntaggedItems(self, limit, page, order_by):
         '''
         Извлекает из БД все ЖИВЫЕ элементы, с которыми не связано ни одного тега.
         '''
@@ -263,83 +352,6 @@ class UnitOfWork(object):
     
     
 
-
-
-    @staticmethod
-    def _check_item_integrity(session, item, repo_base_path):
-        '''Возвращает множество целых чисел (кодов ошибок). Коды ошибок (константы)
-        объявлены как статические члены класса Item.
-        
-        Если ошибок нет, то возвращает пустое множество.
-        '''
-        
-        error_set = set()
-        
-        #Нужно проверить, есть ли запись в истории
-        hr = UnitOfWork._find_item_latest_history_rec(session, item)
-        if hr is None:
-            error_set.add(Item.ERROR_HISTORY_REC_NOT_FOUND)
-        
-        #Если есть связанный DataRef объект типа FILE,
-        if item.data_ref is not None and item.data_ref.type == DataRef.FILE:                    
-            #    нужно проверить есть ли файл
-            abs_path = os.path.join(repo_base_path, item.data_ref.url)
-            if not os.path.exists(abs_path):
-                error_set.add(Item.ERROR_FILE_NOT_FOUND)
-            else:
-                hash = helpers.compute_hash(abs_path)
-                size = os.path.getsize(abs_path)
-                if item.data_ref.hash != hash or item.data_ref.size != size:
-                    error_set.add(Item.ERROR_FILE_HASH_MISMATCH)                
-        
-        return error_set
-
-    @staticmethod
-    def _find_item_latest_history_rec(session, item_0):
-        '''
-        Возвращает последнюю запись из истории, относящуюся к элементу item_0.
-        Либо возвращает None, если не удалось найти такую запись.
-        '''
-        data_ref_hash = None
-        data_ref_url = None
-        if item_0.data_ref is not None:
-            data_ref_hash = item_0.data_ref.hash
-            data_ref_url = item_0.data_ref.url_raw
-        parent_hr = session.query(HistoryRec).filter(HistoryRec.item_id==item_0.id)\
-                .filter(HistoryRec.item_hash==item_0.hash())\
-                .filter(HistoryRec.data_ref_hash==data_ref_hash)\
-                .filter(HistoryRec.data_ref_url_raw==data_ref_url)\
-                .order_by(HistoryRec.id.desc()).first()
-        return parent_hr
-    
-    @staticmethod
-    def _save_history_rec(session, item_0, user_login, operation, parent1_id=None, parent2_id=None):
-        
-        if operation is None:
-            raise ValueError(tr("Argument operation cannot be None."))
-        
-        if operation != HistoryRec.CREATE and parent1_id is None:
-            raise ValueError(tr("Argument parent1_id cannot be None in CREATE operation."))
-        
-        #Сохраняем историю изменения данного элемента
-        hr = HistoryRec(item_id = item_0.id, item_hash=item_0.hash(), \
-                        operation=operation, \
-                        user_login=user_login, \
-                        parent1_id = parent1_id, parent2_id = parent2_id)
-        if item_0.data_ref is not None:
-            hr.data_ref_hash = item_0.data_ref.hash
-            hr.data_ref_url = item_0.data_ref.url
-        session.add(hr)
-    
-    
-    
-    
-    
-
-class AbstractCommand:
-    def _execute(self, unitOfWork):
-        raise NotImplementedError("Override this function in a subclass")
-    
     
 class QueryItemsByParseTree(AbstractCommand):
     def __init__(self, query_tree, limit=0, page=1, order_by=[]):
