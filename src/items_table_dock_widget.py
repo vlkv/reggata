@@ -14,6 +14,7 @@ import consts
 from table_models import RepoItemTableModel
 from helpers import ImageThumbDelegate, RatingDelegate, HTMLDelegate
 from parsers import query_parser
+from common_widgets import TextEdit
 
 class ItemsTableDockWidget(QtGui.QDockWidget):
     
@@ -23,7 +24,7 @@ class ItemsTableDockWidget(QtGui.QDockWidget):
         self.ui.setupUi(self)
         
         #Widgets for text queries
-        self.ui.lineEdit_query = helpers.TextEdit(self, one_line=True)
+        self.ui.lineEdit_query = TextEdit(self, one_line=True)
         tmp = QtGui.QHBoxLayout(self.ui.widget_lineEdit_query)
         tmp.addWidget(self.ui.lineEdit_query)        
         self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)

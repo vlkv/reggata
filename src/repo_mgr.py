@@ -167,21 +167,6 @@ class UnitOfWork(object):
         self._session.expunge(data_ref)
         
         
-        
-    
-    def get_names_of_all_tags_and_fields(self):
-        sql = '''
-        select distinct name from tags
-        UNION
-        select distinct name from fields
-        ORDER BY name
-        '''
-        try:            
-            return self._session.query("name").from_statement(sql).all()
-        except ResourceClosedError:
-            return []
-        
-    
     def get_file_info(self, path):
         data_ref = self._session.query(DataRef)\
             .filter(DataRef.url_raw==helpers.to_db_format(path))\
@@ -517,6 +502,23 @@ class AbstractCommand:
     def _execute(self, unitOfWork):
         raise NotImplementedError("Override this function in a subclass")
 
+class GetNamesOfAllTagsAndFields(AbstractCommand): 
+
+    def _execute(self, uow):
+        self._session = uow.session
+        return self.__getNamesOfAllTagsAndFields() 
+
+    def __getNamesOfAllTagsAndFields(self):
+        sql = '''
+        select distinct name from tags
+        UNION
+        select distinct name from fields
+        ORDER BY name
+        '''
+        try:            
+            return self._session.query("name").from_statement(sql).all()
+        except ResourceClosedError:
+            return []
 
 class GetRelatedTagsCommand(AbstractCommand):
     

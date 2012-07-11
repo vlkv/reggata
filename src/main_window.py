@@ -50,6 +50,7 @@ from worker_threads import BackgrThread, UpdateGroupOfItemsThread, \
     ItemIntegrityCheckerThread, ItemIntegrityFixerThread, ExportItemsThread
 from items_table_dock_widget import ItemsTableDockWidget
 from table_models import RepoItemTableModel
+from common_widgets import Completer
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -412,7 +413,7 @@ class MainWindow(QtGui.QMainWindow):
                 
                 self.ui.file_browser.repo = repo         
                  
-                completer = helpers.Completer(repo=repo, parent=self.ui.dockWidget_items_table)
+                completer = Completer(repo=repo, parent=self.ui.dockWidget_items_table)
                 self.ui.dockWidget_items_table.set_tag_completer(completer)
                 
                 self.restore_file_browser_state()
@@ -824,7 +825,7 @@ class MainWindow(QtGui.QMainWindow):
                     item.data_ref.srcAbsPathToRecursionRoot = dir
                     items.append(item)
             
-            completer = helpers.Completer(self.active_repo, self)
+            completer = Completer(self.active_repo, self)
             d = ItemsDialog(self, items, ItemsDialog.CREATE_MODE, same_dst_path=False, completer=completer)
             if d.exec_():
                 
@@ -873,7 +874,7 @@ class MainWindow(QtGui.QMainWindow):
                 item.data_ref.srcAbsPath = file
                 items.append(item)
             
-            completer = helpers.Completer(self.active_repo, self)
+            completer = Completer(self.active_repo, self)
             d = ItemsDialog(self, items, ItemsDialog.CREATE_MODE, completer=completer)
             if d.exec_():
                 
@@ -917,7 +918,7 @@ class MainWindow(QtGui.QMainWindow):
                 item.data_ref = DataRef(type=DataRef.FILE, url=file)
             
             
-            completer = helpers.Completer(self.active_repo, self)
+            completer = Completer(self.active_repo, self)
             dialog = ItemDialog(self, item, ItemDialog.CREATE_MODE, completer=completer)
             if dialog.exec_():
                 uow = self.active_repo.create_unit_of_work()
@@ -1091,7 +1092,7 @@ class MainWindow(QtGui.QMainWindow):
                     for row in rows:
                         id = self.model.items[row].id
                         sel_items.append(uow.getExpungedItem(id))
-                    completer = helpers.Completer(self.active_repo, self)
+                    completer = Completer(self.active_repo, self)
                     dlg = ItemsDialog(self, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
                     if dlg.exec_():
                         thread = UpdateGroupOfItemsThread(self, self.active_repo, sel_items)
@@ -1116,7 +1117,7 @@ class MainWindow(QtGui.QMainWindow):
                 uow = self.active_repo.create_unit_of_work()
                 try:
                     item = uow.getExpungedItem(item_id)
-                    completer = helpers.Completer(self.active_repo, self)
+                    completer = Completer(self.active_repo, self)
                     item_dialog = ItemDialog(self, item, ItemDialog.EDIT_MODE, completer=completer)
                     if item_dialog.exec_():
                         cmd = UpdateExistingItemCommand(item_dialog.item, self.active_user.login)

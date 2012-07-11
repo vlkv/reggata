@@ -33,6 +33,7 @@ from helpers import show_exc_info, is_none_or_empty, is_internal
 from parsers import definition_parser
 from parsers.util import quote
 from exceptions import MsgException
+from common_widgets import TextEdit
 
 
 class ItemDialog(QtGui.QDialog):
@@ -52,10 +53,10 @@ class ItemDialog(QtGui.QDialog):
         self.completer = completer
         
         #Adding my custom widgets to dialog
-        self.ui.plainTextEdit_fields = helpers.TextEdit(self, self.completer, completer_end_str=": ")
+        self.ui.plainTextEdit_fields = TextEdit(self, self.completer, completer_end_str=": ")
         self.ui.verticalLayout_text_edit_fields.addWidget(self.ui.plainTextEdit_fields)
         
-        self.ui.plainTextEdit_tags = helpers.TextEdit(self, self.completer)
+        self.ui.plainTextEdit_tags = TextEdit(self, self.completer)
         self.ui.verticalLayout_text_edit_tags.addWidget(self.ui.plainTextEdit_tags)
         
         if type(item) != Item:
