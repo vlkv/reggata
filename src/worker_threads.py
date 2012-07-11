@@ -5,18 +5,12 @@ Created on 21.01.2012
 @author: vlkv
 '''
 from PyQt4 import QtCore, QtGui
-import os
 import traceback
-import shutil
 from integrity_fixer import IntegrityFixer
-from repo_mgr import UnitOfWork, UpdateExistingItemCommand, SaveNewItemCommand,\
-    DeleteItemCommand
+from repo_mgr import *
 import sys
-from user_config import UserConfig
-import consts
 from db_schema import Thumbnail
-from exceptions import AccessError, FileAlreadyExistsError,\
-    DataRefAlreadyExistsError
+from exceptions import *
 
 
 
@@ -256,13 +250,11 @@ class ThumbnailBuilderThread(QtCore.QThread):
                     buffer.open(QtCore.QIODevice.WriteOnly);
                     pixmap.save(buffer, "JPG")
                     
-                    #Create Thumbnail object
                     th = Thumbnail()
                     th.data = buffer.buffer().data()
                     th.size = thumbnail_size
                     
-                    #Save Thumbnail object in database
-                    uow.save_thumbnail(item.data_ref.id, th)
+                    uow.executeCommand(SaveThumbnailCommand(item.data_ref.id, th))
                     
                     #Update items collection
                     try:

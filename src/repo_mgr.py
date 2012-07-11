@@ -141,29 +141,7 @@ class UnitOfWork(object):
     def executeCommand(self, command):
         assert isinstance(command, AbstractCommand)
         return command._execute(self)
-    
-#    def delete_all_thumbnails(self, data_ref_id):
-#        rows = self._session.query(Thumbnail).filter(Thumbnail.data_ref_id==data_ref_id)\
-#            .delete(synchronize_session="fetch")        
-#        self._session.commit()
-#        
-#        return rows
         
-    def save_thumbnail(self, data_ref_id, thumbnail):
-        data_ref = self._session.query(DataRef).get(data_ref_id)
-        self._session.refresh(data_ref)
-        thumbnail.data_ref_id = data_ref.id
-        print("len(data_ref.thumbnails) = {}".format(len(data_ref.thumbnails)))
-        for th in data_ref.thumbnails:
-            print(th)
-        data_ref.thumbnails.append(thumbnail)
-        self._session.add(thumbnail)
-        
-        self._session.commit()
-        
-        self._session.refresh(thumbnail)
-        self._session.expunge(thumbnail)
-        self._session.expunge(data_ref)
         
         
     
@@ -259,6 +237,33 @@ class UnitOfWork(object):
 class AbstractCommand:
     def _execute(self, unitOfWork):
         raise NotImplementedError("Override this function in a subclass")
+    
+    
+class SaveThumbnailCommand(AbstractCommand):
+    def __init__(self, data_ref_id, thumbnail):
+        self.__dataRefId = data_ref_id
+        self.__thumbnail = thumbnail
+    
+    def _execute(self, uow):
+        self._session = uow.session
+        self.__saveThumbnail(self.__dataRefId, self.__thumbnail)
+    
+    def __saveThumbnail(self, data_ref_id, thumbnail):
+        data_ref = self._session.query(DataRef).get(data_ref_id)
+        self._session.refresh(data_ref)
+        thumbnail.data_ref_id = data_ref.id
+        for th in data_ref.thumbnails:
+            print(th)
+        data_ref.thumbnails.append(thumbnail)
+        self._session.add(thumbnail)
+        
+        self._session.commit()
+        
+        self._session.refresh(thumbnail)
+        self._session.expunge(thumbnail)
+        self._session.expunge(data_ref)
+    
+    
     
 class GetUntaggedItems(AbstractCommand):
     
