@@ -27,7 +27,7 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 import ui_mainwindow
 from item_dialog import ItemDialog
-from repo_mgr import RepoMgr, UpdateExistingItemCommand, SaveNewItemCommand
+from repo_mgr import *
 from helpers import tr, show_exc_info, DialogMode, is_none_or_empty,\
     WaitDialog, raise_exc, format_exc_info
 from db_schema import User, Item, DataRef
@@ -961,7 +961,7 @@ class MainWindow(QtGui.QMainWindow):
             if u.exec_():
                 uow = self.active_repo.create_unit_of_work()
                 try:
-                    uow.save_new_user(u.user)
+                    uow.executeCommand(SaveNewUserCommand(u.user))
                     
                     self.active_user = u.user                    
                 finally:

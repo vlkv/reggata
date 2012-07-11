@@ -404,12 +404,7 @@ class UnitOfWork(object):
 #    
     
     
-    def save_new_user(self, user):
-        self._session.add(user)
-        self._session.commit()
-        self._session.refresh(user)
-        self._session.expunge(user)
-
+  
 
     def login_user(self, login, password):
         '''
@@ -502,8 +497,23 @@ class AbstractCommand:
     def _execute(self, unitOfWork):
         raise NotImplementedError("Override this function in a subclass")
 
-class GetNamesOfAllTagsAndFields(AbstractCommand): 
+class SaveNewUserCommand(AbstractCommand):
+    def __init__(self, user):
+        self.__user = user
+    
+    def _execute(self, uow):
+        self._session = uow.session
+        self.__saveNewUser(self.__user)
+    
+    def __saveNewUser(self, user):
+        #TODO: have to do some basic check of user object validity
+        self._session.add(user)
+        self._session.commit()
+        self._session.refresh(user)
+        self._session.expunge(user)
 
+
+class GetNamesOfAllTagsAndFields(AbstractCommand): 
     def _execute(self, uow):
         self._session = uow.session
         return self.__getNamesOfAllTagsAndFields() 
