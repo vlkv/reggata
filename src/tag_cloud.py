@@ -30,6 +30,7 @@ from parsers.util import quote
 import parsers
 from exceptions import MsgException
 from user_config import UserConfig
+from repo_mgr import GetRelatedTagsCommand
 
 #TODO Сделать по Ctr+F поиск тега в облаке (т.к. в хранилище обычно очень много тегов)
 
@@ -136,7 +137,8 @@ class TagCloud(QtGui.QTextEdit):
         else:
             uow = self.repo.create_unit_of_work()
             try:
-                tags = uow.get_related_tags(list(self.tags), limit=self.limit)
+                cmd = GetRelatedTagsCommand(list(self.tags), limit=self.limit)
+                tags = uow.executeCommand(cmd)
                 
                 self.tag_count = tags
                 

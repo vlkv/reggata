@@ -168,115 +168,6 @@ class UnitOfWork(object):
         
         
         
-    def get_related_tags(self, tag_names=[], user_logins=[], limit=0):
-        ''' Возвращает список related тегов для тегов из списка tag_names.
-        Если tag_names - пустой список, возращает все теги.
-        Поиск ведется среди тегов пользователей из списка user_logins.
-        Если user_logins пустой, то поиск среди всех тегов в БД.
-        
-        limit affects only if tag_names is empty. In other cases limit is ignored.
-        If limit == 0 it means there is no limit.
-        '''
-        
-        #TODO Пока что не учитывается аргумент user_logins
-        
-        if len(tag_names) == 0:
-            #TODO The more items in the repository, the slower this query is performed.
-            #I think, I should store in database some statistics information, such as number of items
-            #tagged with each tag. With this information, the query can be rewritten and became much faster.
-            if limit > 0:
-                sql = '''
-                select name, c 
-                from
-                (select t.name as name, count(*) as c
-                   from items i, tags t
-                   join items_tags it on it.tag_id = t.id and it.item_id = i.id and i.alive   
-                where
-                    1
-                group by t.name
-                ORDER BY c DESC LIMIT ''' + str(limit) + ''') as sub
-                ORDER BY name
-                '''
-            else:
-                sql = '''
-                --get_related_tags() запрос, извлекающий все теги и кол-во связанных с каждым тегом ЖИВЫХ элементов
-                select t.name as name, count(*) as c
-                   from items i, tags t
-                   join items_tags it on it.tag_id = t.id and it.item_id = i.id and i.alive   
-                where
-                    1
-                group by t.name
-                ORDER BY t.name
-                '''
-            
-            #Здесь пришлось вставлять этот try..except, т.к. иначе пустой список (если нет связанных тегов)
-            #не возвращается, а вылетает ResourceClosedError. Не очень удобно, однако. 
-            try:
-                return self._session.query("name", "c").from_statement(sql).all()
-            except ResourceClosedError as ex:
-                return []
-            
-            
-        else:
-            #Сначала нужно получить список id-шников для всех имен тегов
-            sql = '''--get_related_tags(): getting list of id for all selected tags
-            select * from tags t
-            where t.name in (''' + to_commalist(tag_names, lambda x: "'" + x + "'") + ''')
-            order by t.id'''
-            try:
-                tags = self._session.query(Tag).from_statement(sql).all()
-            except ResourceClosedError:
-                tags = []
-            tag_ids = []
-            for tag in tags:
-                tag_ids.append(tag.id)
-                
-            if len(tag_ids) == 0:
-                #TODO Maybe raise an exception?
-                return []
-            
-            sub_from = ""
-            for i in range(len(tag_ids)):
-                if i == 0:
-                    sub_from = sub_from + " items_tags it{} ".format(i+1)
-                else:
-                    sub_from = sub_from + \
-                    (" join items_tags it{1} on it{1}.item_id=it{0}.item_id " + \
-                    " AND it{1}.tag_id > it{0}.tag_id ").format(i, i+1)
-                
-            sub_where = ""
-            for i in range(len(tag_ids)):
-                if i == 0:
-                    sub_where = sub_where + \
-                    " it{0}.tag_id = {1} ".format(i+1, tag_ids[i])
-                else:
-                    sub_where = sub_where + \
-                    " AND it{0}.tag_id = {1} ".format(i+1, tag_ids[i])
-            
-            where = ""
-            for i in range(len(tag_ids)):
-                where = where + \
-                " AND t.id <> {0} ".format(tag_ids[i])
-            
-            sql = '''--get_related_tags() запрос, извлекающий родственные теги для выбранных тегов
-            select t.name as name, count(*) as c
-                from tags t
-                join items_tags it on it.tag_id = t.id
-                join items i on i.id = it.item_id
-            where
-                it.item_id IN (
-                    select it1.item_id
-                        from ''' + sub_from + '''
-                    where ''' + sub_where + '''                     
-                ) ''' + where + '''
-                AND i.alive            
-                --Важно, чтобы эти id-шники следовали по возрастанию                
-            group by t.name
-            ORDER BY t.name'''
-            try:            
-                return self._session.query("name", "c").from_statement(sql).all()
-            except ResourceClosedError as ex:
-                return []
     
     def get_names_of_all_tags_and_fields(self):
         sql = '''
@@ -625,6 +516,130 @@ class UnitOfWork(object):
 class AbstractCommand:
     def _execute(self, unitOfWork):
         raise NotImplementedError("Override this function in a subclass")
+
+
+class GetRelatedTagsCommand(AbstractCommand):
+    
+    def __init__(self, tag_names=[], user_logins=[], limit=0):
+        self.__tag_names = tag_names
+        self.__user_logins = user_logins
+        self.__limit = limit
+
+    def _execute(self, uow):
+        self._session = uow.session
+        return self.__getRelatedTags(self.__tag_names, self.__user_logins, self.__limit)
+
+    def __getRelatedTags(self, tag_names, user_logins, limit):
+        ''' Возвращает список related тегов для тегов из списка tag_names.
+        Если tag_names - пустой список, возращает все теги.
+        Поиск ведется среди тегов пользователей из списка user_logins.
+        Если user_logins пустой, то поиск среди всех тегов в БД.
+        
+        limit affects only if tag_names is empty. In other cases limit is ignored.
+        If limit == 0 it means there is no limit.
+        '''
+        
+        #TODO Пока что не учитывается аргумент user_logins
+        
+        if len(tag_names) == 0:
+            #TODO The more items in the repository, the slower this query is performed.
+            #I think, I should store in database some statistics information, such as number of items
+            #tagged with each tag. With this information, the query can be rewritten and became much faster.
+            if limit > 0:
+                sql = '''
+                select name, c 
+                from
+                (select t.name as name, count(*) as c
+                   from items i, tags t
+                   join items_tags it on it.tag_id = t.id and it.item_id = i.id and i.alive   
+                where
+                    1
+                group by t.name
+                ORDER BY c DESC LIMIT ''' + str(limit) + ''') as sub
+                ORDER BY name
+                '''
+            else:
+                sql = '''
+                --get_related_tags() запрос, извлекающий все теги и кол-во связанных с каждым тегом ЖИВЫХ элементов
+                select t.name as name, count(*) as c
+                   from items i, tags t
+                   join items_tags it on it.tag_id = t.id and it.item_id = i.id and i.alive   
+                where
+                    1
+                group by t.name
+                ORDER BY t.name
+                '''
+            
+            #Здесь пришлось вставлять этот try..except, т.к. иначе пустой список (если нет связанных тегов)
+            #не возвращается, а вылетает ResourceClosedError. Не очень удобно, однако. 
+            try:
+                return self._session.query("name", "c").from_statement(sql).all()
+            except ResourceClosedError as ex:
+                return []
+            
+            
+        else:
+            #Сначала нужно получить список id-шников для всех имен тегов
+            sql = '''--get_related_tags(): getting list of id for all selected tags
+            select * from tags t
+            where t.name in (''' + to_commalist(tag_names, lambda x: "'" + x + "'") + ''')
+            order by t.id'''
+            try:
+                tags = self._session.query(Tag).from_statement(sql).all()
+            except ResourceClosedError:
+                tags = []
+            tag_ids = []
+            for tag in tags:
+                tag_ids.append(tag.id)
+                
+            if len(tag_ids) == 0:
+                #TODO Maybe raise an exception?
+                return []
+            
+            sub_from = ""
+            for i in range(len(tag_ids)):
+                if i == 0:
+                    sub_from = sub_from + " items_tags it{} ".format(i+1)
+                else:
+                    sub_from = sub_from + \
+                    (" join items_tags it{1} on it{1}.item_id=it{0}.item_id " + \
+                    " AND it{1}.tag_id > it{0}.tag_id ").format(i, i+1)
+                
+            sub_where = ""
+            for i in range(len(tag_ids)):
+                if i == 0:
+                    sub_where = sub_where + \
+                    " it{0}.tag_id = {1} ".format(i+1, tag_ids[i])
+                else:
+                    sub_where = sub_where + \
+                    " AND it{0}.tag_id = {1} ".format(i+1, tag_ids[i])
+            
+            where = ""
+            for i in range(len(tag_ids)):
+                where = where + \
+                " AND t.id <> {0} ".format(tag_ids[i])
+            
+            sql = '''--get_related_tags() запрос, извлекающий родственные теги для выбранных тегов
+            select t.name as name, count(*) as c
+                from tags t
+                join items_tags it on it.tag_id = t.id
+                join items i on i.id = it.item_id
+            where
+                it.item_id IN (
+                    select it1.item_id
+                        from ''' + sub_from + '''
+                    where ''' + sub_where + '''                     
+                ) ''' + where + '''
+                AND i.alive            
+                --Важно, чтобы эти id-шники следовали по возрастанию                
+            group by t.name
+            ORDER BY t.name'''
+            try:            
+                return self._session.query("name", "c").from_statement(sql).all()
+            except ResourceClosedError as ex:
+                return []
+    
+
 
 class DeleteItemCommand(AbstractCommand):
     
