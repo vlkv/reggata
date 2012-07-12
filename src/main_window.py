@@ -76,7 +76,10 @@ class MainWindow(QtGui.QMainWindow):
         self.menu = self.create_items_table_context_menu()
         self.ui.dockWidget_items_table.addContextMenu(self.menu)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_items_table)
-        
+        self.__widgetsUpdateManager.subscribe(
+            self.ui.dockWidget_items_table, 
+            self.ui.dockWidget_items_table.query_exec, 
+            [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, HandlerSignals.ITEM_DELETED])
         
              
         self.connect_menu_actions()
@@ -116,6 +119,10 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.dockWidget_tag_cloud, 
                      QtCore.SIGNAL("visibilityChanged(bool)"), 
                      lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
+        self.__widgetsUpdateManager.subscribe(
+            self.ui.tag_cloud, 
+            self.ui.tag_cloud.refresh, 
+            [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, HandlerSignals.ITEM_DELETED])
         
                      
                 
@@ -133,6 +140,10 @@ class MainWindow(QtGui.QMainWindow):
                      lambda b: self.ui.action_tools_file_browser.setChecked(b))
         
         self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.dockWidget_items_table)        
+        
+        #TODO subscribe file browser to actionHandlers signals
+        
+        
         
         #Try to open and login recent repository with recent user login
         try:
@@ -326,15 +337,10 @@ class MainWindow(QtGui.QMainWindow):
         if type(user) != User and user is not None:
             raise TypeError(self.tr("Argument must be an instance of User class."))
         
-        if self.__active_user is not None:
-            self.ui.tag_cloud.remove_user(self.__active_user.login)            
-        
         self.__active_user = user
         
         
         if user is not None:
-            self.ui.tag_cloud.add_user(user.login)
-        
             #Tell to table model that current active user has changed
             if self.model is not None and isinstance(self.model, RepoItemTableModel):
                 self.model.user_login = user.login
@@ -1098,9 +1104,9 @@ class EditItemActionHandler(AbstractActionHandler):
             show_exc_info(self._gui, ex)
         else:
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
-            #self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
-            self._gui.query_exec()
-            self._gui.ui.tag_cloud.refresh()
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
+#            self._gui.query_exec()
+#            self._gui.ui.tag_cloud.refresh()
             
     
     def __editSingleItem(self, row):
@@ -1188,6 +1194,11 @@ class HandlerSignals():
     ITEM_CREATED = "itemCreated"
     ITEM_CHANGED = "itemChanged"
     ITEM_DELETED = "itemDeleted"
+    
+    @staticmethod
+    def allSignals():
+        return [HandlerSignals.ITEM_CREATED, HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_DELETED]
+    
     
 class WidgetsUpdateManager():
     def __init__(self):
