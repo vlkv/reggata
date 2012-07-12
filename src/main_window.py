@@ -1073,7 +1073,10 @@ class MainWindow(QtGui.QMainWindow):
     
             
 
-class AbstractActionHandler():
+class AbstractActionHandler(QtCore.QObject):
+    def __init__(self):
+        super(AbstractActionHandler, self).__init__()
+        
     def handle(self):
         raise NotImplementedError("This function should be overriden in subclass")
 
@@ -1082,11 +1085,20 @@ class AbstractActionHandler():
         return helpers.tr(text)
     
     def connectSignals(self, widgetsUpdateManager):
-        # Does nothing by default. Override in subclass.
-        pass
+        self.connect(self, QtCore.SIGNAL("handlerSignal"), \
+                     widgetsUpdateManager.onHandlerSignal)
+        self.connect(self, QtCore.SIGNAL("handlerSignals"), \
+                     widgetsUpdateManager.onHandlerSignals)
+    
+    def disconnectSignals(self, widgetsUpdateManager):
+        self.disconnect(self, QtCore.SIGNAL("handlerSignal"), \
+                     widgetsUpdateManager.onHandlerSignal)
+        self.discconnect(self, QtCore.SIGNAL("handlerSignals"), \
+                     widgetsUpdateManager.onHandlerSignals)
     
 class EditItemActionHandler(AbstractActionHandler):
     def __init__(self, gui):
+        super(EditItemActionHandler, self).__init__()
         self._gui = gui
         
     def handle(self):
@@ -1110,8 +1122,10 @@ class EditItemActionHandler(AbstractActionHandler):
             show_exc_info(self._gui, ex)
         else:
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            #self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
             self._gui.query_exec()
             self._gui.ui.tag_cloud.refresh()
+            
     
     def __editSingleItem(self, row):
         item_id = self._gui.model.items[row].id
@@ -1155,7 +1169,9 @@ class EditItemActionHandler(AbstractActionHandler):
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
     def __init__(self, gui):
+        super(ShowAboutDialogActionHandler, self).__init__()
         self._gui = gui
+        
     def handle(self):
         try:
             ad = AboutDialog(self._gui)
@@ -1166,22 +1182,33 @@ class ShowAboutDialogActionHandler(AbstractActionHandler):
             self._gui.ui.statusbar.showMessage(tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
-class ActionHandlerStorage(QtCore.QObject):
+class ActionHandlerStorage():
     def __init__(self, widgetsUpdateManager):
         self.__actions = dict()
         self.__widgetsUpdateManager = widgetsUpdateManager
         
     def registerActionHandler(self, qAction, actionHandler):
         assert not (qAction in self.__actions), "Given qAction already registered"
-        self.connect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
+        
+        QtCore.QObject.connect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
         actionHandler.connectSignals(self.__widgetsUpdateManager)
+        
         self.__actions[qAction] = actionHandler
     
     def clear(self):
-        #TODO disconnect signals from widgetsUpdateManager
+        for qAction, actionHandler in self.__actions.items():
+            actionHandler.disconnectSignals(self.__widgetsUpdateManager)
+            QtCore.QObject.disconnect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
         self.__actions.clear()
     
 class HandlerSignals():
+    '''Named constants in this class is not the signal names, but the signal types.
+    They are arguments of the following signals: handlerSignal, handlerSignals.
+    handlerSignal accepts single signal type. handlerSignals accepts a list of
+    signal types. See also WidgetsUpdateManager, ActionHandlerStorage and
+    AbstractActionHandler classes.
+    '''
+    
     ITEM_CREATED = "itemCreated"
     ITEM_CHANGED = "itemChanged"
     ITEM_DELETED = "itemDeleted"
@@ -1214,30 +1241,20 @@ class WidgetsUpdateManager():
             if j is not None:
                 widgets.pop(j)
     
-    def acceptRepoSignals(self, repoSignals):
+    def onHandlerSignals(self, handlerSignals):
         alreadyUpdatedWidgets = []
-        for repoSignal in repoSignals:
-            widgets = self.__signalsWidgets[repoSignal]
+        for handlerSignal in handlerSignals:
+            widgets = self.__signalsWidgets[handlerSignal]
             for aWidget, aCallable in widgets:
                 if not (aWidget in alreadyUpdatedWidgets):
                     aCallable()
                     alreadyUpdatedWidgets.append(aWidget)
     
-    def acceptRepoSignal(self, repoSignal):
-        widgets = self.__signalsWidgets[repoSignal]
+    def onHandlerSignal(self, handlerSignal):
+        widgets = self.__signalsWidgets[handlerSignal]
         for aWidget, aCallable in widgets:
             aCallable()
             
-    def onItemDeleted(self):
-        self.acceptRepoSignal(HandlerSignals.ITEM_DELETED)
-        
-    def onItemChanged(self):
-        self.acceptRepoSignal(HandlerSignals.ITEM_CHANGED)
-        
-    def onItemCreated(self):
-        self.acceptRepoSignal(HandlerSignals.ITEM_CREATED)
-        
-
 
 class AboutDialog(QtGui.QDialog):
     
