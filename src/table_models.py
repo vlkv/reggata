@@ -70,7 +70,6 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
                 
         self.query(self.query_text, self.limit, self.page)
         
-    #TODO: Move this method outside this class, because of SRP!!!
     def query(self, query_text, limit=0, page=1):
         '''Выполняет извлечение элементов из хранилища.'''
         

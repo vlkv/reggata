@@ -9,6 +9,7 @@ from PyQt4.QtCore import Qt
 
 import ui_itemstabledockwidget
 import helpers
+from helpers import *
 from user_config import UserConfig
 import consts
 from table_models import RepoItemTableModel
@@ -53,10 +54,24 @@ class ItemsTableDockWidget(QtGui.QDockWidget):
         self.__context_menu = None
     
     def query_exec(self):
-        self.emit(QtCore.SIGNAL("query_exec"))
+        if self.__table_model is None:
+            raise MsgException(self.tr("Items Table Widget has no Model."))
+        
+        query_text = self.query_text()
+        limit = self.query_limit()
+        page = self.query_page()
+        
+        self.__table_model.query(query_text, limit, page)
+        
+        self.resize_rows_to_contents()
+    
     
     def query_reset(self):
-        self.emit(QtCore.SIGNAL("query_reset"))
+        if self.__table_model is not None:
+            self.__table_model.query("")
+        self.query_text_reset()
+        #TODO: Send some signal to update Tag Cloud
+    
 
     def query_text(self):
         return self.ui.lineEdit_query.text()

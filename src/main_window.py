@@ -69,16 +69,14 @@ class MainWindow(QtGui.QMainWindow):
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
         
-        self.menu = self.create_items_table_context_menu()
+        
         
         #Create ItemsTableDockWidget
         self.ui.dockWidget_items_table = ItemsTableDockWidget(self)
+        self.menu = self.create_items_table_context_menu()
         self.ui.dockWidget_items_table.addContextMenu(self.menu)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_items_table)
-        self.connect(self.ui.dockWidget_items_table, 
-                     QtCore.SIGNAL("query_exec"), self.query_exec)
-        self.connect(self.ui.dockWidget_items_table, 
-                     QtCore.SIGNAL("query_reset"), self.query_reset)
+        
         
              
         self.connect_menu_actions()
@@ -309,28 +307,6 @@ class MainWindow(QtGui.QMainWindow):
     def reset_tag_cloud(self):
         self.ui.tag_cloud.reset()
     
-    
-        
-    def query_reset(self):
-        if self.model:
-            self.model.query("")
-        self.ui.dockWidget_items_table.query_text_reset()
-        self.ui.tag_cloud.reset()
-        
-        
-    def query_exec(self):
-        try:
-            if not self.active_repo:
-                raise MsgException(self.tr("Open a repository first."))
-            query_text = self.ui.dockWidget_items_table.query_text()
-            limit = self.ui.dockWidget_items_table.query_limit()
-            page = self.ui.dockWidget_items_table.query_page()
-            self.model.query(query_text, limit, page)
-            self.ui.dockWidget_items_table.resize_rows_to_contents()
-            
-        except Exception as ex:
-            show_exc_info(self, ex)
-        
         
     
     def _login_recent_user(self):
@@ -409,6 +385,7 @@ class MainWindow(QtGui.QMainWindow):
                 
                 self.ui.file_browser.repo = repo         
                  
+                #TODO move this completer update into the dockWidget_items_table class
                 completer = Completer(repo=repo, parent=self.ui.dockWidget_items_table)
                 self.ui.dockWidget_items_table.set_tag_completer(completer)
                 
