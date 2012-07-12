@@ -456,7 +456,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         item = self.getExistingItem(itemWithoutFile.id)
         self.assertEqual(item.title, itemWithoutFile.title)
         self.assertIsNotNone(item.data_ref)
-        self.assertEqual(item.data_ref.url, "dir1/dir2/copied_file.txt")
+        self.assertEqual(helpers.to_db_format(item.data_ref.url), "dir1/dir2/copied_file.txt")
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, "dir1", "dir2", "copied_file.txt")))
         self.assertFalse(os.path.isdir(os.path.join(self.repo.base_path, "dir1", "dir2", "copied_file.txt")))
     
@@ -476,7 +476,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         item = self.getExistingItem(itemWithTagsAndFields.id)
         self.assertEqual(item.title, itemWithTagsAndFields.title)
         self.assertIsNotNone(item.data_ref)
-        self.assertEqual(item.data_ref.url, "new/location/for/file/I Could Have Lied.txt")
+        self.assertEqual(helpers.to_db_format(item.data_ref.url), "new/location/for/file/I Could Have Lied.txt")
         self.assertFalse(os.path.isdir(os.path.join(self.repo.base_path, *path)))
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, *path)))
     
@@ -496,7 +496,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         item = self.getExistingItem(itemWithTagsAndFields.id)
         self.assertEqual(item.title, itemWithTagsAndFields.title)
         self.assertIsNotNone(item.data_ref)
-        self.assertEqual(item.data_ref.url, "new/location/for/file/could_have_lied_lyrics.txt")
+        self.assertEqual(helpers.to_db_format(item.data_ref.url), "new/location/for/file/could_have_lied_lyrics.txt")
         self.assertFalse(os.path.isdir(os.path.join(self.repo.base_path, *path)))
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, *path)))
     
@@ -550,7 +550,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         item = self.getExistingItem(itemWithTagsAndFields.id)
         self.assertIsNotNone(item)
         self.assertIsNotNone(item.data_ref)
-        self.assertEqual(item.data_ref.url, itemWithTagsAndFields.relFilePath)
+        self.assertEqual(helpers.to_db_format(item.data_ref.url), itemWithTagsAndFields.relFilePath)
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, item.data_ref.url)))
         
         # Link file with the item
@@ -579,7 +579,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         item = self.getExistingItem(itemWithTagsAndFields.id)
         self.assertIsNotNone(item)
         self.assertIsNotNone(item.data_ref)
-        self.assertEqual(item.data_ref.url, itemWithTagsAndFields.relFilePath)
+        self.assertEqual(helpers.to_db_format(item.data_ref.url), itemWithTagsAndFields.relFilePath)
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, item.data_ref.url)))
         
         # Link file with the item
