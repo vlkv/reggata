@@ -106,17 +106,17 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.dockWidget_tag_cloud.setObjectName("dockWidget_tag_cloud")
         self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
-        self.connect(self.ui.tag_cloud, 
-                     QtCore.SIGNAL("selectedTagsChanged"), 
+        self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), 
                      self.ui.dockWidget_items_table.selected_tags_changed)
+        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("queryTextResetted"),
+                     self.ui.tag_cloud.reset)
         self.connect(self.ui.action_tools_tag_cloud, 
                      QtCore.SIGNAL("triggered(bool)"), 
                      lambda b: self.ui.dockWidget_tag_cloud.setVisible(b))
         self.connect(self.ui.dockWidget_tag_cloud, 
                      QtCore.SIGNAL("visibilityChanged(bool)"), 
                      lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
-        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("queryTextResetted"),
-                     self.ui.tag_cloud.reset)
+        
                      
                 
         #Adding file browser
@@ -306,10 +306,6 @@ class MainWindow(QtGui.QMainWindow):
 
     def event(self, e):
         return super(MainWindow, self).event(e)
-
-    def reset_tag_cloud(self):
-        self.ui.tag_cloud.reset()
-    
         
     
     def _login_recent_user(self):
