@@ -70,7 +70,7 @@ class ItemsTableDockWidget(QtGui.QDockWidget):
         if self.__table_model is not None:
             self.__table_model.query("")
         self.query_text_reset()
-        #TODO: Send some signal to update Tag Cloud
+        self.emit(QtCore.SIGNAL("queryTextResetted"))
     
 
     def query_text(self):

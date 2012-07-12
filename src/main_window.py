@@ -115,6 +115,9 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(self.ui.dockWidget_tag_cloud, 
                      QtCore.SIGNAL("visibilityChanged(bool)"), 
                      lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
+        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("queryTextResetted"),
+                     self.ui.tag_cloud.reset)
+                     
                 
         #Adding file browser
         self.ui.file_browser = FileBrowser(self)
