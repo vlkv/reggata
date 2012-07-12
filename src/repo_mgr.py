@@ -655,6 +655,7 @@ class GetNamesOfAllTagsAndFields(AbstractCommand):
 
 class GetRelatedTagsCommand(AbstractCommand):
     
+    #TODO This command should return list of tags, related to arbitrary list of selected items.
     def __init__(self, tag_names=[], user_logins=[], limit=0):
         self.__tag_names = tag_names
         self.__user_logins = user_logins
