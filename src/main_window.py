@@ -1078,8 +1078,6 @@ class EditItemActionHandler(AbstractActionHandler):
         else:
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
-#            self._gui.query_exec()
-#            self._gui.ui.tag_cloud.refresh()
             
     
     def __editSingleItem(self, row):
