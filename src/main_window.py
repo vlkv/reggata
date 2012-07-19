@@ -420,6 +420,15 @@ class MainWindow(QtGui.QMainWindow):
                            _set_active_repo, 
                            doc="Repo that has been opened.")
         
+    
+    def _checkActiveRepoIsNotNone(self):
+        if self.active_repo is None:
+            raise MsgException(self.tr("Open a repository first."))
+            
+    def _checkActiveUserIsNotNone(self):
+        if self.active_user is None:
+            raise MsgException(self.tr("Login to a repository first."))
+    
         
     def action_repo_create(self):
         try:
@@ -441,8 +450,7 @@ class MainWindow(QtGui.QMainWindow):
         
     def action_repo_close(self):
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("There is no opened repository."))
+            self._checkActiveRepoIsNotNone()
             self.active_repo = None
             self.active_user = None
         except Exception as ex:
@@ -482,12 +490,9 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_item_delete(self):
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
-            
+            self._checkActiveRepoIsNotNone()
+            self._checkActiveUserIsNotNone()
+                        
             rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
@@ -552,11 +557,8 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_item_view_image_viewer(self):
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
+            self._checkActiveRepoIsNotNone()
+            self._checkActiveUserIsNotNone()            
             
             rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
@@ -614,11 +616,8 @@ class MainWindow(QtGui.QMainWindow):
             QtCore.QCoreApplication.processEvents()
         
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
+            self._checkActiveRepoIsNotNone()
+            self._checkActiveUserIsNotNone()
             
             rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
@@ -653,11 +652,8 @@ class MainWindow(QtGui.QMainWindow):
             QtCore.QCoreApplication.processEvents()
         
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
+            self._checkActiveRepoIsNotNone()
+            self._checkActiveUserIsNotNone()            
             
             rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
@@ -685,8 +681,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_export_selected_items(self):
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
+            self._checkActiveRepoIsNotNone()
             
             item_ids = self.ui.dockWidget_items_table.selected_item_ids()
             if len(item_ids) == 0:
@@ -717,8 +712,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_export_items_file_paths(self):
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
+            self._checkActiveRepoIsNotNone()
             
             rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
@@ -745,11 +739,8 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_item_view_m3u(self):
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
+            self._checkActiveRepoIsNotNone()
+            self._checkActiveUserIsNotNone()
             
             rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
@@ -779,12 +770,8 @@ class MainWindow(QtGui.QMainWindow):
         '''
         thread = None
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
-            
+            self._checkActiveRepoIsNotNone()
+            self._checkActiveUserIsNotNone()
             
             dir = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Select one directory"))
             if not dir:
@@ -833,11 +820,8 @@ class MainWindow(QtGui.QMainWindow):
         '''Add many Items to the repo.'''
         thread = None
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
+            self._checkActiveRepoIsNotNone()
+            self._checkActiveUserIsNotNone()
             
             files = QtGui.QFileDialog.getOpenFileNames(self, self.tr("Select file to add"))
             if len(files) == 0:
@@ -880,11 +864,8 @@ class MainWindow(QtGui.QMainWindow):
     def action_item_add(self):
         '''Add single Item to the repo.'''
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
+            self._checkActiveRepoIsNotNone()
+            self._checkActiveUserIsNotNone()
             
             item = Item(user_login=self.active_user.login)
             
@@ -932,8 +913,7 @@ class MainWindow(QtGui.QMainWindow):
     
     def action_user_create(self):
         try:
-            if self.active_repo is None:
-                raise Exception(self.tr("Open a repository first."))
+            self._checkActiveRepoIsNotNone()
             
             u = UserDialog(User(), self)
             if u.exec_():
@@ -961,8 +941,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def action_user_login(self):
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("There is no opened repository."))
+            self._checkActiveRepoIsNotNone()
             
             ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
             if ud.exec_():                    
@@ -991,12 +970,9 @@ class MainWindow(QtGui.QMainWindow):
             QtCore.QCoreApplication.processEvents()
         
         try:
-            if self.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
-            
+            self._checkActiveRepoIsNotNone()
+            self._checkActiveUserIsNotNone()
+                    
             rows = self.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
@@ -1085,11 +1061,8 @@ class EditItemActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            if self._gui.active_repo is None:
-                raise MsgException(self.tr("Open a repository first."))
-            
-            if self._gui.active_user is None:
-                raise MsgException(self.tr("Login to a repository first."))
+            self._gui._checkActiveRepoIsNotNone()
+            self._gui._checkActiveUserIsNotNone()            
             
             rows = self._gui.ui.dockWidget_items_table.selected_rows()
             if len(rows) == 0:
