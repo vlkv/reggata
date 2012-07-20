@@ -197,8 +197,9 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
         
         #MENU: Item
-        self.connect(self.ui.action_item_add, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_add)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_add, AddSingleItemActionHandler(self))
+        
         self.connect(self.ui.action_item_add_many, 
                      QtCore.SIGNAL("triggered()"), self.action_item_add_many)
         self.connect(self.ui.action_item_add_many_rec, 
@@ -814,61 +815,7 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.tag_cloud.refresh()
         
         
-    def action_item_add(self):
-        '''Add single Item to the repo.'''
-        try:
-            self.checkActiveRepoIsNotNone()
-            self.checkActiveUserIsNotNone()
-            
-            item = Item(user_login=self.active_user.login)
-            
-            #User can push Cancel button and do not select a file now
-            file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select a file to link with new Item."))
-            if not is_none_or_empty(file):
-                file = os.path.normpath(file)
-                item.title = os.path.basename(file)
-                item.data_ref = DataRef(type=DataRef.FILE, url=file)
-            
-            
-            completer = Completer(self.active_repo, self)
-            dialog = ItemDialog(self, item, ItemDialog.CREATE_MODE, completer=completer)
-            if dialog.exec_():
-                uow = self.active_repo.create_unit_of_work()
-                try:
-                    srcAbsPath = None
-                    dstRelPath = None
-                    if dialog.item.data_ref is not None:
-                        srcAbsPath = dialog.item.data_ref.srcAbsPath
-                        dstRelPath = dialog.item.data_ref.dstRelPath
-
-                    cmd = SaveNewItemCommand(dialog.item, srcAbsPath, dstRelPath)
-                    thread = BackgrThread(self, uow.executeCommand, cmd)
-                    
-                    wd = WaitDialog(self, indeterminate=True)
-                    self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-                    self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                    
-                    thread.start()
-                    thread.wait(1000)
-                    if thread.isRunning():
-                        wd.exec_()
-            
-                finally:
-                    uow.close()
-                
-                
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
-            self.query_exec()
-            self.ui.tag_cloud.refresh()
     
-    
-        
-
-        
-        
 
    
 
@@ -1110,6 +1057,62 @@ class OpenRepoActionHandler(AbstractActionHandler):
                             
         except Exception as ex:
             show_exc_info(self._gui, ex)
+
+
+class AddSingleItemActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(AddSingleItemActionHandler, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()
+            
+            item = Item(user_login=self._gui.active_user.login)
+            
+            #User can push Cancel button and do not select a file now
+            file = QtGui.QFileDialog.getOpenFileName(
+                self._gui, self.tr("Select a file to link with new Item."))
+            if not is_none_or_empty(file):
+                file = os.path.normpath(file)
+                item.title = os.path.basename(file)
+                item.data_ref = DataRef(type=DataRef.FILE, url=file)
+            
+            
+            completer = Completer(self._gui.active_repo, self._gui)
+            dialog = ItemDialog(self._gui, item, ItemDialog.CREATE_MODE, completer=completer)
+            if not dialog.exec_():
+                return
+            
+            uow = self._gui.active_repo.create_unit_of_work()
+            try:
+                srcAbsPath = None
+                dstRelPath = None
+                if dialog.item.data_ref is not None:
+                    srcAbsPath = dialog.item.data_ref.srcAbsPath
+                    dstRelPath = dialog.item.data_ref.dstRelPath
+
+                cmd = SaveNewItemCommand(dialog.item, srcAbsPath, dstRelPath)
+                thread = BackgrThread(self._gui, uow.executeCommand, cmd)
+                
+                wd = WaitDialog(self._gui, indeterminate=True)
+                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+                
+                thread.start()
+                thread.wait(1000)
+                if thread.isRunning():
+                    wd.exec_()
+        
+            finally:
+                uow.close()
+                
+                
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
  
 
 
