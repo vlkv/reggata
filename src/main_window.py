@@ -180,9 +180,9 @@ class MainWindow(QtGui.QMainWindow):
         #MENU: Repository
         self.__actionHandlers.registerActionHandler(
             self.ui.action_repo_create, CreateRepoActionHandler(self))
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_repo_close, CloseRepoActionHandler(self))
         
-        self.connect(self.ui.action_repo_close, 
-                     QtCore.SIGNAL("triggered()"), self.action_repo_close)
         self.connect(self.ui.action_repo_open, 
                      QtCore.SIGNAL("triggered()"), self.action_repo_open)
         
@@ -438,15 +438,7 @@ class MainWindow(QtGui.QMainWindow):
     
         
         
-    def action_repo_close(self):
-        try:
-            self.checkActiveRepoIsNotNone()
-            self.active_repo = None
-            self.active_user = None
-        except Exception as ex:
-            show_exc_info(self, ex)
-                    
-
+    
     def action_repo_open(self):
         try:            
             base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a repository base path"))
@@ -1079,6 +1071,21 @@ class CreateRepoActionHandler(AbstractActionHandler):
             #Let the user create an account in new repository
             self._gui.triggerCreateUserAction()
             pass
+
+class CloseRepoActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(CloseRepoActionHandler, self).__init__()
+        self._gui = gui
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.active_repo = None
+            self._gui.active_user = None
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+                    
+
 
 class EditItemActionHandler(AbstractActionHandler):
     def __init__(self, gui):
