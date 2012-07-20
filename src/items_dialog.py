@@ -137,7 +137,8 @@ class ItemsDialog(QtGui.QDialog):
                     if (item.data_ref is None) or (item.data_ref.type != DataRef.FILE):
                         continue
                     if self.same_dst_path:
-                        item.data_ref.dstRelPath = os.path.join(self.dst_path, os.path.basename(item.data_ref.srcAbsPath))
+                        tmp = self.dst_path if not is_none_or_empty(self.dst_path) else "" 
+                        item.data_ref.dstRelPath = os.path.join(tmp, os.path.basename(item.data_ref.srcAbsPath))
                     else:
                         if self.dst_path:
                             relPathToFile = os.path.relpath(item.data_ref.srcAbsPath, item.data_ref.srcAbsPathToRecursionRoot)

@@ -199,9 +199,9 @@ class MainWindow(QtGui.QMainWindow):
         #MENU: Item
         self.__actionHandlers.registerActionHandler(
             self.ui.action_item_add, AddSingleItemActionHandler(self))
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_add_many, AddManyItemsActionHandler(self))
         
-        self.connect(self.ui.action_item_add_many, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_add_many)
         self.connect(self.ui.action_item_add_many_rec, 
                      QtCore.SIGNAL("triggered()"), self.action_item_add_many_rec)
         #SEPARATOR
@@ -770,53 +770,7 @@ class MainWindow(QtGui.QMainWindow):
             
             
         
-    def action_item_add_many(self):
-        '''Add many Items to the repo.'''
-        thread = None
-        try:
-            self.checkActiveRepoIsNotNone()
-            self.checkActiveUserIsNotNone()
-            
-            files = QtGui.QFileDialog.getOpenFileNames(self, self.tr("Select file to add"))
-            if len(files) == 0:
-                raise MsgException(self.tr("No files chosen. Operation cancelled."))
-            
-            items = []
-            for file in files:
-                file = os.path.normpath(file)
-                item = Item(user_login=self.active_user.login)
-                item.title = os.path.basename(file)
-                item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
-                item.data_ref.srcAbsPath = file
-                items.append(item)
-            
-            completer = Completer(self.active_repo, self)
-            d = ItemsDialog(self, items, ItemsDialog.CREATE_MODE, completer=completer)
-            if d.exec_():
-                
-                thread = CreateGroupIfItemsThread(self, self.active_repo, items)
-                self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
-                                        
-                wd = WaitDialog(self)
-                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                                    
-                thread.start()
-                thread.wait(1000)
-                if thread.isRunning():
-                    wd.exec_()
-                
-        except Exception as ex:
-            show_exc_info(self, ex)
-        finally:
-            self.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(thread.created_objects_count, len(thread.error_log)))
-            self.query_exec()
-            self.ui.tag_cloud.refresh()
-        
-        
     
-
    
 
     
@@ -1114,6 +1068,55 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
  
+class AddManyItemsActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(AddManyItemsActionHandler, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()
+            
+            files = QtGui.QFileDialog.getOpenFileNames(self._gui, self.tr("Select file to add"))
+            if len(files) == 0:
+                raise MsgException(self.tr("No files chosen. Operation cancelled."))
+            
+            items = []
+            for file in files:
+                file = os.path.normpath(file)
+                item = Item(user_login=self._gui.active_user.login)
+                item.title = os.path.basename(file)
+                item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
+                item.data_ref.srcAbsPath = file
+                items.append(item)
+            
+            completer = Completer(self._gui.active_repo, self._gui)
+            d = ItemsDialog(self._gui, items, ItemsDialog.CREATE_MODE, completer=completer)
+            if d.exec_():
+                
+                thread = CreateGroupIfItemsThread(self._gui, self._gui.active_repo, items)
+                self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+                                        
+                wd = WaitDialog(self._gui)
+                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+                self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+                                    
+                thread.start()
+                thread.wait(1000)
+                if thread.isRunning():
+                    wd.exec_()
+                
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        finally:
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(thread.created_objects_count, len(thread.error_log)))
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
+        
+        
+    
+
+
 
 
 class EditItemActionHandler(AbstractActionHandler):
