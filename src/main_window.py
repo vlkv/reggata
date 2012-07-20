@@ -178,8 +178,9 @@ class MainWindow(QtGui.QMainWindow):
 
     def connect_menu_actions(self):
         #MENU: Repository
-        self.connect(self.ui.action_repo_create, 
-                     QtCore.SIGNAL("triggered()"), self.action_repo_create)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_repo_create, CreateRepoActionHandler(self))
+        
         self.connect(self.ui.action_repo_close, 
                      QtCore.SIGNAL("triggered()"), self.action_repo_close)
         self.connect(self.ui.action_repo_open, 
@@ -430,22 +431,7 @@ class MainWindow(QtGui.QMainWindow):
             raise MsgException(self.tr("Login to a repository first."))
     
         
-    def action_repo_create(self):
-        try:
-            base_path = QtGui.QFileDialog.getExistingDirectory(
-                self, self.tr("Choose a base path for new repository"))
-            if not base_path:
-                raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
-            
-            #QFileDialog returns forward slashed in windows! Because of this path should be normalized
-            base_path = os.path.normpath(base_path)
-            self.active_repo = RepoMgr.create_new_repo(base_path)
-            self.active_user = None
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:        
-            #Let user create a user account in new repository    
-            self.action_user_create()
+    
         
         
     def action_repo_close(self):
@@ -1054,6 +1040,32 @@ class AbstractActionHandler(QtCore.QObject):
         self.discconnect(self, QtCore.SIGNAL("handlerSignals"), \
                      widgetsUpdateManager.onHandlerSignals)
     
+class CreateRepoActionHandler(AbstractActionHandler):
+    def  __init__(self, gui):
+        super(CreateRepoActionHandler, self).__init__()
+        self._gui = gui
+        
+    def handle(self):
+        try:
+            basePath = QtGui.QFileDialog.getExistingDirectory(
+                self._gui, self.tr("Choose a base path for new repository"))
+            if not basePath:
+                raise MsgException(
+                    self.tr("You haven't chosen existent directory. Operation canceled."))
+            
+            # QFileDialog returns forward slashes in windows! Because of this 
+            # the path should be normalized
+            basePath = os.path.normpath(basePath)
+            self._gui.active_repo = RepoMgr.create_new_repo(basePath)
+            self._gui.active_user = None
+        
+        except Exception as ex:
+            show_exc_info(self, ex)
+        else:        
+            #TODO: Let user create a user account in new repository
+            #self.action_user_create()
+            pass
+
 class EditItemActionHandler(AbstractActionHandler):
     def __init__(self, gui):
         super(EditItemActionHandler, self).__init__()
