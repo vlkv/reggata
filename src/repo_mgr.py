@@ -620,6 +620,20 @@ class LoginUserCommand(AbstractCommand):
         self._session.expunge(user)
         return user
 
+class ChangeUserPasswordCommand(AbstractCommand):
+    def __init__(self, userLogin, newPasswordHash):
+        self.__userLogin = userLogin
+        self.__newPasswordHash = newPasswordHash
+        
+    def _execute(self, uow):
+        user = uow.session.query(User).get(self.__userLogin)
+        if user is None:
+            raise LoginError(tr("User {} doesn't exist.").format(self.__userLogin))
+        
+        user.password = self.__newPasswordHash
+        uow.session.commit()
+        
+
 class SaveNewUserCommand(AbstractCommand):
     def __init__(self, user):
         self.__user = user

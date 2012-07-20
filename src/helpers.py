@@ -216,6 +216,10 @@ def compute_hash(filename, chunksize=131072, algorithm="sha1"):
     print("Hash {} computed in time of {} sec".format(algorithm, time.time() - start))
     return hash
     
+def computePasswordHash(strPassword):
+    bytes = strPassword.encode("utf-8")
+    return hashlib.sha1(bytes).hexdigest()
+    
 
 class WaitDialog(QtGui.QDialog):    
     '''Диалог должен уметь:

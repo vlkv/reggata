@@ -26,15 +26,13 @@ import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 from db_schema import User
 import ui_userdialog
-from helpers import show_exc_info, tr
+from helpers import show_exc_info, tr, computePasswordHash
 from exceptions import UnsupportedDialogModeError, MsgException
-import hashlib
 
 class UserDialog(QtGui.QDialog):
     
     CREATE_MODE = "CREATE_MODE"
     LOGIN_MODE = "LOGIN_MODE"
-    CHANGE_PASS_MODE = "CHANGE_PASS_MODE"
     
     def __init__(self, user, parent, mode):
         super(UserDialog, self).__init__(parent)
@@ -78,12 +76,9 @@ class UserDialog(QtGui.QDialog):
         and self.ui.lineEdit_password.text() != self.ui.lineEdit_password_repeat.text():
             raise MsgException(self.tr("Entered passwords do not match."))
         
-        bytes = self.ui.lineEdit_password.text().encode("utf-8")
-        self.user.password = hashlib.sha1(bytes).hexdigest()
+        self.user.password = computePasswordHash(self.ui.lineEdit_password.text())
                 
         self.user.group = self.ui.comboBox_group.currentText()
-        
-        
         
     def button_ok(self):
         try:

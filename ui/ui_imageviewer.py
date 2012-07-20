@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'imageviewer.ui'
 #
-# Created: Sat Dec 18 14:41:04 2010
+# Created: Fri Jul 20 20:32:31 2012
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!

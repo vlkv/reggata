@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemstabledockwidget.ui'
 #
-# Created: Sat Jan 21 21:30:01 2012
+# Created: Fri Jul 20 20:32:31 2012
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!

@@ -43,6 +43,7 @@ from file_browser import FileBrowser, FileBrowserTableModel
 from items_table_dock_widget import ItemsTableDockWidget
 from table_models import RepoItemTableModel
 from common_widgets import Completer
+from change_user_password_dialog import ChangeUserPasswordDialog
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -1014,8 +1015,21 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            #TODO should be implemented...
-            raise NotImplementedError("This function is not implemented yet.")
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()
+            
+            user = self._gui.active_user
+            dialog = ChangeUserPasswordDialog(self._gui, user)
+            if not dialog.exec_():
+                return
+            
+            uow = self._gui.active_repo.create_unit_of_work()
+            try:
+                command = ChangeUserPasswordCommand(user.login, dialog.newPasswordHash)
+                uow.executeCommand(command)
+            finally:
+                uow.close()
+            
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
