@@ -187,8 +187,10 @@ class MainWindow(QtGui.QMainWindow):
                      QtCore.SIGNAL("triggered()"), self.action_repo_open)
         
         #MENU: User
-        self.connect(self.ui.action_user_create, 
-                     QtCore.SIGNAL("triggered()"), self.action_user_create)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_user_create, CreateUserActionHandler(self))
+        
+        
         self.connect(self.ui.action_user_login, 
                      QtCore.SIGNAL("triggered()"), self.action_user_login)
         self.connect(self.ui.action_user_logout, 
@@ -430,6 +432,8 @@ class MainWindow(QtGui.QMainWindow):
         if self.active_user is None:
             raise MsgException(self.tr("Login to a repository first."))
     
+    def triggerCreateUserAction(self):
+        self.ui.action_user_create.trigger()
         
     
         
@@ -897,21 +901,7 @@ class MainWindow(QtGui.QMainWindow):
             self.query_exec()
             self.ui.tag_cloud.refresh()
     
-    def action_user_create(self):
-        try:
-            self.checkActiveRepoIsNotNone()
-            
-            u = UserDialog(User(), self)
-            if u.exec_():
-                uow = self.active_repo.create_unit_of_work()
-                try:
-                    uow.executeCommand(SaveNewUserCommand(u.user))
-                    
-                    self.active_user = u.user                    
-                finally:
-                    uow.close()
-        except Exception as ex:
-            show_exc_info(self, ex)
+    
         
 
     def action_user_change_pass(self):
@@ -1040,6 +1030,30 @@ class AbstractActionHandler(QtCore.QObject):
         self.discconnect(self, QtCore.SIGNAL("handlerSignals"), \
                      widgetsUpdateManager.onHandlerSignals)
     
+class CreateUserActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(CreateUserActionHandler, self).__init__()
+        self._gui = gui
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            
+            u = UserDialog(User(), self._gui)
+            if not u.exec_():
+                return
+            
+            uow = self._gui.active_repo.create_unit_of_work()
+            try:
+                uow.executeCommand(SaveNewUserCommand(u.user))
+                self._gui.active_user = u.user
+            finally:
+                uow.close()
+                
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+    
+    
 class CreateRepoActionHandler(AbstractActionHandler):
     def  __init__(self, gui):
         super(CreateRepoActionHandler, self).__init__()
@@ -1060,10 +1074,10 @@ class CreateRepoActionHandler(AbstractActionHandler):
             self._gui.active_user = None
         
         except Exception as ex:
-            show_exc_info(self, ex)
+            show_exc_info(self._gui, ex)
         else:        
-            #TODO: Let user create a user account in new repository
-            #self.action_user_create()
+            #Let the user create an account in new repository
+            self._gui.triggerCreateUserAction()
             pass
 
 class EditItemActionHandler(AbstractActionHandler):
