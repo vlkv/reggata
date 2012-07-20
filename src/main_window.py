@@ -189,12 +189,10 @@ class MainWindow(QtGui.QMainWindow):
         #MENU: User
         self.__actionHandlers.registerActionHandler(
             self.ui.action_user_create, CreateUserActionHandler(self))
-        
-        
-        self.connect(self.ui.action_user_login, 
-                     QtCore.SIGNAL("triggered()"), self.action_user_login)
-        self.connect(self.ui.action_user_logout, 
-                     QtCore.SIGNAL("triggered()"), self.action_user_logout)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_user_login, LoginUserActionHandler(self))
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_user_logout, LogoutUserActionHandler(self))
         self.__actionHandlers.registerActionHandler(
             self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
         
@@ -872,26 +870,7 @@ class MainWindow(QtGui.QMainWindow):
         
         
 
-    def action_user_login(self):
-        try:
-            self.checkActiveRepoIsNotNone()
-            
-            ud = UserDialog(User(), self, mode=UserDialog.LOGIN_MODE)
-            if not ud.exec_():
-                return                     
-            
-            self.loginUser(ud.user.login, ud.user.password)
-            
-                
-        except Exception as ex:
-            show_exc_info(self, ex)
-    
-    def action_user_logout(self):
-        try:
-            self.active_user = None
-        except Exception as ex:
-            show_exc_info(self, ex)
-
+   
 
     
     def action_item_rebuild_thumbnail(self):
@@ -1008,6 +987,35 @@ class CreateUserActionHandler(AbstractActionHandler):
                 
         except Exception as ex:
             show_exc_info(self._gui, ex)
+
+class LoginUserActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(LoginUserActionHandler, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            
+            ud = UserDialog(User(), self._gui, mode=UserDialog.LOGIN_MODE)
+            if not ud.exec_():
+                return                     
+            
+            self._gui.loginUser(ud.user.login, ud.user.password)
+                
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+            
+class LogoutUserActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(LogoutUserActionHandler, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            self._gui.active_user = None
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+
+
 
 class ChangeUserPasswordActionHandler(AbstractActionHandler):
     def __init__(self, gui):
