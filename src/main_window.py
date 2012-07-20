@@ -149,7 +149,7 @@ class MainWindow(QtGui.QMainWindow):
         try:
             tmp = UserConfig()["recent_repo.base_path"]
             self.active_repo = RepoMgr(tmp)
-            self._login_recent_user()
+            self.loginRecentUser()
         except CannotOpenRepoError:
             self.ui.statusbar.showMessage(self.tr("Cannot open recent repository."), STATUSBAR_TIMEOUT)
             self.active_repo = None
@@ -182,9 +182,8 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_repo_create, CreateRepoActionHandler(self))
         self.__actionHandlers.registerActionHandler(
             self.ui.action_repo_close, CloseRepoActionHandler(self))
-        
-        self.connect(self.ui.action_repo_open, 
-                     QtCore.SIGNAL("triggered()"), self.action_repo_open)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_repo_open, OpenRepoActionHandler(self))
         
         #MENU: User
         self.__actionHandlers.registerActionHandler(
@@ -322,19 +321,21 @@ class MainWindow(QtGui.QMainWindow):
         return super(MainWindow, self).event(e)
         
     
-    def _login_recent_user(self):
-        if self.active_repo is None:
-            raise MsgException(self.tr("You cannot login because there is no opened repo."))
-        
+    def loginRecentUser(self):
         login = UserConfig().get("recent_user.login")
         password = UserConfig().get("recent_user.password")
+        self.loginUser(login, password)
+        
+        
+    def loginUser(self, login, password):
+        self.checkActiveRepoIsNotNone()
         
         uow = self.active_repo.create_unit_of_work()
         try:
-            self.active_user = uow.executeCommand(LoginUserCommand(login, password))
+            user = uow.executeCommand(LoginUserCommand(login, password))
+            self.active_user = user
         finally:
             uow.close()
-        
             
     def _set_active_user(self, user):
         if type(user) != User and user is not None:
@@ -439,36 +440,7 @@ class MainWindow(QtGui.QMainWindow):
         
         
     
-    def action_repo_open(self):
-        try:            
-            base_path = QtGui.QFileDialog.getExistingDirectory(self, self.tr("Choose a repository base path"))
-            
-            if not base_path:
-                raise Exception(self.tr("You haven't chosen existent directory. Operation canceled."))
-
-            #QFileDialog returns forward slashed in windows! Because of this path should be normalized
-            base_path = os.path.normpath(base_path)
-            self.active_repo = RepoMgr(base_path)
-            self.active_user = None
-            self._login_recent_user()
-            
-            
         
-        except LoginError:
-            ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
-            if ud.exec_():
-                uow = self.active_repo.create_unit_of_work()
-                try:
-                    user = uow.executeCommand(LoginUserCommand(ud.user.login, ud.user.password))
-                    self.active_user = user
-                except Exception as ex:
-                    show_exc_info(self, ex)
-                finally:
-                    uow.close()
-                            
-        except Exception as ex:
-            show_exc_info(self, ex)
-    
 
     def action_item_delete(self):
         try:
@@ -912,13 +884,12 @@ class MainWindow(QtGui.QMainWindow):
             self.checkActiveRepoIsNotNone()
             
             ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
-            if ud.exec_():                    
-                uow = self.active_repo.create_unit_of_work()
-                try:                
-                    user = uow.executeCommand(LoginUserCommand(ud.user.login, ud.user.password))
-                    self.active_user = user
-                finally:
-                    uow.close()
+            if not ud.exec_():
+                return                     
+            
+            self.loginUser(ud.user.login, ud.user.password)
+            
+                
         except Exception as ex:
             show_exc_info(self, ex)
     
@@ -1084,7 +1055,38 @@ class CloseRepoActionHandler(AbstractActionHandler):
             self._gui.active_user = None
         except Exception as ex:
             show_exc_info(self._gui, ex)
-                    
+                   
+                   
+class OpenRepoActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(OpenRepoActionHandler, self).__init__()
+        self._gui = gui
+        
+    def handle(self):
+        try:
+            base_path = QtGui.QFileDialog.getExistingDirectory(
+                self._gui, self.tr("Choose a repository base path"))
+            
+            if not base_path:
+                raise Exception(
+                    self.tr("You haven't chosen existent directory. Operation canceled."))
+
+            #QFileDialog returns forward slashes in windows! Because of this path should be normalized
+            base_path = os.path.normpath(base_path)
+            self._gui.active_repo = RepoMgr(base_path)
+            self._gui.active_user = None
+            self._gui.loginRecentUser()
+            
+        except LoginError:
+            ud = UserDialog(User(), self._gui, mode=DialogMode.LOGIN)
+            if not ud.exec_():
+                return
+            
+            self._gui.loginUser(ud.user.login, ud.user.password)
+                            
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+ 
 
 
 class EditItemActionHandler(AbstractActionHandler):
