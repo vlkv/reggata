@@ -26,13 +26,17 @@ import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 from db_schema import User
 import ui_userdialog
-from helpers import show_exc_info, tr, DialogMode
+from helpers import show_exc_info, tr
 from exceptions import UnsupportedDialogModeError, MsgException
 import hashlib
 
 class UserDialog(QtGui.QDialog):
     
-    def __init__(self, user, parent=None, mode=DialogMode.CREATE):
+    CREATE_MODE = "CREATE_MODE"
+    LOGIN_MODE = "LOGIN_MODE"
+    CHANGE_PASS_MODE = "CHANGE_PASS_MODE"
+    
+    def __init__(self, user, parent, mode):
         super(UserDialog, self).__init__(parent)
         if type(user) != User:
             raise TypeError(self.tr("Argument user must be a User class instance."))
@@ -49,15 +53,13 @@ class UserDialog(QtGui.QDialog):
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.button_cancel)
         
         self.setMode(mode)
-        
-        self.read()
 
     
     def setMode(self, mode):
-        if mode == DialogMode.CREATE:
+        if mode == UserDialog.CREATE_MODE:
             self.setWindowTitle(self.tr("Create new repository user"))
             
-        elif mode == DialogMode.LOGIN:
+        elif mode == UserDialog.LOGIN_MODE:
             self.setWindowTitle(self.tr("Repository login"))
             
             self.ui.label_password_repeat.setVisible(False)
@@ -66,18 +68,15 @@ class UserDialog(QtGui.QDialog):
             self.ui.label_group.setVisible(False)
             self.ui.comboBox_group.setVisible(False)
         else:
-            raise UnsupportedDialogModeError(self.tr("DialogMode={} is not supported by this dialog.").format(mode))
+            raise UnsupportedDialogModeError(self.tr("Mode={} is not supported by this dialog.").format(mode))
         self.mode = mode
-    
-    def read(self):
-        #TODO
-        pass    
-    
+        
     def write(self):
         '''Запись введенной в элементы gui информации в поля объекта.'''
         self.user.login = self.ui.lineEdit_login.text()
-        if self.mode == DialogMode.CREATE and self.ui.lineEdit_password.text() != self.ui.lineEdit_password_repeat.text():
-            raise MsgException(self.tr("Entered passwords do not match."))        
+        if self.mode == UserDialog.CREATE_MODE \
+        and self.ui.lineEdit_password.text() != self.ui.lineEdit_password_repeat.text():
+            raise MsgException(self.tr("Entered passwords do not match."))
         
         bytes = self.ui.lineEdit_password.text().encode("utf-8")
         self.user.password = hashlib.sha1(bytes).hexdigest()

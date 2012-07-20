@@ -194,8 +194,8 @@ class MainWindow(QtGui.QMainWindow):
                      QtCore.SIGNAL("triggered()"), self.action_user_login)
         self.connect(self.ui.action_user_logout, 
                      QtCore.SIGNAL("triggered()"), self.action_user_logout)
-        self.connect(self.ui.action_user_change_pass, 
-                     QtCore.SIGNAL("triggered()"), self.action_user_change_pass)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
         
         #MENU: Item
         self.connect(self.ui.action_item_add, 
@@ -868,14 +868,6 @@ class MainWindow(QtGui.QMainWindow):
     
         
 
-    def action_user_change_pass(self):
-        try:
-            #TODO should be implemented...
-            raise NotImplementedError("This function is not implemented yet.")
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
         
         
 
@@ -883,7 +875,7 @@ class MainWindow(QtGui.QMainWindow):
         try:
             self.checkActiveRepoIsNotNone()
             
-            ud = UserDialog(User(), self, mode=DialogMode.LOGIN)
+            ud = UserDialog(User(), self, mode=UserDialog.LOGIN_MODE)
             if not ud.exec_():
                 return                     
             
@@ -971,8 +963,9 @@ class MainWindow(QtGui.QMainWindow):
             
 
 class AbstractActionHandler(QtCore.QObject):
-    def __init__(self):
+    def __init__(self, gui=None):
         super(AbstractActionHandler, self).__init__()
+        self._gui = gui
         
     def handle(self):
         raise NotImplementedError("This function should be overriden in subclass")
@@ -995,14 +988,13 @@ class AbstractActionHandler(QtCore.QObject):
     
 class CreateUserActionHandler(AbstractActionHandler):
     def __init__(self, gui):
-        super(CreateUserActionHandler, self).__init__()
-        self._gui = gui
+        super(CreateUserActionHandler, self).__init__(gui)
         
     def handle(self):
         try:
             self._gui.checkActiveRepoIsNotNone()
             
-            u = UserDialog(User(), self._gui)
+            u = UserDialog(User(), self._gui, UserDialog.CREATE_MODE)
             if not u.exec_():
                 return
             
@@ -1015,12 +1007,24 @@ class CreateUserActionHandler(AbstractActionHandler):
                 
         except Exception as ex:
             show_exc_info(self._gui, ex)
+
+class ChangeUserPasswordActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(ChangeUserPasswordActionHandler, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            #TODO should be implemented...
+            raise NotImplementedError("This function is not implemented yet.")
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
 class CreateRepoActionHandler(AbstractActionHandler):
     def  __init__(self, gui):
-        super(CreateRepoActionHandler, self).__init__()
-        self._gui = gui
+        super(CreateRepoActionHandler, self).__init__(gui)
         
     def handle(self):
         try:
@@ -1045,8 +1049,7 @@ class CreateRepoActionHandler(AbstractActionHandler):
 
 class CloseRepoActionHandler(AbstractActionHandler):
     def __init__(self, gui):
-        super(CloseRepoActionHandler, self).__init__()
-        self._gui = gui
+        super(CloseRepoActionHandler, self).__init__(gui)
         
     def handle(self):
         try:
@@ -1059,8 +1062,7 @@ class CloseRepoActionHandler(AbstractActionHandler):
                    
 class OpenRepoActionHandler(AbstractActionHandler):
     def __init__(self, gui):
-        super(OpenRepoActionHandler, self).__init__()
-        self._gui = gui
+        super(OpenRepoActionHandler, self).__init__(gui)
         
     def handle(self):
         try:
@@ -1078,7 +1080,7 @@ class OpenRepoActionHandler(AbstractActionHandler):
             self._gui.loginRecentUser()
             
         except LoginError:
-            ud = UserDialog(User(), self._gui, mode=DialogMode.LOGIN)
+            ud = UserDialog(User(), self._gui, mode=UserDialog.LOGIN_MODE)
             if not ud.exec_():
                 return
             
@@ -1091,8 +1093,7 @@ class OpenRepoActionHandler(AbstractActionHandler):
 
 class EditItemActionHandler(AbstractActionHandler):
     def __init__(self, gui):
-        super(EditItemActionHandler, self).__init__()
-        self._gui = gui
+        super(EditItemActionHandler, self).__init__(gui)
         
     def handle(self):
         try:
@@ -1157,8 +1158,7 @@ class EditItemActionHandler(AbstractActionHandler):
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
     def __init__(self, gui):
-        super(ShowAboutDialogActionHandler, self).__init__()
-        self._gui = gui
+        super(ShowAboutDialogActionHandler, self).__init__(gui)
         
     def handle(self):
         try:
@@ -1168,6 +1168,10 @@ class ShowAboutDialogActionHandler(AbstractActionHandler):
             show_exc_info(self._gui, ex)
         else:
             self._gui.ui.statusbar.showMessage(tr("Operation completed."), STATUSBAR_TIMEOUT)
+    
+    
+    
+    
     
     
 class ActionHandlerStorage():
