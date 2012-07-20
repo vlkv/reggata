@@ -1017,8 +1017,33 @@ class AddSingleItemActionHandler(AbstractActionHandler):
         else:
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
+
+class AddManyItemsAbstractActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(AddManyItemsAbstractActionHandler, self).__init__(gui)
+        
+        self._createdObjectsCount = 0
+        self._errorLog = []
+    
+    def _startWorkerThread(self, items):
+        thread = CreateGroupIfItemsThread(self._gui, self._gui.active_repo, items)
+        self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+                                
+        wd = WaitDialog(self._gui)
+        self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+        self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+        self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+                            
+        thread.start()
+        thread.wait(1000)
+        if thread.isRunning():
+            wd.exec_()
+            
+        self._createdObjectsCount = thread.created_objects_count
+        self._errorLog = thread.error_log
+        
  
-class AddManyItemsActionHandler(AbstractActionHandler):
+class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
     def __init__(self, gui):
         super(AddManyItemsActionHandler, self).__init__(gui)
         
@@ -1042,29 +1067,19 @@ class AddManyItemsActionHandler(AbstractActionHandler):
             
             completer = Completer(self._gui.active_repo, self._gui)
             d = ItemsDialog(self._gui, items, ItemsDialog.CREATE_MODE, completer=completer)
-            if d.exec_():
-                
-                thread = CreateGroupIfItemsThread(self._gui, self._gui.active_repo, items)
-                self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
-                                        
-                wd = WaitDialog(self._gui)
-                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                                    
-                thread.start()
-                thread.wait(1000)
-                if thread.isRunning():
-                    wd.exec_()
+            if not d.exec_():
+                return
+            
+            self._startWorkerThread(items)
                 
         except Exception as ex:
             show_exc_info(self._gui, ex)
         finally:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(thread.created_objects_count, len(thread.error_log)))
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(self._createdObjectsCount, len(self._errorLog)))
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
         
         
-class AddManyItemsRecursivelyActionHandler(AbstractActionHandler):
+class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
     def __init__(self, gui):
         super(AddManyItemsRecursivelyActionHandler, self).__init__(gui)
         
@@ -1094,25 +1109,15 @@ class AddManyItemsRecursivelyActionHandler(AbstractActionHandler):
             
             completer = Completer(self._gui.active_repo, self._gui)
             d = ItemsDialog(self._gui, items, ItemsDialog.CREATE_MODE, same_dst_path=False, completer=completer)
-            if d.exec_():
+            if not d.exec_():
+                return
                 
-                thread = CreateGroupIfItemsThread(self._gui, self._gui.active_repo, items)
-                self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
-                                        
-                wd = WaitDialog(self._gui)
-                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                                    
-                thread.start()
-                thread.wait(1000)
-                if thread.isRunning():
-                    wd.exec_()
+            self._startWorkerThread(items)
                 
         except Exception as ex:
             show_exc_info(self._gui, ex)
         finally:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(thread.created_objects_count, len(thread.error_log)))
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(self._createdObjectsCount, len(self._errorLog)))
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
             
             
