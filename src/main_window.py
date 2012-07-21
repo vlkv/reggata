@@ -83,7 +83,7 @@ class MainWindow(QtGui.QMainWindow):
             [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, HandlerSignals.ITEM_DELETED])
         
              
-        self.connect_menu_actions()
+        self.__initContextMenu()
 
         #Creating status bar widgets
         self.ui.label_repo = QtGui.QLabel()
@@ -177,7 +177,7 @@ class MainWindow(QtGui.QMainWindow):
             state = eval(state)
             self.restoreState(state)
 
-    def connect_menu_actions(self):
+    def __initContextMenu(self):
         #MENU: Repository
         self.__actionHandlers.registerActionHandler(
             self.ui.action_repo_create, CreateRepoActionHandler(self))
@@ -207,9 +207,9 @@ class MainWindow(QtGui.QMainWindow):
         #SEPARATOR
         self.__actionHandlers.registerActionHandler(
             self.ui.action_item_edit, EditItemActionHandler(self))
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_rebuild_thumbnail, RebuildItemThumbnailActionHandler(self))
         
-        self.connect(self.ui.action_item_rebuild_thumbnail, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_rebuild_thumbnail)
         #SEPARATOR
         self.connect(self.ui.action_item_delete, 
                      QtCore.SIGNAL("triggered()"), self.action_item_delete)
@@ -724,48 +724,7 @@ class MainWindow(QtGui.QMainWindow):
    
 
     
-    def action_item_rebuild_thumbnail(self):
-        
-        def refresh(percent, row):
-            self.ui.statusbar.showMessage(self.tr("Rebuilding thumbnails ({0}%)").format(percent))            
-            self.model.reset_single_row(row)
-            QtCore.QCoreApplication.processEvents()
-        
-        try:
-            self.checkActiveRepoIsNotNone()
-            self.checkActiveUserIsNotNone()
-                    
-            rows = self.ui.dockWidget_items_table.selected_rows()
-            if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
-            
-            
-            uow = self.active_repo.create_unit_of_work()
-            try:
-                items = []
-                for row in rows:                    
-                    self.model.items[row].table_row = row
-                    items.append(self.model.items[row])
-                 
-                thread = ThumbnailBuilderThread(self, self.active_repo, items, self.items_lock, rebuild=True)
-                self.connect(thread, QtCore.SIGNAL("exception"), 
-                             lambda exc_info: helpers.show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
-                self.connect(thread, QtCore.SIGNAL("finished"), 
-                             lambda: self.ui.statusbar.showMessage(self.tr("Rebuild thumbnails is done.")))            
-                self.connect(thread, QtCore.SIGNAL("progress"), 
-                             lambda percents, row: refresh(percents, row))
-                thread.start()
-                    
-            finally:
-                uow.close()
-                    
-                                
-            
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            pass
-            
+    
 
     def action_item_to_external_filemanager(self):
         try:
@@ -1189,7 +1148,53 @@ class EditItemActionHandler(AbstractActionHandler):
                     wd.exec_()
         finally:
             uow.close()
+
+class RebuildItemThumbnailActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(RebuildItemThumbnailActionHandler, self).__init__(gui)
+    
+    def handle(self):
         
+        def refresh(percent, row):
+            self._gui.ui.statusbar.showMessage(self.tr("Rebuilding thumbnails ({0}%)").format(percent))
+            
+            #TODO: Have to replace this direct updates with emitting some specific signals..
+            self._gui.model.reset_single_row(row)
+            QtCore.QCoreApplication.processEvents()
+        
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()
+                    
+            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            
+            uow = self._gui.active_repo.create_unit_of_work()
+            try:
+                items = []
+                for row in rows:                    
+                    self._gui.model.items[row].table_row = row
+                    items.append(self._gui.model.items[row])
+                 
+                thread = ThumbnailBuilderThread(
+                    self._gui, self._gui.active_repo, items, self._gui.items_lock, rebuild=True)
+                self.connect(thread, QtCore.SIGNAL("exception"), 
+                             lambda exc_info: show_exc_info(self._gui, exc_info[1], details=format_exc_info(*exc_info)))
+                self.connect(thread, QtCore.SIGNAL("finished"), 
+                             lambda: self._gui.ui.statusbar.showMessage(self.tr("Rebuild thumbnails is done.")))            
+                self.connect(thread, QtCore.SIGNAL("progress"), 
+                             lambda percents, row: refresh(percents, row))
+                thread.start()
+                    
+            finally:
+                uow.close()
+            
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+            
+    
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
     def __init__(self, gui):
