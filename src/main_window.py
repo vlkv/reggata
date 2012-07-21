@@ -56,6 +56,7 @@ class MainWindow(QtGui.QMainWindow):
         self.ui = ui_mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
         
+        
         #Current opened (active) repository (RepoMgr object)
         self.__active_repo = None
         
@@ -67,9 +68,22 @@ class MainWindow(QtGui.QMainWindow):
         
         self.items_lock = QtCore.QReadWriteLock()
         
+        
+        
+        self.setCentralWidget(None)
+        
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
+        self.__initContextMenu()
         
+        
+        #Creating status bar widgets
+        self.ui.label_repo = QtGui.QLabel()
+        self.ui.label_user = QtGui.QLabel()
+        self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("Repository:")))
+        self.ui.statusbar.addPermanentWidget(self.ui.label_repo)
+        self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("User:")))
+        self.ui.statusbar.addPermanentWidget(self.ui.label_user)
         
         
         #Create ItemsTableDockWidget
@@ -82,26 +96,16 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.dockWidget_items_table.query_exec, 
             [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, HandlerSignals.ITEM_DELETED])
         
-             
-        self.__initContextMenu()
-
-        #Creating status bar widgets
-        self.ui.label_repo = QtGui.QLabel()
-        self.ui.label_user = QtGui.QLabel()
-        self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("Repository:")))
-        self.ui.statusbar.addPermanentWidget(self.ui.label_repo)
-        self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("User:")))
-        self.ui.statusbar.addPermanentWidget(self.ui.label_user)
-        
-        self.setCentralWidget(None)
-        
-        #Items table
         self.connect(self.ui.action_tools_items_table, 
                      QtCore.SIGNAL("triggered(bool)"), 
                      lambda b: self.ui.dockWidget_items_table.setVisible(b))
         self.connect(self.ui.dockWidget_items_table, 
                      QtCore.SIGNAL("visibilityChanged(bool)"), 
                      lambda b: self.ui.action_tools_items_table.setChecked(b))
+
+
+
+   
 
         
         #Adding tag cloud
@@ -145,7 +149,10 @@ class MainWindow(QtGui.QMainWindow):
         #TODO subscribe file browser to actionHandlers signals
         
         
+        self.__restoreGuiState()
         
+
+    def __restoreGuiState(self):
         #Try to open and login recent repository with recent user login
         try:
             tmp = UserConfig()["recent_repo.base_path"]
@@ -176,6 +183,7 @@ class MainWindow(QtGui.QMainWindow):
         if state:
             state = eval(state)
             self.restoreState(state)
+
 
     def __initContextMenu(self):
         #MENU: Repository
