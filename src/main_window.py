@@ -226,8 +226,9 @@ class MainWindow(QtGui.QMainWindow):
         
         self.__actionHandlers.registerActionHandler(
             self.ui.action_export_selected_items, ExportSelectedItemsActionHandler(self))
-        self.connect(self.ui.action_export_items_file_paths, 
-                     QtCore.SIGNAL("triggered()"), self.action_export_items_file_paths)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_export_items_file_paths, ExportItemsFilePathsActionHandler(self))
+        
         #SEPARATOR
         self.connect(self.ui.action_item_check_integrity, 
                      QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
@@ -543,35 +544,7 @@ class MainWindow(QtGui.QMainWindow):
 
 
     
-    def action_export_items_file_paths(self):
-        try:
-            self.checkActiveRepoIsNotNone()
-            
-            rows = self.ui.dockWidget_items_table.selected_rows()
-            if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
-            
-            export_filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption=self.tr('Save results in a file.')) 
-            if not export_filename:
-                raise MsgException(self.tr("Operation canceled."))
-            
-            file = open(export_filename, "w", newline='')
-            for row in rows:
-                item = self.model.items[row]
-                if item.is_data_ref_null():
-                    continue
-                textline = self.active_repo.base_path + \
-                    os.sep + self.model.items[row].data_ref.url + os.linesep
-                file.write(textline)
-            file.close()
-
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
-
-    
-    
+        
     
    
 
@@ -1226,6 +1199,40 @@ class ExportSelectedItemsActionHandler(AbstractActionHandler):
         else:
             #TODO: display information about how many files were copied
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+
+class ExportItemsFilePathsActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(ExportItemsFilePathsActionHandler, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            
+            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            export_filename = QtGui.QFileDialog.getSaveFileName(
+                parent=self._gui, caption=self.tr('Save results in a file.')) 
+            if not export_filename:
+                raise MsgException(self.tr("Operation canceled."))
+            
+            file = open(export_filename, "w", newline='')
+            for row in rows:
+                item = self._gui.model.items[row]
+                if item.is_data_ref_null():
+                    continue
+                textline = self._gui.active_repo.base_path + \
+                    os.sep + self._gui.model.items[row].data_ref.url + os.linesep
+                file.write(textline)
+            file.close()
+
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+
+    
 
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
