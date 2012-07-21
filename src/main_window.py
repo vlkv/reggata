@@ -218,11 +218,11 @@ class MainWindow(QtGui.QMainWindow):
         self.__actionHandlers.registerActionHandler(
             self.ui.action_item_view, OpenItemActionHandler(self))
         self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_view_image_viewer, OpenItemWithInternalImageViewer(self))
+            self.ui.action_item_view_image_viewer, OpenItemWithInternalImageViewerActionHandler(self))
         self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_view_m3u, ExportItemsToM3uAndOpenIt(self))
+            self.ui.action_item_view_m3u, ExportItemsToM3uAndOpenItActionHandler(self))
         self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManager(self))
+            self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManagerActionHandler(self))
         
         self.__actionHandlers.registerActionHandler(
             self.ui.action_export_selected_items, ExportSelectedItemsActionHandler(self))
@@ -1101,9 +1101,9 @@ class OpenItemActionHandler(AbstractActionHandler):
         else:
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)    
     
-class OpenItemWithInternalImageViewer(AbstractActionHandler):
+class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
     def __init__(self, gui):
-        super(OpenItemWithInternalImageViewer, self).__init__(gui)
+        super(OpenItemWithInternalImageViewerActionHandler, self).__init__(gui)
         
     def handle(self):
         try:
@@ -1138,9 +1138,9 @@ class OpenItemWithInternalImageViewer(AbstractActionHandler):
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
-class ExportItemsToM3uAndOpenIt(AbstractActionHandler):
+class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
     def __init__(self, gui):
-        super(ExportItemsToM3uAndOpenIt, self).__init__(gui)
+        super(ExportItemsToM3uAndOpenItActionHandler, self).__init__(gui)
         
     def handle(self):
         try:
@@ -1169,9 +1169,9 @@ class ExportItemsToM3uAndOpenIt(AbstractActionHandler):
         else:
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
-class OpenItemWithExternalFileManager(AbstractActionHandler):
+class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
     def __init__(self, gui):
-        super(OpenItemWithExternalFileManager, self).__init__(gui)
+        super(OpenItemWithExternalFileManagerActionHandler, self).__init__(gui)
         
     def handle(self):
         try:
