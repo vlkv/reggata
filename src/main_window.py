@@ -219,9 +219,9 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_item_view, OpenItemActionHandler(self))
         self.__actionHandlers.registerActionHandler(
             self.ui.action_item_view_image_viewer, OpenItemWithInternalImageViewer(self))
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_view_m3u, ExportItemsToM3uAndOpenIt(self))
         
-        self.connect(self.ui.action_item_view_m3u, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_view_m3u)
         self.connect(self.ui.action_item_to_external_filemanager, 
                      QtCore.SIGNAL("triggered()"), self.action_item_to_external_filemanager)
         self.connect(self.ui.action_export_selected_items, 
@@ -600,34 +600,7 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
-    def action_item_view_m3u(self):
-        try:
-            self.checkActiveRepoIsNotNone()
-            self.checkActiveUserIsNotNone()
-            
-            rows = self.ui.dockWidget_items_table.selected_rows()
-            if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
-            
-            tmp_dir = UserConfig().get("tmp_dir", consts.DEFAULT_TMP_DIR)
-            if not os.path.exists(tmp_dir):
-                os.makedirs(tmp_dir)
-            m3u_filename = str(os.getpid()) + self.active_user.login + str(time.time()) + ".m3u"
-            m3u_file = open(os.path.join(tmp_dir, m3u_filename), "wt")
-            for row in rows:
-                m3u_file.write(os.path.join(self.active_repo.base_path, 
-                                            self.model.items[row].data_ref.url) + os.linesep)                                            
-            m3u_file.close()
-            
-            eam = ExtAppMgr()
-            eam.invoke(os.path.join(tmp_dir, m3u_filename))
-            
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
-
-
+    
     
     
    
@@ -1214,6 +1187,41 @@ class OpenItemWithInternalImageViewer(AbstractActionHandler):
             show_exc_info(self._gui, ex)
         else:
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+    
+    
+class ExportItemsToM3uAndOpenIt(AbstractActionHandler):
+    def __init__(self, gui):
+        super(ExportItemsToM3uAndOpenIt, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()
+            
+            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            tmp_dir = UserConfig().get("tmp_dir", consts.DEFAULT_TMP_DIR)
+            if not os.path.exists(tmp_dir):
+                os.makedirs(tmp_dir)
+            m3u_filename = str(os.getpid()) + self._gui.active_user.login + str(time.time()) + ".m3u"
+            m3u_file = open(os.path.join(tmp_dir, m3u_filename), "wt")
+            for row in rows:
+                m3u_file.write(os.path.join(self._gui.active_repo.base_path, 
+                                            self._gui.model.items[row].data_ref.url) + os.linesep)                                            
+            m3u_file.close()
+            
+            eam = ExtAppMgr()
+            eam.invoke(os.path.join(tmp_dir, m3u_filename))
+            
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+
+
+    
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
     def __init__(self, gui):
