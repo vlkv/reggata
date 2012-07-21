@@ -74,7 +74,7 @@ class MainWindow(QtGui.QMainWindow):
         
         #Create ItemsTableDockWidget
         self.ui.dockWidget_items_table = ItemsTableDockWidget(self)
-        self.menu = self.create_items_table_context_menu()
+        self.menu = self.__initItemsTableContextMenu()
         self.ui.dockWidget_items_table.addContextMenu(self.menu)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_items_table)
         self.__widgetsUpdateManager.subscribe(
@@ -245,7 +245,7 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_help_about, ShowAboutDialogActionHandler(self))
                                 
 
-    def create_items_table_context_menu(self):
+    def __initItemsTableContextMenu(self):
         menu = QtGui.QMenu(self)
         menu.addAction(self.ui.action_item_view)
         menu.addAction(self.ui.action_item_view_m3u)
