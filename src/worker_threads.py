@@ -28,7 +28,7 @@ class ExportItemsThread(QtCore.QThread):
         try:
             i = 0
             for id in self.item_ids:
-                item = uow.getExpungedItem(id)
+                item = uow.executeCommand(GetExpungedItemCommand(id))
                 if item.is_data_ref_null():
                     continue
                 

@@ -224,8 +224,8 @@ class MainWindow(QtGui.QMainWindow):
         self.__actionHandlers.registerActionHandler(
             self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManager(self))
         
-        self.connect(self.ui.action_export_selected_items, 
-                     QtCore.SIGNAL("triggered()"), self.action_export_selected_items)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_export_selected_items, ExportSelectedItemsActionHandler(self))
         self.connect(self.ui.action_export_items_file_paths, 
                      QtCore.SIGNAL("triggered()"), self.action_export_items_file_paths)
         #SEPARATOR
@@ -542,37 +542,7 @@ class MainWindow(QtGui.QMainWindow):
             pass
 
 
-    def action_export_selected_items(self):
-        try:
-            self.checkActiveRepoIsNotNone()
-            
-            item_ids = self.ui.dockWidget_items_table.selected_item_ids()
-            if len(item_ids) == 0:
-                raise MsgException(self.tr("There are no selected items."))
-            
-            export_dir_path = QtGui.QFileDialog.getExistingDirectory(
-                self, self.tr("Choose a directory path to export files into."))
-            if not export_dir_path:
-                raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
-            
-            thread = ExportItemsThread(self, self.active_repo, item_ids, export_dir_path)
-            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
-                                    
-            wd = WaitDialog(self)
-            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-            
-            thread.start()
-            thread.wait(1000)
-            if thread.isRunning():
-                wd.exec_()
-
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
-
+    
     def action_export_items_file_paths(self):
         try:
             self.checkActiveRepoIsNotNone()
@@ -1221,7 +1191,42 @@ class OpenItemWithExternalFileManager(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
 
-    
+class ExportSelectedItemsActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(ExportSelectedItemsActionHandler, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            
+            item_ids = self._gui.ui.dockWidget_items_table.selected_item_ids()
+            if len(item_ids) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            export_dir_path = QtGui.QFileDialog.getExistingDirectory(
+                self._gui, self.tr("Choose a directory path to export files into."))
+            if not export_dir_path:
+                raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
+            
+            thread = ExportItemsThread(self._gui, self._gui.active_repo, item_ids, export_dir_path)
+            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+                                    
+            wd = WaitDialog(self._gui)
+            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+            
+            thread.start()
+            thread.wait(1000)
+            if thread.isRunning():
+                wd.exec_()
+
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            #TODO: display information about how many files were copied
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
     def __init__(self, gui):
