@@ -215,8 +215,9 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_item_delete, DeleteItemActionHandler(self))
         
         #SEPARATOR
-        self.connect(self.ui.action_item_view, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_view)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_view, OpenItemActionHandler(self))
+        
         self.connect(self.ui.action_item_view_image_viewer, 
                      QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
         self.connect(self.ui.action_item_view_m3u, 
@@ -444,25 +445,7 @@ class MainWindow(QtGui.QMainWindow):
         
 
     
-    def action_item_view(self):
-        try:
-            sel_rows = self.ui.dockWidget_items_table.selected_rows()
-            if len(sel_rows) != 1:
-                raise MsgException(self.tr("Select one item, please."))
-            
-            sel_row = sel_rows.pop()
-            data_ref = self.model.items[sel_row].data_ref
-            
-            if not data_ref or data_ref.type != DataRef.FILE:
-                raise MsgException(self.tr("Action 'View item' can be applied only to items linked with files."))
-            
-            eam = ExtAppMgr()
-            eam.invoke(os.path.join(self.active_repo.base_path, data_ref.url))
-            
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+    
 
     def action_item_view_image_viewer(self):
         try:
@@ -1201,7 +1184,31 @@ class DeleteItemActionHandler(AbstractActionHandler):
             show_exc_info(self._gui, ex)
         else:
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_DELETED)
+
+class OpenItemActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(OpenItemActionHandler, self).__init__(gui)
+    
+    def handle(self):
+        try:
+            sel_rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            if len(sel_rows) != 1:
+                raise MsgException(self.tr("Select one item, please."))
             
+            data_ref = self._gui.model.items[sel_rows.pop()].data_ref
+            
+            if not data_ref or data_ref.type != DataRef.FILE:
+                raise MsgException(self.tr("Action 'View item' can be applied only to items linked with files."))
+            
+            eam = ExtAppMgr()
+            eam.invoke(os.path.join(self._gui.active_repo.base_path, data_ref.url))
+            
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)    
+    
+    
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
     def __init__(self, gui):
