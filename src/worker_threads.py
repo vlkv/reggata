@@ -247,7 +247,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
                     else:
                         pixmap = pixmap.scaledToWidth(thumbnail_size)
                     buffer = QtCore.QBuffer()
-                    buffer.open(QtCore.QIODevice.WriteOnly);
+                    buffer.open(QtCore.QIODevice.WriteOnly)
                     pixmap.save(buffer, "JPG")
                     
                     th = Thumbnail()
