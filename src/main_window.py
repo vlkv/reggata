@@ -221,9 +221,9 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_item_view_image_viewer, OpenItemWithInternalImageViewer(self))
         self.__actionHandlers.registerActionHandler(
             self.ui.action_item_view_m3u, ExportItemsToM3uAndOpenIt(self))
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManager(self))
         
-        self.connect(self.ui.action_item_to_external_filemanager, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_to_external_filemanager)
         self.connect(self.ui.action_export_selected_items, 
                      QtCore.SIGNAL("triggered()"), self.action_export_selected_items)
         self.connect(self.ui.action_export_items_file_paths, 
@@ -608,28 +608,7 @@ class MainWindow(QtGui.QMainWindow):
     
     
 
-    def action_item_to_external_filemanager(self):
-        try:
-            sel_rows = self.ui.dockWidget_items_table.selected_rows()
-            if len(sel_rows) != 1:
-                raise MsgException(self.tr("Select one item, please."))
-            
-            sel_row = sel_rows.pop()
-            data_ref = self.model.items[sel_row].data_ref
-            
-            if not data_ref or data_ref.type != DataRef.FILE:
-                raise MsgException(
-                self.tr("Action '%1' can be applied only to items linked with files.")
-                .arg(self.ui.action_item_to_external_filemanager.text()))
-            
-            eam = ExtAppMgr()
-            eam.external_file_manager(os.path.join(self.active_repo.base_path, data_ref.url))
-                        
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            pass
-
+    
     
     
             
@@ -1220,6 +1199,27 @@ class ExportItemsToM3uAndOpenIt(AbstractActionHandler):
         else:
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
+class OpenItemWithExternalFileManager(AbstractActionHandler):
+    def __init__(self, gui):
+        super(OpenItemWithExternalFileManager, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            sel_rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            if len(sel_rows) != 1:
+                raise MsgException(self.tr("Select one item, please."))
+            
+            data_ref = self._gui.model.items[sel_rows.pop()].data_ref
+            
+            if data_ref is None or data_ref.type != DataRef.FILE:
+                raise MsgException(
+                    self.tr("This action can be applied only to the items linked with files."))
+            
+            eam = ExtAppMgr()
+            eam.external_file_manager(os.path.join(self._gui.active_repo.base_path, data_ref.url))
+                        
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
 
     
     
