@@ -1182,10 +1182,10 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
                     self._gui, self._gui.active_repo, items, self._gui.items_lock, rebuild=True)
                 self.connect(thread, QtCore.SIGNAL("exception"), 
                              lambda exc_info: show_exc_info(self._gui, exc_info[1], details=format_exc_info(*exc_info)))
-                self.connect(thread, QtCore.SIGNAL("finished"), 
-                             lambda: self._gui.ui.statusbar.showMessage(self.tr("Rebuild thumbnails is done.")))            
                 self.connect(thread, QtCore.SIGNAL("progress"), 
                              lambda percents, row: refresh(percents, row))
+                self.connect(thread, QtCore.SIGNAL("finished"), 
+                             lambda: self._gui.ui.statusbar.showMessage(self.tr("Rebuild thumbnails is done.")))
                 thread.start()
                     
             finally:
