@@ -217,9 +217,9 @@ class MainWindow(QtGui.QMainWindow):
         #SEPARATOR
         self.__actionHandlers.registerActionHandler(
             self.ui.action_item_view, OpenItemActionHandler(self))
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_view_image_viewer, OpenItemWithInternalImageViewer(self))
         
-        self.connect(self.ui.action_item_view_image_viewer, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_view_image_viewer)        
         self.connect(self.ui.action_item_view_m3u, 
                      QtCore.SIGNAL("triggered()"), self.action_item_view_m3u)
         self.connect(self.ui.action_item_to_external_filemanager, 
@@ -447,38 +447,9 @@ class MainWindow(QtGui.QMainWindow):
     
     
 
-    def action_item_view_image_viewer(self):
-        try:
-            self.checkActiveRepoIsNotNone()
-            self.checkActiveUserIsNotNone()            
-            
-            rows = self.ui.dockWidget_items_table.selected_rows()
-            if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
-            
-            start_index = 0
-            abs_paths = []
-            if len(rows) == 1:
-                #If there is only one selected item, pass to viewer all items in this table model
-                for row in range(self.model.rowCount()):
-                    abs_paths.append(os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url))
-                #This is the index of the first image to show
-                start_index = rows.pop()
-            else:
-                for row in rows:
-                    abs_paths.append(os.path.join(self.active_repo.base_path, self.model.items[row].data_ref.url))
-            
-            iv = ImageViewer(self.active_repo, self.active_user.login, self, abs_paths)
-            iv.set_current_image_index(start_index)
-            iv.show()
-            
-            #TODO scroll items table to the last item shown in ImageViewer 
             
             
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+        
 
     def action_fix_file_not_found_try_find(self):
         strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
@@ -1208,7 +1179,41 @@ class OpenItemActionHandler(AbstractActionHandler):
         else:
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)    
     
-    
+class OpenItemWithInternalImageViewer(AbstractActionHandler):
+    def __init__(self, gui):
+        super(OpenItemWithInternalImageViewer, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()            
+            
+            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            start_index = 0
+            abs_paths = []
+            if len(rows) == 1:
+                #If there is only one selected item, pass to viewer all items in this table model
+                for row in range(self._gui.model.rowCount()):
+                    abs_paths.append(os.path.join(
+                        self._gui.active_repo.base_path, self._gui.model.items[row].data_ref.url))
+                #This is the index of the first image to show
+                start_index = rows.pop()
+            else:
+                for row in rows:
+                    abs_paths.append(os.path.join(
+                        self._gui.active_repo.base_path, self._gui.model.items[row].data_ref.url))
+            
+            iv = ImageViewer(self._gui.active_repo, self._gui.active_user.login, self._gui, abs_paths)
+            iv.set_current_image_index(start_index)
+            iv.show()
+            #TODO scroll items table to the last item shown in ImageViewer
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
     def __init__(self, gui):
