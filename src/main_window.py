@@ -211,8 +211,9 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_item_rebuild_thumbnail, RebuildItemThumbnailActionHandler(self))
         
         #SEPARATOR
-        self.connect(self.ui.action_item_delete, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_delete)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_delete, DeleteItemActionHandler(self))
+        
         #SEPARATOR
         self.connect(self.ui.action_item_view, 
                      QtCore.SIGNAL("triggered()"), self.action_item_view)
@@ -442,53 +443,7 @@ class MainWindow(QtGui.QMainWindow):
     
         
 
-    def action_item_delete(self):
-        try:
-            self.checkActiveRepoIsNotNone()
-            self.checkActiveUserIsNotNone()
-                        
-            rows = self.ui.dockWidget_items_table.selected_rows()
-            if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
-            
-            mb = QtGui.QMessageBox()
-            mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(rows)))
-            mb.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if mb.exec_() == QtGui.QMessageBox.Yes:
-                item_ids = []
-                for row in rows:
-                    item_ids.append(self.model.items[row].id)
-                
-                thread = DeleteGroupOfItemsThread(self, self.active_repo, item_ids, self.active_user.login)
-                self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
-                                        
-                wd = WaitDialog(self)
-                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                
-                thread.start()
-                thread.wait(1000)
-                if thread.isRunning():
-                    wd.exec_()
-                    
-                if thread.errors > 0:
-                    mb = helpers.MyMessageBox(self)
-                    mb.setWindowTitle(tr("Information"))
-                    mb.setText(self.tr("There were {0} errors.").format(thread.errors))                    
-                    mb.setDetailedText(thread.detailed_message)
-                    mb.exec_()
-                
-            else:
-                self.ui.statusbar.showMessage(self.tr("Cancelled."), STATUSBAR_TIMEOUT)
-            
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            self.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
-            self.query_exec()
-            self.ui.tag_cloud.refresh()
-            
+    
     def action_item_view(self):
         try:
             sel_rows = self.ui.dockWidget_items_table.selected_rows()
@@ -1194,7 +1149,57 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
             
+class DeleteItemActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(DeleteItemActionHandler, self).__init__(gui)
     
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()
+                        
+            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            mb = QtGui.QMessageBox()
+            mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(rows)))
+            mb.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if mb.exec_() == QtGui.QMessageBox.Yes:
+                item_ids = []
+                for row in rows:
+                    item_ids.append(self._gui.model.items[row].id)
+                
+                thread = DeleteGroupOfItemsThread(
+                    self._gui, self._gui.active_repo, item_ids, self._gui.active_user.login)
+                self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+                                        
+                wd = WaitDialog(self._gui)
+                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+                self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+                
+                thread.start()
+                thread.wait(1000)
+                if thread.isRunning():
+                    wd.exec_()
+                    
+                if thread.errors > 0:
+                    mb = helpers.MyMessageBox(self._gui)
+                    mb.setWindowTitle(tr("Information"))
+                    mb.setText(self.tr("There were {0} errors.").format(thread.errors))                    
+                    mb.setDetailedText(thread.detailed_message)
+                    mb.exec_()
+                
+            else:
+                self._gui.ui.statusbar.showMessage(self.tr("Cancelled."), STATUSBAR_TIMEOUT)
+            
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_DELETED)
+            
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
     def __init__(self, gui):
