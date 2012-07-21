@@ -230,6 +230,8 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_export_items_file_paths, ExportItemsFilePathsActionHandler(self))
         
         #SEPARATOR
+        
+        #TODO: Extract these actions to AbstractActionHandler subclasses
         self.connect(self.ui.action_item_check_integrity, 
                      QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
         self.connect(self.ui.action_item_fix_hash_error, 
