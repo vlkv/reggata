@@ -1165,7 +1165,9 @@ class DeleteItemActionHandler(AbstractActionHandler):
             mb = QtGui.QMessageBox()
             mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(rows)))
             mb.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if mb.exec_() == QtGui.QMessageBox.Yes:
+            if mb.exec_() != QtGui.QMessageBox.Yes:
+                self._gui.ui.statusbar.showMessage(self.tr("Operation cancelled."), STATUSBAR_TIMEOUT)
+            else:
                 item_ids = []
                 for row in rows:
                     item_ids.append(self._gui.model.items[row].id)
@@ -1191,13 +1193,13 @@ class DeleteItemActionHandler(AbstractActionHandler):
                     mb.setDetailedText(thread.detailed_message)
                     mb.exec_()
                 
-            else:
-                self._gui.ui.statusbar.showMessage(self.tr("Cancelled."), STATUSBAR_TIMEOUT)
+                #TODO: display information about how many items were deleted
+                self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+                
             
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_DELETED)
             
     
