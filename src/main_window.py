@@ -225,7 +225,7 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManagerActionHandler(self))
         
         self.__actionHandlers.registerActionHandler(
-            self.ui.action_export_selected_items, ExportSelectedItemsActionHandler(self))
+            self.ui.action_export_selected_items, ExportItemsFilesActionHandler(self))
         self.__actionHandlers.registerActionHandler(
             self.ui.action_export_items_file_paths, ExportItemsFilePathsActionHandler(self))
         
@@ -1164,9 +1164,9 @@ class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
 
-class ExportSelectedItemsActionHandler(AbstractActionHandler):
+class ExportItemsFilesActionHandler(AbstractActionHandler):
     def __init__(self, gui):
-        super(ExportSelectedItemsActionHandler, self).__init__(gui)
+        super(ExportItemsFilesActionHandler, self).__init__(gui)
         
     def handle(self):
         try:
