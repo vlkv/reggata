@@ -824,7 +824,7 @@ class AboutDialog(QtGui.QDialog):
 <p>Reggata is a tagging system for local files.
 </p>
 
-<p>Copyright 2010 Vitaly Volkov, <font color="blue">vitvlkv@gmail.com</font>
+<p>Copyright 2012 Vitaly Volkov, <font color="blue">vitvlkv@gmail.com</font>
 </p>
 
 <p>Home page: <font color="blue">http://github.com/vlkv/reggata</font>
