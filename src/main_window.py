@@ -195,21 +195,32 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_export_items_file_paths, ExportItemsFilePathsActionHandler(self))
         
         #SEPARATOR
-        
+
         #TODO: Extract these actions to AbstractActionHandler subclasses
         self.connect(self.ui.action_item_check_integrity, 
                      QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
-        self.connect(self.ui.action_item_fix_hash_error, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_fix_hash_error)
-        self.connect(self.ui.action_item_update_file_hash, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_update_file_hash)
-        self.connect(self.ui.action_item_fix_history_rec_error, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_fix_history_rec_error)
-        self.connect(self.ui.action_fix_file_not_found_try_find, 
-                     QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_try_find)
-        self.connect(self.ui.action_fix_file_not_found_delete, 
-                     QtCore.SIGNAL("triggered()"), self.action_fix_file_not_found_delete)
         
+        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_fix_hash_error, FixItemIntegrityErrorActionHandler(self, strategy))
+        
+        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_update_file_hash, FixItemIntegrityErrorActionHandler(self, strategy))
+        
+        strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_fix_history_rec_error, FixItemIntegrityErrorActionHandler(self, strategy))
+        
+        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_fix_file_not_found_try_find, FixItemIntegrityErrorActionHandler(self, strategy))
+        
+        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_fix_file_not_found_delete, FixItemIntegrityErrorActionHandler(self, strategy))
+        
+                
         #MENU: Help
         self.__actionHandlers.registerActionHandler(
             self.ui.action_help_about, ShowAboutDialogActionHandler(self))
@@ -407,62 +418,8 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.action_user_create.trigger()
         
 
-
-    def action_fix_file_not_found_try_find(self):
-        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
-        self._fix_integrity_error(strategy)
-        
-    def action_fix_file_not_found_delete(self):
-        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
-        self._fix_integrity_error(strategy)
-
-    def action_item_update_file_hash(self):
-        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
-        self._fix_integrity_error(strategy)
-
-    def action_item_fix_hash_error(self):
-        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
-        self._fix_integrity_error(strategy)
     
-    def action_item_fix_history_rec_error(self):
-        strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
-        self._fix_integrity_error(strategy)
     
-    def _fix_integrity_error(self, strategy):
-        
-        def refresh(percent, row):
-            self.ui.statusbar.showMessage(self.tr("Integrity fix {0}%").format(percent))
-            self.model.reset_single_row(row)
-            QtCore.QCoreApplication.processEvents()
-        
-        try:
-            self.checkActiveRepoIsNotNone()
-            self.checkActiveUserIsNotNone()
-            
-            rows = self.ui.dockWidget_items_table.selected_rows()
-            if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
-            
-            items = []
-            for row in rows:
-                self.model.items[row].table_row = row
-                items.append(self.model.items[row])
-                        
-            thread = ItemIntegrityFixerThread(self, self.active_repo, items, self.items_lock, strategy, self.active_user.login)
-            
-            self.connect(thread, QtCore.SIGNAL("exception"), 
-                         lambda exc_info: show_exc_info(self, exc_info[1], details=format_exc_info(*exc_info)))
-            self.connect(thread, QtCore.SIGNAL("finished"), 
-                         lambda: self.ui.statusbar.showMessage(self.tr("Integrity fixing is done.")))
-            self.connect(thread, QtCore.SIGNAL("progress"), 
-                         lambda percents, row: refresh(percents, row))
-            thread.start()
-            
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            pass
-
 
     def action_item_check_integrity(self):
         
@@ -499,11 +456,6 @@ class MainWindow(QtGui.QMainWindow):
             pass
 
 
-    
-
-    
-    
-    
             
 
     

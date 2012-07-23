@@ -713,6 +713,49 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
         else:
             self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
+
+class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
+    def __init__(self, gui, strategy):
+        super(FixItemIntegrityErrorActionHandler, self).__init__(gui)
+        self.__strategy = strategy
+    
+    def handle(self):
+        
+        def refresh(percent, row):
+            self._gui.ui.statusbar.showMessage(self.tr("Integrity fix {0}%").format(percent))
+            
+            #TODO: Have to replace this direct updates with emitting some specific signals..
+            self._gui.model.reset_single_row(row)
+            QtCore.QCoreApplication.processEvents()
+        
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()
+            
+            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            items = []
+            for row in rows:
+                self._gui.model.items[row].table_row = row
+                items.append(self._gui.model.items[row])
+                        
+            thread = ItemIntegrityFixerThread(
+                self._gui, self._gui.active_repo, items, self._gui.items_lock, self.__strategy, self._gui.active_user.login)
+            
+            self.connect(thread, QtCore.SIGNAL("progress"),
+                         lambda percents, row: refresh(percents, row))
+            self.connect(thread, QtCore.SIGNAL("finished"),
+                         lambda: self._gui.ui.statusbar.showMessage(self.tr("Integrity fixing is done.")))
+            self.connect(thread, QtCore.SIGNAL("exception"), 
+                         lambda exc_info: show_exc_info(self._gui, exc_info[1], details=format_exc_info(*exc_info)))
+            
+            
+            thread.start()
+            
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
     
 
     
