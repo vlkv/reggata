@@ -45,7 +45,6 @@ class MainWindow(QtGui.QMainWindow):
         self.ui = ui_mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
         
-        
         #Current opened (active) repository (RepoMgr object)
         self.__active_repo = None
         
@@ -57,89 +56,58 @@ class MainWindow(QtGui.QMainWindow):
         
         self.items_lock = QtCore.QReadWriteLock()
         
-        
-        
         self.setCentralWidget(None)
         
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
         self.__initContextMenu()
         
+        self.__initStatusBar()
+        self.__initItemsTable()
+        self.__initTagCloud()
+        self.__initFileBrowser()
         
-        #Creating status bar widgets
+        self.__restoreGuiState()
+
+    
+    def __initStatusBar(self):
         self.ui.label_repo = QtGui.QLabel()
         self.ui.label_user = QtGui.QLabel()
         self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("Repository:")))
         self.ui.statusbar.addPermanentWidget(self.ui.label_repo)
         self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("User:")))
         self.ui.statusbar.addPermanentWidget(self.ui.label_user)
-        
-        
-        #Create ItemsTableDockWidget
+
+    def __initItemsTable(self):
         self.ui.dockWidget_items_table = ItemsTableDockWidget(self)
         self.menu = self.__initItemsTableContextMenu()
         self.ui.dockWidget_items_table.addContextMenu(self.menu)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_items_table)
-        self.__widgetsUpdateManager.subscribe(
-            self.ui.dockWidget_items_table, 
-            self.ui.dockWidget_items_table.query_exec, 
-            [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, HandlerSignals.ITEM_DELETED])
-        
-        self.connect(self.ui.action_tools_items_table, 
-                     QtCore.SIGNAL("triggered(bool)"), 
-                     lambda b: self.ui.dockWidget_items_table.setVisible(b))
-        self.connect(self.ui.dockWidget_items_table, 
-                     QtCore.SIGNAL("visibilityChanged(bool)"), 
-                     lambda b: self.ui.action_tools_items_table.setChecked(b))
+        self.__widgetsUpdateManager.subscribe(self.ui.dockWidget_items_table, self.ui.dockWidget_items_table.query_exec, [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, HandlerSignals.ITEM_DELETED])
+        self.connect(self.ui.action_tools_items_table, QtCore.SIGNAL("triggered(bool)"), lambda b:self.ui.dockWidget_items_table.setVisible(b))
+        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b:self.ui.action_tools_items_table.setChecked(b))
 
-
-
-   
-
-        
-        #Adding tag cloud
+    def __initTagCloud(self):
         self.ui.tag_cloud = TagCloud(self)
         self.ui.dockWidget_tag_cloud = QtGui.QDockWidget(self.tr("Tag cloud"), self)
         self.ui.dockWidget_tag_cloud.setObjectName("dockWidget_tag_cloud")
         self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
-        self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), 
-                     self.ui.dockWidget_items_table.selected_tags_changed)
-        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("queryTextResetted"),
-                     self.ui.tag_cloud.reset)
-        self.connect(self.ui.action_tools_tag_cloud, 
-                     QtCore.SIGNAL("triggered(bool)"), 
-                     lambda b: self.ui.dockWidget_tag_cloud.setVisible(b))
-        self.connect(self.ui.dockWidget_tag_cloud, 
-                     QtCore.SIGNAL("visibilityChanged(bool)"), 
-                     lambda b: self.ui.action_tools_tag_cloud.setChecked(b))
-        self.__widgetsUpdateManager.subscribe(
-            self.ui.tag_cloud, 
-            self.ui.tag_cloud.refresh, 
-            [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, HandlerSignals.ITEM_DELETED])
-        
-                     
-                
-        #Adding file browser
+        self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), self.ui.dockWidget_items_table.selected_tags_changed)
+        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("queryTextResetted"), self.ui.tag_cloud.reset)
+        self.connect(self.ui.action_tools_tag_cloud, QtCore.SIGNAL("triggered(bool)"), lambda b:self.ui.dockWidget_tag_cloud.setVisible(b))
+        self.connect(self.ui.dockWidget_tag_cloud, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b:self.ui.action_tools_tag_cloud.setChecked(b))
+        self.__widgetsUpdateManager.subscribe(self.ui.tag_cloud, self.ui.tag_cloud.refresh, [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, HandlerSignals.ITEM_DELETED])
+
+    def __initFileBrowser(self):
         self.ui.file_browser = FileBrowser(self)
         self.ui.dockWidget_file_browser = QtGui.QDockWidget(self.tr("File browser"), self)
         self.ui.dockWidget_file_browser.setObjectName("dockWidget_file_browser")
-        self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)        
+        self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.ui.dockWidget_file_browser)
-        self.connect(self.ui.action_tools_file_browser, 
-                     QtCore.SIGNAL("triggered(bool)"), 
-                     lambda b: self.ui.dockWidget_file_browser.setVisible(b))
-        self.connect(self.ui.dockWidget_file_browser, 
-                     QtCore.SIGNAL("visibilityChanged(bool)"), 
-                     lambda b: self.ui.action_tools_file_browser.setChecked(b))
-        
-        self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.dockWidget_items_table)        
-        
-        #TODO subscribe file browser to actionHandlers signals
-        
-        
-        self.__restoreGuiState()
-        
+        self.connect(self.ui.action_tools_file_browser, QtCore.SIGNAL("triggered(bool)"), lambda b:self.ui.dockWidget_file_browser.setVisible(b))
+        self.connect(self.ui.dockWidget_file_browser, QtCore.SIGNAL("visibilityChanged(bool)"), lambda b:self.ui.action_tools_file_browser.setChecked(b))
+        self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.dockWidget_items_table)
 
     def __restoreGuiState(self):
         #Try to open and login recent repository with recent user login
