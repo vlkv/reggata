@@ -71,11 +71,10 @@ class RepoMgr(object):
     
     @base_path.setter
     def base_path(self, value):
-        self._base_path = value
-            
-    
+        self._base_path = value    
+        
     @staticmethod
-    def init_new_repo(base_path):
+    def createNewRepo(base_path):
         '''Создаёт новое пустое хранилище по адресу base_path.
         1) Проверяет, что директория base_path существует
         2) Внутри base_path нет служебной поддиректории .reggata
@@ -95,10 +94,6 @@ class RepoMgr(object):
         #Создание таблиц в БД
         Base.metadata.create_all(engine)
         
-        
-    @staticmethod
-    def create_new_repo(base_path):
-        RepoMgr.init_new_repo(base_path)
         return RepoMgr(base_path)
         
 

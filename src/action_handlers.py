@@ -154,7 +154,7 @@ class CreateRepoActionHandler(AbstractActionHandler):
             # QFileDialog returns forward slashes in windows! Because of this 
             # the path should be normalized
             basePath = os.path.normpath(basePath)
-            self._gui.active_repo = RepoMgr.create_new_repo(basePath)
+            self._gui.active_repo = RepoMgr.createNewRepo(basePath)
             self._gui.active_user = None
         
         except Exception as ex:
