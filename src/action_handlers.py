@@ -756,7 +756,44 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
             
         except Exception as ex:
             show_exc_info(self._gui, ex)
+
+class CheckItemIntegrityActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(CheckItemIntegrityActionHandler, self).__init__(gui)
     
+    def handle(self):
+        def refresh(percent, row):
+            self._gui.ui.statusbar.showMessage(self.tr("Integrity check {0}%").format(percent))            
+            
+            #TODO: Have to replace this direct updates with emitting some specific signals..
+            self._gui.model.reset_single_row(row)
+            QtCore.QCoreApplication.processEvents()
+        
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()            
+            
+            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            if len(rows) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            items = []
+            for row in rows:
+                self._gui.model.items[row].table_row = row
+                items.append(self._gui.model.items[row])
+             
+            thread = ItemIntegrityCheckerThread(
+                self._gui, self._gui.active_repo, items, self._gui.items_lock)
+            self.connect(thread, QtCore.SIGNAL("progress"), 
+                         lambda percents, row: refresh(percents, row))
+            self.connect(thread, QtCore.SIGNAL("finished"), 
+                         lambda error_count: self._gui.ui.statusbar.showMessage(self.tr("Integrity check is done. {0} Items with errors.").format(error_count)))            
+            self.connect(thread, QtCore.SIGNAL("exception"), 
+                         lambda msg: raise_exc(msg))
+            thread.start()
+            
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
 
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):

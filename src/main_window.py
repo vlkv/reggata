@@ -195,10 +195,8 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_export_items_file_paths, ExportItemsFilePathsActionHandler(self))
         
         #SEPARATOR
-
-        #TODO: Extract these actions to AbstractActionHandler subclasses
-        self.connect(self.ui.action_item_check_integrity, 
-                     QtCore.SIGNAL("triggered()"), self.action_item_check_integrity)
+        self.__actionHandlers.registerActionHandler(
+            self.ui.action_item_check_integrity, CheckItemIntegrityActionHandler(self))
         
         strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
         self.__actionHandlers.registerActionHandler(
@@ -421,41 +419,7 @@ class MainWindow(QtGui.QMainWindow):
     
     
 
-    def action_item_check_integrity(self):
-        
-        def refresh(percent, row):
-            self.ui.statusbar.showMessage(self.tr("Integrity check {0}%").format(percent))            
-            self.model.reset_single_row(row)
-            QtCore.QCoreApplication.processEvents()
-        
-        try:
-            self.checkActiveRepoIsNotNone()
-            self.checkActiveUserIsNotNone()            
-            
-            rows = self.ui.dockWidget_items_table.selected_rows()
-            if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
-            
-            items = []
-            for row in rows:
-                self.model.items[row].table_row = row
-                items.append(self.model.items[row])
-             
-            thread = ItemIntegrityCheckerThread(self, self.active_repo, items, self.items_lock)
-            self.connect(thread, QtCore.SIGNAL("exception"), 
-                         lambda msg: raise_exc(msg))
-            self.connect(thread, QtCore.SIGNAL("finished"), 
-                         lambda error_count: self.ui.statusbar.showMessage(self.tr("Integrity check is done. {0} Items with errors.").format(error_count)))            
-            self.connect(thread, QtCore.SIGNAL("progress"), 
-                         lambda percents, row: refresh(percents, row))
-            thread.start()
-            
-        except Exception as ex:
-            show_exc_info(self, ex)
-        else:
-            pass
-
-
+    
             
 
     
