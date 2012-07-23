@@ -133,7 +133,6 @@ class UnitOfWork(object):
         return self._session
     
     def executeCommand(self, command):
-        #assert isinstance(command, AbstractCommand)
         return command._execute(self)
         
         

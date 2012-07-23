@@ -16,7 +16,8 @@ from exceptions import *
 from helpers import *
 import consts
 from db_schema import *
-from repo_mgr import *
+from repo_mgr import UnitOfWork
+from user_config import UserConfig
 
 
 class AbstractCommand:

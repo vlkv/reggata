@@ -29,7 +29,7 @@ import helpers
 from sqlalchemy import orm
 from helpers import tr, HTMLDelegate
 import consts
-from repo_mgr import GetFileInfoCommand, FileInfo
+from commands import GetFileInfoCommand, FileInfo
 
 
 class FileBrowser(QtGui.QTableView):

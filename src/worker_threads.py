@@ -11,6 +11,7 @@ from repo_mgr import *
 import sys
 from db_schema import Thumbnail
 from exceptions import *
+from commands import *
 
 
 

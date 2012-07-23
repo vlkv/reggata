@@ -30,7 +30,7 @@ from parsers.util import quote
 import parsers
 from exceptions import MsgException
 from user_config import UserConfig
-from repo_mgr import GetRelatedTagsCommand
+from commands import GetRelatedTagsCommand
 
 #TODO Сделать по Ctr+F поиск тега в облаке (т.к. в хранилище обычно очень много тегов)
 

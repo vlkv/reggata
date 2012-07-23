@@ -13,6 +13,7 @@ import os
 from parsers import query_parser
 from worker_threads import ThumbnailBuilderThread
 from repo_mgr import *
+from commands import *
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
     '''
