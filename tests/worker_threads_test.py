@@ -7,6 +7,7 @@ import unittest
 from repo_mgr import *
 from worker_threads import DeleteGroupOfItemsThread
 from abstract_test_cases import AbstractTestCaseWithRepo
+from commands import GetExpungedItemCommand
 
 
 class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):
