@@ -22,23 +22,17 @@ Created on 30.09.2010
 @author: vlkv
 '''
 
-import os.path
-from helpers import tr, to_commalist, is_none_or_empty, index_of, is_internal,\
-    compute_hash
-import consts
 import sqlalchemy as sqa
-from sqlalchemy.orm import sessionmaker, contains_eager,\
-    joinedload_all
-from db_schema import Base, Item, User, Tag, Field, Item_Tag, DataRef, Item_Field,\
-    Thumbnail, HistoryRec
-from exceptions import LoginError, AccessError, FileAlreadyExistsError,\
-    CannotOpenRepoError, DataRefAlreadyExistsError, NotFoundError
+from sqlalchemy.orm import sessionmaker, contains_eager, joinedload_all
+from sqlalchemy.exc import ResourceClosedError
 import shutil
 import datetime
-from sqlalchemy.exc import ResourceClosedError
+import os.path
+from exceptions import *
+from helpers import *
+import consts
+from db_schema import *
 from user_config import UserConfig
-import db_schema
-import helpers
 
 
 class RepoMgr(object):
@@ -412,11 +406,11 @@ class QueryItemsByParseTree(AbstractCommand):
         
         sql = '''
         select sub.*, 
-        ''' + db_schema.Item_Tag._sql_from() + ''', 
-        ''' + db_schema.Tag._sql_from() + ''',
-        ''' + db_schema.Thumbnail._sql_from() + ''',
-        ''' + db_schema.Item_Field._sql_from() + ''',
-        ''' + db_schema.Field._sql_from() + '''        
+        ''' + Item_Tag._sql_from() + ''', 
+        ''' + Tag._sql_from() + ''',
+        ''' + Thumbnail._sql_from() + ''',
+        ''' + Item_Field._sql_from() + ''',
+        ''' + Field._sql_from() + '''        
         from (''' + sub_sql + " " + order_by_1 + " " + limit_offset +  ''') as sub
         left join items_tags on sub.id = items_tags.item_id
         left join tags on tags.id = items_tags.tag_id
@@ -575,7 +569,7 @@ class GetFileInfoCommand(AbstractCommand):
         
     def __getFileInfo(self, path):
         data_ref = self._session.query(DataRef)\
-            .filter(DataRef.url_raw==helpers.to_db_format(path))\
+            .filter(DataRef.url_raw==to_db_format(path))\
             .options(joinedload_all("items"))\
             .options(joinedload_all("items.item_tags.tag"))\
             .options(joinedload_all("items.item_fields.field"))\
@@ -925,7 +919,7 @@ class SaveNewItemCommand(AbstractCommand):
             if os.path.isabs(dstRelPath):
                 raise ValueError(tr("dstRelPath must be a relative to repository root path."))
             
-            dstRelPath = helpers.removeTrailingOsSeps(dstRelPath)
+            dstRelPath = removeTrailingOsSeps(dstRelPath)
             dstRelPath = os.path.normpath(dstRelPath)
             dstAbsPath = os.path.abspath(os.path.join(self._repoBasePath, dstRelPath))
             dstAbsPath = os.path.normpath(dstAbsPath)
@@ -933,7 +927,7 @@ class SaveNewItemCommand(AbstractCommand):
                 raise ValueError(tr("{} should not point to an existing file.").format(dstAbsPath))
                 
             dataRef = self._session.query(DataRef).filter(
-                DataRef.url_raw==helpers.to_db_format(dstRelPath)).first()
+                DataRef.url_raw==to_db_format(dstRelPath)).first()
             if dataRef is not None:
                 raise DataRefAlreadyExistsError(tr("DataRef instance with url='{}' "
                                                    "already in database. ").format(dstRelPath))
@@ -942,7 +936,7 @@ class SaveNewItemCommand(AbstractCommand):
         if is_none_or_empty(user_login):
             raise AccessError(tr("Argument user_login shouldn't be null or empty."))
         
-        user = self._session.query(db_schema.User).get(user_login)
+        user = self._session.query(User).get(user_login)
         if user is None:
             raise AccessError(tr("User with login {} doesn't exist.").format(user_login))
         
@@ -1167,7 +1161,7 @@ class UpdateExistingItemCommand(AbstractCommand):
                 assert os.path.isabs(url), "item.data_ref.url should be an absolute path"
                 url = os.path.relpath(url, self._repoBasePath)
                 
-            existing_data_ref = self._session.query(DataRef).filter(DataRef.url_raw==helpers.to_db_format(url)).first()            
+            existing_data_ref = self._session.query(DataRef).filter(DataRef.url_raw==to_db_format(url)).first()            
             if existing_data_ref is not None:
                 persistentItem.data_ref = existing_data_ref
             else:
