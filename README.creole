@@ -3,7 +3,8 @@ Reggata - is a program for tagging user files on local computer or (in other wor
 
 This is a very "young" project and I'm very interested about your opinion on it. Your comments and suggestions are very appreciated.
 
-If you found a bug, please, report it here [[https://github.com/vlkv/reggata/issues]].
+If you found a bug or maybe want to request a new feature then report it here [[https://github.com/vlkv/reggata/issues]].
+
 
 === Features
 * You can assosiate with your files any number of arbitrary tags
@@ -46,8 +47,7 @@ Reggata is tested under GNU/Linux and Windows XP.
 Reggata binary packages for Windows and GNU/Linux are available at 
 [[https://sourceforge.net/projects/reggata/files/]].
 
-Just download the zip/tar archive, unpack it and execute file "main_window" or "main_window.exe".
-NOTE: In the nearest future the name of the executable will be changed to "reggata" or "reggata.exe".
+Just download the zip/tar archive, unpack it and execute file "reggata" or "reggata.exe".
 
 === Installing from source
 
