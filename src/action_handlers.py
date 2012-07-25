@@ -310,7 +310,8 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
                 items.append(item)
             
             completer = Completer(self._gui.active_repo, self._gui)
-            d = ItemsDialog(self._gui, items, ItemsDialog.CREATE_MODE, completer=completer)
+            repoBasePath = self._gui.active_repo.base_path
+            d = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.CREATE_MODE, completer=completer)
             if not d.exec_():
                 return
             
@@ -351,7 +352,8 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                     items.append(item)
             
             completer = Completer(self._gui.active_repo, self._gui)
-            d = ItemsDialog(self._gui, items, ItemsDialog.CREATE_MODE, same_dst_path=False,
+            repoBasePath = self._gui.active_repo.base_path
+            d = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.CREATE_MODE, same_dst_path=False,
                             completer=completer)
             if not d.exec_():
                 return
@@ -416,7 +418,8 @@ class EditItemActionHandler(AbstractActionHandler):
                 id = self._gui.model.items[row].id
                 sel_items.append(uow.executeCommand(GetExpungedItemCommand(id)))
             completer = Completer(self._gui.active_repo, self._gui)
-            dlg = ItemsDialog(self._gui, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
+            repoBasePath = self._gui.active_repo.base_path
+            dlg = ItemsDialog(self._gui, repoBasePath, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
             if dlg.exec_():
                 thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, sel_items)
                 self.connect(thread, QtCore.SIGNAL("exception"), 

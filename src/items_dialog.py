@@ -45,12 +45,12 @@ class ItemsDialog(QtGui.QDialog):
     CREATE_MODE = "CREATE_MODE"
     EDIT_MODE = "EDIT_MODE"
 
-    def __init__(self, parent=None, items=[], mode=EDIT_MODE, same_dst_path=True, completer=None):
+    def __init__(self, parent, repoBasePath, items, mode=EDIT_MODE, same_dst_path=True, completer=None):
         super(ItemsDialog, self).__init__(parent)
         self.ui = ui_itemsdialog.Ui_ItemsDialog()
         self.ui.setupUi(self)
         
-        self.parent = parent
+        self.repoBasePath = repoBasePath
         self.items = items
         
         #This is a relative (to repo root) path where all files in the group are located or will be moved to
@@ -97,6 +97,7 @@ class ItemsDialog(QtGui.QDialog):
         
     
     def set_dialog_mode(self, mode):
+        self.mode = mode
         if mode == ItemsDialog.CREATE_MODE:
             self.ui.label_tags.setVisible(False)
             self.ui.textEdit_tags.setVisible(False)
@@ -113,7 +114,7 @@ class ItemsDialog(QtGui.QDialog):
             pass
         else:
             raise ValueError(self.tr("ItemsDialog does not support DialogMode = {}.").format(mode))
-        self.mode = mode    
+            
     
     def write(self):
         
@@ -316,13 +317,13 @@ class ItemsDialog(QtGui.QDialog):
             
             dir = QtGui.QFileDialog.getExistingDirectory(self, 
                 self.tr("Select destination path within repository"), 
-                self.parent.active_repo.base_path)
+                self.repoBasePath)
             if dir:
-                if not is_internal(dir, self.parent.active_repo.base_path):
+                if not is_internal(dir, self.repoBasePath):
                     #Выбрана директория снаружи хранилища
                     raise MsgException(self.tr("Chosen directory is out of active repository."))
                 else:
-                    self.dst_path = os.path.relpath(dir, self.parent.active_repo.base_path)
+                    self.dst_path = os.path.relpath(dir, self.repoBasePath)
                     self.ui.locationDirRelPath.setText(self.dst_path)
         
         except Exception as ex:
