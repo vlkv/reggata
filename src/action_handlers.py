@@ -343,17 +343,16 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             items = []
             for root, dirs, files in os.walk(dir):
                 for file in files:
-                    absPathToFile = os.path.join(root, file)
-                    item = Item(user_login=self._gui.active_user.login)
-                    item.title = file
+                    item = Item(title=file, user_login=self._gui.active_user.login)
                     item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
-                    item.data_ref.srcAbsPath = absPathToFile
+                    item.data_ref.srcAbsPath = os.path.join(root, file)
                     item.data_ref.srcAbsPathToRecursionRoot = dir
                     # item.data_ref.dstRelPath will be set by ItemsDialog
                     items.append(item)
             
             completer = Completer(self._gui.active_repo, self._gui)
-            d = ItemsDialog(self._gui, items, ItemsDialog.CREATE_MODE, same_dst_path=False, completer=completer)
+            d = ItemsDialog(self._gui, items, ItemsDialog.CREATE_MODE, same_dst_path=False,
+                            completer=completer)
             if not d.exec_():
                 return
                 
