@@ -144,7 +144,7 @@ class ItemsDialog(QtGui.QDialog):
                             relPathToFile = os.path.relpath(item.data_ref.srcAbsPath, item.data_ref.srcAbsPathToRecursionRoot)
                             item.data_ref.dstRelPath = os.path.join(self.dst_path, relPathToFile)
                         else:
-                            item.data_ref.dstRelPath = os.path.join(".", os.path.basename(item.data_ref.srcAbsPath))
+                            item.data_ref.dstRelPath = os.path.relpath(item.data_ref.srcAbsPath, item.data_ref.srcAbsPathToRecursionRoot)
         
         #Processing Tags to add        
         text = self.ui.plainTextEdit_tags_add.toPlainText()

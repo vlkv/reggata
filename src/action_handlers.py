@@ -349,6 +349,7 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                     item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
                     item.data_ref.srcAbsPath = absPathToFile
                     item.data_ref.srcAbsPathToRecursionRoot = dir
+                    # item.data_ref.dstRelPath will be set by ItemsDialog
                     items.append(item)
             
             completer = Completer(self._gui.active_repo, self._gui)
