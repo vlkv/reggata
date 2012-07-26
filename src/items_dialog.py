@@ -72,7 +72,12 @@ class ItemsDialog(QtGui.QDialog):
         self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.button_cancel)
         self.connect(self.ui.buttonSelectLocationDirRelPath, QtCore.SIGNAL("clicked()"), self.selectLocationDirRelPath)
         
+        self.__initCustomWidgets()
         
+        self.set_dialog_mode(mode)
+        self.read()
+        
+    def __initCustomWidgets(self):
         self.ui.textEdit_tags = CustomTextEdit()
         self.ui.verticalLayout_tags.addWidget(self.ui.textEdit_tags)
         
@@ -90,11 +95,7 @@ class ItemsDialog(QtGui.QDialog):
         
         self.ui.plainTextEdit_fields_rm = TextEdit(self, completer=self.completer)
         self.ui.verticalLayout_fields_rm.addWidget(self.ui.plainTextEdit_fields_rm)
-        
-        self.set_dialog_mode(mode)
-        self.read()
-        
-        
+
     
     def set_dialog_mode(self, mode):
         self.mode = mode
