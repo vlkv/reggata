@@ -648,6 +648,42 @@ class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
 
+class ExportItemsActionHandler(AbstractActionHandler):
+    ''' Exports selected items with all their metadata (tags, fiedls) and
+    all the referenced files. Items are packed in zip archive and later 
+    they can be imported to another repository.
+    '''
+    # TODO: implement:
+    # Get selected items
+    # Ask user destination where to put the exported archive
+    # Create zip archive in destination dir
+    # for item in items do:
+    #     if item has data_ref, add it to the archive
+    #     Add to archive Items metadata (in json format, maybe?)
+    # Use WaitDialog to display progress
+    pass
+
+class ImportItemsActionHandler(AbstractActionHandler):
+    ''' Imports previously exported items.
+    '''
+    # TODO: implement:
+    # Get from user a path to an imported archive
+    # Check that archive has correct format
+    # Unpack the archive (in reggata tmp dir, maybe?)
+    # Search in archive for items metadata files and
+    # for item_metadata in all found metadata files from archive
+    #     create an Item 
+    #     fill the Item with item_metadata
+    #     if the Item has a referenced file, create DataRef and copy the file to the repo
+    # Use WaitDialog to display progress
+    #
+    # Do not know what to do, if a similar to imported Item already exists in repository...
+    # 1) For example in the repo there may exist an Item with exactly the same name and tsgs
+    # but with different data_ref... What should we do in such a case?
+    # 2) In the repo there may exist an Item with the same name, but with slightly different
+    # set of tags and fields. Should we merge this existing Item to the imported one?
+    pass
+
 class ExportItemsFilesActionHandler(AbstractActionHandler):
     def __init__(self, gui):
         super(ExportItemsFilesActionHandler, self).__init__(gui)
