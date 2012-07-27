@@ -32,6 +32,7 @@ import os
 import platform
 import hashlib
 import helpers
+import memento
 
 
 
@@ -154,7 +155,7 @@ class HistoryRec(Base):
             .format(self.item_id, self.item_hash, self.data_ref_hash, self.data_ref_url, self.operation, self.user_login, self.parent1_id, self.parent2_id)
         return s
 
-class Item(Base):
+class Item(Base, memento.Serializable):
     '''
     Элемент (запись, объект) хранилища.
     '''
@@ -206,7 +207,20 @@ class Item(Base):
     def __init_on_load__(self):
         self.error = None #Если error равен None, то проверку целостности просто не проводили
         
+    def toJson(self):
+        return {"__class__": self.__class__.__name__,
+                "__module__": "db_schema",
+                "id": self.id,
+                "title": self.title
+                }
         
+    @staticmethod
+    def fromJson(objState):
+        item = Item()
+        item.id = objState["id"]
+        item.title = objState["title"]
+        return item
+    
     
     @staticmethod
     def format_error_set(error_set):
