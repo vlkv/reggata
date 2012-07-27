@@ -36,28 +36,25 @@ from user_config import UserConfig
 
 
 class RepoMgr(object):
-    '''Менеджер управления хранилищем в целом.'''
+    ''' Represents one single repository. Manages it as a whole.
+    '''
         
     def __init__(self, path_to_repo):
-        '''Открывает хранилище по адресу path_to_repo. 
-        Делает некторые проверки того, что хранилище корректно.'''
-        
+        ''' Opens an existing repository at given path. 
+        '''
         try:
-            #self._base_path --- Абсолютный путь к корню хранилища
             self._base_path = path_to_repo
             if not os.path.exists(self.base_path + os.sep + consts.METADATA_DIR):
                 raise Exception(tr("Directory {} is not a repository base path.").format(self.base_path))
             
-            engine_echo = bool(UserConfig().get("sqlalchemy.engine_echo") in ["True", "true", "TRUE", "1", "Yes", "yes", "YES"]) 
+            engine_echo = bool(UserConfig().get("sqlalchemy.engine_echo") in
+                               ["True", "true", "TRUE", "1", "Yes", "yes", "YES"]) 
             
-            #self.__engine --- Соединение с базой метаданных
             self.__engine = sqa.create_engine(\
                 "sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE, \
                 echo=engine_echo)
             
-            
-            #Класс сессии
-            self.Session = sessionmaker(bind=self.__engine) #expire_on_commit=False
+            self.Session = sessionmaker(bind=self.__engine)
         except Exception as ex:
             raise CannotOpenRepoError(ex)
         
@@ -66,7 +63,8 @@ class RepoMgr(object):
     
     @property
     def base_path(self):
-        '''Абсолютный путь к корню хранилища.'''
+        ''' Repository base path is the root directory of the repository.
+        '''
         return self._base_path
     
     @base_path.setter
@@ -75,10 +73,13 @@ class RepoMgr(object):
         
     @staticmethod
     def createNewRepo(base_path):
-        '''Создаёт новое пустое хранилище по адресу base_path.
-        1) Проверяет, что директория base_path существует
-        2) Внутри base_path нет служебной поддиректории .reggata
-        3) Создает служебную директорию .reggata и пустую sqlite базу внутри нее
+        ''' Initializes a new repo at a given path. This consists of these steps:
+        1) Checks that base_path exists
+        2) Checks that <base_path>/.reggata directory does not exist yet
+        3) Creates <base_path>/.reggata directory in repository root and
+        empty sqlite database inside it.
+        4) At last, this function opens just created repository and
+        returns RepoMgr object, associated with it.
         '''
         if (not os.path.exists(base_path)):
             raise Exception(tr("Directory {} doesn't exists.").format(base_path))
@@ -88,10 +89,7 @@ class RepoMgr(object):
         
         os.mkdir(base_path + os.sep + consts.METADATA_DIR)
         
-        #Соединение с БД
         engine = sqa.create_engine("sqlite:///" + base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE)
-         
-        #Создание таблиц в БД
         Base.metadata.create_all(engine)
         
         return RepoMgr(base_path)
@@ -104,13 +102,9 @@ class RepoMgr(object):
 class UnitOfWork(object):
     ''' This class allows you to open a working session with database (unit of work), 
     do some actions and close the session.
-    
-    Also this class has methods for executing operations with the database. 
-    TODO: This operations should be 
-    moved to a separate Command classes (I think).
     '''
     
-    #TODO argument repo_base_path should be moved to Command class ctor
+    #TODO Maybe argument repo_base_path should be moved to Command class ctor?..
     def __init__(self, session, repo_base_path):
         self._session = session
         self._repo_base_path = repo_base_path 
