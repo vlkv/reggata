@@ -9,7 +9,6 @@ from worker_threads import DeleteGroupOfItemsThread
 from abstract_test_cases import AbstractTestCaseWithRepo
 from commands import GetExpungedItemCommand
 
-
 class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):
 
     def testName(self):
@@ -27,6 +26,5 @@ class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):
         
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
     
