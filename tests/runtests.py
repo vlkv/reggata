@@ -6,8 +6,33 @@ import tests_context
 import sys
 import memento_tests
 
-def addTestCase(suite, testCase):
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(testCase))
+
+class TestRunner():
+    
+    def __init__(self):
+        self.suite = unittest.TestSuite()
+        self.addAllTestCases()
+    
+    def addAllTestCases(self):
+        self.addTestCase(memento_tests.ItemSerializationSimpleTest)
+        self.addTestCase(memento_tests.ItemSerializationTest)
+        
+        self.addTestCase(helpers_test.IsNoneOrEmptyTest)
+        
+        self.addTestCase(repo_mgr_test.GetItemTest)
+        self.addTestCase(repo_mgr_test.DeleteItemTest)
+        self.addTestCase(repo_mgr_test.SaveNewItemTest)
+        self.addTestCase(repo_mgr_test.UpdateItemTest)
+        
+        self.addTestCase(worker_threads_test.DeleteGroupOfItemsThreadTest)
+
+    def addTestCase(self, testCaseCls):
+        self.suite.addTests(unittest.TestLoader().loadTestsFromTestCase(testCaseCls))
+        
+    def runAllTests(self):
+        unittest.TextTestRunner(verbosity=2).run(self.suite)
+
+
 
 if __name__ == '__main__':
     # sys.argv[0] contains the name of the executing script
@@ -16,17 +41,11 @@ if __name__ == '__main__':
     if (len(sys.argv) >= 3):
         tests_context.COPY_OF_TEST_REPO_BASE_PATH = sys.argv[2]
 
-    suite = unittest.TestSuite()
-    
-    addTestCase(suite, helpers_test.IsNoneOrEmptyTest)
-    
-    addTestCase(suite, repo_mgr_test.GetItemTest)
-    addTestCase(suite, repo_mgr_test.DeleteItemTest)
-    addTestCase(suite, repo_mgr_test.SaveNewItemTest)
-    addTestCase(suite, repo_mgr_test.UpdateItemTest)
-    
-    addTestCase(suite, worker_threads_test.DeleteGroupOfItemsThreadTest)
-    
-    addTestCase(suite, memento_tests.ItemSerializationSimpleTest)
+    testRunner = TestRunner()
+    testRunner.runAllTests()
 
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    
+    
+    
+
+    
