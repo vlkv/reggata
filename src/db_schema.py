@@ -221,22 +221,30 @@ class Item(Base, memento.Serializable):
     def toJson(self):
         return {"__class__": self.__class__.__name__,
                 "__module__": "db_schema",
-                "id": self.id,
                 "title": self.title,
                 "user_login": self.user_login,
+                "date_created": self.date_created,
                 "tags": self.__listOfTagsAndTheirOwners(),
                 "fields": self.__listOfFieldValsAndTheirOwners(),
-                "date_created": self.date_created,
-                "data_ref": None, #TODO: implement DataRef toJson/fromJson
+                "data_ref": self.data_ref,
                 }
         
     @staticmethod
     def fromJson(objState):
         item = Item()
-        item.id = objState["id"]
         item.title = objState["title"]
+        item.user_login = objState["user_login"]
+        item.date_created = objState["date_created"]
         
-        #TODO: implement further
+        for (tag_name, tag_owner) in objState["tags"]:
+            tag = Tag(tag_name)
+            item.item_tags = Item_Tag(tag, tag_owner)
+            
+        for (field_name, field_val, field_owner) in objState["fields"]:
+            field = Field(field_name)
+            item.item_fields = Item_Field(field, field_val, field_owner)
+        
+        item.data_ref = objState["data_ref"]
         
         return item
     
@@ -436,7 +444,7 @@ class Item(Base, memento.Serializable):
         return self.data_ref is None
         
                 
-class DataRef(Base):
+class DataRef(Base, memento.Serializable):
     '''
     Ссылка на файл или URL.
     '''
@@ -484,12 +492,6 @@ class DataRef(Base):
     
     items = relationship("Item", cascade="expunge, refresh-expire")
 
-    @orm.reconstructor
-    def __init_on_load__(self):
-        self.srcAbsPathToRecursionRoot = None
-        self.srcAbsPath = None
-        self.dstRelPath = None
-        
 
     def __init__(self, type=None, url=None, date_created=None):
         self.type = type
@@ -509,6 +511,36 @@ class DataRef(Base):
         # This is a relative path to file in repository (where you want to put it)
         # NOTE: This is not a path to directory!
         self.dstRelPath = None
+    
+    @orm.reconstructor
+    def __init_on_load__(self):
+        self.srcAbsPathToRecursionRoot = None
+        self.srcAbsPath = None
+        self.dstRelPath = None
+    
+    
+    def toJson(self):
+        return {"__class__": self.__class__.__name__,
+                "__module__": "db_schema",
+                "url": self.url_raw,
+                "type": self.type,
+                "hash": self.hash,
+                "date_hashed": self.date_hashed,
+                "size": self.size,
+                "date_created": self.date_created,
+                "user_login": self.user_login,
+                }
+        
+    @staticmethod
+    def fromJson(objState):
+        dr = DataRef(type=objState["type"], 
+                     url=objState["url_raw"],
+                     date_created=objState["date_created"])
+        dr.hash = objState["hash"]
+        dr.date_hashed = objState["date_hashed"]
+        dr.size = objState["size"]
+        dr.user_login = objState["user_login"]
+        return dr
         
     
     def _get_url(self):
