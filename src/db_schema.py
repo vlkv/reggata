@@ -207,12 +207,27 @@ class Item(Base, memento.Serializable):
     def __init_on_load__(self):
         self.error = None #Если error равен None, то проверку целостности просто не проводили
         
+    def __listOfTagsAndTheirOwners(self):
+        return list((self.item_tags[i].tag.name, 
+                     self.item_tags[i].user_login)
+                    for i in range(len(self.item_tags)) )
+        
+    def __listOfFieldValsAndTheirOwners(self):
+        return list((self.item_fields[i].field.name, 
+                     self.item_fields[i].field_value, 
+                     self.item_fields[i].user_login)
+                    for i in range(len(self.item_fields)) )
+        
     def toJson(self):
         return {"__class__": self.__class__.__name__,
                 "__module__": "db_schema",
                 "id": self.id,
                 "title": self.title,
-                "tags": list(self.item_tags[i].tag.name for i in range(len(self.item_tags)))
+                "user_login": self.user_login,
+                "tags": self.__listOfTagsAndTheirOwners(),
+                "fields": self.__listOfFieldValsAndTheirOwners(),
+                "date_created": self.date_created,
+                "data_ref": None, #TODO: implement DataRef toJson/fromJson
                 }
         
     @staticmethod
@@ -220,6 +235,9 @@ class Item(Base, memento.Serializable):
         item = Item()
         item.id = objState["id"]
         item.title = objState["title"]
+        
+        #TODO: implement further
+        
         return item
     
     
