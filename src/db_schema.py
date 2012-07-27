@@ -238,11 +238,11 @@ class Item(Base, memento.Serializable):
         
         for (tag_name, tag_owner) in objState["tags"]:
             tag = Tag(tag_name)
-            item.item_tags = Item_Tag(tag, tag_owner)
+            item.item_tags.append(Item_Tag(tag, tag_owner))
             
         for (field_name, field_val, field_owner) in objState["fields"]:
             field = Field(field_name)
-            item.item_fields = Item_Field(field, field_val, field_owner)
+            item.item_fields.append(Item_Field(field, field_val, field_owner))
         
         item.data_ref = objState["data_ref"]
         
@@ -534,7 +534,7 @@ class DataRef(Base, memento.Serializable):
     @staticmethod
     def fromJson(objState):
         dr = DataRef(type=objState["type"], 
-                     url=objState["url_raw"],
+                     url=objState["url"],
                      date_created=objState["date_created"])
         dr.hash = objState["hash"]
         dr.date_hashed = objState["date_hashed"]

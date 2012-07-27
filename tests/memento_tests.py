@@ -12,6 +12,7 @@ from tests_context import *
 import os
 from abstract_test_cases import AbstractTestCaseWithRepo
 import datetime
+from test.test_capi import InstanceMethod
 
 class ItemSerializationSimpleTest(unittest.TestCase):
 
@@ -39,7 +40,12 @@ class ItemSerializationSimpleTest(unittest.TestCase):
         jsonStr = ItemSerializationSimpleTest.simpleItemState
         item = memento.Decoder().decode(jsonStr)
         self.assertTrue(isinstance(item, db_schema.Item))
+        self.assertIsNone(item.data_ref)
+        self.assertEquals(item.date_created, datetime.datetime(2012, 7, 27, 23, 14, 14, 680387))
+        self.assertTrue(len(item.item_fields) == 0)
+        self.assertTrue(len(item.item_tags) == 0)
         self.assertEquals(item.title, "The Title")
+        self.assertEquals(item.user_login, "user")
         self.assertIsNone(item.id)
         
 
@@ -47,12 +53,30 @@ class ItemSerializationTest(AbstractTestCaseWithRepo):
 
     def test_saveExistingItemFromRepo(self):
         item = self.getExistingItem(itemWithTagsAndFields.id)
-        self.assertEqual(item.title, itemWithTagsAndFields.title)
-        self.assertIsNotNone(item.data_ref)
-        
         jsonStr = memento.Encoder().encode(item)
-        expectedJsonStr = '{\n    "__class__": "Item", \n    "__module__": "db_schema", \n    "id": 5, \n    "title": "I Could Have Lied.txt"\n}'
-        self.assertEquals(jsonStr, expectedJsonStr)
+        
+        item2 = memento.Decoder().decode(jsonStr)
+        self.assertTrue(isinstance(item2, db_schema.Item))
+        self.assertEquals(item2.title, itemWithTagsAndFields.title)
+        self.assertEquals(item2.user_login, itemWithTagsAndFields.ownerUserLogin)
+        self.assertEquals(item2.data_ref.url, itemWithTagsAndFields.relFilePath)
+        
+        self.assertEquals(len(item2.item_tags), len(itemWithTagsAndFields.tags))
+        for i in range(len(item2.item_tags)):
+            tagName = item2.item_tags[i].tag.name
+            self.assertTrue(tagName in itemWithTagsAndFields.tags)
+            
+        self.assertEquals(len(item2.item_fields), len(itemWithTagsAndFields.fields))
+        for i in range(len(item2.item_fields)):
+            fieldName = item2.item_fields[i].field.name
+            fieldVal = item2.item_fields[i].field_value
+            self.assertTrue(fieldName in itemWithTagsAndFields.fields.keys())
+            self.assertEquals(fieldVal, str(itemWithTagsAndFields.fields[fieldName]))
+        
+        # NOTE: There are a number of Item and DataRef properties, 
+        # that not checked in this test! Be careful..     
+        
+        
         
 
 if __name__ == "__main__":
