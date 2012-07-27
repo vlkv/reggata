@@ -211,7 +211,8 @@ class Item(Base, memento.Serializable):
         return {"__class__": self.__class__.__name__,
                 "__module__": "db_schema",
                 "id": self.id,
-                "title": self.title
+                "title": self.title,
+                "tags": self.item_tags
                 }
         
     @staticmethod
@@ -603,7 +604,7 @@ class Tag(Base):
         tags.name as tags_name,
         tags.synonym_code as tags_synonym_code '''
         
-class Item_Tag(Base):
+class Item_Tag(Base, memento.Serializable):
     __tablename__ = "items_tags"
         
     item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"), primary_key=True)
@@ -626,6 +627,18 @@ class Item_Tag(Base):
         items_tags.item_id as items_tags_item_id, 
         items_tags.tag_id as items_tags_tag_id, 
         items_tags.user_login as items_tags_user_login '''
+        
+    def toJson(self):
+        return {"__class__": self.__class__.__name__,
+                "__module__": "db_schema",
+                "tag_name": self.tag.name
+                }
+        
+    @staticmethod
+    def fromJson(objState):
+        itemTag = Item_Tag()
+        itemTag.tag = Tag(name=objState["tag_name"])
+        return itemTag
     
 class Field(Base):
     '''
