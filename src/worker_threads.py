@@ -30,7 +30,10 @@ class ExportItemsThread(QtCore.QThread):
             for i in range(len(self.itemIds)):
                 item = self.__getItemById(self.itemIds[i])
                 
-                #TODO: check integrity of the item, and skip if it is not ok
+                if not self.__isItemIntegrityOk(item):
+                    #TODO report about this problem to log and to list of errors
+                    # Number of errors should be displayed in status bar at the end
+                    continue
 
                 self.__putItemStateToArchive(item, dstArchive)
                 self.__putItemFileToArchive(item, dstArchive)
@@ -44,7 +47,17 @@ class ExportItemsThread(QtCore.QThread):
         finally:
             dstArchive.close()
             self.emit(QtCore.SIGNAL("finished"))
-            
+    
+    def __isItemIntegrityOk(self, item):
+        result = False;
+        uow = self.repo.create_unit_of_work()
+        try:
+            error_set = uow._check_item_integrity(uow.session, item, self.repo.base_path) 
+            result = (len(error_set) == 0)
+        finally:
+            uow.close()
+        return result
+    
     def __putItemFileToArchive(self, item, archive):
         if item.data_ref is None:
             return
