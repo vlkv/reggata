@@ -12,12 +12,66 @@ import sys
 from db_schema import Thumbnail
 from exceptions import *
 from commands import *
+import zipfile
+
 
 
 
 class ExportItemsThread(QtCore.QThread):
-    def __init__(self, parent, repo, item_ids, destination_path):
+    def __init__(self, parent, repo, itemIds, destinationFile):
         super(ExportItemsThread, self).__init__(parent)
+        self.repo = repo
+        self.itemIds = list(itemIds)
+        self.dstFile = destinationFile
+        
+    def run(self):
+        dstArchive = zipfile.ZipFile(self.dstFile, "w")
+        try:
+            for i in range(len(self.itemIds)):
+                item = self.__getItemById(self.itemIds[i])
+                
+                #TODO: check integrity of the item, and skip it if something wrong
+
+                self.__putItemStateToArchive(item, dstArchive)
+                self.__putItemFileToArchive(item, dstArchive)
+                        
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.itemIds)))
+                        
+        except Exception as ex:
+            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
+            print(traceback.format_exc())
+            
+        finally:
+            dstArchive.close()
+            self.emit(QtCore.SIGNAL("finished"))
+            
+    def __putItemFileToArchive(self, item, archive):
+        if item.data_ref is None:
+            return
+        itemFileAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
+        archive.write(itemFileAbsPath, os.path.join("data_refs", item.data_ref.url))
+            
+    def __putItemStateToArchive(self, item, archive):
+        encoder = memento.Encoder()
+        itemState = encoder.encode(item)
+        itemStateFilename = "id=" + str(item.id) + "_title=" + item.title
+        archive.writestr(itemStateFilename, itemState)
+        
+    def __getItemById(self, itemId):
+        item = None
+        uow = self.repo.create_unit_of_work()
+        try:
+            item = uow.executeCommand(GetExpungedItemCommand(self.itemIds[i]))
+        finally:
+            uow.close()
+        assert item is not None
+        return item
+
+
+
+class ExportItemsFilesThread(QtCore.QThread):
+    def __init__(self, parent, repo, item_ids, destination_path):
+        super(ExportItemsFilesThread, self).__init__(parent)
         self.repo = repo
         self.item_ids = item_ids
         self.dst_path = destination_path

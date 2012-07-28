@@ -653,15 +653,40 @@ class ExportItemsActionHandler(AbstractActionHandler):
     all the referenced files. Items are packed in zip archive and later 
     they can be imported to another repository.
     '''
-    # TODO: implement:
-    # Get selected items
-    # Ask user destination where to put the exported archive
-    # Create zip archive in destination dir
-    # for item in items do:
-    #     if item has data_ref, add it to the archive
-    #     Add to archive Items metadata (in json format, maybe?)
-    # Use WaitDialog to display progress
-    pass
+    def __init__(self, gui):
+        super(ExportItemsActionHandler, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            
+            itemIds = self._gui.ui.dockWidget_items_table.selected_item_ids()
+            if len(itemIds) == 0:
+                raise MsgException(self.tr("There are no selected items."))
+            
+            exportFilename = QtGui.QFileDialog.getSaveFileName(
+                parent=self._gui, caption=self.tr('Save data as..')) 
+            if not exportFilename:
+                raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
+            
+            thread = ExportItemsThread(self._gui, self._gui.active_repo, itemIds, exportFilename)
+            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+                                    
+            wd = WaitDialog(self._gui)
+            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+            
+            thread.start()
+            thread.wait(1000)
+            if thread.isRunning():
+                wd.exec_()
+
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            #TODO: display information about how many items were exported
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 class ImportItemsActionHandler(AbstractActionHandler):
     ''' Imports previously exported items.
@@ -701,7 +726,7 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
             if not export_dir_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
-            thread = ExportItemsThread(self._gui, self._gui.active_repo, item_ids, export_dir_path)
+            thread = ExportItemsFilesThread(self._gui, self._gui.active_repo, item_ids, export_dir_path)
             self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
                                     
             wd = WaitDialog(self._gui)
