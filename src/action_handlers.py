@@ -707,7 +707,39 @@ class ImportItemsActionHandler(AbstractActionHandler):
     # but with different data_ref... What should we do in such a case?
     # 2) In the repo there may exist an Item with the same name, but with slightly different
     # set of tags and fields. Should we merge this existing Item to the imported one?
-    pass
+    def __init__(self, gui):
+        super(ImportItemsActionHandler, self).__init__(gui)
+    
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()
+            
+            
+            importFromFilename = QtGui.QFileDialog.getOpenFileName(
+                parent=self._gui, caption=self.tr('Open reggata export file..')) 
+            if not importFromFilename:
+                raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
+            
+            thread = ImportItemsThread(self._gui, self._gui.active_repo, importFromFilename)
+            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
+                                    
+            wd = WaitDialog(self._gui)
+            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+            
+            thread.start()
+            thread.wait(1000)
+            if thread.isRunning():
+                wd.exec_()
+
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            #TODO: display information about how many items were imported
+            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+        
 
 class ExportItemsFilesActionHandler(AbstractActionHandler):
     def __init__(self, gui):

@@ -16,6 +16,26 @@ import zipfile
 
 
 
+class ImportItemsThread(QtCore.QThread):
+    def __init__(self, parent, repo, importFromFilename):
+        super(ImportItemsThread, self).__init__(parent)
+        self.repo = repo
+        self.srcFile = importFromFilename
+
+    def run(self):
+        srcArchive = zipfile.ZipFile(self.srcFile, "r")
+        try:
+            for i in <every item in srcArchive>:
+                #TODO...
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.itemIds)))
+                        
+        except Exception as ex:
+            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
+            print(traceback.format_exc())
+            
+        finally:
+            srcArchive.close()
+            self.emit(QtCore.SIGNAL("finished"))
 
 class ExportItemsThread(QtCore.QThread):
     def __init__(self, parent, repo, itemIds, destinationFile):
