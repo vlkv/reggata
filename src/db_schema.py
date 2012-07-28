@@ -672,10 +672,11 @@ class Item_Tag(Base):
             self.tag_id = tag.id            
         
     @staticmethod
-    def fromJson(objState):
-        itemTag = Item_Tag()
-        itemTag.tag = Tag(name=objState["tag_name"])
-        return itemTag
+    def _sql_from():
+        return '''
+        items_tags.item_id as items_tags_item_id, 
+        items_tags.tag_id as items_tags_tag_id, 
+        items_tags.user_login as items_tags_user_login '''
     
 class Field(Base):
     '''
