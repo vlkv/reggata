@@ -30,7 +30,7 @@ class ExportItemsThread(QtCore.QThread):
             for i in range(len(self.itemIds)):
                 item = self.__getItemById(self.itemIds[i])
                 
-                #TODO: check integrity of the item, and skip it if something wrong
+                #TODO: check integrity of the item, and skip if it is not ok
 
                 self.__putItemStateToArchive(item, dstArchive)
                 self.__putItemFileToArchive(item, dstArchive)
@@ -61,7 +61,7 @@ class ExportItemsThread(QtCore.QThread):
         item = None
         uow = self.repo.create_unit_of_work()
         try:
-            item = uow.executeCommand(GetExpungedItemCommand(self.itemIds[i]))
+            item = uow.executeCommand(GetExpungedItemCommand(itemId))
         finally:
             uow.close()
         assert item is not None

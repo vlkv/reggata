@@ -29,7 +29,7 @@
      <x>0</x>
      <y>0</y>
      <width>659</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_repo">
@@ -79,6 +79,7 @@
      <property name="title">
       <string>Export items</string>
      </property>
+     <addaction name="actionExportItems"/>
      <addaction name="action_export_selected_items"/>
      <addaction name="action_export_items_file_paths"/>
     </widget>
@@ -273,12 +274,20 @@
   </action>
   <action name="action_export_selected_items">
    <property name="text">
-    <string>Export selected items (copy files)</string>
+    <string>Export items files only</string>
    </property>
   </action>
   <action name="action_export_items_file_paths">
    <property name="text">
-    <string>Export file paths</string>
+    <string>Export file paths as txt file</string>
+   </property>
+  </action>
+  <action name="actionExportItems">
+   <property name="text">
+    <string>Export items (files with metadata)</string>
+   </property>
+   <property name="toolTip">
+    <string>Export items with files and metadata</string>
    </property>
   </action>
  </widget>

@@ -190,6 +190,8 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManagerActionHandler(self))
         
         self.__actionHandlers.registerActionHandler(
+            self.ui.actionExportItems, ExportItemsActionHandler(self))
+        self.__actionHandlers.registerActionHandler(
             self.ui.action_export_selected_items, ExportItemsFilesActionHandler(self))
         self.__actionHandlers.registerActionHandler(
             self.ui.action_export_items_file_paths, ExportItemsFilePathsActionHandler(self))

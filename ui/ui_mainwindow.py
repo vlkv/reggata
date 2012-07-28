@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Jul 20 20:32:32 2012
+# Created: Sat Jul 28 21:12:40 2012
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 20))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName(_fromUtf8("menu_repo"))
@@ -115,6 +115,8 @@ class Ui_MainWindow(object):
         self.action_export_selected_items.setObjectName(_fromUtf8("action_export_selected_items"))
         self.action_export_items_file_paths = QtGui.QAction(MainWindow)
         self.action_export_items_file_paths.setObjectName(_fromUtf8("action_export_items_file_paths"))
+        self.actionExportItems = QtGui.QAction(MainWindow)
+        self.actionExportItems.setObjectName(_fromUtf8("actionExportItems"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -129,6 +131,7 @@ class Ui_MainWindow(object):
         self.menuFix_integrity_errors.addAction(self.menuFix_hash_mismatch_error.menuAction())
         self.menuFix_integrity_errors.addAction(self.action_item_fix_history_rec_error)
         self.menuFix_integrity_errors.addAction(self.menuFix_file_not_found_error.menuAction())
+        self.menuExport_items.addAction(self.actionExportItems)
         self.menuExport_items.addAction(self.action_export_selected_items)
         self.menuExport_items.addAction(self.action_export_items_file_paths)
         self.menuItem.addAction(self.action_item_add)
@@ -199,7 +202,9 @@ class Ui_MainWindow(object):
         self.action_tools_items_table.setText(QtGui.QApplication.translate("MainWindow", "Items table", None, QtGui.QApplication.UnicodeUTF8))
         self.action_tools_file_browser.setText(QtGui.QApplication.translate("MainWindow", "File browser", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_to_external_filemanager.setText(QtGui.QApplication.translate("MainWindow", "Open external file manager", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_export_selected_items.setText(QtGui.QApplication.translate("MainWindow", "Export selected items (copy files)", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_export_items_file_paths.setText(QtGui.QApplication.translate("MainWindow", "Export file paths", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_export_selected_items.setText(QtGui.QApplication.translate("MainWindow", "Export items files only", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_export_items_file_paths.setText(QtGui.QApplication.translate("MainWindow", "Export file paths as txt file", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExportItems.setText(QtGui.QApplication.translate("MainWindow", "Export items (files with metadata)", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExportItems.setToolTip(QtGui.QApplication.translate("MainWindow", "Export items with files and metadata", None, QtGui.QApplication.UnicodeUTF8))
 
 import resources_rc
