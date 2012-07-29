@@ -231,19 +231,19 @@ class WaitDialog(QtGui.QDialog):
     6) Отображать себя после паузы (4 секунды) (Этого нет, но можно сделать снаружи!)
     '''
     
-    def __init__(self, parent=None, message=tr("Please, wait..."), indeterminate=False, minimum=0, maximum=100):
+    def __init__(self, parent=None, indeterminate=False):
         super(WaitDialog, self).__init__(parent)
         self.setModal(True)
         self.setWindowTitle("Reggata")
         
         vbox = QtGui.QVBoxLayout()
         
-        self.msg_label = QtGui.QLabel(message)
+        self.msg_label = QtGui.QLabel(self.tr("Please, wait..."))
         vbox.addWidget(self.msg_label)
         
         self.progress_bar = QtGui.QProgressBar()
-        self.progress_bar.setMinimum(minimum)
-        self.progress_bar.setMaximum(maximum)
+        self.progress_bar.setMinimum(0)
+        self.progress_bar.setMaximum(100)
         vbox.addWidget(self.progress_bar)
         
         if indeterminate:
@@ -253,6 +253,12 @@ class WaitDialog(QtGui.QDialog):
             self.timer.start(100)
         
         self.setLayout(vbox)
+    
+    def startWithWorkerThread(self, thread):
+        thread.start()
+        thread.wait(1000)
+        if thread.isRunning():
+            self.exec_()
     
     def indeterminate_timer(self):
         value = self.progress_bar.value()

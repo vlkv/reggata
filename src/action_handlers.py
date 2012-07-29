@@ -246,11 +246,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 wd = WaitDialog(self._gui, indeterminate=True)
                 self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
                 self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                
-                thread.start()
-                thread.wait(1000)
-                if thread.isRunning():
-                    wd.exec_()
+                wd.startWithWorkerThread(thread)
         
             finally:
                 uow.close()
@@ -277,11 +273,7 @@ class AddManyItemsAbstractActionHandler(AbstractActionHandler):
         self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
         self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
         self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                            
-        thread.start()
-        thread.wait(1000)
-        if thread.isRunning():
-            wd.exec_()
+        wd.startWithWorkerThread(thread)
             
         self._createdObjectsCount = thread.created_objects_count
         self._errorLog = thread.error_log
@@ -429,11 +421,8 @@ class EditItemActionHandler(AbstractActionHandler):
                 self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
                 self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
                 self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                                    
-                thread.start()
-                thread.wait(1000)
-                if thread.isRunning():
-                    wd.exec_()
+                wd.startWithWorkerThread(thread)     
+                
         finally:
             uow.close()
 
@@ -513,11 +502,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
                 self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
                 self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
                 self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                
-                thread.start()
-                thread.wait(1000)
-                if thread.isRunning():
-                    wd.exec_()
+                wd.startWithWorkerThread(thread)
                     
                 if thread.errors > 0:
                     mb = helpers.MyMessageBox(self._gui)
@@ -676,11 +661,8 @@ class ExportItemsActionHandler(AbstractActionHandler):
             self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
             self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
             self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+            wd.startWithWorkerThread(thread)
             
-            thread.start()
-            thread.wait(1000)
-            if thread.isRunning():
-                wd.exec_()
 
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -711,18 +693,15 @@ class ImportItemsActionHandler(AbstractActionHandler):
             self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
             self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
             self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-            
-            thread.start()
-            thread.wait(1000)
-            if thread.isRunning():
-                wd.exec_()
-            #thread.run()
+            wd.startWithWorkerThread(thread)
 
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
             #TODO: display information about how many items were imported
             self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            
         
 
 class ExportItemsFilesActionHandler(AbstractActionHandler):
@@ -749,11 +728,8 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
             self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
             self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
             self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+            wd.startWithWorkerThread(thread)
             
-            thread.start()
-            thread.wait(1000)
-            if thread.isRunning():
-                wd.exec_()
 
         except Exception as ex:
             show_exc_info(self._gui, ex)
