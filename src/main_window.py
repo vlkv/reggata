@@ -428,10 +428,16 @@ class MainWindow(QtGui.QMainWindow):
     #TODO: This functions should be moved to ItemsTableWidget and FileBrowserWidget
     def selectedRows(self):
         return self.ui.dockWidget_items_table.selected_rows()
+    
     def itemAtRow(self, row):
         return self.model.items[row]
+    
     def rowCount(self):
         return self.model.rowCount()
+    
+    def resetSingleRow(self, row):
+        self.model.reset_single_row(row)
+            
     def selectedItemIds(self):
         #Maybe we should use this fun only, and do not use rows outside the GUI code
         itemIds = []

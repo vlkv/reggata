@@ -431,7 +431,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
             self._gui.showMessageOnStatusBar(self.tr("Rebuilding thumbnails ({0}%)").format(percent))
             
             #TODO: Have to replace this direct updates with emitting some specific signals..
-            self._gui.model.reset_single_row(row)
+            self._gui.resetSingleRow(row)
             QtCore.QCoreApplication.processEvents()
         
         try:
@@ -773,7 +773,7 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
             self._gui.showMessageOnStatusBar(self.tr("Integrity fix {0}%").format(percent))
             
             #TODO: Have to replace this direct updates with emitting some specific signals..
-            self._gui.model.reset_single_row(row)
+            self._gui.resetSingleRow(row)
             QtCore.QCoreApplication.processEvents()
         
         try:
@@ -815,7 +815,7 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
             self._gui.showMessageOnStatusBar(self.tr("Integrity check {0}%").format(percent))            
             
             #TODO: Have to replace this direct updates with emitting some specific signals..
-            self._gui.model.reset_single_row(row)
+            self._gui.resetSingleRow(row)
             QtCore.QCoreApplication.processEvents()
         
         try:
