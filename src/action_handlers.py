@@ -136,7 +136,7 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
 class CreateRepoActionHandler(AbstractActionHandler):
@@ -259,7 +259,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
 
 class AddManyItemsAbstractActionHandler(AbstractActionHandler):
@@ -320,7 +320,7 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         finally:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(self._createdObjectsCount, len(self._errorLog)))
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed. Stored {} files, skipped {} files.").format(self._createdObjectsCount, len(self._errorLog)))
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
         
         
@@ -363,7 +363,7 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         finally:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed. Stored {} files, skipped {} files.").format(self._createdObjectsCount, len(self._errorLog)))
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed. Stored {} files, skipped {} files.").format(self._createdObjectsCount, len(self._errorLog)))
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
             
             
@@ -393,7 +393,7 @@ class EditItemActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
             
     
@@ -444,7 +444,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
     def handle(self):
         
         def refresh(percent, row):
-            self._gui.ui.statusbar.showMessage(self.tr("Rebuilding thumbnails ({0}%)").format(percent))
+            self._gui.showMessageOnStatusBar(self.tr("Rebuilding thumbnails ({0}%)").format(percent))
             
             #TODO: Have to replace this direct updates with emitting some specific signals..
             self._gui.model.reset_single_row(row)
@@ -473,7 +473,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
                 self.connect(thread, QtCore.SIGNAL("progress"), 
                              lambda percents, row: refresh(percents, row))
                 self.connect(thread, QtCore.SIGNAL("finished"), 
-                             lambda: self._gui.ui.statusbar.showMessage(self.tr("Rebuild thumbnails is done.")))
+                             lambda: self._gui.showMessageOnStatusBar(self.tr("Rebuild thumbnails is done.")))
                 thread.start()
                     
             finally:
@@ -499,7 +499,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
             mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(rows)))
             mb.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if mb.exec_() != QtGui.QMessageBox.Yes:
-                self._gui.ui.statusbar.showMessage(self.tr("Operation cancelled."), STATUSBAR_TIMEOUT)
+                self._gui.showMessageOnStatusBar(self.tr("Operation cancelled."), STATUSBAR_TIMEOUT)
             else:
                 item_ids = []
                 for row in rows:
@@ -527,7 +527,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
                     mb.exec_()
                 
                 #TODO: display information about how many items were deleted
-                self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+                self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
                 
             
         except Exception as ex:
@@ -556,7 +556,7 @@ class OpenItemActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)    
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)    
     
 class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
     def __init__(self, gui):
@@ -592,7 +592,7 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
 class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
@@ -624,7 +624,7 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
     def __init__(self, gui):
@@ -686,7 +686,7 @@ class ExportItemsActionHandler(AbstractActionHandler):
             show_exc_info(self._gui, ex)
         else:
             #TODO: display information about how many items were exported
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 class ImportItemsActionHandler(AbstractActionHandler):
     ''' Imports previously exported items.
@@ -738,7 +738,7 @@ class ImportItemsActionHandler(AbstractActionHandler):
             show_exc_info(self._gui, ex)
         else:
             #TODO: display information about how many items were imported
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
         
 
 class ExportItemsFilesActionHandler(AbstractActionHandler):
@@ -775,7 +775,7 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
             show_exc_info(self._gui, ex)
         else:
             #TODO: display information about how many files were copied
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 class ExportItemsFilePathsActionHandler(AbstractActionHandler):
     def __init__(self, gui):
@@ -807,7 +807,7 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.ui.statusbar.showMessage(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 
 class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
@@ -818,7 +818,7 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
     def handle(self):
         
         def refresh(percent, row):
-            self._gui.ui.statusbar.showMessage(self.tr("Integrity fix {0}%").format(percent))
+            self._gui.showMessageOnStatusBar(self.tr("Integrity fix {0}%").format(percent))
             
             #TODO: Have to replace this direct updates with emitting some specific signals..
             self._gui.model.reset_single_row(row)
@@ -843,7 +843,7 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
             self.connect(thread, QtCore.SIGNAL("progress"),
                          lambda percents, row: refresh(percents, row))
             self.connect(thread, QtCore.SIGNAL("finished"),
-                         lambda: self._gui.ui.statusbar.showMessage(self.tr("Integrity fixing is done.")))
+                         lambda: self._gui.showMessageOnStatusBar(self.tr("Integrity fixing is done.")))
             self.connect(thread, QtCore.SIGNAL("exception"), 
                          lambda exc_info: show_exc_info(self._gui, exc_info[1], details=format_exc_info(*exc_info)))
             
@@ -859,7 +859,7 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
     
     def handle(self):
         def refresh(percent, row):
-            self._gui.ui.statusbar.showMessage(self.tr("Integrity check {0}%").format(percent))            
+            self._gui.showMessageOnStatusBar(self.tr("Integrity check {0}%").format(percent))            
             
             #TODO: Have to replace this direct updates with emitting some specific signals..
             self._gui.model.reset_single_row(row)
@@ -883,7 +883,7 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
             self.connect(thread, QtCore.SIGNAL("progress"), 
                          lambda percents, row: refresh(percents, row))
             self.connect(thread, QtCore.SIGNAL("finished"), 
-                         lambda error_count: self._gui.ui.statusbar.showMessage(self.tr("Integrity check is done. {0} Items with errors.").format(error_count)))            
+                         lambda error_count: self._gui.showMessageOnStatusBar(self.tr("Integrity check is done. {0} Items with errors.").format(error_count)))            
             self.connect(thread, QtCore.SIGNAL("exception"), 
                          lambda msg: raise_exc(msg))
             thread.start()
@@ -903,7 +903,7 @@ class ShowAboutDialogActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.ui.statusbar.showMessage(tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
     

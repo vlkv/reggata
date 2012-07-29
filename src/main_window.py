@@ -419,6 +419,12 @@ class MainWindow(QtGui.QMainWindow):
     def triggerCreateUserAction(self):
         self.ui.action_user_create.trigger()
         
+    def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
+        if timeoutBeforeClear is not None:
+            self.ui.statusbar.showMessage(text, timeoutBeforeClear)
+        else:
+            self.ui.statusbar.showMessage(text)
+        
 
     
     
