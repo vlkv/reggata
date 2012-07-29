@@ -35,22 +35,24 @@ class ImportItemsThread(QtCore.QThread):
                 item = memento.Decoder().decode(itemState)
                 
                 #Move physical file to repository
+                dstAbsPath = None
                 if item.data_ref is not None:
                     dstAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
                     if os.path.exists(dstAbsPath):
                         #Skip this item. Count and remember this error
                         continue
-                    dstAbsPathToDir, basename = os.path.split(dstAbsPath)
-                    srcArchive.extract(os.path.join("data_refs", item.data_ref.url), dstAbsPathToDir)
+                    srcArchive.extract(item.data_ref.url, self.repo.base_path)
                     
                 uow = self.repo.create_unit_of_work()
                 try:
                     itemSrcAbsPath = dstAbsPath
-                    itemDstRelPath = os.path.relpath(dstAbsPath, self.repo.base_path)
+                    itemDstRelPath = os.path.relpath(dstAbsPath, self.repo.base_path) \
+                        if dstAbsPath is not None else None
                     cmd = SaveNewItemCommand(item, itemSrcAbsPath, itemDstRelPath)
                     uow.executeCommand(cmd)
                 except Exception as ex:
-                    shutil.rmtree(dstAbsPath)
+                    if dstAbsPath is not None:
+                        os.remove(dstAbsPath)
                     #count and remember error details to show it later in GUI
                 finally:
                     uow.close()
@@ -69,7 +71,8 @@ class ImportItemsThread(QtCore.QThread):
         result = []
         filenames = srcArchive.namelist()
         for filename in filenames:
-            if not filename.startswith("id="):
+            #TODO use regexp here, for more precise check
+            if not filename.startswith(".reggata"):
                 continue
             result.append(filename)
         return result
@@ -119,13 +122,13 @@ class ExportItemsThread(QtCore.QThread):
         if item.data_ref is None:
             return
         itemFileAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
-        archive.write(itemFileAbsPath, os.path.join("data_refs", item.data_ref.url))
+        archive.write(itemFileAbsPath, item.data_ref.url)
             
     def __putItemStateToArchive(self, item, archive):
         encoder = memento.Encoder()
         itemState = encoder.encode(item)
         itemStateFilename = "id=" + str(item.id) + "_title=" + item.title
-        archive.writestr(itemStateFilename, itemState)
+        archive.writestr(os.path.join(".reggata/items", itemStateFilename), itemState)
         
     def __getItemById(self, itemId):
         item = None
