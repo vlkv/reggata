@@ -372,14 +372,14 @@ class EditItemActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()            
             
-            rows = self._gui.selectedRows()
-            if len(rows) == 0:
+            itemIds = self._gui.selectedItemIds()
+            if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            if len(rows) > 1:
-                self.__editManyItems(rows)
+            if len(itemIds) > 1:
+                self.__editManyItems(itemIds)
             else:
-                self.__editSingleItem(rows.pop())
+                self.__editSingleItem(itemIds.pop())
                             
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -388,11 +388,10 @@ class EditItemActionHandler(AbstractActionHandler):
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
             
     
-    def __editSingleItem(self, row):
-        item_id = self._gui.itemAtRow(row).id
+    def __editSingleItem(self, itemId):
         uow = self._gui.active_repo.create_unit_of_work()
         try:
-            item = uow.executeCommand(GetExpungedItemCommand(item_id))
+            item = uow.executeCommand(GetExpungedItemCommand(itemId))
             completer = Completer(self._gui.active_repo, self._gui)
             item_dialog = ItemDialog(self._gui, item, ItemDialog.EDIT_MODE, completer=completer)
             if item_dialog.exec_():
@@ -401,18 +400,17 @@ class EditItemActionHandler(AbstractActionHandler):
         finally:
             uow.close()
     
-    def __editManyItems(self, rows):
+    def __editManyItems(self, itemIds):
         uow = self._gui.active_repo.create_unit_of_work()
         try:
-            sel_items = []
-            for row in rows:
-                id = self._gui.itemAtRow(row).id
-                sel_items.append(uow.executeCommand(GetExpungedItemCommand(id)))
+            items = []
+            for itemId in itemIds:
+                items.append(uow.executeCommand(GetExpungedItemCommand(itemId)))
             completer = Completer(self._gui.active_repo, self._gui)
             repoBasePath = self._gui.active_repo.base_path
-            dlg = ItemsDialog(self._gui, repoBasePath, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
+            dlg = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.EDIT_MODE, completer=completer)
             if dlg.exec_():
-                thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, sel_items)
+                thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, items)
                         
                 wd = WaitDialog(self._gui)
                 self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
