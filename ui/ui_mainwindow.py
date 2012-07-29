@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Jul 28 21:12:40 2012
+# Created: Sun Jul 29 15:08:27 2012
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,6 +44,8 @@ class Ui_MainWindow(object):
         self.menuFix_file_not_found_error.setObjectName(_fromUtf8("menuFix_file_not_found_error"))
         self.menuExport_items = QtGui.QMenu(self.menuItem)
         self.menuExport_items.setObjectName(_fromUtf8("menuExport_items"))
+        self.menuImport_Items = QtGui.QMenu(self.menuItem)
+        self.menuImport_Items.setObjectName(_fromUtf8("menuImport_Items"))
         self.menuTools = QtGui.QMenu(self.menubar)
         self.menuTools.setObjectName(_fromUtf8("menuTools"))
         self.menuHelp = QtGui.QMenu(self.menubar)
@@ -117,6 +119,8 @@ class Ui_MainWindow(object):
         self.action_export_items_file_paths.setObjectName(_fromUtf8("action_export_items_file_paths"))
         self.actionExportItems = QtGui.QAction(MainWindow)
         self.actionExportItems.setObjectName(_fromUtf8("actionExportItems"))
+        self.actionImportItems = QtGui.QAction(MainWindow)
+        self.actionImportItems.setObjectName(_fromUtf8("actionImportItems"))
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
@@ -134,6 +138,7 @@ class Ui_MainWindow(object):
         self.menuExport_items.addAction(self.actionExportItems)
         self.menuExport_items.addAction(self.action_export_selected_items)
         self.menuExport_items.addAction(self.action_export_items_file_paths)
+        self.menuImport_Items.addAction(self.actionImportItems)
         self.menuItem.addAction(self.action_item_add)
         self.menuItem.addAction(self.action_item_add_many)
         self.menuItem.addAction(self.action_item_add_many_rec)
@@ -148,6 +153,7 @@ class Ui_MainWindow(object):
         self.menuItem.addAction(self.action_item_view_m3u)
         self.menuItem.addAction(self.action_item_to_external_filemanager)
         self.menuItem.addAction(self.menuExport_items.menuAction())
+        self.menuItem.addAction(self.menuImport_Items.menuAction())
         self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_check_integrity)
         self.menuItem.addAction(self.menuFix_integrity_errors.menuAction())
@@ -173,6 +179,7 @@ class Ui_MainWindow(object):
         self.menuFix_hash_mismatch_error.setTitle(QtGui.QApplication.translate("MainWindow", "Fix file changed error", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFix_file_not_found_error.setTitle(QtGui.QApplication.translate("MainWindow", "Fix file not found error", None, QtGui.QApplication.UnicodeUTF8))
         self.menuExport_items.setTitle(QtGui.QApplication.translate("MainWindow", "Export items", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuImport_Items.setTitle(QtGui.QApplication.translate("MainWindow", "Import Items", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.action_repo_create.setText(QtGui.QApplication.translate("MainWindow", "&New", None, QtGui.QApplication.UnicodeUTF8))
@@ -206,5 +213,6 @@ class Ui_MainWindow(object):
         self.action_export_items_file_paths.setText(QtGui.QApplication.translate("MainWindow", "Export file paths as txt file", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExportItems.setText(QtGui.QApplication.translate("MainWindow", "Export items (files with metadata)", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExportItems.setToolTip(QtGui.QApplication.translate("MainWindow", "Export items with files and metadata", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionImportItems.setText(QtGui.QApplication.translate("MainWindow", "Import items (files with metadata)", None, QtGui.QApplication.UnicodeUTF8))
 
 import resources_rc

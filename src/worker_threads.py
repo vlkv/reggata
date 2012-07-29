@@ -13,6 +13,7 @@ from db_schema import Thumbnail
 from exceptions import *
 from commands import *
 import zipfile
+import os
 
 
 
@@ -25,9 +26,36 @@ class ImportItemsThread(QtCore.QThread):
     def run(self):
         srcArchive = zipfile.ZipFile(self.srcFile, "r")
         try:
-            for i in <every item in srcArchive>:
-                #TODO...
-                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.itemIds)))
+            filenames = self.__getListOfMetadataFiles(srcArchive)
+            for i in range(len(filenames)):
+                filename = filenames[i]
+                
+                #Restore item from json state
+                itemState = str(srcArchive.read(filename), "utf-8")
+                item = memento.Decoder().decode(itemState)
+                
+                #Move physical file to repository
+                if item.data_ref is not None:
+                    dstAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
+                    if os.path.exists(dstAbsPath):
+                        #Skip this item. Count and remember this error
+                        continue
+                    dstAbsPathToDir, basename = os.path.split(dstAbsPath)
+                    srcArchive.extract(os.path.join("data_refs", item.data_ref.url), dstAbsPathToDir)
+                    
+                uow = self.repo.create_unit_of_work()
+                try:
+                    itemSrcAbsPath = dstAbsPath
+                    itemDstRelPath = os.path.relpath(dstAbsPath, self.repo.base_path)
+                    cmd = SaveNewItemCommand(item, itemSrcAbsPath, itemDstRelPath)
+                    uow.executeCommand(cmd)
+                except Exception as ex:
+                    shutil.rmtree(dstAbsPath)
+                    #count and remember error details to show it later in GUI
+                finally:
+                    uow.close()
+
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(filenames)))
                         
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
@@ -36,6 +64,15 @@ class ImportItemsThread(QtCore.QThread):
         finally:
             srcArchive.close()
             self.emit(QtCore.SIGNAL("finished"))
+
+    def __getListOfMetadataFiles(self, srcArchive):
+        result = []
+        filenames = srcArchive.namelist()
+        for filename in filenames:
+            if not filename.startswith("id="):
+                continue
+            result.append(filename)
+        return result
 
 class ExportItemsThread(QtCore.QThread):
     def __init__(self, parent, repo, itemIds, destinationFile):
