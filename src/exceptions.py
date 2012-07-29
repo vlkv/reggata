@@ -40,6 +40,10 @@ class MsgException(Exception):
     def __init__(self, msg=None):
         super(MsgException, self).__init__(msg)
         
+class CancelOperationError(Exception):
+    def __init__(self):
+        super(CancelOperationError, self).__init__()
+        
 class FileAlreadyExistsError(Exception):
     def __init__(self, msg=None):
         super(FileAlreadyExistsError, self).__init__(msg)

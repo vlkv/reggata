@@ -18,6 +18,7 @@ from common_widgets import Completer
 from ext_app_mgr import ExtAppMgr
 from image_viewer import ImageViewer
 from worker_threads import *
+from exceptions import *
 
 
 class HandlerSignals():
@@ -475,44 +476,43 @@ class DeleteItemActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
                         
-            rows = self._gui.selectedRows()
-            if len(rows) == 0:
+            itemIds = self._gui.selectedItemIds()
+            if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
             mb = QtGui.QMessageBox()
-            mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(rows)))
+            mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(itemIds)))
             mb.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
             if mb.exec_() != QtGui.QMessageBox.Yes:
-                self._gui.showMessageOnStatusBar(self.tr("Operation cancelled."), STATUSBAR_TIMEOUT)
-            else:
-                item_ids = []
-                for row in rows:
-                    item_ids.append(self._gui.itemAtRow(row).id)
+                raise CancelOperationError()
+            
+            thread = DeleteGroupOfItemsThread(
+                self._gui, self._gui.active_repo, itemIds, self._gui.active_user.login)
+                                    
+            wd = WaitDialog(self._gui)
+            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+            wd.startWithWorkerThread(thread)
                 
-                thread = DeleteGroupOfItemsThread(
-                    self._gui, self._gui.active_repo, item_ids, self._gui.active_user.login)
-                                        
-                wd = WaitDialog(self._gui)
-                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                wd.startWithWorkerThread(thread)
-                    
-                if thread.errors > 0:
-                    mb = helpers.MyMessageBox(self._gui)
-                    mb.setWindowTitle(tr("Information"))
-                    mb.setText(self.tr("There were {0} errors.").format(thread.errors))                    
-                    mb.setDetailedText(thread.detailed_message)
-                    mb.exec_()
+            if thread.errors > 0:
+                mb = helpers.MyMessageBox(self._gui)
+                mb.setWindowTitle(tr("Information"))
+                mb.setText(self.tr("There were {0} errors.").format(thread.errors))                    
+                mb.setDetailedText(thread.detailed_message)
+                mb.exec_()
                 
-                #TODO: display information about how many items were deleted
-                self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
-                
+        except CancelOperationError:
+            self._gui.showMessageOnStatusBar(self.tr("Operation cancelled."), STATUSBAR_TIMEOUT)
             
         except Exception as ex:
             show_exc_info(self._gui, ex)
+            
         else:
+            #TODO: display information about how many items were deleted
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_DELETED)
+            
 
 class OpenItemActionHandler(AbstractActionHandler):
     def __init__(self, gui):
