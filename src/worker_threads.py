@@ -104,8 +104,7 @@ class ExportItemsThread(QtCore.QThread):
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.itemIds)))
                         
         except Exception as ex:
-            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
-            print(traceback.format_exc())
+            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
             
         finally:
             dstArchive.close()
@@ -175,11 +174,10 @@ class ExportItemsFilesThread(QtCore.QThread):
                 shutil.copy(src_file_path, unique_path)
                 
                 i += 1
-                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.item_ids)))
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.item_ids)))
                         
         except Exception as ex:
-            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
-            print(traceback.format_exc())
+            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
             
         finally:
             self.emit(QtCore.SIGNAL("finished"))
@@ -259,15 +257,13 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                             finally:
                                 self.lock.unlock()
                             
-                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.items)), item.table_row)
                     
         except Exception as ex:
-            print(traceback.format_exc())
             self.emit(QtCore.SIGNAL("exception"), sys.exc_info())
         finally:
-            self.emit(QtCore.SIGNAL("finished"))
             uow.close()
-            print("ItemIntegrityFixerThread done.")
+            self.emit(QtCore.SIGNAL("finished"))
 
 
        
@@ -306,7 +302,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                     if len(error_set) > 0:                        
                         error_count += 1  
                     
-                    self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)), item.table_row)
+                    self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.items)), item.table_row)
                     
                 finally:
                     self.lock.unlock()
@@ -314,9 +310,8 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
         except:
             print(traceback.format_exc())
         finally:
-            self.emit(QtCore.SIGNAL("finished"), error_count)
             uow.close()
-            print("ItemIntegrityCheckerThread done.")
+            self.emit(QtCore.SIGNAL("finished"), error_count)
 
 
 class ThumbnailBuilderThread(QtCore.QThread):
@@ -405,11 +400,12 @@ class ThumbnailBuilderThread(QtCore.QThread):
                         print(traceback.format_exc())                
                                     
         except:
-            print(traceback.format_exc())
             self.emit(QtCore.SIGNAL("exception"), sys.exc_info())
+            
         finally:
+            uow.close()
             self.emit(QtCore.SIGNAL("finished"))
-            uow.close()            
+                        
 
        
 class DeleteGroupOfItemsThread(QtCore.QThread):
@@ -440,11 +436,12 @@ class DeleteGroupOfItemsThread(QtCore.QThread):
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.item_ids)))
                         
         except Exception as ex:
-            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
-            print(traceback.format_exc())
+            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
+            
         finally:
-            self.emit(QtCore.SIGNAL("finished"))
             uow.close()
+            self.emit(QtCore.SIGNAL("finished"))
+            
         
 class CreateGroupIfItemsThread(QtCore.QThread):
     def __init__(self, parent, repo, items):
@@ -480,11 +477,12 @@ class CreateGroupIfItemsThread(QtCore.QThread):
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
     
         except Exception as ex:
-            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
-            print(traceback.format_exc())
+            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
+            
         finally:
-            self.emit(QtCore.SIGNAL("finished"), len(self.error_log))
             uow.close()
+            self.emit(QtCore.SIGNAL("finished"), len(self.error_log))
+            
         
 
 class UpdateGroupOfItemsThread(QtCore.QThread):
@@ -505,11 +503,12 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
                 
         except Exception as ex:
-            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
-            print(traceback.format_exc())
+            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
+        
         finally:
-            self.emit(QtCore.SIGNAL("finished"))
             uow.close()
+            self.emit(QtCore.SIGNAL("finished"))
+            
         
     
 class BackgrThread(QtCore.QThread):
@@ -523,8 +522,7 @@ class BackgrThread(QtCore.QThread):
         try:
             self.callable(*self.args)
         except Exception as ex:
-            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
-            print(traceback.format_exc())
+            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
         finally:
             self.emit(QtCore.SIGNAL("finished"))
             

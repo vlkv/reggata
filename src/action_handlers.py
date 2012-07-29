@@ -267,8 +267,7 @@ class AddManyItemsAbstractActionHandler(AbstractActionHandler):
     
     def _startWorkerThread(self, items):
         thread = CreateGroupIfItemsThread(self._gui, self._gui.active_repo, items)
-        self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
-                                
+        
         wd = WaitDialog(self._gui)
         self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
         self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
@@ -414,9 +413,7 @@ class EditItemActionHandler(AbstractActionHandler):
             dlg = ItemsDialog(self._gui, repoBasePath, sel_items, ItemsDialog.EDIT_MODE, completer=completer)
             if dlg.exec_():
                 thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, sel_items)
-                self.connect(thread, QtCore.SIGNAL("exception"), 
-                             lambda msg: raise_exc(msg))
-                                                                
+                        
                 wd = WaitDialog(self._gui)
                 self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
                 self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
@@ -496,7 +493,6 @@ class DeleteItemActionHandler(AbstractActionHandler):
                 
                 thread = DeleteGroupOfItemsThread(
                     self._gui, self._gui.active_repo, item_ids, self._gui.active_user.login)
-                self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
                                         
                 wd = WaitDialog(self._gui)
                 self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
@@ -655,7 +651,6 @@ class ExportItemsActionHandler(AbstractActionHandler):
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
             thread = ExportItemsThread(self._gui, self._gui.active_repo, itemIds, exportFilename)
-            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
                                     
             wd = WaitDialog(self._gui)
             self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
@@ -722,7 +717,6 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
             thread = ExportItemsFilesThread(self._gui, self._gui.active_repo, item_ids, export_dir_path)
-            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
                                     
             wd = WaitDialog(self._gui)
             self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
@@ -846,8 +840,6 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
                          lambda percents, row: refresh(percents, row))
             self.connect(thread, QtCore.SIGNAL("finished"), 
                          lambda error_count: self._gui.showMessageOnStatusBar(self.tr("Integrity check is done. {0} Items with errors.").format(error_count)))            
-            self.connect(thread, QtCore.SIGNAL("exception"), 
-                         lambda msg: raise_exc(msg))
             thread.start()
             
         except Exception as ex:

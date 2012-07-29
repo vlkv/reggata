@@ -289,15 +289,6 @@ class WaitDialog(QtGui.QDialog):
         print("Completed {}%".format(percent_completed))
         self.progress_bar.setValue(percent_completed)
         
-#Дело в том, что в lambda нельзя засунуть raise
-def raise_exc(msg):
-    raise Exception(msg)
-
-#Дело в том, что в lambda нельзя засунуть raise
-def raise_msg_exc(msg):
-    raise MsgException(msg)
-        
-        
 class ImageThumbDelegate(QtGui.QStyledItemDelegate):
     '''Делегат, для отображения миниатюры графического файла в таблице элементов
     хранилища.'''
