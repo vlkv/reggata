@@ -18,10 +18,11 @@ import os
 
 
 class ImportItemsThread(QtCore.QThread):
-    def __init__(self, parent, repo, importFromFilename):
+    def __init__(self, parent, repo, importFromFilename, userLogin):
         super(ImportItemsThread, self).__init__(parent)
         self.repo = repo
         self.srcFile = importFromFilename
+        self.userLogin = userLogin
 
     def run(self):
         srcArchive = zipfile.ZipFile(self.srcFile, "r")
@@ -33,6 +34,9 @@ class ImportItemsThread(QtCore.QThread):
                 #Restore item from json state
                 itemState = str(srcArchive.read(filename), "utf-8")
                 item = memento.Decoder().decode(itemState)
+                
+                #Imported item will be owned by that user, who is performing the import
+                item.user_login = self.userLogin
                 
                 #Move physical file to repository
                 dstAbsPath = None

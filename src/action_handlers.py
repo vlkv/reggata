@@ -691,22 +691,6 @@ class ExportItemsActionHandler(AbstractActionHandler):
 class ImportItemsActionHandler(AbstractActionHandler):
     ''' Imports previously exported items.
     '''
-    # TODO: implement:
-    # Get from user a path to an imported archive
-    # Check that archive has correct format
-    # Unpack the archive (in reggata tmp dir, maybe?)
-    # Search in archive for items metadata files and
-    # for item_metadata in all found metadata files from archive
-    #     create an Item 
-    #     fill the Item with item_metadata
-    #     if the Item has a referenced file, create DataRef and copy the file to the repo
-    # Use WaitDialog to display progress
-    #
-    # Do not know what to do, if a similar to imported Item already exists in repository...
-    # 1) For example in the repo there may exist an Item with exactly the same name and tsgs
-    # but with different data_ref... What should we do in such a case?
-    # 2) In the repo there may exist an Item with the same name, but with slightly different
-    # set of tags and fields. Should we merge this existing Item to the imported one?
     def __init__(self, gui):
         super(ImportItemsActionHandler, self).__init__(gui)
     
@@ -715,13 +699,13 @@ class ImportItemsActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            
             importFromFilename = QtGui.QFileDialog.getOpenFileName(
                 parent=self._gui, caption=self.tr('Open reggata export file..')) 
             if not importFromFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
-            thread = ImportItemsThread(self._gui, self._gui.active_repo, importFromFilename)
+            thread = ImportItemsThread(self._gui, self._gui.active_repo, importFromFilename, 
+                                       self._gui.active_user.login)
             self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
                                     
             wd = WaitDialog(self._gui)
@@ -733,6 +717,7 @@ class ImportItemsActionHandler(AbstractActionHandler):
             thread.wait(1000)
             if thread.isRunning():
                 wd.exec_()
+            #thread.run()
 
         except Exception as ex:
             show_exc_info(self._gui, ex)
