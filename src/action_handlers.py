@@ -706,7 +706,6 @@ class ImportItemsActionHandler(AbstractActionHandler):
             
             thread = ImportItemsThread(self._gui, self._gui.active_repo, importFromFilename, 
                                        self._gui.active_user.login)
-            self.connect(thread, QtCore.SIGNAL("exception"), lambda msg: raise_exc(msg))
                                     
             wd = WaitDialog(self._gui)
             self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)

@@ -64,8 +64,7 @@ class ImportItemsThread(QtCore.QThread):
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(filenames)))
                         
         except Exception as ex:
-            self.emit(QtCore.SIGNAL("exception"), str(ex.__class__) + " " + str(ex))
-            print(traceback.format_exc())
+            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
             
         finally:
             srcArchive.close()

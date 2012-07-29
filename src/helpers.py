@@ -260,10 +260,18 @@ class WaitDialog(QtGui.QDialog):
         self.progress_bar.setValue(value if value <= self.progress_bar.maximum() else self.progress_bar.minimum())
         
     
-    def exception(self, msg):
-        '''Слот, вызываемый в случае получения информации, что в процессе 
-        ожидания возникло исключение.'''
-        show_exc_info(self, Exception(msg), False)
+    def exception(self, exceptionInfo):
+        ''' Displays exceptionInfo text in modal message box and rejects WaitDialog. 
+        exceptionInfo - is a string containing a text about the raised exception.
+        
+        This slot is usually connected to the 'exception' signal, emitted from a 
+        worker thread.'''
+        mb = MyMessageBox(self)
+        mb.setWindowTitle(self.tr("Error"))
+        mb.setText(self.tr("Operation cannot proceed because of the raised exception."))
+        mb.setDetailedText(exceptionInfo)
+        mb.exec_()
+        
         self.reject()
         
     def closeEvent(self, close_event):
