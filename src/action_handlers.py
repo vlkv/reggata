@@ -381,7 +381,7 @@ class EditItemActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()            
             
-            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            rows = self._gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -398,7 +398,7 @@ class EditItemActionHandler(AbstractActionHandler):
             
     
     def __editSingleItem(self, row):
-        item_id = self._gui.model.items[row].id
+        item_id = self._gui.itemAtRow(row).id
         uow = self._gui.active_repo.create_unit_of_work()
         try:
             item = uow.executeCommand(GetExpungedItemCommand(item_id))
@@ -415,7 +415,7 @@ class EditItemActionHandler(AbstractActionHandler):
         try:
             sel_items = []
             for row in rows:
-                id = self._gui.model.items[row].id
+                id = self._gui.itemAtRow(row).id
                 sel_items.append(uow.executeCommand(GetExpungedItemCommand(id)))
             completer = Completer(self._gui.active_repo, self._gui)
             repoBasePath = self._gui.active_repo.base_path
@@ -454,7 +454,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
                     
-            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            rows = self._gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -463,7 +463,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
             try:
                 items = []
                 for row in rows:                    
-                    self._gui.model.items[row].table_row = row
+                    self._gui.itemAtRow(row).table_row = row
                     items.append(self._gui.model.items[row])
                  
                 thread = ThumbnailBuilderThread(
@@ -491,7 +491,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
                         
-            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            rows = self._gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -503,7 +503,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
             else:
                 item_ids = []
                 for row in rows:
-                    item_ids.append(self._gui.model.items[row].id)
+                    item_ids.append(self._gui.itemAtRow(row).id)
                 
                 thread = DeleteGroupOfItemsThread(
                     self._gui, self._gui.active_repo, item_ids, self._gui.active_user.login)
@@ -541,11 +541,11 @@ class OpenItemActionHandler(AbstractActionHandler):
     
     def handle(self):
         try:
-            sel_rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            sel_rows = self._gui.selectedRows()
             if len(sel_rows) != 1:
                 raise MsgException(self.tr("Select one item, please."))
             
-            data_ref = self._gui.model.items[sel_rows.pop()].data_ref
+            data_ref = self._gui.itemAtRow(sel_rows.pop()).data_ref
             
             if not data_ref or data_ref.type != DataRef.FILE:
                 raise MsgException(self.tr("Action 'View item' can be applied only to items linked with files."))
@@ -567,7 +567,7 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()            
             
-            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            rows = self._gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -575,15 +575,15 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
             abs_paths = []
             if len(rows) == 1:
                 #If there is only one selected item, pass to viewer all items in this table model
-                for row in range(self._gui.model.rowCount()):
+                for row in range(self._gui.rowCount()):
                     abs_paths.append(os.path.join(
-                        self._gui.active_repo.base_path, self._gui.model.items[row].data_ref.url))
+                        self._gui.active_repo.base_path, self._gui.itemAtRow(row).data_ref.url))
                 #This is the index of the first image to show
                 start_index = rows.pop()
             else:
                 for row in rows:
                     abs_paths.append(os.path.join(
-                        self._gui.active_repo.base_path, self._gui.model.items[row].data_ref.url))
+                        self._gui.active_repo.base_path, self._gui.itemAtRow(row).data_ref.url))
             
             iv = ImageViewer(self._gui.active_repo, self._gui.active_user.login, self._gui, abs_paths)
             iv.set_current_image_index(start_index)
@@ -604,7 +604,7 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            rows = self._gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -615,7 +615,7 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
             m3u_file = open(os.path.join(tmp_dir, m3u_filename), "wt")
             for row in rows:
                 m3u_file.write(os.path.join(self._gui.active_repo.base_path, 
-                                            self._gui.model.items[row].data_ref.url) + os.linesep)                                            
+                                            self._gui.itemAtRow(row).data_ref.url) + os.linesep)                                            
             m3u_file.close()
             
             eam = ExtAppMgr()
@@ -632,11 +632,11 @@ class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            sel_rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            sel_rows = self._gui.selectedRows()
             if len(sel_rows) != 1:
                 raise MsgException(self.tr("Select one item, please."))
             
-            data_ref = self._gui.model.items[sel_rows.pop()].data_ref
+            data_ref = self._gui.itemAtRow(sel_rows.pop()).data_ref
             
             if data_ref is None or data_ref.type != DataRef.FILE:
                 raise MsgException(
@@ -660,7 +660,7 @@ class ExportItemsActionHandler(AbstractActionHandler):
         try:
             self._gui.checkActiveRepoIsNotNone()
             
-            itemIds = self._gui.ui.dockWidget_items_table.selected_item_ids()
+            itemIds = self._gui.selectedItemIds()
             if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -749,7 +749,7 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
         try:
             self._gui.checkActiveRepoIsNotNone()
             
-            item_ids = self._gui.ui.dockWidget_items_table.selected_item_ids()
+            item_ids = self._gui.selectedItemIds()
             if len(item_ids) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -785,7 +785,7 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
         try:
             self._gui.checkActiveRepoIsNotNone()
             
-            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            rows = self._gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -796,11 +796,11 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
             
             file = open(export_filename, "w", newline='')
             for row in rows:
-                item = self._gui.model.items[row]
+                item = self._gui.itemAtRow(row)
                 if item.is_data_ref_null():
                     continue
                 textline = self._gui.active_repo.base_path + \
-                    os.sep + self._gui.model.items[row].data_ref.url + os.linesep
+                    os.sep + self._gui.itemAtRow(row).data_ref.url + os.linesep
                 file.write(textline)
             file.close()
 
@@ -828,14 +828,15 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            rows = self._gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
             items = []
             for row in rows:
-                self._gui.model.items[row].table_row = row
-                items.append(self._gui.model.items[row])
+                item = self._gui.itemAtRow(row) 
+                item.table_row = row
+                items.append(item)
                         
             thread = ItemIntegrityFixerThread(
                 self._gui, self._gui.active_repo, items, self._gui.items_lock, self.__strategy, self._gui.active_user.login)
@@ -869,14 +870,15 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()            
             
-            rows = self._gui.ui.dockWidget_items_table.selected_rows()
+            rows = self._gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
             items = []
             for row in rows:
-                self._gui.model.items[row].table_row = row
-                items.append(self._gui.model.items[row])
+                item = self._gui.itemAtRow(row)
+                item.table_row = row
+                items.append(item)
              
             thread = ItemIntegrityCheckerThread(
                 self._gui, self._gui.active_repo, items, self._gui.items_lock)
