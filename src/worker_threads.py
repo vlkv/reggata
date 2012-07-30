@@ -45,7 +45,7 @@ class ImportItemsThread(QtCore.QThread):
                     if os.path.exists(dstAbsPath):
                         #Skip this item. Count and remember this error
                         continue
-                    srcArchive.extract(item.data_ref.url, self.repo.base_path)
+                    srcArchive.extract(item.data_ref.url_raw, self.repo.base_path)
                     
                 uow = self.repo.create_unit_of_work()
                 try:
