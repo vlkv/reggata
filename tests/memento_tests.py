@@ -59,7 +59,7 @@ class ItemSerializationTest(AbstractTestCaseWithRepo):
         self.assertTrue(isinstance(item2, db_schema.Item))
         self.assertEquals(item2.title, itemWithTagsAndFields.title)
         self.assertEquals(item2.user_login, itemWithTagsAndFields.ownerUserLogin)
-        self.assertEquals(item2.data_ref.url, itemWithTagsAndFields.relFilePath)
+        self.assertEquals(item2.data_ref.url_raw, itemWithTagsAndFields.relFilePath)
         
         self.assertEquals(len(item2.item_tags), len(itemWithTagsAndFields.tags))
         for i in range(len(item2.item_tags)):
