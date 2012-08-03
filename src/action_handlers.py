@@ -335,6 +335,8 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             
             items = []
             for root, dirs, files in os.walk(dir):
+                if os.path.relpath(root, dir) == ".reggata":
+                    continue
                 for file in files:
                     item = Item(title=file, user_login=self._gui.active_user.login)
                     item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
