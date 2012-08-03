@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sun Jul 29 15:08:27 2012
+# Created: Fri Aug 03 21:14:56 2012
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName(_fromUtf8("menu_repo"))
@@ -74,11 +74,6 @@ class Ui_MainWindow(object):
         self.action_item_add_many.setObjectName(_fromUtf8("action_item_add_many"))
         self.action_user_change_pass = QtGui.QAction(MainWindow)
         self.action_user_change_pass.setObjectName(_fromUtf8("action_user_change_pass"))
-        self.action_tools_tag_cloud = QtGui.QAction(MainWindow)
-        self.action_tools_tag_cloud.setCheckable(True)
-        self.action_tools_tag_cloud.setChecked(False)
-        self.action_tools_tag_cloud.setEnabled(True)
-        self.action_tools_tag_cloud.setObjectName(_fromUtf8("action_tools_tag_cloud"))
         self.action_item_view = QtGui.QAction(MainWindow)
         self.action_item_view.setObjectName(_fromUtf8("action_item_view"))
         self.action_item_add_many_rec = QtGui.QAction(MainWindow)
@@ -105,12 +100,6 @@ class Ui_MainWindow(object):
         self.action_fix_file_not_found_delete.setObjectName(_fromUtf8("action_fix_file_not_found_delete"))
         self.action_item_rebuild_thumbnail = QtGui.QAction(MainWindow)
         self.action_item_rebuild_thumbnail.setObjectName(_fromUtf8("action_item_rebuild_thumbnail"))
-        self.action_tools_items_table = QtGui.QAction(MainWindow)
-        self.action_tools_items_table.setCheckable(True)
-        self.action_tools_items_table.setObjectName(_fromUtf8("action_tools_items_table"))
-        self.action_tools_file_browser = QtGui.QAction(MainWindow)
-        self.action_tools_file_browser.setCheckable(True)
-        self.action_tools_file_browser.setObjectName(_fromUtf8("action_tools_file_browser"))
         self.action_item_to_external_filemanager = QtGui.QAction(MainWindow)
         self.action_item_to_external_filemanager.setObjectName(_fromUtf8("action_item_to_external_filemanager"))
         self.action_export_selected_items = QtGui.QAction(MainWindow)
@@ -157,9 +146,6 @@ class Ui_MainWindow(object):
         self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_check_integrity)
         self.menuItem.addAction(self.menuFix_integrity_errors.menuAction())
-        self.menuTools.addAction(self.action_tools_items_table)
-        self.menuTools.addAction(self.action_tools_tag_cloud)
-        self.menuTools.addAction(self.action_tools_file_browser)
         self.menuHelp.addAction(self.action_help_about)
         self.menubar.addAction(self.menu_repo.menuAction())
         self.menubar.addAction(self.menu.menuAction())
@@ -192,7 +178,6 @@ class Ui_MainWindow(object):
         self.action_item_edit.setText(QtGui.QApplication.translate("MainWindow", "&Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_add_many.setText(QtGui.QApplication.translate("MainWindow", "Add &many", None, QtGui.QApplication.UnicodeUTF8))
         self.action_user_change_pass.setText(QtGui.QApplication.translate("MainWindow", "Change &password", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_tools_tag_cloud.setText(QtGui.QApplication.translate("MainWindow", "Tag &cloud", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_view.setText(QtGui.QApplication.translate("MainWindow", "&View with external app", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_add_many_rec.setText(QtGui.QApplication.translate("MainWindow", "Add many &recursively", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_delete.setText(QtGui.QApplication.translate("MainWindow", "&Delete", None, QtGui.QApplication.UnicodeUTF8))
@@ -206,8 +191,6 @@ class Ui_MainWindow(object):
         self.action_fix_file_not_found_try_find.setText(QtGui.QApplication.translate("MainWindow", "Try find file", None, QtGui.QApplication.UnicodeUTF8))
         self.action_fix_file_not_found_delete.setText(QtGui.QApplication.translate("MainWindow", "Delete item\'s reference to file", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_rebuild_thumbnail.setText(QtGui.QApplication.translate("MainWindow", "Rebuild &thumbnail", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_tools_items_table.setText(QtGui.QApplication.translate("MainWindow", "Items table", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_tools_file_browser.setText(QtGui.QApplication.translate("MainWindow", "File browser", None, QtGui.QApplication.UnicodeUTF8))
         self.action_item_to_external_filemanager.setText(QtGui.QApplication.translate("MainWindow", "Open external file manager", None, QtGui.QApplication.UnicodeUTF8))
         self.action_export_selected_items.setText(QtGui.QApplication.translate("MainWindow", "Export items files only", None, QtGui.QApplication.UnicodeUTF8))
         self.action_export_items_file_paths.setText(QtGui.QApplication.translate("MainWindow", "Export file paths as txt file", None, QtGui.QApplication.UnicodeUTF8))

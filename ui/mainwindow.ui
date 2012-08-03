@@ -29,7 +29,7 @@
      <x>0</x>
      <y>0</y>
      <width>659</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_repo">
@@ -112,9 +112,6 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <addaction name="action_tools_items_table"/>
-    <addaction name="action_tools_tag_cloud"/>
-    <addaction name="action_tools_file_browser"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -177,20 +174,6 @@
   <action name="action_user_change_pass">
    <property name="text">
     <string>Change &amp;password</string>
-   </property>
-  </action>
-  <action name="action_tools_tag_cloud">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Tag &amp;cloud</string>
    </property>
   </action>
   <action name="action_item_view">
@@ -256,22 +239,6 @@
   <action name="action_item_rebuild_thumbnail">
    <property name="text">
     <string>Rebuild &amp;thumbnail</string>
-   </property>
-  </action>
-  <action name="action_tools_items_table">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Items table</string>
-   </property>
-  </action>
-  <action name="action_tools_file_browser">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>File browser</string>
    </property>
   </action>
   <action name="action_item_to_external_filemanager">
