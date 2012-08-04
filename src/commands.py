@@ -713,6 +713,11 @@ class SaveNewItemCommand(AbstractCommand):
             If given item has not null item.data_ref object, it is ignored anyway.
         '''
         
+        #We do not need any info, that can be in item.data_ref object at this point.
+        #But if it is not None, it may break the creation of tags/fields.
+        #Don't worry, item.data_ref will be assigned a new DataRef instance later (if required).
+        item.data_ref = None
+        
         isDataRefRequired = not is_none_or_empty(srcAbsPath)
         if isDataRefRequired:
             assert(dstRelPath is not None) 
