@@ -49,7 +49,7 @@ if __name__ == '__main__':
         base = "Win32GUI"
     
     reggata_version = get_reggata_version()
-    target_dir = "bin" + os.sep + "reggata_" + get_short_sys_platform() + "-" + reggata_version
+    target_dir = os.path.join("bin", "reggata-" + reggata_version + "_" + get_short_sys_platform()) 
     buildOptions = dict(
             compressed = True,
             includes = ["sqlite3"],
