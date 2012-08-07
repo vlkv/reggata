@@ -21,6 +21,8 @@ Query examples:
   //(This query seaches items (files) only in "download/unsorted" physical path by tags)//
 
 * With Reggata you can open file with a preferred appropriate external program. Reggata has a configuration file {{{reggata.conf}}} which allows you to configure your preferred apps for music, pdf, images and any other types of files.
+* You can export files with metadata (tags and fields) to an archive file. This archive file can be imported to
+some other reggata repository later. So you can exchange files and tags/fields with your friends or coleagues.
 
 More information about Reggata can be found on wiki pages [[https://github.com/vlkv/reggata/wiki]].
 
