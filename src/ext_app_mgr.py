@@ -28,28 +28,28 @@ import consts
 import subprocess
 import shlex
 from exceptions import MsgException
+import logging
+
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+
 
 class ExtAppMgr(object):
     '''
-    Класс для вызова внешних приложений, которые нужны для просмотра
-    элементов (файлов) хранилища.
-    
-    Кстати, если редактировать файлы, а не просматривать, то надо как-то оперативно
-    обновлять их DataRef.hash.
-    
-    Пример файла reggata.conf см. в корне дерева исходников reggata.conf.template.
+    This class invokes preferred external applications to open repository files.
+    Preferred applications are configured in text file reggata.conf.
+    See also reggata.conf.template file as an example of such config.
     '''
 
     def __init__(self):
 
         file_types_list = eval(UserConfig().get('ext_app_mgr_file_types', "[]"))
         
-        #Ключ - название группы файлов, значение - список расширений файлов
+        #Key - name of the files group, Value - list of file extensions
         self.file_types = dict()
         for file_type in file_types_list:
             self.file_types[file_type] = eval(UserConfig().get('ext_app_mgr.{}.extensions'.format(file_type)))
             
-        #Ключ - расширение файла (в нижнем регистре), значение - название группы файлов
+        #Key - file extension (in lowercase), Value - name of the files group
         self.extensions = dict()
         for type, ext_list in self.file_types.items():             
             for ext in ext_list:
@@ -74,12 +74,12 @@ class ExtAppMgr(object):
 
         command = command.replace('%d', '"' + os.path.dirname(abs_path) + '"')
         command = command.replace('%f', '"' + abs_path + '"')
-        print("subprocess.Popen(): " + command)
         args = shlex.split(command)
-        print(args)
-        #subprocess.call(args) #Такой вызов блокирует текущий поток
-        pid = subprocess.Popen(args).pid #Такой вызов не блокирует поток
-        print("Created process with PID = {}".format(pid))
+        logger.debug("subprocess.Popen(args), args=%s", args)
+        
+        #subprocess.call(args) #This call would block the current thread
+        pid = subprocess.Popen(args).pid #This call would not block the current thread
+        logger.info("Created subprocess with PID = %d", pid)
 
     def external_file_manager(self, abs_path):
         if self.ext_file_manager_command is None:
@@ -88,16 +88,12 @@ class ExtAppMgr(object):
         command = self.ext_file_manager_command
         command = command.replace('%d', '"' + os.path.dirname(abs_path) + '"')
         command = command.replace('%f', '"' + abs_path + '"')
-        print("subprocess.Popen(): " + command)
         args = shlex.split(command)
+        logger.debug("subprocess.Popen(args), args=%s", args)
+        
         pid = subprocess.Popen(args).pid 
-        print("Created process with PID = {}".format(pid))
+        logger.info("Created subprocess with PID = %d", pid)
         
         
-        
-        
-
-if __name__ == '__main__':
-    pass    
 
 

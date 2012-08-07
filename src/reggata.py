@@ -30,22 +30,46 @@ from PyQt4.QtCore import Qt
 import consts
 from user_config import UserConfig
 from main_window import MainWindow
+import logging
+
+
+def configureLogging():
+    
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setLevel(logging.DEBUG)
+    consoleHandler.setFormatter(
+        logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    
+    rootLogger = logging.getLogger()
+    rootLogger.setLevel(logging.INFO)
+    rootLogger.addHandler(consoleHandler)
+    
+    reggataRootLogger = logging.getLogger(consts.ROOT_LOGGER)
+    reggataRootLogger.setLevel(logging.DEBUG)
+    
+    #TODO: I don't know why, but this do not switch on the logging of sqa!
+    sqaLogger = logging.getLogger('sqlalchemy.engine')
+    sqaLogger.setLevel(logging.DEBUG)
 
 
 if __name__ == '__main__':
+    configureLogging()
+    logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+    
     if not os.path.exists(consts.DEFAULT_TMP_DIR):
         os.makedirs(consts.DEFAULT_TMP_DIR)
     
-    if UserConfig().get("redirect_stdout", "True") in ["True", "true", "TRUE", "1"]:
-        sys.stdout = open(os.path.join(consts.DEFAULT_TMP_DIR, "stdout.txt"), "a+")
-        
-    if UserConfig().get("redirect_stderr", "True") in ["True", "true", "TRUE", "1"]:
-        sys.stderr = open(os.path.join(consts.DEFAULT_TMP_DIR, "stderr.txt"), "a+")
     
-    print()
-    print("========= Reggata started at {} =========".format(datetime.datetime.now()))
-    print("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
-    print("qt_version = {}".format(QtCore.QT_VERSION_STR))
+    #TODO: remove redirect_stdout and redirect_stderr from reggata.conf.template
+    #if UserConfig().get("redirect_stdout", "True") in ["True", "true", "TRUE", "1"]:
+    #    sys.stdout = open(os.path.join(consts.DEFAULT_TMP_DIR, "stdout.txt"), "a+")    
+    #if UserConfig().get("redirect_stderr", "True") in ["True", "true", "TRUE", "1"]:
+    #    sys.stderr = open(os.path.join(consts.DEFAULT_TMP_DIR, "stderr.txt"), "a+")
+    
+    
+    logger.info("========= Reggata started =========")
+    logger.debug("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
+    logger.debug("qt_version = {}".format(QtCore.QT_VERSION_STR))
     
     app = QtGui.QApplication(sys.argv)
         
@@ -56,7 +80,7 @@ if __name__ == '__main__':
         if qtr.load(qm_filename, ".") or qtr.load(qm_filename, ".."):
             app.installTranslator(qtr)
         else:
-            print("Cannot find translation file {}.".format(qm_filename))
+            logger.warning("Cannot find translation file {}.".format(qm_filename))
     
     form = MainWindow()
     form.show()

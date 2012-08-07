@@ -26,6 +26,10 @@ import ui_imageviewer
 from helpers import show_exc_info
 from exceptions import MsgException
 from user_config import UserConfig
+import logging
+import consts
+
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 class Canvas(QtGui.QWidget):
     '''
@@ -156,8 +160,8 @@ class Canvas(QtGui.QWidget):
         
     def mouseReleaseEvent(self, ev):
         self.update()
-        print("canvas={}x{} scaled={}x{}".format(self.width(), self.height(), self.scaled.width(), self.scaled.height()))
-        print("original={}x{}".format(self.original.width(), self.original.height()))
+        logger.debug("canvas={}x{} scaled={}x{}".format(self.width(), self.height(), self.scaled.width(), self.scaled.height()))
+        logger.debug("original={}x{}".format(self.original.width(), self.original.height()))
     
 
 class ImageViewer(QtGui.QMainWindow):
@@ -222,8 +226,6 @@ class ImageViewer(QtGui.QMainWindow):
         self.ui.canvas.setContextMenuPolicy(Qt.CustomContextMenu)
         self.connect(self.ui.canvas, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), lambda pos: self.menu.exec_(self.ui.canvas.mapToGlobal(pos)))
     
-#    def event(self, event):
-#        print(type(event))
     
     def set_current_image_index(self, value):
         if 0 <= value < len(self.abs_paths): 

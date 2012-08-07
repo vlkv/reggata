@@ -14,7 +14,6 @@ import re
 import time
 import codecs
 import os
-import helpers
 
 class IllegalArgumentException(Exception):
 
@@ -244,14 +243,14 @@ class Properties(object):
 
         #print("stream type = " + stream.__class__.__name__)
         if not isinstance(stream, io.TextIOBase) and not isinstance(stream, codecs.StreamReaderWriter):
-            raise TypeError(helpers.tr('Argument should be a io.TextIOBase or codecs.StreamReaderWriter object!'))
+            raise TypeError('Argument should be a io.TextIOBase or codecs.StreamReaderWriter object!')
         
         
         
         # Check for the opened mode
         #print("mode = " + stream.mode)
         if stream.mode != 'r' and stream.mode != 'rb':
-            raise ValueError(helpers.tr('Stream should be opened in "r" or "rb" mode!'))
+            raise ValueError('Stream should be opened in "r" or "rb" mode!')
 
         try:
             lines = stream.readlines()
@@ -270,7 +269,7 @@ class Properties(object):
         if type(key) is str and type(value) is str:
             self.processPair(key, value)
         else:
-            raise TypeError(helpers.tr('both key and value should be strings!'))
+            raise TypeError('both key and value should be strings!')
 
     def propertyNames(self):
         """ Return an iterator over all the keys of the property
@@ -291,7 +290,7 @@ class Properties(object):
         with the optional 'header' """
 
         if out.mode[0] != 'w':
-            raise ValueError(helpers.tr('Steam should be opened in write mode!'))
+            raise ValueError('Steam should be opened in write mode!')
 
         try:
             out.write(''.join(('#',header, os.linesep)))

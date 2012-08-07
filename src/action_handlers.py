@@ -898,8 +898,6 @@ along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses<
 '''
         f = None
         try:
-            #print(os.path.abspath(os.curdir))
-            #print(__file__)
             try:
                 f = open(os.path.join(os.path.dirname(__file__), "version.txt", "r"))
             except:

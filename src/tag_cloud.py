@@ -146,7 +146,6 @@ class TagCloud(QtGui.QTextEdit):
     
     
     def event(self, e):
-#        print(type(e), e.type())
         if e.type() == QtCore.QEvent.Enter:
             pass
         elif e.type() == QtCore.QEvent.Leave:

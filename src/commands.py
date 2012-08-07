@@ -61,10 +61,8 @@ class SaveThumbnailCommand(AbstractCommand):
     
     def __saveThumbnail(self, data_ref_id, thumbnail):
         data_ref = self._session.query(DataRef).get(data_ref_id)
-        self._session.refresh(data_ref)
+        self._session.refresh(data_ref) #TODO: Research if we can remove this refresh
         thumbnail.data_ref_id = data_ref.id
-        for th in data_ref.thumbnails:
-            print(th)
         data_ref.thumbnails.append(thumbnail)
         self._session.add(thumbnail)
         

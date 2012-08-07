@@ -4,17 +4,20 @@ Created on 21.01.2012
 
 @author: vlkv
 '''
-from PyQt4 import QtCore, QtGui
+import os
+import sys
 import traceback
+import zipfile
+import consts
+import logging
+from PyQt4 import QtCore, QtGui
 from integrity_fixer import IntegrityFixer
 from repo_mgr import *
-import sys
 from db_schema import Thumbnail
 from exceptions import *
 from commands import *
-import zipfile
-import os
 
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
 class ImportItemsThread(QtCore.QThread):
@@ -224,7 +227,7 @@ class ItemIntegrityFixerThread(QtCore.QThread):
             for i in range(len(self.items)):
                 item = self.items[i]
                 
-                print("fixing item " + str(item.id))
+                logger.debug("fixing item " + str(item.id))
                 
                 #Сначала смотрим, проверялся ли item на целостность данных?
                 if item.error is None:
@@ -308,7 +311,8 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                     self.lock.unlock()
                     
         except:
-            print(traceback.format_exc())
+            logger.error(traceback.format_exc())
+            #TODO: Maybe should use logger.exception() here?..
         finally:
             uow.close()
             self.emit(QtCore.SIGNAL("finished"), error_count)
@@ -338,7 +342,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
                 item = self.items[i]
                 
                 if self.interrupt:
-                    print("ThumbnailBuilderThread interrupted!")
+                    logger.info("ThumbnailBuilderThread interrupted!")
                     break
                 
                 if not item.data_ref or not item.data_ref.is_image():
@@ -397,7 +401,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
                         raise
                     else:
                         #Continue generating thumbnails in this case
-                        print(traceback.format_exc())                
+                        logger.error(traceback.format_exc())                
                                     
         except:
             self.emit(QtCore.SIGNAL("exception"), sys.exc_info())

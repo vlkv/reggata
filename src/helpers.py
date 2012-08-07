@@ -34,22 +34,22 @@ import traceback
 import os
 import hashlib
 import time
-from exceptions import MsgException
 import platform
 import math
-import parsers
+import logging
+import consts
+
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
 def tr(text):
-    '''Переводит текст сообщений GUI на различные языки.'''
-
-#    print("context={}, text={}".format(context, text))
+    '''Translates text of GUI to foreign languages.'''
     s = QCoreApplication.translate("@default", str(text), None, QCoreApplication.UnicodeUTF8)
     return s
 
 class MyMessageBox(QtGui.QMessageBox):
-    '''Окно данного класса можно растягивать мышкой, в отличие от стандартного 
-    QMessageBox-а. Решение взято отсюда: 
+    '''This MessageBox window can be resized with a mouse. Standard QMessageBox
+    could not. Solution was taken from here: 
     http://stackoverflow.com/questions/2655354/how-to-allow-resizing-of-qmessagebox-in-pyqt4
     '''
     def __init__(self, parent=None):
@@ -213,7 +213,7 @@ def compute_hash(filename, chunksize=131072, algorithm="sha1"):
             break
         filehash.update(data)
     hash = filehash.hexdigest()
-    print("Hash {} computed in time of {} sec".format(algorithm, time.time() - start))
+    logger.debug("Hash {} computed in time of {} sec".format(algorithm, time.time() - start))
     return hash
     
 def computePasswordHash(strPassword):
@@ -285,8 +285,8 @@ class WaitDialog(QtGui.QDialog):
         close_event.ignore()
         
     def set_progress(self, percent_completed):
-        '''Слот, вызываемый для отображения текущего процента завершенности задачи.'''        
-        print("Completed {}%".format(percent_completed))
+        '''This slot is called to display progress in percents.'''
+        logger.debug("Completed {}%".format(percent_completed))
         self.progress_bar.setValue(percent_completed)
         
 class ImageThumbDelegate(QtGui.QStyledItemDelegate):

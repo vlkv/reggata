@@ -125,8 +125,6 @@ class Completer(QtGui.QListWidget):
         self.connect(self.widget, QtCore.SIGNAL("textChanged()"), self.widget_text_changed)
     
     def event(self, e):
-        #print("Completer {}".format(type(e)))
-        
         #This hides the completer (self) when user clicks somewhere outside
         if e.type() == QtCore.QEvent.MouseButtonPress:
             self.hide()

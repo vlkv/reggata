@@ -29,6 +29,8 @@ from user_config import UserConfig
 import ply.yacc
 import ply.lex
 
+ROOT_LOGGER = "reggata"
+
 METADATA_DIR = ".reggata"
 DB_FILE = "database.sqlite3"
 USER_CONFIG_DIR = os.path.expanduser("~") + os.sep + ".config" + os.sep + "reggata"

@@ -33,6 +33,10 @@ from file_browser import FileBrowser, FileBrowserTableModel
 from items_table_dock_widget import ItemsTableDockWidget
 from table_models import RepoItemTableModel
 from action_handlers import *
+import logging
+import consts
+
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -264,8 +268,8 @@ class MainWindow(QtGui.QMainWindow):
         #Storing file browser table columns width
         self.save_file_browser_state()
         
-        print("========= Reggata stopped at {} =========".format(datetime.datetime.now()))
-        print()
+        logger.info("========= Reggata Main Window is about to close =========")
+        
         
     
     
