@@ -21,14 +21,13 @@ Created on 16.10.2010
 
 @author: vlkv
 '''
-from pyjavaproperties import Properties
 import consts
 import os
 import codecs
+from pyjavaproperties import Properties
+import reggata_default_conf
 
 
-
-#TODO Кстати, можно было бы использовать класс QSettings
 class UserConfig(object):
     '''
     Класс для упрощения доступа к содержимому конфиг-файла в домашней директории пользователя.
@@ -48,21 +47,12 @@ class UserConfig(object):
                 os.makedirs(consts.USER_CONFIG_DIR)            
                 
             if not os.path.exists(consts.USER_CONFIG_FILE):
-                #Создаем файл
-                #os.mknod(consts.USER_CONFIG_FILE) #По всей видимости os.mknod() недоступна под Windows!
-                
-                #Записываем в этот файл комментарий
-                reggata_conf = '''
-# This is Reggata configuration file "reggata.conf".
-# See "reggata.conf.template" for example of configuration.
-'''
-                #Файл будет создан, если его еще нет
                 f = codecs.open(consts.USER_CONFIG_FILE, "w", "utf-8")
-                f.write(reggata_conf)
-                f.close()
-                
+                try:
+                    f.write(reggata_default_conf.reggataDefaultConf)
+                finally:
+                    f.close()
             
-            #Если файла не существует, из load() вылетает исключение
             cls._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
             
         return cls._instance
@@ -94,7 +84,8 @@ class UserConfig(object):
     def refresh(self):
         self._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
         
-#Это тестовый код
+
+
 if __name__ == "__main__":
     uc1 = UserConfig()
     uc2 = UserConfig()
