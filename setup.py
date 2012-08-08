@@ -56,7 +56,7 @@ if __name__ == '__main__':
             packages = ["sqlalchemy.dialects.sqlite", "ply"],
             namespace_packages=["sqlalchemy"],
             include_files = ["reggata_ru.qm", "COPYING", "README.creole", 
-                             "version.txt", "reggata.conf.template"],
+                             "version.txt"],
             build_exe = target_dir
             )
     setup(

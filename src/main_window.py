@@ -268,7 +268,7 @@ class MainWindow(QtGui.QMainWindow):
         #Storing file browser table columns width
         self.save_file_browser_state()
         
-        logger.info("========= Reggata Main Window is about to close =========")
+        logger.info("Reggata Main Window is closing")
         
         
     

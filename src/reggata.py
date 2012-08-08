@@ -24,55 +24,40 @@ Created on 21.01.2012
 import os.path
 import sys
 import datetime
+import codecs
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 import consts
 from user_config import UserConfig
-from main_window import MainWindow
 import logging
+import logging.config
+import logging_default_conf
+from main_window import MainWindow
+
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
 def configureLogging():
-    
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setLevel(logging.DEBUG)
-    consoleHandler.setFormatter(
-        logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    
-    rootLogger = logging.getLogger()
-    rootLogger.setLevel(logging.INFO)
-    rootLogger.addHandler(consoleHandler)
-    
-    reggataRootLogger = logging.getLogger(consts.ROOT_LOGGER)
-    reggataRootLogger.setLevel(logging.DEBUG)
-    
-    #TODO: I don't know why, but this do not switch on the logging of sqa!
-    sqaLogger = logging.getLogger('sqlalchemy.engine')
-    sqaLogger.setLevel(logging.DEBUG)
+    if not os.path.exists(consts.USER_CONFIG_DIR):
+        os.makedirs(consts.USER_CONFIG_DIR)
+        
+    if not os.path.exists(consts.LOGGING_CONFIG_FILE):
+        f = codecs.open(consts.LOGGING_CONFIG_FILE, "w", "utf-8")
+        try:
+            f.write(logging_default_conf.loggingDefaultConf)
+        finally:
+            f.close()
+
+    logging.config.fileConfig(os.path.join(consts.LOGGING_CONFIG_FILE))
 
 
-if __name__ == '__main__':
-    configureLogging()
-    logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
-    
+def configureTmpDir():
     if not os.path.exists(consts.DEFAULT_TMP_DIR):
         os.makedirs(consts.DEFAULT_TMP_DIR)
-    
-    
-    #TODO: remove redirect_stdout and redirect_stderr from reggata.conf.template
-    #if UserConfig().get("redirect_stdout", "True") in ["True", "true", "TRUE", "1"]:
-    #    sys.stdout = open(os.path.join(consts.DEFAULT_TMP_DIR, "stdout.txt"), "a+")    
-    #if UserConfig().get("redirect_stderr", "True") in ["True", "true", "TRUE", "1"]:
-    #    sys.stderr = open(os.path.join(consts.DEFAULT_TMP_DIR, "stderr.txt"), "a+")
-    
-    
-    logger.info("========= Reggata started =========")
-    logger.debug("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
-    logger.debug("qt_version = {}".format(QtCore.QT_VERSION_STR))
-    
-    app = QtGui.QApplication(sys.argv)
-        
+
+
+def configureTranslations(app):
     qtr = QtCore.QTranslator()
     language = UserConfig().get("language")
     if language:
@@ -81,9 +66,24 @@ if __name__ == '__main__':
             app.installTranslator(qtr)
         else:
             logger.warning("Cannot find translation file {}.".format(qm_filename))
+
+
+if __name__ == '__main__':
+    configureLogging()
+    
+    logger.info("========= Reggata started =========")
+    logger.debug("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
+    logger.debug("qt_version = {}".format(QtCore.QT_VERSION_STR))
+    logger.debug("current dir is " + os.path.abspath("."))
+    
+    configureTmpDir()
+    
+    app = QtGui.QApplication(sys.argv)
+    
+    configureTranslations(app)
     
     form = MainWindow()
     form.show()
     app.exec_()
-
+    logger.info("========= Reggata finished =========")
 
