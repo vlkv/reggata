@@ -49,6 +49,7 @@ thumbnail_size = 100
 
 tmp_dir = /tmp
 
+
 #Field with this name will be used by Reggata to store item's rating.
 reserved_fields.rating = Rating
 
