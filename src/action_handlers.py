@@ -14,7 +14,7 @@ from change_user_password_dialog import ChangeUserPasswordDialog
 from item_dialog import ItemDialog
 from items_dialog import ItemsDialog
 import ui_aboutdialog
-from common_widgets import Completer
+from common_widgets import Completer, WaitDialog
 from ext_app_mgr import ExtAppMgr
 from image_viewer import ImageViewer
 from worker_threads import *

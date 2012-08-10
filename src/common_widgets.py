@@ -9,8 +9,80 @@ import PyQt4.QtCore as QtCore
 from PyQt4.QtCore import Qt
 import parsers
 from commands import GetNamesOfAllTagsAndFields
-from helpers import is_none_or_empty
+from helpers import is_none_or_empty, MyMessageBox
+import logging
+import consts
 
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+
+
+class WaitDialog(QtGui.QDialog):    
+    '''Диалог должен уметь:
+    1) Работать в режиме неопределенного окончания работы (параметр indeterminate)
+    2) Работать и отображать сколько процентов завершено (слот set_progress)
+    3) Отображать сообщение (просто статический текст) (параметр message)
+    4) Иметь возможность отмены операции (Этого пока что нет!) 
+    5) Отображать информацию о случившихся ошибках в процессе работы (слот exception)
+    6) Отображать себя после паузы (4 секунды) (Этого нет, но можно сделать снаружи!)
+    '''
+    
+    def __init__(self, parent=None, indeterminate=False):
+        super(WaitDialog, self).__init__(parent)
+        self.setModal(True)
+        self.setWindowTitle("Reggata")
+        
+        vbox = QtGui.QVBoxLayout()
+        
+        self.msg_label = QtGui.QLabel(self.tr("Please, wait..."))
+        vbox.addWidget(self.msg_label)
+        
+        self.progress_bar = QtGui.QProgressBar()
+        self.progress_bar.setMinimum(0)
+        self.progress_bar.setMaximum(100)
+        vbox.addWidget(self.progress_bar)
+        
+        if indeterminate:
+            self.progress_bar.setTextVisible(False)
+            self.timer = QtCore.QTimer()
+            self.connect(self.timer, QtCore.SIGNAL("timeout()"), self.indeterminate_timer)
+            self.timer.start(100)
+        
+        self.setLayout(vbox)
+    
+    def startWithWorkerThread(self, thread):
+        thread.start()
+        thread.wait(1000)
+        if thread.isRunning():
+            self.exec_()
+    
+    def indeterminate_timer(self):
+        value = self.progress_bar.value()
+        value = value + int((self.progress_bar.maximum() - self.progress_bar.minimum())/5.0)
+        self.progress_bar.setValue(value if value <= self.progress_bar.maximum() else self.progress_bar.minimum())
+        
+    
+    def exception(self, exceptionInfo):
+        ''' Displays exceptionInfo text in modal message box and rejects WaitDialog. 
+        exceptionInfo - is a string containing a text about the raised exception.
+        
+        This slot is usually connected to the 'exception' signal, emitted from a 
+        worker thread.'''
+        mb = MyMessageBox(self)
+        mb.setWindowTitle(self.tr("Error"))
+        mb.setText(self.tr("Operation cannot proceed because of the raised exception."))
+        mb.setDetailedText(exceptionInfo)
+        mb.exec_()
+        
+        self.reject()
+        
+    def closeEvent(self, close_event):
+        '''Данный метод делает невозможным закрыть окно кнопкой "крестик".'''
+        close_event.ignore()
+        
+    def set_progress(self, percent_completed):
+        '''This slot is called to display progress in percents.'''
+        logger.debug("Completed {}%".format(percent_completed))
+        self.progress_bar.setValue(percent_completed)
 
 
 class TextEdit(QtGui.QTextEdit):
