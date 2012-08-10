@@ -187,11 +187,30 @@ class ItemDialog(QtGui.QDialog):
             
         #Processing DataRef object
         if self.item.data_ref is not None:
-            self.item.data_ref.srcAbsPath = self.ui.fileAbsPath.text()
+            self.__writeDataRef()
             
-            filename = os.path.basename(self.item.data_ref.srcAbsPath)
-            self.item.data_ref.dstRelPath = os.path.join(self.ui.fileLocationDirRelPath.text(), filename)
-            #TODO: check that abs and rel paths are valid
+    
+    def __writeDataRef(self):
+        assert(self.item.data_ref is not None)
+        
+        srcAbsPath = self.ui.fileAbsPath.text()
+        
+        isFileInsideRepo = is_internal(srcAbsPath, self.parent.active_repo.base_path)
+        
+        dirRelPath = self.ui.fileLocationDirRelPath.text()
+        if not is_none_or_empty(dirRelPath):
+            #File will be copied to user selected location 
+            filename = os.path.basename(srcAbsPath)
+            dstRelPath = os.path.join(dirRelPath, filename)
+        elif isFileInsideRepo:
+            #File will stay where it is
+            dstRelPath = os.path.relpath(srcAbsPath, self.parent.active_repo.base_path)
+        else:
+            #File will be copied to the repository root
+            dstRelPath = os.path.basename(srcAbsPath)
+        
+        self.item.data_ref.srcAbsPath = os.path.normpath(srcAbsPath)
+        self.item.data_ref.dstRelPath = os.path.normpath(dstRelPath)
         
         
     def button_ok(self):
@@ -258,7 +277,7 @@ class ItemDialog(QtGui.QDialog):
             else:
                 new_dst_path = os.path.relpath(directory, self.parent.active_repo.base_path)
                 if new_dst_path != ".":
-                    new_dst_path = "." + os.path.sep + new_dst_path 
+                    new_dst_path = "." + os.path.sep + new_dst_path
                 
                 self.ui.fileLocationDirRelPath.setText(new_dst_path)
                 
