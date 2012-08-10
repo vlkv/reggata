@@ -102,7 +102,9 @@ class ItemDialog(QtGui.QDialog):
             if self.mode == ItemDialog.EDIT_MODE or self.mode == ItemDialog.VIEW_MODE:
                 #Make a relative path to the directory where DataRef file is located
                 locationDirRelPath = os.path.dirname(self.item.data_ref.url)
-                locationDirRelPath = "." if locationDirRelPath.strip() == "" else locationDirRelPath 
+                locationDirRelPath = "." \
+                    if locationDirRelPath.strip() == "" \
+                    else "." + os.path.sep + locationDirRelPath 
             self.ui.fileLocationDirRelPath.setText(locationDirRelPath)
             
         
@@ -255,6 +257,9 @@ class ItemDialog(QtGui.QDialog):
                 raise MsgException(self.tr("Chosen directory is out of active repository."))
             else:
                 new_dst_path = os.path.relpath(directory, self.parent.active_repo.base_path)
+                if new_dst_path != ".":
+                    new_dst_path = "." + os.path.sep + new_dst_path 
+                
                 self.ui.fileLocationDirRelPath.setText(new_dst_path)
                 
         except Exception as ex:
