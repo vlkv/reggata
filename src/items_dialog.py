@@ -74,7 +74,7 @@ class ItemsDialog(QtGui.QDialog):
         
         self.__initCustomWidgets()
         
-        self.set_dialog_mode(mode)
+        self.setDialogMode(mode)
         self.read()
         
     def __initCustomWidgets(self):
@@ -97,7 +97,7 @@ class ItemsDialog(QtGui.QDialog):
         self.ui.verticalLayout_fields_rm.addWidget(self.ui.plainTextEdit_fields_rm)
 
     
-    def set_dialog_mode(self, mode):
+    def setDialogMode(self, mode):
         self.mode = mode
         if mode == ItemsDialog.CREATE_MODE:
             self.ui.label_tags.setVisible(False)
@@ -236,7 +236,6 @@ class ItemsDialog(QtGui.QDialog):
             self.ui.locationDirRelPath.setText(self.tr('<different values>'))
             
     def write(self):
-        
         # self.dst_path must be a relative (to root of repo) path to a directory where to put the files.
         # If self.dst_path is none or empty then items will be
         #    a) in CREATE_MODE - put in the root of repo (in the case of recursive adding: tree hierarchy 
@@ -244,28 +243,44 @@ class ItemsDialog(QtGui.QDialog):
         #    b) in EDIT_MODE - files of repository will not be moved anywhere.
         if self.group_has_files:
             
-            if self.mode == ItemsDialog.EDIT_MODE and not is_none_or_empty(self.dst_path):
-                for item in self.items:
-                    if (item.data_ref is None) or (item.data_ref.type != DataRef.FILE):
-                        continue
-                    item.data_ref.dstRelPath = os.path.join(self.dst_path, os.path.basename(item.data_ref.url))
+            self.__writeDataRefs()
             
-            elif self.mode == ItemsDialog.CREATE_MODE:
-                # In CREATE_MODE item.data_ref.url for all items will be None at this point
-                # We should use item.data_ref.srcAbsPath instead
-                for item in self.items:
-                    if (item.data_ref is None) or (item.data_ref.type != DataRef.FILE):
-                        continue
-                    if self.same_dst_path:
-                        tmp = self.dst_path if not is_none_or_empty(self.dst_path) else "" 
-                        item.data_ref.dstRelPath = os.path.join(tmp, os.path.basename(item.data_ref.srcAbsPath))
-                    else:
-                        if self.dst_path:
-                            relPathToFile = os.path.relpath(item.data_ref.srcAbsPath, item.data_ref.srcAbsPathToRecursionRoot)
-                            item.data_ref.dstRelPath = os.path.join(self.dst_path, relPathToFile)
-                        else:
-                            item.data_ref.dstRelPath = os.path.relpath(item.data_ref.srcAbsPath, item.data_ref.srcAbsPathToRecursionRoot)
+        self.__writeTagsAndFields()    
         
+        
+    def __writeDataRefs(self):
+        if self.mode == ItemsDialog.EDIT_MODE and not is_none_or_empty(self.dst_path):
+            for item in self.items:
+                if (item.data_ref is None) or (item.data_ref.type != DataRef.FILE):
+                    continue
+                item.data_ref.dstRelPath = os.path.join(
+                    self.dst_path, 
+                    os.path.basename(item.data_ref.url))
+        
+        elif self.mode == ItemsDialog.CREATE_MODE:
+            # In CREATE_MODE item.data_ref.url for all items will be None at this point
+            # We should use item.data_ref.srcAbsPath instead
+            for item in self.items:
+                if (item.data_ref is None) or (item.data_ref.type != DataRef.FILE):
+                    continue
+                if self.same_dst_path:
+                    tmp = self.dst_path if not is_none_or_empty(self.dst_path) else "" 
+                    item.data_ref.dstRelPath = os.path.join(
+                        tmp, 
+                        os.path.basename(item.data_ref.srcAbsPath))
+                else:
+                    if self.dst_path:
+                        relPathToFile = os.path.relpath(item.data_ref.srcAbsPath, 
+                                                        item.data_ref.srcAbsPathToRecursionRoot)
+                        item.data_ref.dstRelPath = os.path.join(
+                            self.dst_path, 
+                            relPathToFile)
+                    else:
+                        item.data_ref.dstRelPath = os.path.relpath(
+                            item.data_ref.srcAbsPath, 
+                            item.data_ref.srcAbsPathToRecursionRoot)
+    
+    def __writeTagsAndFields(self):
         #Processing Tags to add        
         text = self.ui.plainTextEdit_tags_add.toPlainText()
         tags, tmp = parsers.definition_parser.parse(text)
@@ -290,7 +305,8 @@ class ItemsDialog(QtGui.QDialog):
         #Check that added and removed Tags do not intersect
         intersection = tags_add.intersection(tags_rm)
         if len(intersection) > 0:
-            raise ValueError(self.tr("Tags {} cannot be in both add and remove lists.").format(str(intersection)))
+            raise ValueError(self.tr("Tags {} cannot be in both add and remove lists.")
+                             .format(str(intersection)))
         
         #Check that added and removed Fields do not intersect
         intersection = set()
@@ -298,7 +314,8 @@ class ItemsDialog(QtGui.QDialog):
             if f in fields_rm:
                 intersection.add(f)
         if len(intersection) > 0:
-            raise ValueError(self.tr("Fields {} cannot be in both add and remove lists.").format(str(intersection)))
+            raise ValueError(self.tr("Fields {} cannot be in both add and remove lists.")
+                             .format(str(intersection)))
             
         for item in self.items:
             #Adding Tags
@@ -318,20 +335,20 @@ class ItemsDialog(QtGui.QDialog):
             #Removing Fields
             for f in fields_rm:
                 item.remove_field(f)
-          
+        
         
         
     def selectLocationDirRelPath(self):
         try:
             if self.mode == ItemsDialog.EDIT_MODE and not self.group_has_files:
-                raise MsgException(self.tr("Selected group of items doesn't reference any physical files on filesysem."))
+                raise MsgException(self.tr(
+                    "Selected group of items doesn't reference any physical files on filesysem."))
             
             dir = QtGui.QFileDialog.getExistingDirectory(self, 
                 self.tr("Select destination path within repository"), 
                 self.repoBasePath)
             if dir:
                 if not is_internal(dir, self.repoBasePath):
-                    #Выбрана директория снаружи хранилища
                     raise MsgException(self.tr("Chosen directory is out of active repository."))
                 else:
                     self.dst_path = os.path.relpath(dir, self.repoBasePath)
@@ -346,6 +363,7 @@ class ItemsDialog(QtGui.QDialog):
         try:
             self.write()            
             self.accept()
+            
         except Exception as ex:
             helpers.show_exc_info(self, ex)
     
