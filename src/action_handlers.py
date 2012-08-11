@@ -303,7 +303,8 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
             
             completer = Completer(self._gui.active_repo, self._gui)
             repoBasePath = self._gui.active_repo.base_path
-            d = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.CREATE_MODE, completer=completer)
+            d = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.CREATE_MODE, 
+                            same_dst_path=True, completer=completer)
             if not d.exec_():
                 return
             
@@ -347,8 +348,8 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             
             completer = Completer(self._gui.active_repo, self._gui)
             repoBasePath = self._gui.active_repo.base_path
-            d = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.CREATE_MODE, same_dst_path=False,
-                            completer=completer)
+            d = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.CREATE_MODE, 
+                            same_dst_path=False, completer=completer)
             if not d.exec_():
                 return
                 
