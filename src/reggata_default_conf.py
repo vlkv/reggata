@@ -1,7 +1,7 @@
 
 reggataDefaultConf = \
 '''
-# This is example of ~/.config/reggata/reggata.conf confguration file
+# This is an example of ~/.config/reggata/reggata.conf confguration file
 #
 #
 
@@ -41,7 +41,7 @@ ext_app_mgr.audio.command=vlc %f
 # If path to command contains spaces, surround it with double quotes
 ext_file_manager=thunar %d
 
-language = ru
+language = en
 
 sqlalchemy.engine_echo = False
 
