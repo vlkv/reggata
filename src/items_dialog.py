@@ -203,25 +203,8 @@ class ItemsDialog(QtGui.QDialog):
         self.ui.textEdit_fields.setText(fields_str)
 
 
-
-        self.dst_path = None
-        same_path = None
-        for i in range(len(self.items)):
-            #При подсчете не учитываются объекты DataRef имеющие тип URL (или любой отличный от FILE)
-            #Также не учитываются элементы, которые не связаны с DataRef-объектами
-            if self.items[i].data_ref is None or self.items[i].data_ref.type != DataRef.FILE:
-                continue
-            
-            if self.dst_path is None:
-                self.dst_path, null = os.path.split(self.items[i].data_ref.url)
-                same_path = 'yes'
-            else:
-                path, null = os.path.split(self.items[i].data_ref.url)
-                if self.dst_path != path:
-                    same_path = 'no'
-                    break
+        same_path, self.dst_path = self.__checkIfAllTheItemsInTheSamePath(self.items)        
         if same_path is None:
-            #Все элементы не содержат ссылок на файлы (Либо нет DataRef объектов, либо они есть но не типа FILE)
             self.dst_path = None
             self.group_has_files = False
             self.ui.locationDirRelPath.setText(self.tr('<not applicable>'))
@@ -234,7 +217,34 @@ class ItemsDialog(QtGui.QDialog):
             self.dst_path = None #Обнуляем это поле
             self.group_has_files = True
             self.ui.locationDirRelPath.setText(self.tr('<different values>'))
+    
+    def __checkIfAllTheItemsInTheSamePath(self, items):
+        ''' Returns a tuple (answer, thePath), where
+            answer - one of ['yes', 'no', None]. 'yes' means that some (maybe even all)
+        items are linked with files and all the files are located in the same path. 
+        'no' - means that some (maybe even all) items are linked with files 
+        but the files are located in different directories.
+        None - means that there are no items with files or len(items) is zero.
+            thePath - string with the filesystem path if the answer is 'yes' or 
+        None in all other cases.
+        '''
+        dst_path = None
+        same_path = None
+        for item in items:
+            if item.data_ref is None or item.data_ref.type != DataRef.FILE:
+                continue
             
+            if dst_path is None:
+                dst_path, null = os.path.split(item.data_ref.url)
+                same_path = 'yes'
+            else:
+                path, null = os.path.split(item.data_ref.url)
+                if dst_path != path:
+                    same_path = 'no'
+                    break
+        return (same_path, dst_path)
+    
+    
     def write(self):
         # self.dst_path must be a relative (to root of repo) path to a directory where to put the files.
         # If self.dst_path is none or empty then items will be
