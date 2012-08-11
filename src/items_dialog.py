@@ -210,106 +210,116 @@ class ItemsDialog(QtGui.QDialog):
         выводить только те поля-значения, которые есть у всех элементов (причем, 
         совпадают и имя поля и значение.'''
         
-        diff_values_html = self.tr("&lt;diff. values&gt;")
-        
         if not (len(self.items) > 1):
             return
     
-        if self.mode == ItemsDialog.EDIT_MODE:
-        
-            tags_str = ""
-            seen_tags = set()
-            for i in range(0, len(self.items)):
-                for j in range(0, len(self.items[i].item_tags)):
-                    tag_name = self.items[i].item_tags[j].tag.name
-                    if tag_name in seen_tags:
-                        continue
-                    has_all = True
-                    for k in range(0, len(self.items)):
-                        if i == k:
-                            continue
-                        if not self.items[k].has_tag(tag_name):
-                            has_all = False
-                            break
-                    seen_tags.add(tag_name)
-                    if has_all:
-                        tags_str = tags_str + "<b>" + tag_name + "</b> "
-                    else:
-                        tags_str = tags_str + '<font color="grey">' + tag_name + "</font> "                    
-            self.ui.textEdit_tags.setText(tags_str)
+        if self.mode == ItemsDialog.CREATE_MODE:
+            self.__readInCreateMode()
             
-            fields_str = ""
-            seen_fields = set()
-            for i in range(0, len(self.items)):
-                for j in range(0, len(self.items[i].item_fields)):
-                    field_name = self.items[i].item_fields[j].field.name
-                    field_value = self.items[i].item_fields[j].field_value
-                    if field_name in seen_fields:
-                        continue
-                    all_have_field = True
-                    all_have_field_value = True
-                    for k in range(0, len(self.items)):
-                        if i == k:
-                            continue
-                        if not self.items[k].has_field(field_name):
-                            all_have_field = False
-                        if not self.items[k].has_field(field_name, field_value):
-                            all_have_field_value = False
-                        if not all_have_field and not all_have_field_value:
-                            break
-                            
-                    seen_fields.add(field_name)
-                    if all_have_field_value:
-                        fields_str = fields_str + "<b>" + field_name + ": " + field_value + "</b><br/>"
-                    elif all_have_field:
-                        fields_str = fields_str + '<b>' + field_name + "</b>: " + diff_values_html + "<br/>"
-                    else:
-                        fields_str = fields_str + '<font color="grey">' + field_name + ": " + diff_values_html + "</font><br/>"
-            self.ui.textEdit_fields.setText(fields_str)
+        elif self.mode == ItemsDialog.EDIT_MODE:
+            self.__readInEditMode()
+            
+        else:
+            assert False, "Unknown mode=" + self.mode + " for ItemsDialog"
     
     
-    
-            self.dst_path = None
-            same_path = None
-            for i in range(len(self.items)):
-                #При подсчете не учитываются объекты DataRef имеющие тип URL (или любой отличный от FILE)
-                #Также не учитываются элементы, которые не связаны с DataRef-объектами
-                if self.items[i].data_ref is None or self.items[i].data_ref.type != DataRef.FILE:
-                    continue
-                
-                if self.dst_path is None:
-                    self.dst_path, null = os.path.split(self.items[i].data_ref.url)
-                    same_path = 'yes'
-                else:
-                    path, null = os.path.split(self.items[i].data_ref.url)
-                    if self.dst_path != path:
-                        same_path = 'no'
-                        break
-            if same_path is None:
-                #Все элементы не содержат ссылок на файлы (Либо нет DataRef объектов, либо они есть но не типа FILE)
-                self.dst_path = None
-                self.group_has_files = False
-                self.ui.locationDirRelPath.setText(self.tr('<not applicable>'))
-            elif same_path == 'yes':
-                #Все элементы, связанные с DataRef-ами типа FILE, находятся в ОДНОЙ директории
+    def __readInCreateMode(self):
+        for item in self.items:
+            if item.data_ref is not None and item.data_ref.type == DataRef.FILE:
                 self.group_has_files = True
-                self.ui.locationDirRelPath.setText(self.dst_path)
+                break
             else:
-                #Элементы, связанные с DataRef-ами типа FILE, находятся в РАЗНЫХ директориях
-                self.dst_path = None #Обнуляем это поле
-                self.group_has_files = True
-                self.ui.locationDirRelPath.setText(self.tr('<different values>'))
-                
-        elif self.mode == ItemsDialog.CREATE_MODE:
-            for item in self.items:
-                if item.data_ref is not None and item.data_ref.type == DataRef.FILE:
-                    self.group_has_files = True
-                    break
+                self.group_has_files = False
+                #Maybe assert here?
+    
+    def __readInEditMode(self):
+        diff_values_html = self.tr("&lt;diff. values&gt;")
+        
+        tags_str = ""
+        seen_tags = set()
+        for i in range(0, len(self.items)):
+            for j in range(0, len(self.items[i].item_tags)):
+                tag_name = self.items[i].item_tags[j].tag.name
+                if tag_name in seen_tags:
+                    continue
+                has_all = True
+                for k in range(0, len(self.items)):
+                    if i == k:
+                        continue
+                    if not self.items[k].has_tag(tag_name):
+                        has_all = False
+                        break
+                seen_tags.add(tag_name)
+                if has_all:
+                    tags_str = tags_str + "<b>" + tag_name + "</b> "
                 else:
-                    self.group_has_files = False
-                    #Maybe assert here?
+                    tags_str = tags_str + '<font color="grey">' + tag_name + "</font> "                    
+        self.ui.textEdit_tags.setText(tags_str)
+        
+        fields_str = ""
+        seen_fields = set()
+        for i in range(0, len(self.items)):
+            for j in range(0, len(self.items[i].item_fields)):
+                field_name = self.items[i].item_fields[j].field.name
+                field_value = self.items[i].item_fields[j].field_value
+                if field_name in seen_fields:
+                    continue
+                all_have_field = True
+                all_have_field_value = True
+                for k in range(0, len(self.items)):
+                    if i == k:
+                        continue
+                    if not self.items[k].has_field(field_name):
+                        all_have_field = False
+                    if not self.items[k].has_field(field_name, field_value):
+                        all_have_field_value = False
+                    if not all_have_field and not all_have_field_value:
+                        break
+                        
+                seen_fields.add(field_name)
+                if all_have_field_value:
+                    fields_str = fields_str + "<b>" + field_name + ": " + field_value + "</b><br/>"
+                elif all_have_field:
+                    fields_str = fields_str + '<b>' + field_name + "</b>: " + diff_values_html + "<br/>"
+                else:
+                    fields_str = fields_str + '<font color="grey">' + field_name + ": " + diff_values_html + "</font><br/>"
+        self.ui.textEdit_fields.setText(fields_str)
+
+
+
+        self.dst_path = None
+        same_path = None
+        for i in range(len(self.items)):
+            #При подсчете не учитываются объекты DataRef имеющие тип URL (или любой отличный от FILE)
+            #Также не учитываются элементы, которые не связаны с DataRef-объектами
+            if self.items[i].data_ref is None or self.items[i].data_ref.type != DataRef.FILE:
+                continue
             
-                
+            if self.dst_path is None:
+                self.dst_path, null = os.path.split(self.items[i].data_ref.url)
+                same_path = 'yes'
+            else:
+                path, null = os.path.split(self.items[i].data_ref.url)
+                if self.dst_path != path:
+                    same_path = 'no'
+                    break
+        if same_path is None:
+            #Все элементы не содержат ссылок на файлы (Либо нет DataRef объектов, либо они есть но не типа FILE)
+            self.dst_path = None
+            self.group_has_files = False
+            self.ui.locationDirRelPath.setText(self.tr('<not applicable>'))
+        elif same_path == 'yes':
+            #Все элементы, связанные с DataRef-ами типа FILE, находятся в ОДНОЙ директории
+            self.group_has_files = True
+            self.ui.locationDirRelPath.setText(self.dst_path)
+        else:
+            #Элементы, связанные с DataRef-ами типа FILE, находятся в РАЗНЫХ директориях
+            self.dst_path = None #Обнуляем это поле
+            self.group_has_files = True
+            self.ui.locationDirRelPath.setText(self.tr('<different values>'))
+            
+
+        
         
     def selectLocationDirRelPath(self):
         try:
