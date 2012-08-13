@@ -241,7 +241,7 @@ class ItemsDialog(QtGui.QDialog):
                     dstPath = None
                     break
         
-        if samePath and len(dstPath.strip()) == 0:
+        if samePath == 'yes' and len(dstPath.strip()) == 0:
             dstPath = "."        
         
         return (samePath, dstPath)
