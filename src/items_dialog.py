@@ -225,22 +225,22 @@ class ItemsDialog(QtGui.QDialog):
             thePath - string with the filesystem path if the answer is 'yes' or 
         None in all other cases.
         '''
-        dst_path = None
-        same_path = None
+        dstPath = None
+        samePath = None
         for item in items:
             if item.data_ref is None or item.data_ref.type != DataRef.FILE:
                 continue
             
-            if dst_path is None:
-                dst_path, null = os.path.split(item.data_ref.url)
-                same_path = 'yes'
+            if dstPath is None:
+                dstPath, null = os.path.split(item.data_ref.url)
+                samePath = 'yes'
             else:
                 path, null = os.path.split(item.data_ref.url)
-                if dst_path != path:
-                    same_path = 'no'
-                    dst_path = None
+                if dstPath != path:
+                    samePath = 'no'
+                    dstPath = None
                     break
-        return (same_path, dst_path)
+        return (samePath, dstPath)
     
     
     def write(self):
