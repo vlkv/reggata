@@ -833,6 +833,7 @@ class SaveNewItemCommand(AbstractCommand):
     
 class UpdateExistingItemCommand(AbstractCommand):
     
+    #TODO: Use srcAbsPath=None, dstRelPath=None arguments in this command
     def __init__(self, item, userLogin):
         self.__item = item
         self.__userLogin = userLogin
