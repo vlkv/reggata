@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0">
+<!DOCTYPE TS>
+<TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
     <name>@default</name>
     <message>
@@ -273,7 +274,7 @@
     <message>
         <location filename="ui/aboutdialog.ui" line="13"/>
         <source>About Reggata</source>
-        <translation type="unfinished"></translation>
+        <translation>О программе Reggata</translation>
     </message>
 </context>
 <context>
@@ -281,17 +282,17 @@
     <message>
         <location filename="src/action_handlers.py" line="291"/>
         <source>Select file to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите файл(ы) для добавления</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="293"/>
         <source>No files chosen. Operation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Файлы не были выбраны. Операция отменена.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="316"/>
         <source>Operation completed. Stored {} files, skipped {} files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция выполнена. Сохранено {} файлов, пропущено {} файлов.</translation>
     </message>
 </context>
 <context>
@@ -299,17 +300,17 @@
     <message>
         <location filename="src/action_handlers.py" line="331"/>
         <source>Select one directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите одну директорию</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="333"/>
         <source>Directory is not chosen. Operation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Директория не выбрана. Операция отменена.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="361"/>
         <source>Operation completed. Stored {} files, skipped {} files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена. Сохранено {} файлов, пропущено {} файлов.</translation>
     </message>
 </context>
 <context>
@@ -317,12 +318,12 @@
     <message>
         <location filename="src/action_handlers.py" line="223"/>
         <source>Select a file to link with new Item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите файл чтобы привязать его к новому Элементу.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="259"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -330,7 +331,7 @@
     <message>
         <location filename="src/action_handlers.py" line="140"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -338,27 +339,27 @@
     <message>
         <location filename="ui/changeuserpassword.ui" line="14"/>
         <source>Change user password</source>
-        <translation type="unfinished"></translation>
+        <translation>Сменить пароль пользователя</translation>
     </message>
     <message>
         <location filename="ui/changeuserpassword.ui" line="25"/>
         <source>Login:</source>
-        <translation type="unfinished"></translation>
+        <translation>Логин:</translation>
     </message>
     <message>
         <location filename="ui/changeuserpassword.ui" line="39"/>
         <source>Current password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Текущий пароль:</translation>
     </message>
     <message>
         <location filename="ui/changeuserpassword.ui" line="53"/>
         <source>New password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Новый пароль:</translation>
     </message>
     <message>
         <location filename="ui/changeuserpassword.ui" line="67"/>
         <source>Repeat new password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Новый пароль (повторить):</translation>
     </message>
 </context>
 <context>
@@ -366,17 +367,17 @@
     <message>
         <location filename="src/action_handlers.py" line="818"/>
         <source>Integrity check {0}%</source>
-        <translation type="unfinished"></translation>
+        <translation>Проверка целостности {0}%</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="830"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="842"/>
         <source>Integrity check is done. {0} Items with errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Проверка целостности завершена. {0} Элементов имеют ошибки.</translation>
     </message>
 </context>
 <context>
@@ -384,7 +385,7 @@
     <message>
         <location filename="src/common_widgets.py" line="252"/>
         <source>Completer does&apos;n connected to repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Completer не подключен к хранилищу.</translation>
     </message>
 </context>
 <context>
@@ -392,12 +393,12 @@
     <message>
         <location filename="src/action_handlers.py" line="149"/>
         <source>Choose a base path for new repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите корневую директорию для нового хранилища</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="152"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы не выбрали существующую директорию. Операция отменена.</translation>
     </message>
 </context>
 <context>
@@ -405,27 +406,27 @@
     <message>
         <location filename="src/action_handlers.py" line="484"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="487"/>
         <source>Do you really want to delete {} selected file(s)?</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы действительно желаете удалить {} выбранных файлов?</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="504"/>
         <source>There were {0} errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Количество ошибок {0}.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="509"/>
         <source>Operation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция отменена.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="516"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -433,12 +434,12 @@
     <message>
         <location filename="src/action_handlers.py" line="381"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="391"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -446,22 +447,22 @@
     <message>
         <location filename="src/action_handlers.py" line="647"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="649"/>
         <source>Save data as..</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить данные как..</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="652"/>
         <source>You haven&apos;t chosen a file. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы не выбрали файл. Операция отменена.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="667"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -469,22 +470,22 @@
     <message>
         <location filename="src/action_handlers.py" line="745"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="747"/>
         <source>Save results in a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить результаты в файл.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="750"/>
         <source>Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция отменена.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="765"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -492,22 +493,22 @@
     <message>
         <location filename="src/action_handlers.py" line="713"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="715"/>
         <source>Choose a directory path to export files into.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите директорию, куда Вы желаете экспортировать файлы.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="718"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы не выбрали существующую директорию. Операция отменена.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="733"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -515,12 +516,12 @@
     <message>
         <location filename="src/action_handlers.py" line="591"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="609"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -528,37 +529,37 @@
     <message>
         <location filename="src/file_browser.py" line="104"/>
         <source>Cannot set root_path, because self.repo is None.</source>
-        <translation type="unfinished"></translation>
+        <translation>Невозможно изменить значение для root_path, потому что self.repo равен None.</translation>
     </message>
     <message>
         <location filename="src/file_browser.py" line="107"/>
         <source>Path must be inside current repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Путь должен находиться внутри текущего хранилища.</translation>
     </message>
     <message>
         <location filename="src/file_browser.py" line="190"/>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя файла</translation>
     </message>
     <message>
         <location filename="src/file_browser.py" line="192"/>
         <source>Tags</source>
-        <translation type="unfinished"></translation>
+        <translation>Теги</translation>
     </message>
     <message>
         <location filename="src/file_browser.py" line="194"/>
         <source>Users</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователи</translation>
     </message>
     <message>
         <location filename="src/file_browser.py" line="196"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Состояние</translation>
     </message>
     <message>
         <location filename="src/file_browser.py" line="198"/>
         <source>Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Рейтинг</translation>
     </message>
 </context>
 <context>
@@ -566,17 +567,17 @@
     <message>
         <location filename="src/action_handlers.py" line="776"/>
         <source>Integrity fix {0}%</source>
-        <translation type="unfinished"></translation>
+        <translation>Проверка целостности {0}%</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="788"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="801"/>
         <source>Integrity fixing is done.</source>
-        <translation type="unfinished"></translation>
+        <translation>Проверка целостности выполнена.</translation>
     </message>
 </context>
 <context>
@@ -584,47 +585,47 @@
     <message>
         <location filename="ui/imageviewer.ui" line="29"/>
         <source>ImageViewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Просмотрщик изображений</translation>
     </message>
     <message>
         <location filename="ui/imageviewer.ui" line="52"/>
         <source>Previous</source>
-        <translation type="unfinished"></translation>
+        <translation>Предыдущее</translation>
     </message>
     <message>
         <location filename="ui/imageviewer.ui" line="67"/>
         <source>Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Следующее</translation>
     </message>
     <message>
         <location filename="ui/imageviewer.ui" line="76"/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Увеличить</translation>
     </message>
     <message>
         <location filename="ui/imageviewer.ui" line="85"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Уменьшить</translation>
     </message>
     <message>
         <location filename="ui/imageviewer.ui" line="97"/>
         <source>Fit Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Подогнать под размер окна</translation>
     </message>
     <message>
         <location filename="src/image_viewer.py" line="219"/>
         <source>Edit item</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактировать элемент</translation>
     </message>
     <message>
         <location filename="src/image_viewer.py" line="221"/>
         <source>Ctrl+E</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="src/image_viewer.py" line="236"/>
         <source>Image index is out of range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Индекс изображения вне диапазона.</translation>
     </message>
 </context>
 <context>
@@ -632,17 +633,17 @@
     <message>
         <location filename="src/action_handlers.py" line="680"/>
         <source>Open reggata export file..</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть файл экспорта reggata..</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="683"/>
         <source>You haven&apos;t chosen a file. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы не выбрали файл. Операция отменена.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="699"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -650,97 +651,97 @@
     <message>
         <location filename="ui/itemdialog.ui" line="20"/>
         <source>Repository item</source>
-        <translation type="unfinished"></translation>
+        <translation>Элемент хранилища</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="31"/>
         <source>Title:</source>
-        <translation type="unfinished"></translation>
+        <translation>Заголовок:</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="41"/>
         <source>Id:</source>
-        <translation type="unfinished"></translation>
+        <translation>Id:</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="83"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="67"/>
         <source>User:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователь:</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="103"/>
         <source>Rating:</source>
-        <translation type="unfinished"></translation>
+        <translation>Рейтинг:</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="140"/>
         <source>Notes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Заметки:</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="163"/>
         <source>Fields:</source>
-        <translation type="unfinished"></translation>
+        <translation>Поля:</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="174"/>
         <source>Tags:</source>
-        <translation type="unfinished"></translation>
+        <translation>Теги:</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="185"/>
         <source>Data Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Ссылка на файл</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="191"/>
         <source>Absolute path to referenced File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Абсолютный путь к файлу:</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="205"/>
         <source>Location of referenced File in the Repository:</source>
-        <translation type="unfinished"></translation>
+        <translation>Размещение файла в хранилище:</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="221"/>
         <source>Add Data Reference to this Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить ссылку на файл к данному элементу</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="224"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="231"/>
         <source>Remove Data Reference from this Item. File will not be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить ссылку на файл из этого элемента. Файл не будет удален.</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="234"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="241"/>
         <source>Move referenced File to another location in the same repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Переместить файл в другую директорию в пределах того же хранилища.</translation>
     </message>
     <message>
         <location filename="ui/itemdialog.ui" line="244"/>
         <source>Move File</source>
-        <translation type="unfinished"></translation>
+        <translation>Переместить файл</translation>
     </message>
     <message>
         <location filename="src/item_dialog.py" line="63"/>
         <source>Argument item should be an instance of Item class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Аргумент item должен быть экземпляром класса Item.</translation>
     </message>
     <message>
         <location filename="src/item_dialog.py" line="68"/>
