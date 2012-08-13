@@ -274,6 +274,7 @@ class ItemsDialog(QtGui.QDialog):
             for item in self.items:
                 if (item.data_ref is None) or (item.data_ref.type != DataRef.FILE):
                     continue
+                
                 if self.same_dst_path:
                     tmp = self.dst_path if not is_none_or_empty(self.dst_path) else "" 
                     item.data_ref.dstRelPath = os.path.join(
@@ -287,9 +288,14 @@ class ItemsDialog(QtGui.QDialog):
                             self.dst_path, 
                             relPathToFile)
                     else:
-                        item.data_ref.dstRelPath = os.path.relpath(
-                            item.data_ref.srcAbsPath, 
-                            item.data_ref.srcAbsPathToRecursionRoot)
+                        if is_internal(item.data_ref.srcAbsPath, self.repoBasePath):
+                            item.data_ref.dstRelPath = os.path.relpath(
+                                item.data_ref.srcAbsPath, 
+                                self.repoBasePath)
+                        else:
+                            item.data_ref.dstRelPath = os.path.relpath(
+                                item.data_ref.srcAbsPath, 
+                                item.data_ref.srcAbsPathToRecursionRoot)
     
     def __writeTagsAndFields(self):
         #Processing Tags to add        
