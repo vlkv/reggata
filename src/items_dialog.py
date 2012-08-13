@@ -355,16 +355,17 @@ class ItemsDialog(QtGui.QDialog):
             dir = QtGui.QFileDialog.getExistingDirectory(self, 
                 self.tr("Select destination path within repository"), 
                 self.repoBasePath)
-            if dir:
-                if not is_internal(dir, self.repoBasePath):
-                    raise MsgException(self.tr("Chosen directory is out of active repository."))
-                else:
-                    self.dst_path = os.path.relpath(dir, self.repoBasePath)
-                    self.ui.locationDirRelPath.setText(self.dst_path)
+            if not dir:
+                return
+            if not is_internal(dir, self.repoBasePath):
+                raise MsgException(self.tr("Chosen directory is out of opened repository."))
+        
+            self.dst_path = os.path.relpath(dir, self.repoBasePath)
+            self.ui.locationDirRelPath.setText(self.dst_path)
         
         except Exception as ex:
             helpers.show_exc_info(self, ex)
-             
+            
                             
           
     def button_ok(self):
