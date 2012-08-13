@@ -201,15 +201,18 @@ class ItemsDialog(QtGui.QDialog):
 
         same_path, self.dst_path = self.__checkIfAllTheItemsInTheSamePath(self.items)        
         if same_path is None:
-            self.dst_path = None
             self.group_has_files = False
-            self.ui.locationDirRelPath.setText(self.tr('<not applicable>'))
+            assert self.dst_path is None, "When same_path is None, dst_path should be None also."
+            self.ui.locationDirRelPath.setText(self.tr('<no files>'))
+            self.ui.locationDirRelPath.setEnabled(False)
+            self.ui.buttonSelectLocationDirRelPath.setEnabled(False)
         elif same_path == 'yes':
             self.group_has_files = True
+            assert not is_none_or_empty(self.dst_path)
             self.ui.locationDirRelPath.setText(self.dst_path)
         else:
-            self.dst_path = None
             self.group_has_files = True
+            assert self.dst_path is None, "Because items' files are located in different directories."
             self.ui.locationDirRelPath.setText(self.tr('<different values>'))
     
     def __checkIfAllTheItemsInTheSamePath(self, items):
@@ -235,6 +238,7 @@ class ItemsDialog(QtGui.QDialog):
                 path, null = os.path.split(item.data_ref.url)
                 if dst_path != path:
                     same_path = 'no'
+                    dst_path = None
                     break
         return (same_path, dst_path)
     
