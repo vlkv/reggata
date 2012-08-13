@@ -18,19 +18,15 @@ from common_widgets import TextEdit
 
 #TODO: Rename this class to some more meaningful name
 class CustomTextEdit(QtGui.QTextEdit):
-    '''Немного модифицированный QTextEdit, который отображает весь вводимый 
-    пользователем текст выделяющимся шрифтом (вне зависимости от текущего 
-    формата редактируемого текста).'''
-    #Так как я реализовал сейчас ItemsDialog, вообще не нужно редактировать текст на CustomTextEdit-ах
-    #Для ввода текста я сделал отдельные виджеты. Поэтому в __init__() стоит self.setReadOnly(True)
-        
+    ''' This custom QTextEdit displays with a different style all the text
+    which is typed by user. 
+    '''
     def __init__(self, parent=None):
         super(CustomTextEdit, self).__init__(parent)
         self.setReadOnly(True)
     
     def event(self, e):
         if e.type() == QtCore.QEvent.KeyPress:
-            #Делаем ввод нового текста синим шрифтом
             f = QtGui.QTextCharFormat()
             self.setCurrentCharFormat(f)
             self.setTextColor(Qt.blue)
@@ -121,12 +117,6 @@ class ItemsDialog(QtGui.QDialog):
             
         
     def read(self):
-        '''Теги, которые есть у всех элементов из items нужно выводить черным.
-        Теги, которые есть только у части элементов в списке items, нужно выводить
-        серым (или другим отличным) цветом. Аналогично и для полей-значений. Черным
-        выводить только те поля-значения, которые есть у всех элементов (причем, 
-        совпадают и имя поля и значение.'''
-        
         if not (len(self.items) > 1):
             return
     
@@ -141,15 +131,21 @@ class ItemsDialog(QtGui.QDialog):
     
     
     def __readInCreateMode(self):
+        assert self.mode == ItemsDialog.CREATE_MODE
+        
         for item in self.items:
             if item.data_ref is not None and item.data_ref.type == DataRef.FILE:
                 self.group_has_files = True
                 break
             else:
                 self.group_has_files = False
-                #Maybe assert here?
+        
+        assert self.group_has_files, "You cannot CREATE a group of Items without files."
+    
     
     def __readInEditMode(self):
+        assert self.mode == ItemsDialog.EDIT_MODE
+        
         diff_values_html = self.tr("&lt;diff. values&gt;")
         
         tags_str = ""
@@ -209,12 +205,10 @@ class ItemsDialog(QtGui.QDialog):
             self.group_has_files = False
             self.ui.locationDirRelPath.setText(self.tr('<not applicable>'))
         elif same_path == 'yes':
-            #Все элементы, связанные с DataRef-ами типа FILE, находятся в ОДНОЙ директории
             self.group_has_files = True
             self.ui.locationDirRelPath.setText(self.dst_path)
         else:
-            #Элементы, связанные с DataRef-ами типа FILE, находятся в РАЗНЫХ директориях
-            self.dst_path = None #Обнуляем это поле
+            self.dst_path = None
             self.group_has_files = True
             self.ui.locationDirRelPath.setText(self.tr('<different values>'))
     
