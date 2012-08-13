@@ -215,6 +215,7 @@ class ItemsDialog(QtGui.QDialog):
             assert self.dst_path is None, "Because items' files are located in different directories."
             self.ui.locationDirRelPath.setText(self.tr('<different values>'))
     
+    #TODO: would be much better to return (groupHasAtLeastOneFile, filesInTheSamePath, thePath)
     def __checkIfAllTheItemsInTheSamePath(self, items):
         ''' Returns a tuple (answer, thePath), where
             answer - one of ['yes', 'no', None]. 'yes' means that some (maybe even all)
