@@ -240,6 +240,10 @@ class ItemsDialog(QtGui.QDialog):
                     samePath = 'no'
                     dstPath = None
                     break
+        
+        if samePath and len(dstPath.strip()) == 0:
+            dstPath = "."        
+        
         return (samePath, dstPath)
     
     
@@ -250,10 +254,9 @@ class ItemsDialog(QtGui.QDialog):
         # of the source will be copyied);
         #    b) in EDIT_MODE - files of repository will not be moved anywhere.
         if self.group_has_files:
-            
             self.__writeDataRefs()
             
-        self.__writeTagsAndFields()    
+        self.__writeTagsAndFields()
         
         
     def __writeDataRefs(self):
