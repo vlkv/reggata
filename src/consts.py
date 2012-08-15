@@ -22,7 +22,7 @@ Created on 04.10.2010
 
 @author: vlkv
 
-Модуль содержит различные константы.
+Module contains various constants.
 '''
 import os
 from user_config import UserConfig

@@ -24,9 +24,7 @@ Parser for text definition of tags and fields.
 
 import ply.yacc as yacc
 from parsers.definition_tokens import *
-import consts
 from exceptions import YaccError
-import helpers
 
 def p_definition_empty(p):
     '''definition :
@@ -73,9 +71,8 @@ def p_tag(p):
     p[0] = p[1]
 
 
-#Правило для определения действий в случае возникновения ошибки
 def p_error(p):
-    raise YaccError(helpers.tr("Syntax error in definition: {}").format(str(p)))
+    raise YaccError("Syntax error in '{}'".format(str(p)))
 
 #Строим лексический анализатор
 lexer = build_lexer()

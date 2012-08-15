@@ -27,7 +27,6 @@ from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, \
 import ply.yacc as yacc
 from parsers.query_tokens import *
 from exceptions import YaccError
-from PyQt4.QtCore import QCoreApplication
 
 def p_query(p):
     '''query : simple_query
@@ -205,10 +204,7 @@ def p_field_value(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    msg = QCoreApplication.translate(
-        "parsers", "Syntax error in the query: {}".format(str(p)), 
-        None, QCoreApplication.UnicodeUTF8)
-    raise YaccError(msg)
+    raise YaccError("Syntax error in '{}'".format(str(p)))
 
 
 lexer = build_lexer()

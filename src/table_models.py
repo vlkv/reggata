@@ -72,8 +72,9 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         self.query(self.query_text, self.limit, self.page)
         
     def query(self, query_text, limit=0, page=1):
-        '''Выполняет извлечение элементов из хранилища.'''
-        
+        '''
+        This function retrieves items from the database.
+        '''
         self.query_text = query_text
         self.limit = limit
         self.page = page
@@ -122,6 +123,10 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             self.thread.start()
                 
             self.reset()
+            
+        except (YaccError, LexError) as ex:
+            raise MsgException(self.tr("Error in the query. Detail info: {}").format(str(ex)))
+        
         finally:
             uow.close()
     

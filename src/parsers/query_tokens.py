@@ -103,10 +103,7 @@ t_ignore  = ' \t\n\r'
 
 # Error handling rule
 def t_error(t):
-    msg = QCoreApplication.translate(
-        "parsers", "Illegal character '{}'".format(t.value[0]), 
-        None, QCoreApplication.UnicodeUTF8)
-    raise LexError(msg)
+    raise LexError("Lexical error in '{}'".format(t.value[0]))
 
 
 def needs_quote(string):
