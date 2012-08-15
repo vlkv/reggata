@@ -55,7 +55,7 @@ class User(Base):
     
     def check_valid(self):
         if self.login is None or self.login=="":
-            raise ValueError(tr("Attribute User.login shouldn't be empty."))        
+            raise ValueError("Attribute User.login shouldn't be empty.")        
         return True
 
 
@@ -437,7 +437,7 @@ class Item(Base, memento.Serializable):
     def check_valid(self):
         '''Проверяет, что состояние объекта допустимое. Связи с другими объектами не учитываются.'''
         if self.title == "" or self.title is None:
-            raise Exception(tr("Attribute Item.title shouldn't be empty."))
+            raise Exception("Attribute Item.title shouldn't be empty.")
         return True
     
     def is_data_ref_null(self):
