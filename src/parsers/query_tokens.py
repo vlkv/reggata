@@ -23,7 +23,6 @@ Module contains a lexical analyzer of reggata query language.
 '''
 import ply.lex as lex
 import re
-import helpers
 from exceptions import LexError
 import consts
 from PyQt4.QtCore import QCoreApplication
@@ -104,9 +103,10 @@ t_ignore  = ' \t\n\r'
 
 # Error handling rule
 def t_error(t):
-    raise LexError(helpers.tr("Illegal character '{}'").format(t.value[0]))
-    #print("Illegal character '%s'" % t.value[0])
-    #t.lexer.skip(1) #Пропускаем текущий символ и переходим к следующему
+    msg = QCoreApplication.translate(
+        "parsers", "Illegal character '{}'".format(t.value[0]), 
+        None, QCoreApplication.UnicodeUTF8)
+    raise LexError(msg)
 
 
 def needs_quote(string):
