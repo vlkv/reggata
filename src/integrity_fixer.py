@@ -24,9 +24,12 @@ Created on 20.12.2010
 from db_schema import HistoryRec, Item, DataRef
 from exceptions import NotFoundError, WrongValueError
 import repo_mgr
-from helpers import tr, compute_hash
+from helpers import compute_hash
 import os
 import datetime
+
+
+#TODO: There is a lot of copypasted code in this module! The code should be cleaned up..
 
 
 class IntegrityFixer(object):
@@ -42,17 +45,17 @@ class IntegrityFixer(object):
         elif code == Item.ERROR_HISTORY_REC_NOT_FOUND:
             return HistoryRecNotFoundFixer(strategy, uow, repo_base_path, items_lock)
         else:
-            raise Exception(tr("There is no fixer class for item integrity error code {0}.").format(code))
+            assert False, "There is no fixer class for item integrity error code {0}.".format(code)
 
     def code(self):
         '''Returns code of error (as defined in db_schema.Item class) 
         which can be fixed by this XXXFixer class.'''
-        raise NotImplementedError(tr("This is an abstract class."))
+        raise NotImplementedError("This is an abstract class.")
     
     def fix_error(self, item, user_login):
         '''Method should return True, if error was successfully fixed, 
         else returns False.'''
-        raise NotImplementedError(tr("This is an abstract class."))
+        raise NotImplementedError("This is an abstract class.")
     
 class FileNotFoundFixer(IntegrityFixer):
     TRY_FIND = 0 #Искать оригинальный файл
@@ -61,7 +64,8 @@ class FileNotFoundFixer(IntegrityFixer):
     
     def __init__(self, strategy, uow, repo_base_path, items_lock):
         if strategy not in [self.TRY_FIND, self.TRY_FIND_ELSE_DELETE, self.DELETE]:
-            raise Exception(tr("Wrong strategy value {0}").format(strategy))
+            raise Exception("Wrong strategy value {0}".format(strategy))
+        
         self.strategy = strategy
         self.uow = uow
         self.repo_base_path = repo_base_path
@@ -73,14 +77,14 @@ class FileNotFoundFixer(IntegrityFixer):
     def fix_error(self, item, user_login):
         
         if item.data_ref is None:
-            raise Exception(tr("This item has no related files."))
+            raise Exception("This item has no related files.")
         
         if self.strategy == self.TRY_FIND:
             return self._try_find(item, user_login)
         elif self.strategy == self.DELETE:
             return self._delete(item, user_login)
         else:
-            raise Exception(tr("Not supported strategy = {0}.").format(self.strategy))
+            raise Exception("Not supported strategy = {0}.".format(self.strategy))
 
     def _delete(self, item, user_login):
         '''This method deletes item.data_ref object, which links to the lost file.
@@ -158,9 +162,9 @@ class FileNotFoundFixer(IntegrityFixer):
             rows = self.uow.session.query(DataRef).filter(DataRef.id==item.data_ref.id)\
                 .delete(synchronize_session=False)
             if rows == 0:
-                raise Exception(tr("Cannot delete data_ref object."))
+                raise Exception("Cannot delete data_ref object.")
             elif rows > 1:
-                raise Exception(tr("The query deleted {} data_ref objects (only one needed to)."))
+                raise Exception("The query deleted {} data_ref objects (but it should delete only one).")
         
         if bind_new_dr_to_item and new_dr is not None:
             item_0 = self.uow.session.query(Item).filter(Item.id==item.id).one()
@@ -173,7 +177,7 @@ class FileNotFoundFixer(IntegrityFixer):
             #Сохраняем в историю изменений запись о том, что data_ref был модифицирован
             parent_hr = repo_mgr.UnitOfWork._find_item_latest_history_rec(self.uow.session, item)
             if parent_hr is None:
-                raise Exception(tr("Please fix history rec error first."))
+                raise Exception("Please fix history rec error first.")
             hr = HistoryRec()
             hr.item_id = item.id
             hr.item_hash = item.hash()
@@ -207,7 +211,8 @@ class FileHashMismatchFixer(IntegrityFixer):
     
     def __init__(self, strategy, uow, repo_base_path, items_lock):
         if strategy not in [self.UPDATE_HASH, self.TRY_FIND_FILE]:
-            raise Exception(tr("Wrong strategy value {0}").format(strategy))
+            raise Exception("Wrong strategy value {0}".format(strategy))
+        
         self.strategy = strategy
         self.uow = uow
         self.repo_base_path = repo_base_path
@@ -280,9 +285,9 @@ class FileHashMismatchFixer(IntegrityFixer):
             rows = self.uow.session.query(DataRef).filter(DataRef.id==item.data_ref.id)\
                 .delete(synchronize_session=False)
             if rows == 0:
-                raise Exception(tr("Cannot delete data_ref object."))
+                raise Exception("Cannot delete data_ref object.")
             elif rows > 1:
-                raise Exception(tr("The query deleted {} data_ref objects (only one needed to)."))
+                raise Exception("The query deleted {} data_ref objects (it should delete only one).")
                     
         if bind_new_dr_to_item and new_dr is not None:
             item_0 = self.uow.session.query(Item).filter(Item.id==item.id).one()
@@ -293,7 +298,8 @@ class FileHashMismatchFixer(IntegrityFixer):
             #Сохраняем в историю изменений запись о том, что data_ref был модифицирован
             parent_hr = repo_mgr.UnitOfWork._find_item_latest_history_rec(self.uow.session, item)
             if parent_hr is None:
-                raise Exception(tr("Please fix history rec error first."))
+                raise Exception("Please fix history rec error first.")
+            
             hr = HistoryRec()
             hr.item_id = item.id
             hr.item_hash = item.hash()
@@ -330,7 +336,8 @@ class FileHashMismatchFixer(IntegrityFixer):
         #Извлекаем копию data_ref из БД, данный объект будет принадлежать текущей сессии
         data_ref = self.uow.session.query(DataRef).get(item.data_ref.id)
         if data_ref.hash == new_hash and data_ref.size == new_size:
-            raise Exception(tr("This item.data_ref already has correct hash and size values."))
+            raise Exception("This item.data_ref already has correct hash and size values.")
+        
         #Меняем только эти три поля!
         data_ref.hash = new_hash
         data_ref.size = new_size
@@ -340,7 +347,8 @@ class FileHashMismatchFixer(IntegrityFixer):
         #Сохраняем в историю изменений запись о том, что data_ref был модифицирован
         parent_hr = repo_mgr.UnitOfWork._find_item_latest_history_rec(self.uow.session, item)
         if parent_hr is None:
-            raise Exception(tr("Please fix history rec error first."))
+            raise Exception("Please fix history rec error first.")
+        
         hr = HistoryRec()
         hr.item_id = item.id
         hr.item_hash = item.hash()
@@ -366,14 +374,14 @@ class FileHashMismatchFixer(IntegrityFixer):
     def fix_error(self, item, user_login):
         
         if item.data_ref is None:
-            raise Exception(tr("This item has no related files."))
+            raise Exception("This item has no related files.")
         
         if self.strategy == self.UPDATE_HASH:
             return self._update_hash(item, user_login)
         elif self.strategy == self.TRY_FIND_FILE:
             return self._try_find_file(item, user_login)
         else:
-            raise Exception(tr("Not supported strategy = {0}.").format(self.strategy))
+            raise Exception("Not supported strategy = {0}.".format(self.strategy))
 
 class HistoryRecNotFoundFixer(IntegrityFixer):
     TRY_PROCEED = 0 #Попытаться найти историю элемента и привязаться к ней
@@ -382,7 +390,8 @@ class HistoryRecNotFoundFixer(IntegrityFixer):
     
     def __init__(self, strategy, uow, repo_base_path, items_lock):
         if strategy not in [self.TRY_PROCEED, self.TRY_PROCEED_ELSE_RENEW]:
-            raise Exception(tr("Wrong strategy value {0}").format(strategy))
+            raise Exception("Wrong strategy value {0}".format(strategy))
+        
         self.strategy = strategy
         self.uow = uow
     
@@ -407,10 +416,10 @@ class HistoryRecNotFoundFixer(IntegrityFixer):
             .order_by(HistoryRec.id.desc()).first()
             
         if parent_hr is None:
-            raise NotFoundError(tr("Cannot find candidate for a parent history record."))
+            raise NotFoundError("Cannot find candidate for a parent history record.")
         
         if parent_hr.operation not in [HistoryRec.UPDATE, HistoryRec.MERGE]:
-            raise WrongValueError(tr("Cannot find candidate for a parent history record."))
+            raise WrongValueError("Cannot find candidate for a parent history record.")
         
         hr = HistoryRec()
         hr.item_id = item.id
@@ -429,7 +438,7 @@ class HistoryRecNotFoundFixer(IntegrityFixer):
     def fix_error(self, item, user_login):
         hr = repo_mgr.UnitOfWork._find_item_latest_history_rec(self.uow.session, item)
         if hr is not None:
-            raise Exception(tr("Item is already ok."))
+            raise Exception("Item is already ok.")
         
         if self.strategy == self.RENEW:
             return self._renew(item, user_login)
@@ -441,7 +450,7 @@ class HistoryRecNotFoundFixer(IntegrityFixer):
             except (NotFoundError, WrongValueError):
                 return self._renew(item, user_login)
         else:
-            raise Exception(tr("Not supported strategy = {0}.").format(self.strategy))
+            raise Exception("Not supported strategy = {0}.".format(self.strategy))
     
        
         
