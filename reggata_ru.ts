@@ -6,267 +6,267 @@
     <message>
         <location filename="src/helpers.py" line="97"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Информация</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="861"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="312"/>
         <source>UNTRACKED</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="src/commands.py" line="313"/>
         <source>STORED</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="src/commands.py" line="414"/>
         <source>User login cannot be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Логин пользователя не может быть пустым.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="432"/>
         <source>User {} doesn&apos;t exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователь {} не существует.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="419"/>
         <source>Password incorrect.</source>
-        <translation type="unfinished"></translation>
+        <translation>Пароль неверный.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="618"/>
         <source>Cannot delete item id={0} because it is owned by another user {1}.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось удалить элемент id={0}, потому что он принадлежит пользователю {1}.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="622"/>
         <source>Cannot delete item id={0} because another user tagged it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Невозможно удалить элемент id={0}, потому что другой пользователь пометил его своими тегами.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="626"/>
         <source>Cannot delete item id={0} because another user attached a field to it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Невозможно удалить элемент id={0}, потому что другой пользователь добавил к нему свои поля.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="631"/>
         <source>Cannot find corresponding history record for item id={0}.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удается найти соответствующую запись истории для элемента id={0}.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="726"/>
         <source>srcAbsPath must be an absolute path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Путь srcAbsPath должен быть абсолютным.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="729"/>
         <source>srcAbsPath must point to an existing file.</source>
-        <translation type="unfinished"></translation>
+        <translation>srcAbsPath должен указывать на существующий файл.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="732"/>
         <source>dstRelPath must be a relative to repository root path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Путь dstRelPath должен быть относительным к корню хранилища.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="739"/>
         <source>{} should not point to an existing file.</source>
-        <translation type="unfinished"></translation>
+        <translation>{} не должен указывать на существующий файл.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="744"/>
         <source>DataRef instance with url=&apos;{}&apos; already in database. </source>
-        <translation type="unfinished"></translation>
+        <translation>Экземпляр DataRef url=&apos;{}&apos; уже присутствует в базе данных.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="749"/>
         <source>Argument user_login shouldn&apos;t be null or empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Аргумент user_login не должен быть пустым.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="753"/>
         <source>User with login {} doesn&apos;t exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователь {} не существует.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="871"/>
         <source>HistoryRec for Item object id={0} not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>HistoryRec для элемента id={0} не найден.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="1003"/>
         <source>File {0} not found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл {0} не найден!</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="1006"/>
         <source>Pathname {0} already exists. File {1} would not be moved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Путь {0} уже существует. Файл {1} не может быть перемещен.</translation>
     </message>
     <message>
         <location filename="src/commands.py" line="1010"/>
         <source>Destination path {0} should be different from item&apos;s DataRef.url {1}</source>
-        <translation type="unfinished"></translation>
+        <translation>Путь назначения {0} должен отличаться от DataRef.url {1}</translation>
     </message>
     <message>
         <location filename="src/db_schema.py" line="58"/>
         <source>Attribute User.login shouldn&apos;t be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Атрибут User.login не должен быть пустым.</translation>
     </message>
     <message>
         <location filename="src/db_schema.py" line="257"/>
         <source>No errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет ошибок</translation>
     </message>
     <message>
         <location filename="src/db_schema.py" line="262"/>
         <source>err_{0}: file has changed (hash/size mismatch)</source>
-        <translation type="unfinished"></translation>
+        <translation>err_{0}: файл изменился (несовпадение хеша)</translation>
     </message>
     <message>
         <location filename="src/db_schema.py" line="264"/>
         <source>err_{0}: file not found</source>
-        <translation type="unfinished"></translation>
+        <translation>err_{0}: файл не найден</translation>
     </message>
     <message>
         <location filename="src/db_schema.py" line="266"/>
         <source>err_{0}: item&apos;s history record not found</source>
-        <translation type="unfinished"></translation>
+        <translation>err_{0}: история для элемента не найдена</translation>
     </message>
     <message>
         <location filename="src/db_schema.py" line="270"/>
         <source>Item integrity isn&apos;t checked yet</source>
-        <translation type="unfinished"></translation>
+        <translation>Целостность элемента еще не проверена</translation>
     </message>
     <message>
         <location filename="src/db_schema.py" line="440"/>
         <source>Attribute Item.title shouldn&apos;t be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Атрибут Item.title не должен быть пустым.</translation>
     </message>
     <message>
         <location filename="src/ext_app_mgr.py" line="58"/>
         <source>File extension {} cannot be in more than one file_type group.</source>
-        <translation type="unfinished"></translation>
+        <translation>Расширение {} не может присутствовать более чем в одной file_type группе.</translation>
     </message>
     <message>
         <location filename="src/ext_app_mgr.py" line="69"/>
         <source>File type is not defined for {0} file extension. Edit your {1} file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип группы файлов не определен для расширения {0}. Отредактируйте свой файл {1}.</translation>
     </message>
     <message>
         <location filename="src/ext_app_mgr.py" line="73"/>
         <source>Command for file_type {0} not found. Edit your {1} file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Команда для file_type {0} не найдена. Отредактируйте свой {1} файл.</translation>
     </message>
     <message>
         <location filename="src/ext_app_mgr.py" line="86"/>
         <source>No external file manager command is set. Please edit your reggata.conf configuration file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не задано команды запуска внешнего файлового менеджера. Пожалуйста, отредактируйте свой reggata.conf файл.</translation>
     </message>
     <message>
         <location filename="src/helpers.py" line="180"/>
         <source>is_none_or_empty() can be applied only to str objects.</source>
-        <translation type="unfinished"></translation>
+        <translation>is_none_or_empty() может применяться только к экземплярам str.</translation>
     </message>
     <message>
         <location filename="src/helpers.py" line="189"/>
         <source>base_path cannot be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>base_path не может быть пустой.</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="45"/>
         <source>There is no fixer class for item integrity error code {0}.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не найдено fixer класса для ошибки целостности с кодом {0}.</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="55"/>
         <source>This is an abstract class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Это абстрактный класс.</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="385"/>
         <source>Wrong strategy value {0}</source>
-        <translation type="unfinished"></translation>
+        <translation>Неверное значение стратегии {0}</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="369"/>
         <source>This item has no related files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Данный элемент не имеет связанных файлов.</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="444"/>
         <source>Not supported strategy = {0}.</source>
-        <translation type="unfinished"></translation>
+        <translation>Данная стратегия {0} не поддерживается.</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="283"/>
         <source>Cannot delete data_ref object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удается удалить data_ref объект.</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="285"/>
         <source>The query deleted {} data_ref objects (only one needed to).</source>
-        <translation type="unfinished"></translation>
+        <translation>Запрос удалил {} data_ref объектов (а нужно было только один).</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="343"/>
         <source>Please fix history rec error first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Исправьте сначала ошибки истории.</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="333"/>
         <source>This item.data_ref already has correct hash and size values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Данный item.data_ref уже имеет корректный хеш и размер.</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="413"/>
         <source>Cannot find candidate for a parent history record.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не получается найти кандидата для родительской исторической записи.</translation>
     </message>
     <message>
         <location filename="src/integrity_fixer.py" line="432"/>
         <source>Item is already ok.</source>
-        <translation type="unfinished"></translation>
+        <translation>Элемент и так уже в порядке.</translation>
     </message>
     <message>
         <location filename="src/repo_mgr.py" line="48"/>
         <source>Directory {} is not a repository base path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Директория {} не является корнем хранилища.</translation>
     </message>
     <message>
         <location filename="src/repo_mgr.py" line="85"/>
         <source>Directory {} doesn&apos;t exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Директория {} не существует.</translation>
     </message>
     <message>
         <location filename="src/repo_mgr.py" line="88"/>
         <source>It looks like {} is already a repository base path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Похоже, что {} директория уже является корнем хранилища.</translation>
     </message>
     <message>
         <location filename="src/repo_mgr.py" line="182"/>
         <source>Argument operation cannot be None.</source>
-        <translation type="unfinished"></translation>
+        <translation>Аргумент operation не может быть пустым.</translation>
     </message>
     <message>
         <location filename="src/repo_mgr.py" line="185"/>
         <source>Argument parent1_id cannot be None in CREATE operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Аргумент parent1_id не может быть пустым в операции CREATE.</translation>
     </message>
     <message>
         <location filename="src/tag_cloud.py" line="45"/>
         <source>Incorrect range, src_range[0] must be less then src_range[1].</source>
-        <translation type="unfinished"></translation>
+        <translation>Некорректный диапазон, src_range[0] должен быть меньше, чем src_range[1].</translation>
     </message>
     <message>
         <location filename="src/tag_cloud.py" line="48"/>
         <source>Incorrect range, dst_range[0] must be less then dst_range[1].</source>
-        <translation type="unfinished"></translation>
+        <translation>Некорректный диапазон, dst_range[0] должен быть меньше, чем dst_range[1].</translation>
     </message>
 </context>
 <context>
@@ -372,7 +372,7 @@
     <message>
         <location filename="src/action_handlers.py" line="830"/>
         <source>There are no selected items.</source>
-        <translation>Нет выбранных элементов</translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="842"/>
@@ -746,42 +746,42 @@
     <message>
         <location filename="src/item_dialog.py" line="68"/>
         <source>Parent must be an instance of MainWindow class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Parent должен быть экземпляром класса MainWindow.</translation>
     </message>
     <message>
         <location filename="src/item_dialog.py" line="125"/>
         <source>Unknown reserved field name &apos;{}&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестное зарезервированное имя поля &apos;{}&apos;</translation>
     </message>
     <message>
         <location filename="src/item_dialog.py" line="166"/>
         <source>Field name &apos;{}&apos; is reserved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя поля &apos;{}&apos; разерервировано.</translation>
     </message>
     <message>
         <location filename="src/item_dialog.py" line="227"/>
         <source>self.mode has bad value.</source>
-        <translation type="unfinished"></translation>
+        <translation>self.mode имеет недопустимое значение.</translation>
     </message>
     <message>
         <location filename="src/item_dialog.py" line="239"/>
         <source>Select a file to link with the Item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите файл, чтобы привязать его к элементу.</translation>
     </message>
     <message>
         <location filename="src/item_dialog.py" line="265"/>
         <source>You must add a Data Reference first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы должны сначала добавить файл.</translation>
     </message>
     <message>
         <location filename="src/item_dialog.py" line="267"/>
         <source>Select destination path within repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите путь назначения внутри хранилища</translation>
     </message>
     <message>
         <location filename="src/item_dialog.py" line="276"/>
         <source>Chosen directory is out of active repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбранная директория не находится внутри хранилища.</translation>
     </message>
 </context>
 <context>
@@ -789,112 +789,112 @@
     <message>
         <location filename="ui/itemsdialog.ui" line="14"/>
         <source>ItemsDialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Элементы хранилища</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="22"/>
         <source>Number of items: </source>
-        <translation type="unfinished"></translation>
+        <translation>Количество элементов:</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="29"/>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="53"/>
         <source>Location in repository:</source>
-        <translation type="unfinished"></translation>
+        <translation>Размещение файла в хранилище:</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="60"/>
         <source>Path where to put the files in the repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите директорию, где Вы желаете разместить файлы.</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="70"/>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="83"/>
         <source>Fields:</source>
-        <translation type="unfinished"></translation>
+        <translation>Поля:</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="94"/>
         <source>Tags:</source>
-        <translation type="unfinished"></translation>
+        <translation>Теги:</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="109"/>
         <source>Fields to add:</source>
-        <translation type="unfinished"></translation>
+        <translation>Поля для добавления:</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="120"/>
         <source>Tags to add:</source>
-        <translation type="unfinished"></translation>
+        <translation>Теги для добавления:</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="135"/>
         <source>Field names to remove:</source>
-        <translation type="unfinished"></translation>
+        <translation>Имена полей для удаления:</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="146"/>
         <source>Tags to remove:</source>
-        <translation type="unfinished"></translation>
+        <translation>Теги для удаления:</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="63"/>
         <source>ItemsDialog cannot operate with one or zero Item objects.</source>
-        <translation type="unfinished"></translation>
+        <translation>Диалог не может оперировать менее чем с двумя элементами.</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="113"/>
         <source>ItemsDialog does not support DialogMode = {}.</source>
-        <translation type="unfinished"></translation>
+        <translation>Диалог не поддерживает режим={}.</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="149"/>
         <source>&amp;lt;diff. values&amp;gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;lt;diff. values&amp;gt;</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="206"/>
         <source>&lt;no files&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;нет файлов&gt;</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="216"/>
         <source>&lt;different values&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;различ. значения&gt;</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="326"/>
         <source>Tags {} cannot be in both add and remove lists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Теги {} не могут присутствовать одновременно в списках на добавление и удаление.</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="335"/>
         <source>Fields {} cannot be in both add and remove lists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Поля {} не могут присутствовать одновременно в списках на добавление и удаление.</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="362"/>
         <source>Selected group of items doesn&apos;t reference any physical files on filesysem.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбранная группа элементов не ссылается на файлы.</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="365"/>
         <source>Select destination path within repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите путь назначения внутри хранилища</translation>
     </message>
     <message>
         <location filename="src/items_dialog.py" line="371"/>
         <source>Chosen directory is out of opened repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбранная директория не находится внутри хранилища.</translation>
     </message>
 </context>
 <context>
@@ -902,42 +902,42 @@
     <message>
         <location filename="ui/itemstabledockwidget.ui" line="14"/>
         <source>Items Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Таблица элементов</translation>
     </message>
     <message>
         <location filename="ui/itemstabledockwidget.ui" line="23"/>
         <source>Query:</source>
-        <translation type="unfinished"></translation>
+        <translation>Запрос:</translation>
     </message>
     <message>
         <location filename="ui/itemstabledockwidget.ui" line="33"/>
         <source>Execute</source>
-        <translation type="unfinished"></translation>
+        <translation>Выполнить</translation>
     </message>
     <message>
         <location filename="ui/itemstabledockwidget.ui" line="40"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Сброс</translation>
     </message>
     <message>
         <location filename="ui/itemstabledockwidget.ui" line="47"/>
         <source>Limit:</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать:</translation>
     </message>
     <message>
         <location filename="ui/itemstabledockwidget.ui" line="54"/>
         <source>Maximum number of rows per page to display (0 - no limit).</source>
-        <translation type="unfinished"></translation>
+        <translation>Максимальное кол-во элементов на &quot;странице&quot; (0 - без ограничения).</translation>
     </message>
     <message>
         <location filename="ui/itemstabledockwidget.ui" line="67"/>
         <source>Page:</source>
-        <translation type="unfinished"></translation>
+        <translation>Страница:</translation>
     </message>
     <message>
         <location filename="src/items_table_dock_widget.py" line="58"/>
         <source>Items Table Widget has no Model.</source>
-        <translation type="unfinished"></translation>
+        <translation>Виджет не имеет модели.</translation>
     </message>
 </context>
 <context>
@@ -945,257 +945,257 @@
     <message>
         <location filename="ui/mainwindow.ui" line="14"/>
         <source>Reggata</source>
-        <translation type="unfinished"></translation>
+        <translation>Reggata</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="37"/>
         <source>&amp;Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Хранилище</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="45"/>
         <source>&amp;User</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Пользователь</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="54"/>
         <source>&amp;Item</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Элемент</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="58"/>
         <source>Fix integrity errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Исправление ошибок целостности</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="62"/>
         <source>Fix file changed error</source>
-        <translation type="unfinished"></translation>
+        <translation>Исправить ошибку &quot;файл изменился&quot;</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="69"/>
         <source>Fix file not found error</source>
-        <translation type="unfinished"></translation>
+        <translation>Исправить ошибку &quot;файл не найден&quot;</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="80"/>
         <source>Export items</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать элементы</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="88"/>
         <source>Import Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортировать элементы</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="113"/>
         <source>&amp;Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Инс&amp;трументы</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="118"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Помощь</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="131"/>
         <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation>Создать &amp;новое</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="136"/>
         <source>&amp;Open</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Открыть</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="141"/>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Закрыть</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="146"/>
         <source>Add &amp;one</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить &amp;один</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="151"/>
         <source>&amp;Create</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Создать</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="156"/>
         <source>&amp;Login</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Войти</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="161"/>
         <source>Log&amp;out</source>
-        <translation type="unfinished"></translation>
+        <translation>В&amp;ыйти</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="166"/>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Изменить</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="171"/>
         <source>Add &amp;many</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить несколько</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="176"/>
         <source>Change &amp;password</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить &amp;пароль</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="181"/>
         <source>&amp;View with external app</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть внешним приложением</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="186"/>
         <source>Add many &amp;recursively</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить из директории рекурсивно</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="191"/>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="196"/>
         <source>Create m3u playlist and open it</source>
-        <translation type="unfinished"></translation>
+        <translation>Создать m3u плейлист и открыть его</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="201"/>
         <source>About Reggata</source>
-        <translation type="unfinished"></translation>
+        <translation>О программе Reggata</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="206"/>
         <source>View images with built-in viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть изображения встроенным просмотрщиком</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="211"/>
         <source>Check &amp;integrity</source>
-        <translation type="unfinished"></translation>
+        <translation>Проверить целостность</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="216"/>
         <source>Fix history rec error</source>
-        <translation type="unfinished"></translation>
+        <translation>Исправить ошибку &quot;не найдена история&quot;</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="231"/>
         <source>Try find file</source>
-        <translation type="unfinished"></translation>
+        <translation>Попытаться найти файл</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="226"/>
         <source>Update hash</source>
-        <translation type="unfinished"></translation>
+        <translation>Вычислить заново хеш файла</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="236"/>
         <source>Delete item&apos;s reference to file</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить ссылки на файлы из элементов</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="241"/>
         <source>Rebuild &amp;thumbnail</source>
-        <translation type="unfinished"></translation>
+        <translation>Перегенерировать миниатюры</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="246"/>
         <source>Open external file manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть внешний файловый менеджер</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="251"/>
         <source>Export items files only</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать только файлы</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="256"/>
         <source>Export file paths as txt file</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать пути к файлам в txt</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="261"/>
         <source>Export items (files with metadata)</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать элементы</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="264"/>
         <source>Export items with files and metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать элементы вместе с файлами и метаданными (тегами, полями и проч.)</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="269"/>
         <source>Import items (files with metadata)</source>
-        <translation type="unfinished"></translation>
+        <translation>Импорт элементов</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="80"/>
         <source>Repository:</source>
-        <translation type="unfinished"></translation>
+        <translation>Хранилище:</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="82"/>
         <source>User:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователь:</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="98"/>
         <source>Tag cloud</source>
-        <translation type="unfinished"></translation>
+        <translation>Облако тегов</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="114"/>
         <source>File browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Браузер файлов</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="128"/>
         <source>Cannot open recent repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не получается открыть последнее хранилище.</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="131"/>
         <source>Cannot login recent repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не получается войти в последнее хранилище.</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="134"/>
         <source>Cannot open/login recent repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не получается открыть/войти в последнее хранилище.</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="334"/>
         <source>Argument must be an instance of User class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Аргумент должен быть экземпляром класса User.</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="364"/>
         <source>Argument must be of RepoMgr class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Арумент должен быть экземпляром RepoMgr.</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="379"/>
         <source>Opened repository from {}.</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыто хранилище из {}.</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="422"/>
         <source>Open a repository first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сначала откройте хранилище.</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="426"/>
         <source>Login to a repository first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сначала войдите в хранилище.</translation>
     </message>
 </context>
 <context>
@@ -1203,17 +1203,17 @@
     <message>
         <location filename="src/action_handlers.py" line="528"/>
         <source>Select one item, please.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите один элемент, пожалуйста.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="533"/>
         <source>Action &apos;View item&apos; can be applied only to items linked with files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Действие &apos;Открыть элемент&apos; может применяться только к тем элементам, с которыми связаны файлы.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="541"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -1221,12 +1221,12 @@
     <message>
         <location filename="src/action_handlers.py" line="619"/>
         <source>Select one item, please.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите один элемент, пожалуйста.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="624"/>
         <source>This action can be applied only to the items linked with files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Действие может применяться только к тем элементам, с которыми связаны файлы.</translation>
     </message>
 </context>
 <context>
@@ -1234,12 +1234,12 @@
     <message>
         <location filename="src/action_handlers.py" line="554"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="577"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -1247,12 +1247,12 @@
     <message>
         <location filename="src/action_handlers.py" line="187"/>
         <source>Choose a repository base path</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите корневую директорию хранилища</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="191"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы не выбрали существующую директорию. Операция отменена.</translation>
     </message>
 </context>
 <context>
@@ -1260,17 +1260,17 @@
     <message>
         <location filename="src/action_handlers.py" line="435"/>
         <source>Rebuilding thumbnails ({0}%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Перегенерация миниатюр ({0}%)</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="447"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="src/action_handlers.py" line="463"/>
         <source>Rebuild thumbnails is done.</source>
-        <translation type="unfinished"></translation>
+        <translation>Перегенерация миниатюр выполнена.</translation>
     </message>
 </context>
 <context>
@@ -1278,57 +1278,57 @@
     <message>
         <location filename="src/table_models.py" line="142"/>
         <source>Id</source>
-        <translation type="unfinished"></translation>
+        <translation>Id</translation>
     </message>
     <message>
         <location filename="src/table_models.py" line="144"/>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Заголовок</translation>
     </message>
     <message>
         <location filename="src/table_models.py" line="146"/>
         <source>Thumbnail</source>
-        <translation type="unfinished"></translation>
+        <translation>Миниатюра</translation>
     </message>
     <message>
         <location filename="src/table_models.py" line="148"/>
         <source>Tags</source>
-        <translation type="unfinished"></translation>
+        <translation>Теги</translation>
     </message>
     <message>
         <location filename="src/table_models.py" line="150"/>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>Состояние</translation>
     </message>
     <message>
         <location filename="src/table_models.py" line="152"/>
         <source>Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Рейтинг</translation>
     </message>
     <message>
         <location filename="src/table_models.py" line="198"/>
         <source>Checksum (hash): {}</source>
-        <translation type="unfinished"></translation>
+        <translation>Контрольная сумма (хеш): {}</translation>
     </message>
     <message>
         <location filename="src/table_models.py" line="199"/>
         <source>File size: {} bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Размер файла: {} байт</translation>
     </message>
     <message>
         <location filename="src/table_models.py" line="200"/>
         <source>Date hashed: {}</source>
-        <translation type="unfinished"></translation>
+        <translation>Дата вычисления хеша: {}</translation>
     </message>
     <message>
         <location filename="src/table_models.py" line="201"/>
         <source>Created by: {}</source>
-        <translation type="unfinished"></translation>
+        <translation>Создан пользователем: {}</translation>
     </message>
     <message>
         <location filename="src/table_models.py" line="202"/>
         <source>Date created: {}</source>
-        <translation type="unfinished"></translation>
+        <translation>Дата создания: {}</translation>
     </message>
 </context>
 <context>
@@ -1336,32 +1336,32 @@
     <message>
         <location filename="src/tag_cloud.py" line="219"/>
         <source>AND Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>AND Тег</translation>
     </message>
     <message>
         <location filename="src/tag_cloud.py" line="222"/>
         <source>AND NOT Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>AND NOT Тег</translation>
     </message>
     <message>
         <location filename="src/tag_cloud.py" line="225"/>
         <source>Limit number of tags</source>
-        <translation type="unfinished"></translation>
+        <translation>Ограничение количества тегов</translation>
     </message>
     <message>
         <location filename="src/tag_cloud.py" line="252"/>
         <source>There is no selected text in tag cloud.</source>
-        <translation type="unfinished"></translation>
+        <translation>В облаке тегов нет выделенного текста.</translation>
     </message>
     <message>
         <location filename="src/tag_cloud.py" line="262"/>
         <source>Reggata input dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Диалог ввода</translation>
     </message>
     <message>
         <location filename="src/tag_cloud.py" line="262"/>
         <source>Enter new value for maximum number of tags in the cloud (0 - unlimited).</source>
-        <translation type="unfinished"></translation>
+        <translation>Введите новое значение для максимального количества отображаемых в облаке тегов (0 - не ограничено).</translation>
     </message>
 </context>
 <context>
@@ -1369,62 +1369,62 @@
     <message>
         <location filename="ui/userdialog.ui" line="13"/>
         <source>Repository user</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователь хранилища</translation>
     </message>
     <message>
         <location filename="ui/userdialog.ui" line="21"/>
         <source>Login:</source>
-        <translation type="unfinished"></translation>
+        <translation>Логин:</translation>
     </message>
     <message>
         <location filename="ui/userdialog.ui" line="31"/>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пароль:</translation>
     </message>
     <message>
         <location filename="ui/userdialog.ui" line="48"/>
         <source>Group:</source>
-        <translation type="unfinished"></translation>
+        <translation>Группа:</translation>
     </message>
     <message>
         <location filename="ui/userdialog.ui" line="56"/>
         <source>USER</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="ui/userdialog.ui" line="61"/>
         <source>ADMIN</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="ui/userdialog.ui" line="69"/>
         <source>Repeat password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Повторите пароль:</translation>
     </message>
     <message>
         <location filename="src/user_dialog.py" line="40"/>
         <source>Argument user must be a User class instance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Аргумент user должен быть экземпляром класса User.</translation>
     </message>
     <message>
         <location filename="src/user_dialog.py" line="58"/>
         <source>Create new repository user</source>
-        <translation type="unfinished"></translation>
+        <translation>Создание нового пользователя хранилища</translation>
     </message>
     <message>
         <location filename="src/user_dialog.py" line="61"/>
         <source>Repository login</source>
-        <translation type="unfinished"></translation>
+        <translation>Логин в хранилище</translation>
     </message>
     <message>
         <location filename="src/user_dialog.py" line="69"/>
         <source>Mode={} is not supported by this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим={} не поддерживается данным диалогом.</translation>
     </message>
     <message>
         <location filename="src/user_dialog.py" line="77"/>
         <source>Entered passwords do not match.</source>
-        <translation type="unfinished"></translation>
+        <translation>Введенные пароли не совпадают.</translation>
     </message>
 </context>
 <context>
@@ -1432,17 +1432,17 @@
     <message>
         <location filename="src/common_widgets.py" line="36"/>
         <source>Please, wait...</source>
-        <translation type="unfinished"></translation>
+        <translation>Пожалуйста, ждите...</translation>
     </message>
     <message>
         <location filename="src/common_widgets.py" line="71"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка</translation>
     </message>
     <message>
         <location filename="src/common_widgets.py" line="72"/>
         <source>Operation cannot proceed because of the raised exception.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция не может продолжаться из-за возникшей исключительной ситуации.</translation>
     </message>
 </context>
 <context>
@@ -1450,62 +1450,62 @@
     <message>
         <location filename="src/parsers/definition_parser.py" line="78"/>
         <source>Syntax error in definition: {}</source>
-        <translation type="unfinished"></translation>
+        <translation>Синтаксическая ошибка в определении: {}</translation>
     </message>
     <message>
         <location filename="src/parsers/query_tokens.py" line="108"/>
         <source>Illegal character &apos;{}&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Недопустимый символ &apos;{}&apos;</translation>
     </message>
     <message>
         <location filename="src/parsers/query_parser.py" line="65"/>
         <source>len(p) has incorrect value.</source>
-        <translation type="unfinished"></translation>
+        <translation>len(p) имеет некорректное значение.</translation>
     </message>
     <message>
         <location filename="src/parsers/query_parser.py" line="214"/>
         <source>Syntax error in the query: {}</source>
-        <translation type="unfinished"></translation>
+        <translation>Синтаксическая ошибка в запросе: {}</translation>
     </message>
     <message>
         <location filename="src/parsers/query_tokens.py" line="31"/>
         <source>and</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="src/parsers/query_tokens.py" line="32"/>
         <source>or</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="src/parsers/query_tokens.py" line="33"/>
         <source>not</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="src/parsers/query_tokens.py" line="34"/>
         <source>user</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="src/parsers/query_tokens.py" line="35"/>
         <source>path</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="src/parsers/query_tokens.py" line="36"/>
         <source>title</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="src/parsers/query_tree_nodes.py" line="37"/>
         <source>This is an abstract method.</source>
-        <translation type="unfinished"></translation>
+        <translation>Это абстрактный метод.</translation>
     </message>
     <message>
         <location filename="src/parsers/query_tree_nodes.py" line="134"/>
         <source>Unexpected type of extra_clause {}</source>
-        <translation type="unfinished"></translation>
+        <translation>Неожиданный тип extra_clause {}</translation>
     </message>
 </context>
 </TS>
