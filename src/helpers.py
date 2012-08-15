@@ -23,8 +23,6 @@ Created on 04.10.2010
 
 Модуль, содержащий различные вспомогательные глобальные функции.
 
-Содержит функцию tr() для более удобного вызова QCoreApplication.translate().
-А функции Object.tr() рекомендуется в PyQt не использовать вообще.
 '''
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
@@ -42,10 +40,10 @@ import consts
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
-def tr(text):
-    '''Translates text of GUI to foreign languages.'''
-    s = QCoreApplication.translate("@default", str(text), None, QCoreApplication.UnicodeUTF8)
-    return s
+#def tr(text):
+#    '''Translates text of GUI to foreign languages.'''
+#    s = QCoreApplication.translate("@default", str(text), None, QCoreApplication.UnicodeUTF8)
+#    return s
 
 class MyMessageBox(QtGui.QMessageBox):
     '''This MessageBox window can be resized with a mouse. Standard QMessageBox
