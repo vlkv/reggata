@@ -26,7 +26,7 @@ import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey, orm
-from helpers import tr, is_none_or_empty
+from helpers import is_none_or_empty
 import datetime
 import os
 import platform
@@ -254,20 +254,20 @@ class Item(Base, memento.Serializable):
         
         if error_set is not None:
             if len(error_set) == 0:
-                s = tr("No errors")
+                s = "No errors"
             else:
                 s = ""
                 for error in error_set:
                     if error == Item.ERROR_FILE_HASH_MISMATCH:
-                        s += tr("err_{0}: file has changed (hash/size mismatch)").format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
+                        s += "err_{0}: file has changed (hash/size mismatch)".format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
                     elif error == Item.ERROR_FILE_NOT_FOUND:
-                        s += tr("err_{0}: file not found").format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
+                        s += "err_{0}: file not found".format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
                     elif error == Item.ERROR_HISTORY_REC_NOT_FOUND:
-                        s += tr("err_{0}: item's history record not found").format(Item.ERROR_HISTORY_REC_NOT_FOUND) + os.linesep
+                        s += "err_{0}: item's history record not found".format(Item.ERROR_HISTORY_REC_NOT_FOUND) + os.linesep
                 if s.endswith(os.linesep):
                     s = s[:-1]
         else:
-            s = tr("Item integrity isn't checked yet")
+            s = "Item integrity isn't checked yet"
             
         return s
     
