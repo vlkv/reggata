@@ -55,7 +55,7 @@ class ExtAppMgr(object):
             for ext in ext_list:
                 ext = ext.lower()
                 if ext in self.extensions.keys():
-                    msg = QCoreApplication.translate("ext_app_mgr", 
+                    msg = QCoreApplication.translate("ext_app_mgr",
                         "File extension {} cannot be in more than one file_type group.", 
                         None, QCoreApplication.UnicodeUTF8)
                     raise ValueError(msg.format(ext))
