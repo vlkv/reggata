@@ -22,13 +22,13 @@ Created on 05.12.2010
 @author: vlkv
 '''
 from user_config import UserConfig
-from helpers import tr
 import os
 import consts
 import subprocess
 import shlex
 from exceptions import MsgException
 import logging
+from PyQt4.QtCore import QCoreApplication 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -55,7 +55,10 @@ class ExtAppMgr(object):
             for ext in ext_list:
                 ext = ext.lower()
                 if ext in self.extensions.keys():
-                    raise ValueError(tr("File extension {} cannot be in more than one file_type group.").format(ext))
+                    msg = QCoreApplication.translate(__name__, 
+                        "File extension {} cannot be in more than one file_type group.", 
+                        None, QCoreApplication.UnicodeUTF8)
+                    raise ValueError(msg.format(ext))
                 self.extensions[ext] = type
                 
         self.ext_file_manager_command = UserConfig().get('ext_file_manager')
@@ -66,11 +69,17 @@ class ExtAppMgr(object):
             file_type = self.extensions.get(ext.lower())
         
         if not file_type:
-            raise Exception(tr("File type is not defined for {0} file extension. Edit your {1} file.").format(ext, consts.USER_CONFIG_FILE))
+            msg = QCoreApplication.translate(__name__, 
+                        "File type is not defined for {0} file extension. Edit your {1} file.", 
+                        None, QCoreApplication.UnicodeUTF8)
+            raise Exception(msg.format(ext, consts.USER_CONFIG_FILE))
         
         command = UserConfig().get("ext_app_mgr.{}.command".format(file_type))
         if not command:
-            raise Exception(tr("Command for file_type {0} not found. Edit your {1} file.").format(file_type, consts.USER_CONFIG_FILE))
+            msg = QCoreApplication.translate(__name__, 
+                        "Command for file_type {0} not found. Edit your {1} file.", 
+                        None, QCoreApplication.UnicodeUTF8)
+            raise Exception(msg.format(file_type, consts.USER_CONFIG_FILE))
 
         command = command.replace('%d', '"' + os.path.dirname(abs_path) + '"')
         command = command.replace('%f', '"' + abs_path + '"')
@@ -83,7 +92,10 @@ class ExtAppMgr(object):
 
     def external_file_manager(self, abs_path):
         if self.ext_file_manager_command is None:
-            raise MsgException(tr('No external file manager command is set. Please edit your reggata.conf configuration file.'))
+            msg = QCoreApplication.translate(__name__, 
+                        "No external file manager command is set. Please edit your {} file.", 
+                        None, QCoreApplication.UnicodeUTF8)
+            raise MsgException(msg.format(consts.USER_CONFIG_FILE))
         
         command = self.ext_file_manager_command
         command = command.replace('%d', '"' + os.path.dirname(abs_path) + '"')
