@@ -62,7 +62,9 @@ def configureTranslations(app):
     language = UserConfig().get("language")
     if language:
         qm_filename = "reggata_{}.qm".format(language)
-        if qtr.load(qm_filename, ".") or qtr.load(qm_filename, ".."):
+        if qtr.load(qm_filename, "."):
+            app.installTranslator(qtr)
+        elif qtr.load(qm_filename, ".."):
             app.installTranslator(qtr)
         else:
             logger.warning("Cannot find translation file {}.".format(qm_filename))
