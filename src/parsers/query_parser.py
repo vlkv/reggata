@@ -19,17 +19,15 @@ along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 
 Created on 24.10.2010
 
-Модуль содержит продукции грамматики языка запросов.
+Module contains productions of reggata query language grammar.
 '''
 
-from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, FieldOpVal,\
-    FieldsConjunction, CompoundQuery, SingleExtraClause
+from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, \
+    FieldOpVal, FieldsConjunction, CompoundQuery, SingleExtraClause
 import ply.yacc as yacc
 from parsers.query_tokens import *
 from exceptions import YaccError
-import consts
-import helpers
-
+from PyQt4.QtCore import QCoreApplication
 
 def p_query(p):
     '''query : simple_query
@@ -43,11 +41,9 @@ def p_query(p):
             p[1].add_extra_clause(e)            
         p[0] = p[1]
     else:
-        raise ValueError(helpers.tr("len(p) has incorrect value."))
+        raise ValueError("len(p) has incorrect value.")
         
 
-# Составное выражение, представляющее собой несколько SQL запросов, соединенных
-# операциями INTERSECT, UNION, EXCEPT.
 def p_compound_query(p):
     '''compound_query : LPAREN simple_query RPAREN
     '''
@@ -62,7 +58,7 @@ def p_compound_query_and(p):
     elif len(p) == 5:
         p[1].and_elem(p[3])
     else:
-        raise ValueError(helpers.tr("len(p) has incorrect value."))
+        raise ValueError("len(p) has incorrect value.")
     p[0] = p[1]
 
 def p_compound_query_or(p):
@@ -131,8 +127,7 @@ def p_extra_clause_empty(p):
     '''    
     p[0] = []
     
-    
-# Конъюнкция имен тегов или их отрицаний
+
 def p_tags_conjunction(p):
     '''tags_conjunction : tags_conjunction AND tag_not_tag
                         | tags_conjunction tag_not_tag
@@ -149,7 +144,6 @@ def p_tags_conjunction(p):
         tc.add_tag(p[1])
         p[0] =  tc
 
-# Тег или его отрицание
 def p_tag_not_tag(p):
     '''tag_not_tag : NOT tag
                    | tag
@@ -211,18 +205,20 @@ def p_field_value(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    raise YaccError(helpers.tr("Syntax error in the query: {}").format(str(p)))
+    msg = QCoreApplication.translate(
+        "parsers", "Syntax error in the query: {}".format(str(p)), 
+        None, QCoreApplication.UnicodeUTF8)
+    raise YaccError(msg)
 
 
-#Строим лексический анализатор
 lexer = build_lexer()
-
-#Строим синтаксический анализатор
 parser = yacc.yacc(errorlog=consts.yacc_errorlog)
 
+
 def parse(text):
-    '''Функция обертка, для удобства. Выполняет разбор строки text по правилам 
-    грамматики языка запросов. Возвращает дерево разбора (корневой узел).'''
+    '''
+    Returns the root node of syntax tree, constructed from text.
+    '''
     return parser.parse(text, lexer=lexer)
 
 
