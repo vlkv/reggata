@@ -1,274 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="ru_RU" sourcelanguage="en">
-<context>
-    <name>@default</name>
-    <message>
-        <location filename="src/helpers.py" line="97"/>
-        <source>Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/action_handlers.py" line="861"/>
-        <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="312"/>
-        <source>UNTRACKED</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="313"/>
-        <source>STORED</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="414"/>
-        <source>User login cannot be empty.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="432"/>
-        <source>User {} doesn&apos;t exist.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="419"/>
-        <source>Password incorrect.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="618"/>
-        <source>Cannot delete item id={0} because it is owned by another user {1}.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="622"/>
-        <source>Cannot delete item id={0} because another user tagged it.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="626"/>
-        <source>Cannot delete item id={0} because another user attached a field to it.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="631"/>
-        <source>Cannot find corresponding history record for item id={0}.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="726"/>
-        <source>srcAbsPath must be an absolute path.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="729"/>
-        <source>srcAbsPath must point to an existing file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="732"/>
-        <source>dstRelPath must be a relative to repository root path.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="739"/>
-        <source>{} should not point to an existing file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="744"/>
-        <source>DataRef instance with url=&apos;{}&apos; already in database. </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="749"/>
-        <source>Argument user_login shouldn&apos;t be null or empty.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="753"/>
-        <source>User with login {} doesn&apos;t exist.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="871"/>
-        <source>HistoryRec for Item object id={0} not found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="1003"/>
-        <source>File {0} not found!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="1006"/>
-        <source>Pathname {0} already exists. File {1} would not be moved.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/commands.py" line="1010"/>
-        <source>Destination path {0} should be different from item&apos;s DataRef.url {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/db_schema.py" line="58"/>
-        <source>Attribute User.login shouldn&apos;t be empty.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/db_schema.py" line="257"/>
-        <source>No errors</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/db_schema.py" line="262"/>
-        <source>err_{0}: file has changed (hash/size mismatch)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/db_schema.py" line="264"/>
-        <source>err_{0}: file not found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/db_schema.py" line="266"/>
-        <source>err_{0}: item&apos;s history record not found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/db_schema.py" line="270"/>
-        <source>Item integrity isn&apos;t checked yet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/db_schema.py" line="440"/>
-        <source>Attribute Item.title shouldn&apos;t be empty.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ext_app_mgr.py" line="58"/>
-        <source>File extension {} cannot be in more than one file_type group.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ext_app_mgr.py" line="69"/>
-        <source>File type is not defined for {0} file extension. Edit your {1} file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ext_app_mgr.py" line="73"/>
-        <source>Command for file_type {0} not found. Edit your {1} file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/ext_app_mgr.py" line="86"/>
-        <source>No external file manager command is set. Please edit your reggata.conf configuration file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/helpers.py" line="180"/>
-        <source>is_none_or_empty() can be applied only to str objects.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/helpers.py" line="189"/>
-        <source>base_path cannot be empty.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="45"/>
-        <source>There is no fixer class for item integrity error code {0}.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="55"/>
-        <source>This is an abstract class.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="385"/>
-        <source>Wrong strategy value {0}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="369"/>
-        <source>This item has no related files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="444"/>
-        <source>Not supported strategy = {0}.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="283"/>
-        <source>Cannot delete data_ref object.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="285"/>
-        <source>The query deleted {} data_ref objects (only one needed to).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="343"/>
-        <source>Please fix history rec error first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="333"/>
-        <source>This item.data_ref already has correct hash and size values.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="413"/>
-        <source>Cannot find candidate for a parent history record.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/integrity_fixer.py" line="432"/>
-        <source>Item is already ok.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/repo_mgr.py" line="48"/>
-        <source>Directory {} is not a repository base path.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/repo_mgr.py" line="85"/>
-        <source>Directory {} doesn&apos;t exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/repo_mgr.py" line="88"/>
-        <source>It looks like {} is already a repository base path.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/repo_mgr.py" line="182"/>
-        <source>Argument operation cannot be None.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/repo_mgr.py" line="185"/>
-        <source>Argument parent1_id cannot be None in CREATE operation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/tag_cloud.py" line="45"/>
-        <source>Incorrect range, src_range[0] must be less then src_range[1].</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/tag_cloud.py" line="48"/>
-        <source>Incorrect range, dst_range[0] must be less then dst_range[1].</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
+<!DOCTYPE TS><TS version="1.1" language="ru_RU">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -280,17 +11,17 @@
 <context>
     <name>AddManyItemsActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="291"/>
+        <location filename="src/action_handlers.py" line="287"/>
         <source>Select file to add</source>
         <translation>Выберите файл(ы) для добавления</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="293"/>
+        <location filename="src/action_handlers.py" line="289"/>
         <source>No files chosen. Operation cancelled.</source>
         <translation>Файлы не были выбраны. Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="316"/>
+        <location filename="src/action_handlers.py" line="312"/>
         <source>Operation completed. Stored {} files, skipped {} files.</source>
         <translation>Операция выполнена. Сохранено {} файлов, пропущено {} файлов.</translation>
     </message>
@@ -298,17 +29,17 @@
 <context>
     <name>AddManyItemsRecursivelyActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="331"/>
+        <location filename="src/action_handlers.py" line="327"/>
         <source>Select one directory</source>
         <translation>Выберите одну директорию</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="333"/>
+        <location filename="src/action_handlers.py" line="329"/>
         <source>Directory is not chosen. Operation cancelled.</source>
         <translation>Директория не выбрана. Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="361"/>
+        <location filename="src/action_handlers.py" line="357"/>
         <source>Operation completed. Stored {} files, skipped {} files.</source>
         <translation>Операция завершена. Сохранено {} файлов, пропущено {} файлов.</translation>
     </message>
@@ -316,12 +47,12 @@
 <context>
     <name>AddSingleItemActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="223"/>
+        <location filename="src/action_handlers.py" line="219"/>
         <source>Select a file to link with new Item.</source>
         <translation>Выберите файл чтобы привязать его к новому Элементу.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="259"/>
+        <location filename="src/action_handlers.py" line="255"/>
         <source>Operation completed.</source>
         <translation>Операция завершена.</translation>
     </message>
@@ -329,7 +60,7 @@
 <context>
     <name>ChangeUserPasswordActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="140"/>
+        <location filename="src/action_handlers.py" line="136"/>
         <source>Operation completed.</source>
         <translation>Операция завершена.</translation>
     </message>
@@ -365,17 +96,17 @@
 <context>
     <name>CheckItemIntegrityActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="818"/>
+        <location filename="src/action_handlers.py" line="814"/>
         <source>Integrity check {0}%</source>
         <translation>Проверка целостности {0}%</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="830"/>
+        <location filename="src/action_handlers.py" line="826"/>
         <source>There are no selected items.</source>
         <translation>Нет выбранных элементов</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="842"/>
+        <location filename="src/action_handlers.py" line="838"/>
         <source>Integrity check is done. {0} Items with errors.</source>
         <translation>Проверка целостности завершена. {0} Элементов имеют ошибки.</translation>
     </message>
@@ -391,12 +122,12 @@
 <context>
     <name>CreateRepoActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="149"/>
+        <location filename="src/action_handlers.py" line="145"/>
         <source>Choose a base path for new repository</source>
         <translation>Выберите корневую директорию для нового хранилища</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="152"/>
+        <location filename="src/action_handlers.py" line="148"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
         <translation>Вы не выбрали существующую директорию. Операция отменена.</translation>
     </message>
@@ -404,40 +135,45 @@
 <context>
     <name>DeleteItemActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="484"/>
+        <location filename="src/action_handlers.py" line="480"/>
         <source>There are no selected items.</source>
         <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="487"/>
+        <location filename="src/action_handlers.py" line="483"/>
         <source>Do you really want to delete {} selected file(s)?</source>
         <translation>Вы действительно желаете удалить {} выбранных файлов?</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="504"/>
+        <location filename="src/action_handlers.py" line="500"/>
         <source>There were {0} errors.</source>
         <translation>Количество ошибок {0}.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="509"/>
+        <location filename="src/action_handlers.py" line="505"/>
         <source>Operation cancelled.</source>
         <translation>Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="516"/>
+        <location filename="src/action_handlers.py" line="512"/>
         <source>Operation completed.</source>
         <translation>Операция завершена.</translation>
+    </message>
+    <message>
+        <location filename="src/action_handlers.py" line="499"/>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EditItemActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="381"/>
+        <location filename="src/action_handlers.py" line="377"/>
         <source>There are no selected items.</source>
         <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="391"/>
+        <location filename="src/action_handlers.py" line="387"/>
         <source>Operation completed.</source>
         <translation>Операция завершена.</translation>
     </message>
@@ -445,22 +181,22 @@
 <context>
     <name>ExportItemsActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="647"/>
+        <location filename="src/action_handlers.py" line="643"/>
         <source>There are no selected items.</source>
         <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="649"/>
+        <location filename="src/action_handlers.py" line="645"/>
         <source>Save data as..</source>
         <translation>Сохранить данные как..</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="652"/>
+        <location filename="src/action_handlers.py" line="648"/>
         <source>You haven&apos;t chosen a file. Operation canceled.</source>
         <translation>Вы не выбрали файл. Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="667"/>
+        <location filename="src/action_handlers.py" line="663"/>
         <source>Operation completed.</source>
         <translation>Операция завершена.</translation>
     </message>
@@ -468,22 +204,22 @@
 <context>
     <name>ExportItemsFilePathsActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="745"/>
+        <location filename="src/action_handlers.py" line="741"/>
         <source>There are no selected items.</source>
         <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="747"/>
+        <location filename="src/action_handlers.py" line="743"/>
         <source>Save results in a file.</source>
         <translation>Сохранить результаты в файл.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="750"/>
+        <location filename="src/action_handlers.py" line="746"/>
         <source>Operation canceled.</source>
         <translation>Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="765"/>
+        <location filename="src/action_handlers.py" line="761"/>
         <source>Operation completed.</source>
         <translation>Операция завершена.</translation>
     </message>
@@ -491,22 +227,22 @@
 <context>
     <name>ExportItemsFilesActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="713"/>
+        <location filename="src/action_handlers.py" line="709"/>
         <source>There are no selected items.</source>
         <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="715"/>
+        <location filename="src/action_handlers.py" line="711"/>
         <source>Choose a directory path to export files into.</source>
         <translation>Выберите директорию, куда Вы желаете экспортировать файлы.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="718"/>
+        <location filename="src/action_handlers.py" line="714"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
         <translation>Вы не выбрали существующую директорию. Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="733"/>
+        <location filename="src/action_handlers.py" line="729"/>
         <source>Operation completed.</source>
         <translation>Операция завершена.</translation>
     </message>
@@ -514,12 +250,12 @@
 <context>
     <name>ExportItemsToM3uAndOpenItActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="591"/>
+        <location filename="src/action_handlers.py" line="587"/>
         <source>There are no selected items.</source>
         <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="609"/>
+        <location filename="src/action_handlers.py" line="605"/>
         <source>Operation completed.</source>
         <translation>Операция завершена.</translation>
     </message>
@@ -565,17 +301,17 @@
 <context>
     <name>FixItemIntegrityErrorActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="776"/>
+        <location filename="src/action_handlers.py" line="772"/>
         <source>Integrity fix {0}%</source>
         <translation>Проверка целостности {0}%</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="788"/>
+        <location filename="src/action_handlers.py" line="784"/>
         <source>There are no selected items.</source>
         <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="801"/>
+        <location filename="src/action_handlers.py" line="797"/>
         <source>Integrity fixing is done.</source>
         <translation>Проверка целостности выполнена.</translation>
     </message>
@@ -631,17 +367,17 @@
 <context>
     <name>ImportItemsActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="680"/>
+        <location filename="src/action_handlers.py" line="676"/>
         <source>Open reggata export file..</source>
         <translation>Открыть файл экспорта reggata..</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="683"/>
+        <location filename="src/action_handlers.py" line="679"/>
         <source>You haven&apos;t chosen a file. Operation canceled.</source>
         <translation>Вы не выбрали файл. Операция отменена.</translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="699"/>
+        <location filename="src/action_handlers.py" line="695"/>
         <source>Operation completed.</source>
         <translation>Операция завершена.</translation>
     </message>
@@ -819,12 +555,12 @@
     <message>
         <location filename="ui/itemsdialog.ui" line="83"/>
         <source>Fields:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Поля:</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="94"/>
         <source>Tags:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Теги:</translation>
     </message>
     <message>
         <location filename="ui/itemsdialog.ui" line="109"/>
@@ -935,7 +671,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/items_table_dock_widget.py" line="58"/>
+        <location filename="src/items_table_dock_widget.py" line="60"/>
         <source>Items Table Widget has no Model.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1070,7 +806,7 @@
     <message>
         <location filename="ui/mainwindow.ui" line="201"/>
         <source>About Reggata</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">О программе Reggata</translation>
     </message>
     <message>
         <location filename="ui/mainwindow.ui" line="206"/>
@@ -1145,7 +881,7 @@
     <message>
         <location filename="src/main_window.py" line="82"/>
         <source>User:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Пользователь:</translation>
     </message>
     <message>
         <location filename="src/main_window.py" line="98"/>
@@ -1201,30 +937,30 @@
 <context>
     <name>OpenItemActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="528"/>
+        <location filename="src/action_handlers.py" line="524"/>
         <source>Select one item, please.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="533"/>
+        <location filename="src/action_handlers.py" line="529"/>
         <source>Action &apos;View item&apos; can be applied only to items linked with files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="541"/>
+        <location filename="src/action_handlers.py" line="537"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Операция завершена.</translation>
     </message>
 </context>
 <context>
     <name>OpenItemWithExternalFileManagerActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="619"/>
+        <location filename="src/action_handlers.py" line="615"/>
         <source>Select one item, please.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="624"/>
+        <location filename="src/action_handlers.py" line="620"/>
         <source>This action can be applied only to the items linked with files.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1232,43 +968,43 @@
 <context>
     <name>OpenItemWithInternalImageViewerActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="554"/>
+        <location filename="src/action_handlers.py" line="550"/>
         <source>There are no selected items.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="577"/>
+        <location filename="src/action_handlers.py" line="573"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Операция завершена.</translation>
     </message>
 </context>
 <context>
     <name>OpenRepoActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="187"/>
+        <location filename="src/action_handlers.py" line="183"/>
         <source>Choose a repository base path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="191"/>
+        <location filename="src/action_handlers.py" line="187"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вы не выбрали существующую директорию. Операция отменена.</translation>
     </message>
 </context>
 <context>
     <name>RebuildItemThumbnailActionHandler</name>
     <message>
-        <location filename="src/action_handlers.py" line="435"/>
+        <location filename="src/action_handlers.py" line="431"/>
         <source>Rebuilding thumbnails ({0}%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="447"/>
+        <location filename="src/action_handlers.py" line="443"/>
         <source>There are no selected items.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/action_handlers.py" line="463"/>
+        <location filename="src/action_handlers.py" line="459"/>
         <source>Rebuild thumbnails is done.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1276,59 +1012,72 @@
 <context>
     <name>RepoItemTableModel</name>
     <message>
-        <location filename="src/table_models.py" line="142"/>
+        <location filename="src/table_models.py" line="147"/>
         <source>Id</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/table_models.py" line="144"/>
+        <location filename="src/table_models.py" line="149"/>
         <source>Title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/table_models.py" line="146"/>
+        <location filename="src/table_models.py" line="151"/>
         <source>Thumbnail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/table_models.py" line="148"/>
+        <location filename="src/table_models.py" line="153"/>
         <source>Tags</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Теги</translation>
     </message>
     <message>
-        <location filename="src/table_models.py" line="150"/>
+        <location filename="src/table_models.py" line="155"/>
         <source>State</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/table_models.py" line="152"/>
+        <location filename="src/table_models.py" line="157"/>
         <source>Rating</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Рейтинг</translation>
     </message>
     <message>
-        <location filename="src/table_models.py" line="198"/>
+        <location filename="src/table_models.py" line="203"/>
         <source>Checksum (hash): {}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/table_models.py" line="199"/>
+        <location filename="src/table_models.py" line="204"/>
         <source>File size: {} bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/table_models.py" line="200"/>
+        <location filename="src/table_models.py" line="205"/>
         <source>Date hashed: {}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/table_models.py" line="201"/>
+        <location filename="src/table_models.py" line="206"/>
         <source>Created by: {}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/table_models.py" line="202"/>
+        <location filename="src/table_models.py" line="207"/>
         <source>Date created: {}</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/table_models.py" line="128"/>
+        <source>Error in the query. Detail info: {}</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ShowAboutDialogActionHandler</name>
+    <message>
+        <location filename="src/action_handlers.py" line="857"/>
+        <source>Operation completed.</source>
+        <translation type="unfinished">Операция завершена.</translation>
     </message>
 </context>
 <context>
@@ -1374,7 +1123,7 @@
     <message>
         <location filename="ui/userdialog.ui" line="21"/>
         <source>Login:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Логин:</translation>
     </message>
     <message>
         <location filename="ui/userdialog.ui" line="31"/>
@@ -1446,27 +1195,38 @@
     </message>
 </context>
 <context>
+    <name>ext_app_mgr</name>
+    <message>
+        <location filename="src/ext_app_mgr.py" line="58"/>
+        <source>File extension {} cannot be in more than one file_type group.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/ext_app_mgr.py" line="72"/>
+        <source>File type is not defined for {0} file extension. Edit your {1} file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/ext_app_mgr.py" line="79"/>
+        <source>Command for file_type {0} not found. Edit your {1} file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/ext_app_mgr.py" line="95"/>
+        <source>No external file manager command is set. Please edit your {} file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>helpers</name>
     <message>
-        <location filename="src/parsers/definition_parser.py" line="78"/>
-        <source>Syntax error in definition: {}</source>
+        <location filename="src/helpers.py" line="94"/>
+        <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="src/parsers/query_tokens.py" line="108"/>
-        <source>Illegal character &apos;{}&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/parsers/query_parser.py" line="65"/>
-        <source>len(p) has incorrect value.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/parsers/query_parser.py" line="214"/>
-        <source>Syntax error in the query: {}</source>
-        <translation type="unfinished"></translation>
-    </message>
+</context>
+<context>
+    <name>parsers</name>
     <message>
         <location filename="src/parsers/query_tokens.py" line="31"/>
         <source>and</source>
@@ -1495,16 +1255,6 @@
     <message>
         <location filename="src/parsers/query_tokens.py" line="36"/>
         <source>title</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/parsers/query_tree_nodes.py" line="37"/>
-        <source>This is an abstract method.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/parsers/query_tree_nodes.py" line="134"/>
-        <source>Unexpected type of extra_clause {}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
