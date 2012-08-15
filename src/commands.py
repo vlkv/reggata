@@ -309,8 +309,8 @@ class FileInfo(object):
     DIR = 1
     OTHER = 2 #Maybe link, device file or mount point
     
-    UNTRACKED_STATUS = tr("UNTRACKED")
-    STORED_STATUS = tr("STORED")
+    UNTRACKED_STATUS = "UNTRACKED"
+    STORED_STATUS = "STORED"
     
     def __init__(self, path, filename=None, status=None):
         

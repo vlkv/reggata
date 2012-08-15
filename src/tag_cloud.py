@@ -24,7 +24,7 @@ Created on 13.11.2010
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
-from helpers import tr, show_exc_info, DialogMode, is_none_or_empty
+from helpers import show_exc_info, DialogMode, is_none_or_empty
 from parsers.query_tokens import needs_quote
 from parsers.util import quote
 import parsers
@@ -42,10 +42,10 @@ def scale_value(value, src_range, dst_range):
         границу.
     '''    
     if src_range[0] > src_range[1]:
-        raise ValueError(tr("Incorrect range, src_range[0] must be less then src_range[1]."))
+        raise ValueError("Incorrect range, src_range[0] must be less then src_range[1].")
     
     if dst_range[0] > dst_range[1]:
-        raise ValueError(tr("Incorrect range, dst_range[0] must be less then dst_range[1]."))
+        raise ValueError("Incorrect range, dst_range[0] must be less then dst_range[1].")
     
     result = float(value) * (float(dst_range[0]) - dst_range[1]) / (src_range[0] - src_range[1])
     if result < dst_range[0]:
