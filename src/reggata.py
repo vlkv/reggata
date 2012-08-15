@@ -58,16 +58,21 @@ def configureTmpDir():
 
 
 def configureTranslations(app):
-    qtr = QtCore.QTranslator()
+    qtr = QtCore.QTranslator(app)
     language = UserConfig().get("language")
     if language:
         qm_filename = "reggata_{}.qm".format(language)
-        if qtr.load(qm_filename, "."):
-            app.installTranslator(qtr)
-        elif qtr.load(qm_filename, ".."):
-            app.installTranslator(qtr)
+        
+        isQmLoaded = qtr.load(qm_filename, ".")
+        if not isQmLoaded:
+            qtr.load(qm_filename, "..")
+            
+        if isQmLoaded:
+            QtCore.QCoreApplication.installTranslator(qtr)
         else:
             logger.warning("Cannot find translation file {}.".format(qm_filename))
+            
+        
 
 
 if __name__ == '__main__':
