@@ -1,15 +1,16 @@
 == About Reggata
 Reggata - is a program for tagging user files on local computer or (in other words) a tagging file manager.
-More information about Reggata can be found on wiki pages [[https://github.com/vlkv/reggata/wiki]].
+More detailed description of Reggata features and the principles of how it works can be found on 
+wiki pages [[https://github.com/vlkv/reggata/wiki]].
 
-This is a very "young" project and I'm very interested about your opinion on it. Your comments and suggestions are very appreciated.
+This is a very "young" project and I'm very interested about your opinion on it. Your comments and 
+suggestions are very appreciated.
 
 If you found a bug or maybe want to request a new feature then report it here [[https://github.com/vlkv/reggata/issues]].
 
 === Screenshots
 
 Reggata screenshots are here: [[http://sourceforge.net/project/screenshots.php?group_id=388265]].
-
 
 
 == Installation instructions
