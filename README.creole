@@ -5,7 +5,7 @@ More detailed description of Reggata features and the principles of how it works
 wiki pages [[https://github.com/vlkv/reggata/wiki]].
 
 This is a very "young" project and I'm very interested about your opinion on it. Your comments and 
-suggestions are very appreciated.
+suggestions are very appreciated. Feel free to email me (vitvlkv@gmail.com).
 
 If you found a bug or maybe want to request a new feature then report it here [[https://github.com/vlkv/reggata/issues]].
 
