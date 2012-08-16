@@ -1,43 +1,15 @@
 == About Reggata
 Reggata - is a program for tagging user files on local computer or (in other words) a tagging file manager.
+More information about Reggata can be found on wiki pages [[https://github.com/vlkv/reggata/wiki]].
 
 This is a very "young" project and I'm very interested about your opinion on it. Your comments and suggestions are very appreciated.
 
 If you found a bug or maybe want to request a new feature then report it here [[https://github.com/vlkv/reggata/issues]].
 
-
-=== Features
-* You can assosiate with your files any number of arbitrary tags
-(or keywords) and fields (<name>:<value> pairs).
-* Then you can quickly find files by tags and field values.
-Reggata has a tag cloud (for querying files by mouse) and a powerful text query
-language (for more complex queries).
-Query examples:
-  ## {{{Music and Rock and not Pop}}} 
-  //(This is a simple query, searches items by tags only)//
-  ## {{{(Music and Pop and "Lady GaGa") and (Rating >= 8)}}}
-  //(This query seaches items by tags and "Rating" field value)//
-  ## {{{Music and Favorite path:"download/unsorted"}}}
-  //(This query seaches items (files) only in "download/unsorted" physical path by tags)//
-
-* With Reggata you can open file with a preferred appropriate external program. Reggata has a configuration file {{{reggata.conf}}} which allows you to configure your preferred apps for music, pdf, images and any other types of files.
-* You can export files with metadata (tags and fields) to an archive file. This archive file can be imported to
-some other reggata repository later. So you can exchange files and tags/fields with your friends or coleagues.
-
-More information about Reggata can be found on wiki pages [[https://github.com/vlkv/reggata/wiki]].
-
-=== Alike projects
-I would like Reggata to be like Delicious (http://www.delicious.com), but for tagging local files (and URL bookmarks also though) and storing all information in local database, not remote server.
-
-Like Calibre (http://calibre-ebook.com/ which is for electronic books) or JBrout (http://jbrout.manatlan.com/ which is for digital photos) but for files of any type.
-
-Like Tag2Find (http://www.tag2find.com/ which is for windows only as I know) but cross-platform.
-
-Also, in the future I would like Reggata to have repository clone/merge features like Git (http://git-scm.com/), but without storing every previous version state but only the last one.
-
 === Screenshots
 
 Reggata screenshots are here: [[http://sourceforge.net/project/screenshots.php?group_id=388265]].
+
 
 
 == Installation instructions
@@ -94,10 +66,4 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with Reggata.  If not, see http://www.gnu.org/licenses/ .
-
-
-
-== Need more information?
-
-Visit Reggata wiki pages https://github.com/vlkv/reggata/wiki.
 
