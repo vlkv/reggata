@@ -14,7 +14,7 @@ Reggata screenshots are here: [[http://sourceforge.net/project/screenshots.php?g
 
 == Installation instructions
 
-Reggata is tested under GNU/Linux and Windows XP.
+Reggata is tested under GNU/Linux and Windows.
 
 === Binary packages
 
