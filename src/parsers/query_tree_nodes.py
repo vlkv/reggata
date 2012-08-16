@@ -19,29 +19,27 @@ along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 
 Created on 27.11.2010
 
-Модуль содержит классы, представляющие собой узлы дерева разбора предложений 
-языка запросов.
+Module consists of classes, which represent nodes of syntax tree of 
+reggata query language.
 '''
 import consts
 import helpers
 from user_config import UserConfig
 import db_schema
 
-#from helpers import to_commalist
-
 
 class QueryExpression(object):
-    '''Базовый класс для всех классов-узлов синтаксического дерева разбора.'''
-    
+    '''
+    This is a base class for all nodes of syntax tree.
+    '''
     def interpret(self):
-        raise NotImplementedError(helpers.tr('This is an abstract method.'))
+        raise NotImplementedError("This is an abstract method.")
 
 
 class CompoundQuery(QueryExpression):
     '''
-    Узел, представляющий составное выражение запроса. 
+    Node, representing a compound expression of a query (consisting of several SQL queries).
     '''
-    
     def __init__(self, elem=None):
         if elem:
             self.elems = [elem]
@@ -80,16 +78,14 @@ class CompoundQuery(QueryExpression):
 
 class FieldOpVal(QueryExpression):
     '''
-    Узел синт. дерева для представления тройки (ИмяПоля,Операция,Значение).
+    This node represents a triple (FieldName, Operation, Value).
     '''
-    
     def __init__(self, name, op, value):
         self.name = name
         self.op = op
         self.value = value
         
     def interpret(self, i=0):
-        #Пробуем преобразовать value в число
         value = self.value
         ok = False
         try:
@@ -104,7 +100,7 @@ class FieldOpVal(QueryExpression):
             except:
                 pass
         
-        #Теперь value может иметь тип str, int или float
+        #Now value may be of type: str, int or float
         if self.op in ['=', '>', '>=', '<', '<='] and type(value) in [int, float]:
             return """ CAST(if{0}.field_value as REAL) {1} {2} """.format(i, self.op, value)
         elif self.op == '~':
@@ -115,10 +111,9 @@ class FieldOpVal(QueryExpression):
 
 class SimpleQuery(QueryExpression):
     '''
-    Базовый класс для всех простых выражений (которые представляют собой один SQL запрос).
+    This is a base class for all simple expressions (those represented by a single SQL query).
     '''
     def __init__(self):
-        #Список дополнительных условий USER, PATH и TITLE
         self.extra_paths = []
         self.extra_users = []
         self.extra_titles = []
@@ -131,7 +126,7 @@ class SimpleQuery(QueryExpression):
         elif ext.type == 'TITLE':
             self.extra_titles.append(ext)
         else:
-            raise Exception(helpers.tr("Unexpected type of extra_clause {}").format(str(ext.type)))
+            raise Exception("Unexpected type of extra_clause {}".format(str(ext.type)))
 
 class SingleExtraClause(SimpleQuery):
     
@@ -176,9 +171,9 @@ class SingleExtraClause(SimpleQuery):
     
 class FieldsConjunction(SimpleQuery):
     '''
-    Конъюнкция объектов FieldOpVal.
+    This is a conjunction of FieldOpVal. For example:
+    Field1=Value1 AND Field2=Value2 AND Field3=Value3
     
-    --Выборка по полям: Поле1=знач1 И Поле2=знач2 И Поле3=значе3
     select 
         i.id, i.title,
         if1.item_id as if1_i, if1.field_id as if1_f, f1.name as f1_name, if1.field_value as if1_fv,  
@@ -198,7 +193,6 @@ class FieldsConjunction(SimpleQuery):
         --Вот такому запросу неважно, в каком порядке следуют запрашиваемые поля.
         --Однако, мне кажется он будет выполняться медленно!
     '''
-    
     #TODO Может быть тут поставить в join-ах еще доп. условие вида
     # ... and if1.field_id <> if2.field_id
     # ... and if2.field_id <> if3.field_id and if1.field_id <> if3.field_id
@@ -208,13 +202,9 @@ class FieldsConjunction(SimpleQuery):
         super(FieldsConjunction, self).__init__()
         
         self.field_op_vals = []
-        
-        
-    
     
     
     def interpret(self):
-        
         #extra_users_str
         if len(self.extra_users) > 0:
             users_comma_list = helpers.to_commalist(self.extra_users, lambda x: "'" + x.interpret() + "'", ", ") 
@@ -283,8 +273,9 @@ class FieldsConjunction(SimpleQuery):
 
 
 class Tag(QueryExpression):
-    '''Узел синтаксического дерева для представления тегов.'''    
-    
+    '''
+    A syntax tree node, representing a Tag.
+    '''
     def __init__(self, name, is_negative=False):
         self.name = name
         self.is_negative = is_negative
@@ -302,21 +293,21 @@ class Tag(QueryExpression):
 
 class TagsConjunction(SimpleQuery):
     '''
-    Конъюнкция тегов или их отрицаний, например:
-    "Книга И Программирование И НЕ Проектирование"
+    Conjunction of Tags or their or their negations. For example:
+    "Book AND Programming AND NOT Design"
     
-    Реализация такого запроса на SQL:
+    SQL query for this:
     
     select * from items i 
     left join items_tags it on i.id = it.item_id
     left join tags t on t.id = it.tag_id
     where
-        (t.name='Книга' or t.name='Программирование')    --yes_tags_str
+        (t.name='Book' or t.name='Programming')    --yes_tags_str
         
         and i.id NOT IN (select i.id from items i        --no_tags_str
         left join items_tags it on i.id = it.item_id 
         left join tags t on t.id = it.tag_id
-        where t.name='Проектирование')
+        where t.name='Design')
         
         group by i.id having count(*)=2                  --group_by_having
     '''    
@@ -324,10 +315,8 @@ class TagsConjunction(SimpleQuery):
     def __init__(self):
         super(TagsConjunction, self).__init__()
         
-        #Списки для хранения тегов
         self.yes_tags = []
         self.no_tags = []
-        
         
     
     def interpret(self):
@@ -402,17 +391,18 @@ class TagsConjunction(SimpleQuery):
         
 class ExtraClause(QueryExpression):
     '''
-    Дополнительные условия в запросе, определяющие ограничения на пользователей и на 
-    физическое расположение файлов, привязанных к элементу.
+    ExtraClause is a part of query, which allow you to restrict items
+    by a user, file physical path. For example:
     
-    Например: "user:vlkv user:sunshine path:music/favorite/new"
-    Это будет означать запрос элементов, принадлежащих vlkv ИЛИ sunshine И 
-    физически размещенных в поддиректории хранилища music/favorite/new. 
+    "user:vlkv user:sunshine path:music/favorite/new"
+    
+    This will query all items of "vlkv" OR "sunshine" users, and files of those items
+    should be located in subdirectory "music/favorite/new". 
     '''
 
     def __init__(self, type=None, value=None):
-        self.type = type #'USER', 'PATH' или 'TITLE'
-        self.value = value #логин пользователя или путь в хранилище
+        self.type = type #'USER', 'PATH' or 'TITLE'
+        self.value = value # User login or repository path
             
     def interpret(self):
         return str(self.value)

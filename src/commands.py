@@ -309,8 +309,8 @@ class FileInfo(object):
     DIR = 1
     OTHER = 2 #Maybe link, device file or mount point
     
-    UNTRACKED_STATUS = tr("UNTRACKED")
-    STORED_STATUS = tr("STORED")
+    UNTRACKED_STATUS = "UNTRACKED"
+    STORED_STATUS = "STORED"
     
     def __init__(self, path, filename=None, status=None):
         
@@ -411,12 +411,12 @@ class LoginUserCommand(AbstractCommand):
         выкидывается LoginError.
         '''
         if is_none_or_empty(login):
-            raise LoginError(tr("User login cannot be empty."))
+            raise LoginError("User login cannot be empty.")
         user = self._session.query(User).get(login)
         if user is None:
-            raise LoginError(tr("User {} doesn't exist.").format(login))
+            raise LoginError("User {} doesn't exist.".format(login))
         if user.password != password:
-            raise LoginError(tr("Password incorrect."))
+            raise LoginError("Password incorrect.")
         
         self._session.expunge(user)
         return user
@@ -429,7 +429,7 @@ class ChangeUserPasswordCommand(AbstractCommand):
     def _execute(self, uow):
         user = uow.session.query(User).get(self.__userLogin)
         if user is None:
-            raise LoginError(tr("User {} doesn't exist.").format(self.__userLogin))
+            raise LoginError("User {} doesn't exist.".format(self.__userLogin))
         
         user.password = self.__newPasswordHash
         uow.session.commit()
@@ -615,20 +615,20 @@ class DeleteItemCommand(AbstractCommand):
         
         item = self._session.query(Item).get(item_id)
         if item.user_login != user_login:
-            raise AccessError(tr("Cannot delete item id={0} because it is owned by another user {1}.")
+            raise AccessError("Cannot delete item id={0} because it is owned by another user {1}."
                               .format(item_id, item.user_login))
         
         if item.has_tags_except_of(user_login):
-            raise AccessError(tr("Cannot delete item id={0} because another user tagged it.")
+            raise AccessError("Cannot delete item id={0} because another user tagged it."
                               .format(item_id))
         
         if item.has_fields_except_of(user_login):
-            raise AccessError(tr("Cannot delete item id={0} because another user attached a field to it.")
+            raise AccessError("Cannot delete item id={0} because another user attached a field to it."
                               .format(item_id))
         
         parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, item)            
         if parent_hr is None:
-            raise Exception(tr("Cannot find corresponding history record for item id={0}.")
+            raise Exception("Cannot find corresponding history record for item id={0}."
                             .format(item.id))
         
         data_ref = item.data_ref
@@ -723,34 +723,34 @@ class SaveNewItemCommand(AbstractCommand):
         
             srcAbsPath = os.path.normpath(srcAbsPath)
             if not os.path.isabs(srcAbsPath):
-                raise ValueError(tr("srcAbsPath must be an absolute path."))
+                raise ValueError("srcAbsPath must be an absolute path.")
             
             if not os.path.exists(srcAbsPath):
-                raise ValueError(tr("srcAbsPath must point to an existing file."))
+                raise ValueError("srcAbsPath must point to an existing file.")
             
             if os.path.isabs(dstRelPath):
-                raise ValueError(tr("dstRelPath must be a relative to repository root path."))
+                raise ValueError("dstRelPath must be a relative to repository root path.")
             
             dstRelPath = removeTrailingOsSeps(dstRelPath)
             dstRelPath = os.path.normpath(dstRelPath)
             dstAbsPath = os.path.abspath(os.path.join(self._repoBasePath, dstRelPath))
             dstAbsPath = os.path.normpath(dstAbsPath)
             if srcAbsPath != dstAbsPath and os.path.exists(dstAbsPath):
-                raise ValueError(tr("{} should not point to an existing file.").format(dstAbsPath))
+                raise ValueError("{} should not point to an existing file.".format(dstAbsPath))
                 
             dataRef = self._session.query(DataRef).filter(
                 DataRef.url_raw==to_db_format(dstRelPath)).first()
             if dataRef is not None:
-                raise DataRefAlreadyExistsError(tr("DataRef instance with url='{}' "
-                                                   "already in database. ").format(dstRelPath))
+                raise DataRefAlreadyExistsError("DataRef instance with url='{}' "
+                                                   "already in database. ".format(dstRelPath))
         
         user_login = item.user_login
         if is_none_or_empty(user_login):
-            raise AccessError(tr("Argument user_login shouldn't be null or empty."))
+            raise AccessError("Argument user_login shouldn't be null or empty.")
         
         user = self._session.query(User).get(user_login)
         if user is None:
-            raise AccessError(tr("User with login {} doesn't exist.").format(user_login))
+            raise AccessError("User with login {} doesn't exist.".format(user_login))
         
                 
         #Remove from item those tags, which have corresponding Tag objects in database
@@ -868,7 +868,7 @@ class UpdateExistingItemCommand(AbstractCommand):
             
         parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, persistentItem)
         if parent_hr is None:
-            raise Exception(tr("HistoryRec for Item object id={0} not found.").format(persistentItem.id))
+            raise Exception("HistoryRec for Item object id={0} not found.".format(persistentItem.id))
             #TODO We should give user more detailed info about how to recover from this case
         
         self.__updatePlainDataMembers(item, persistentItem)
@@ -1000,14 +1000,14 @@ class UpdateExistingItemCommand(AbstractCommand):
             srcAbsPath = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
             dstAbsPath = os.path.join(self._repoBasePath, item.data_ref.dstRelPath)
             if not os.path.exists(srcAbsPath):
-                raise Exception(tr("File {0} not found!").format(srcAbsPath))
+                raise Exception("File {0} not found!".format(srcAbsPath))
             
             if os.path.exists(dstAbsPath) and os.path.abspath(srcAbsPath) != os.path.abspath(dstAbsPath):
-                raise Exception(tr("Pathname {0} already exists. File {1} would not be moved.")\
+                raise Exception("Pathname {0} already exists. File {1} would not be moved."
                                 .format(dstAbsPath, srcAbsPath))
                 
             if os.path.abspath(srcAbsPath) == os.path.abspath(dstAbsPath):
-                raise Exception(tr("Destination path {0} should be different from item's DataRef.url {1}")
+                raise Exception("Destination path {0} should be different from item's DataRef.url {1}"
                                 .format(dstAbsPath, srcAbsPath))
             
             persistentItem.data_ref.url = item.data_ref.dstRelPath

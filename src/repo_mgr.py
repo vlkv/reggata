@@ -45,7 +45,7 @@ class RepoMgr(object):
         try:
             self._base_path = path_to_repo
             if not os.path.exists(self.base_path + os.sep + consts.METADATA_DIR):
-                raise Exception(tr("Directory {} is not a repository base path.").format(self.base_path))
+                raise Exception("Directory {} is not a repository base path.".format(self.base_path))
             
             engine_echo = bool(UserConfig().get("sqlalchemy.engine_echo") in
                                ["True", "true", "TRUE", "1", "Yes", "yes", "YES"]) 
@@ -82,10 +82,10 @@ class RepoMgr(object):
         returns RepoMgr object, associated with it.
         '''
         if (not os.path.exists(base_path)):
-            raise Exception(tr("Directory {} doesn't exists.").format(base_path))
+            raise Exception("Directory {} doesn't exists.".format(base_path))
         
         if (os.path.exists(base_path + os.sep + consts.METADATA_DIR)):
-            raise Exception(tr("It looks like {} is already a repository base path.").format(base_path))
+            raise Exception("It looks like {} is already a repository base path.".format(base_path))
         
         os.mkdir(base_path + os.sep + consts.METADATA_DIR)
         
@@ -179,10 +179,10 @@ class UnitOfWork(object):
     def _save_history_rec(session, item_0, user_login, operation, parent1_id=None, parent2_id=None):
         
         if operation is None:
-            raise ValueError(tr("Argument operation cannot be None."))
+            raise ValueError("Argument operation cannot be None.")
         
         if operation != HistoryRec.CREATE and parent1_id is None:
-            raise ValueError(tr("Argument parent1_id cannot be None in CREATE operation."))
+            raise ValueError("Argument parent1_id cannot be None in CREATE operation.")
         
         #Сохраняем историю изменения данного элемента
         hr = HistoryRec(item_id = item_0.id, item_hash=item_0.hash(), \

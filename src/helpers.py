@@ -23,8 +23,6 @@ Created on 04.10.2010
 
 Модуль, содержащий различные вспомогательные глобальные функции.
 
-Содержит функцию tr() для более удобного вызова QCoreApplication.translate().
-А функции Object.tr() рекомендуется в PyQt не использовать вообще.
 '''
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
@@ -42,10 +40,10 @@ import consts
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
-def tr(text):
-    '''Translates text of GUI to foreign languages.'''
-    s = QCoreApplication.translate("@default", str(text), None, QCoreApplication.UnicodeUTF8)
-    return s
+#def tr(text):
+#    '''Translates text of GUI to foreign languages.'''
+#    s = QCoreApplication.translate("@default", str(text), None, QCoreApplication.UnicodeUTF8)
+#    return s
 
 class MyMessageBox(QtGui.QMessageBox):
     '''This MessageBox window can be resized with a mouse. Standard QMessageBox
@@ -90,11 +88,10 @@ def show_exc_info(parent, ex, tracebk=True, details=None, title=None):
     Параметр title позволяет задать другой заголовок окна.
     '''
     
-    #if tracebk and not is_none_or_empty(details):
-    #    raise ValueError(tr("details cannot be not None or empty if tracebk is True."))
-    
     mb = MyMessageBox(parent)
-    mb.setWindowTitle(tr("Information") if title is None else title)
+    defaultTitle = QCoreApplication.translate("helpers", "Information", 
+                                              None, QCoreApplication.UnicodeUTF8)
+    mb.setWindowTitle(defaultTitle if title is None else title)
     mb.setText(str(ex))
     if not is_none_or_empty(details):
         mb.setDetailedText(details)
@@ -177,7 +174,7 @@ def is_none_or_empty(s):
         return True
     else:    
         if not isinstance(s, str):
-            raise TypeError(tr("is_none_or_empty() can be applied only to str objects."))    
+            raise TypeError("is_none_or_empty() can be applied only to str objects.")    
         return True if s == "" else False
 
 #TODO: Rename into isInternalPath() or isSubDirectoryOf() or isSubPathOf()
@@ -186,7 +183,7 @@ def is_internal(url, base_path):
         Method doesn't check existence of tested paths.
         '''
         if is_none_or_empty(base_path):
-            raise ValueError(tr("base_path cannot be empty."))
+            raise ValueError("base_path cannot be empty.")
         
         url = os.path.normpath(url)
         base_path = os.path.normpath(base_path)

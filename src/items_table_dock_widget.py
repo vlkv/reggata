@@ -8,14 +8,15 @@ import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 
 import ui_itemstabledockwidget
-import helpers
-from helpers import *
 from user_config import UserConfig
-import consts
 from table_models import RepoItemTableModel
-from helpers import ImageThumbDelegate, RatingDelegate, HTMLDelegate
 from parsers import query_parser
 from common_widgets import TextEdit
+from helpers import *
+import consts
+import logging
+
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 class ItemsTableDockWidget(QtGui.QDockWidget):
     
@@ -54,16 +55,21 @@ class ItemsTableDockWidget(QtGui.QDockWidget):
         self.__context_menu = None
     
     def query_exec(self):
-        if self.__table_model is None:
-            raise MsgException(self.tr("Items Table Widget has no Model."))
+        try:
+            if self.__table_model is None:
+                raise MsgException(self.tr("Items Table Widget has no Model."))
+            
+            query_text = self.query_text()
+            limit = self.query_limit()
+            page = self.query_page()
+            
+            self.__table_model.query(query_text, limit, page)
         
-        query_text = self.query_text()
-        limit = self.query_limit()
-        page = self.query_page()
-        
-        self.__table_model.query(query_text, limit, page)
-        
-        self.resize_rows_to_contents()
+            self.resize_rows_to_contents()
+            
+        except Exception as ex:
+            logger.warning(str(ex))
+            show_exc_info(self, ex)
     
     
     def query_reset(self):

@@ -46,10 +46,6 @@ class AbstractActionHandler(QtCore.QObject):
     def handle(self):
         raise NotImplementedError("This function should be overriden in subclass")
 
-    def tr(self, text):
-        '''tr function is here just to be able to write in child class self.tr("something").'''
-        return helpers.tr(text)
-    
     def connectSignals(self, widgetsUpdateManager):
         self.connect(self, QtCore.SIGNAL("handlerSignal"), \
                      widgetsUpdateManager.onHandlerSignal)
@@ -500,7 +496,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
                 
             if thread.errors > 0:
                 mb = helpers.MyMessageBox(self._gui)
-                mb.setWindowTitle(tr("Information"))
+                mb.setWindowTitle(self.tr("Information"))
                 mb.setText(self.tr("There were {0} errors.").format(thread.errors))                    
                 mb.setDetailedText(thread.detailed_message)
                 mb.exec_()
@@ -858,7 +854,7 @@ class ShowAboutDialogActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.showMessageOnStatusBar(tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
     

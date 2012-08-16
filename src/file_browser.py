@@ -27,7 +27,7 @@ from PyQt4.QtCore import Qt
 import os
 import helpers
 from sqlalchemy import orm
-from helpers import tr, HTMLDelegate
+from helpers import HTMLDelegate
 import consts
 from commands import GetFileInfoCommand, FileInfo
 

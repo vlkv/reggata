@@ -19,35 +19,33 @@ along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 
 Created on 27.11.2010
 
-Модуль содержит лексический анализатор языка запросов.
+Module contains a lexical analyzer of reggata query language.
 '''
 import ply.lex as lex
 import re
-import helpers
 from exceptions import LexError
 import consts
+from PyQt4.QtCore import QCoreApplication
 
 
-AND_OPERATOR = helpers.tr('and')
-OR_OPERATOR = helpers.tr('or')
-NOT_OPERATOR = helpers.tr('not')
-USER_KEYWORD = helpers.tr('user')
-PATH_KEYWORD = helpers.tr('path')
-TITLE_KEYWORD = helpers.tr('title')
+AND_OPERATOR = QCoreApplication.translate("parsers", 'and', None, QCoreApplication.UnicodeUTF8)
+OR_OPERATOR = QCoreApplication.translate("parsers", 'or', None, QCoreApplication.UnicodeUTF8)
+NOT_OPERATOR = QCoreApplication.translate("parsers", 'not', None, QCoreApplication.UnicodeUTF8)
+USER_KEYWORD = QCoreApplication.translate("parsers", 'user', None, QCoreApplication.UnicodeUTF8)
+PATH_KEYWORD = QCoreApplication.translate("parsers", 'path', None, QCoreApplication.UnicodeUTF8)
+TITLE_KEYWORD = QCoreApplication.translate("parsers", 'title', None, QCoreApplication.UnicodeUTF8)
 
 #Зарезервированные слова и соответствующие им типы токенов
 #Я хочу, чтобы операции and, or, not и др. были в нескольких вариантах.
 #Например, чтобы and можно было записать как and, And, AND
 #В словаре reserved: ключ - это зарезервированное слово, а значение - это тип токена
 reserved = dict()
-for tuple in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'), 
+for keyword, type in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'), 
               (USER_KEYWORD, 'USER'), (PATH_KEYWORD, 'PATH'), (TITLE_KEYWORD, 'TITLE')]:
-    keyword, type = tuple
     reserved[keyword.capitalize()] = type
     reserved[keyword.upper()] = type
     reserved[keyword.lower()] = type
-#Правда ply выводит warning сообщения о том, что токен AND (OR и др.) определен более одного раза...
-#Но работает, как мне хочется.
+#NOTE: ply displays a warning that token AND (OR and others) are defined more than once...
 
 
 #Типы токенов
@@ -105,9 +103,7 @@ t_ignore  = ' \t\n\r'
 
 # Error handling rule
 def t_error(t):
-    raise LexError(helpers.tr("Illegal character '{}'").format(t.value[0]))
-    #print("Illegal character '%s'" % t.value[0])
-    #t.lexer.skip(1) #Пропускаем текущий символ и переходим к следующему
+    raise LexError("Lexical error in '{}'".format(t.value[0]))
 
 
 def needs_quote(string):
