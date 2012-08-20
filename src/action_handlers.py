@@ -326,7 +326,7 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             self._gui.checkActiveUserIsNotNone()
             
             dir = self._gui.getExistingDirectory(self.tr("Select sigle existing directory"))
-            dir = QtGui.QFileDialog.getExistingDirectory(self._gui, self.tr("Select one directory"))
+            #dir = QtGui.QFileDialog.getExistingDirectory(self._gui, self.tr("Select one directory"))
             if not dir:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
                         
