@@ -216,8 +216,9 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             item = Item(user_login=self._gui.active_user.login)
             
             #User can push Cancel button and do not select a file now
-            file = QtGui.QFileDialog.getOpenFileName(
-                self._gui, self.tr("Select a file to link with new Item."))
+            #In such a case, Item will be added without file reference
+            file = self._gui.getOpenFileName(self.tr("Select a file to link with new Item."))
+            
             if not is_none_or_empty(file):
                 file = os.path.normpath(file)
                 item.title = os.path.basename(file)
@@ -284,7 +285,7 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            files = QtGui.QFileDialog.getOpenFileNames(self._gui, self.tr("Select file to add"))
+            files = self._gui.getOpenFileNames(self.tr("Select file to add"))
             if len(files) == 0:
                 raise MsgException(self.tr("No files chosen. Operation cancelled."))
             
@@ -324,6 +325,7 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
+            dir = self._gui.getExistingDirectory(self.tr("Select sigle existing directory"))
             dir = QtGui.QFileDialog.getExistingDirectory(self._gui, self.tr("Select one directory"))
             if not dir:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))

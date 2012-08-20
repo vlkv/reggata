@@ -61,6 +61,7 @@ class MainWindow(QtGui.QMainWindow):
         self.items_lock = QtCore.QReadWriteLock()
         
         self.setCentralWidget(None)
+        self.setAcceptDrops(True)
         
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
@@ -72,6 +73,46 @@ class MainWindow(QtGui.QMainWindow):
         self.__initFileBrowser()
         
         self.__restoreGuiState()
+        
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.accept()
+        else:
+            event.ignore()
+            
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.accept()
+#            for url in event.mimeData().urls():
+#                print(url.toLocalFile())
+            urls = event.mimeData().urls()
+            if len(urls) == 1:
+                self.__acceptDropOfOneUrl(urls[0])
+            else:
+                self.__acceptDropOfManyUrls(urls)
+        else:
+            event.ignore()
+    
+    def __acceptDropOfOneUrl(self, url):
+        pass
+
+    def __acceptDropOfManyUrls(self, url):
+        pass
+
+
+    def getOpenFileName(self, textMessageForUser):
+        file = QtGui.QFileDialog.getOpenFileName(self, textMessageForUser)
+        return file
+    
+    def getOpenFileNames(self, textMessageForUser):
+        files = QtGui.QFileDialog.getOpenFileNames(self, textMessageForUser)
+        return files
+    
+    def getExistingDirectory(self, textMessageForUser):
+        dir = QtGui.QFileDialog.getExistingDirectory(self, textMessageForUser)
+        return dir
+    
 
     
     def __initStatusBar(self):
