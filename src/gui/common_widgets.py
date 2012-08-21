@@ -9,11 +9,13 @@ import PyQt4.QtCore as QtCore
 from PyQt4.QtCore import Qt
 import parsers
 from data.commands import GetNamesOfAllTagsAndFields
-from helpers import is_none_or_empty, MyMessageBox
+from helpers import is_none_or_empty
 import logging
 import consts
+from gui.my_message_box import MyMessageBox
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+
 
 
 class WaitDialog(QtGui.QDialog):    

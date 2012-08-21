@@ -19,6 +19,7 @@ from logic.ext_app_mgr import ExtAppMgr
 from gui.image_viewer import ImageViewer
 from logic.worker_threads import *
 from exceptions import *
+from gui.my_message_box import MyMessageBox
 
 
 class HandlerSignals():
@@ -497,7 +498,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
             wd.startWithWorkerThread(thread)
                 
             if thread.errors > 0:
-                mb = helpers.MyMessageBox(self._gui)
+                mb = MyMessageBox(self._gui)
                 mb.setWindowTitle(self.tr("Information"))
                 mb.setText(self.tr("There were {0} errors.").format(thread.errors))                    
                 mb.setDetailedText(thread.detailed_message)
