@@ -7,8 +7,9 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 import os
+import abstract_gui
 
-class GuiProxy(QtGui.QWidget):
+class GuiProxy(QtGui.QWidget, abstract_gui.AbstractGui):
     
     def __init__(self, mainWindow, selectedFiles=[]):
         super(GuiProxy, self).__init__(mainWindow)

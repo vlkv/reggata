@@ -36,11 +36,12 @@ from action_handlers import *
 import logging
 import consts
 import gui_proxy
+import abstract_gui
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtGui.QMainWindow, abstract_gui.AbstractGui):
     '''
     Reggata's main window.
     '''
