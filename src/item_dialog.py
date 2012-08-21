@@ -61,11 +61,6 @@ class ItemDialog(QtGui.QDialog):
         
         if type(item) != Item:
             raise TypeError(self.tr("Argument item should be an instance of Item class."))
-
-        #parent should be a MainWindow instance
-        #because, we will need to access to parent.active_repo
-        if parent.__class__.__name__ != "MainWindow":
-            raise TypeError(self.tr("Parent must be an instance of MainWindow class."))
                     
         self.parent = parent
         self.mode = mode

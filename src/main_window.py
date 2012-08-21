@@ -35,6 +35,7 @@ from table_models import RepoItemTableModel
 from action_handlers import *
 import logging
 import consts
+import gui_proxy
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -63,9 +64,12 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(None)
         self.setAcceptDrops(True)
         
+        
+        
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
-        self.__initContextMenu()
+        self.__initContextMenu()    
+        self.__initDragNDropHandlers()
         
         self.__initStatusBar()
         self.__initItemsTable()
@@ -74,7 +78,8 @@ class MainWindow(QtGui.QMainWindow):
         
         self.__restoreGuiState()
         
-
+        
+    
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls:
             event.accept()
@@ -86,19 +91,32 @@ class MainWindow(QtGui.QMainWindow):
             event.accept()
 #            for url in event.mimeData().urls():
 #                print(url.toLocalFile())
-            urls = event.mimeData().urls()
-            if len(urls) == 1:
-                self.__acceptDropOfOneUrl(urls[0])
+            
+            files = []
+            for url in event.mimeData().urls():
+                files.append(url.toLocalFile())
+                
+            if len(files) == 1:
+                if os.path.isdir(files[0]):
+                    self.__acceptDropOfOneDir(files[0])
+                elif os.path.isfile(files[0]):
+                    self.__acceptDropOfOneFile(files[0])
             else:
-                self.__acceptDropOfManyUrls(urls)
+                self.__acceptDropOfManyFiles(files)
         else:
             event.ignore()
     
-    def __acceptDropOfOneUrl(self, url):
-        pass
+    def __acceptDropOfOneDir(self, dir):
+        self.__dragNDropGuiProxy.setSelectedFiles([dir])
+        self.__dragNDropActionItemAddManyRec.trigger()
+    
+    def __acceptDropOfOneFile(self, file):
+        self.__dragNDropGuiProxy.setSelectedFiles([file])
+        self.__dragNDropActionItemAdd.trigger()
 
-    def __acceptDropOfManyUrls(self, url):
-        pass
+    def __acceptDropOfManyFiles(self, files):
+        self.__dragNDropGuiProxy.setSelectedFiles(files)
+        self.__dragNDropActionItemAddMany.trigger()
 
 
     def getOpenFileName(self, textMessageForUser):
@@ -276,7 +294,21 @@ class MainWindow(QtGui.QMainWindow):
         #MENU: Help
         self.__actionHandlers.registerActionHandler(
             self.ui.action_help_about, ShowAboutDialogActionHandler(self))
-                                
+        
+    def __initDragNDropHandlers(self):
+        self.__dragNDropGuiProxy = gui_proxy.GuiProxy(self, [])
+        
+        self.__dragNDropActionItemAdd = QtGui.QAction(self)
+        self.__dragNDropActionItemAddMany = QtGui.QAction(self)
+        self.__dragNDropActionItemAddManyRec = QtGui.QAction(self)
+        
+        self.__actionHandlers.registerActionHandler(
+            self.__dragNDropActionItemAdd, AddSingleItemActionHandler(self.__dragNDropGuiProxy))
+        self.__actionHandlers.registerActionHandler(
+            self.__dragNDropActionItemAddMany, AddManyItemsActionHandler(self.__dragNDropGuiProxy))
+        self.__actionHandlers.registerActionHandler(
+            self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self.__dragNDropGuiProxy))
+
 
     def __initItemsTableContextMenu(self):
         menu = QtGui.QMenu(self)
