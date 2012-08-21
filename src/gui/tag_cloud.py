@@ -24,7 +24,7 @@ Created on 13.11.2010
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
-from helpers import show_exc_info, DialogMode, is_none_or_empty
+from helpers import show_exc_info, is_none_or_empty
 from parsers.query_tokens import needs_quote
 from parsers.util import quote
 import parsers
