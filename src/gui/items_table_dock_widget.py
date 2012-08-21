@@ -9,9 +9,9 @@ from PyQt4.QtCore import Qt
 
 import ui_itemstabledockwidget
 from user_config import UserConfig
-from table_models import RepoItemTableModel
+from gui.table_models import RepoItemTableModel
 from parsers import query_parser
-from common_widgets import TextEdit
+from gui.common_widgets import TextEdit
 from helpers import *
 import consts
 import logging

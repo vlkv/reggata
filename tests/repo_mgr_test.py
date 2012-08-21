@@ -3,8 +3,8 @@ from abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonExistingItem,\
     itemWithTagsAndFields, itemWithoutFile
-from repo_mgr import *
-from commands import *
+from data.repo_mgr import *
+from data.commands import *
 
 
 class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):

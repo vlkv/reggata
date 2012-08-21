@@ -25,7 +25,7 @@ reggata query language.
 import consts
 import helpers
 from user_config import UserConfig
-import db_schema
+from data import db_schema
 
 
 class QueryExpression(object):

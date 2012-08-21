@@ -9,12 +9,11 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
 import ui_itemsdialog
-import helpers
-from helpers import is_internal, is_none_or_empty
+from helpers import is_internal, is_none_or_empty, show_exc_info
 import parsers
-from db_schema import DataRef
+from data.db_schema import DataRef
 from exceptions import MsgException
-from common_widgets import TextEdit
+from gui.common_widgets import TextEdit
 
 #TODO: Rename this class to some more meaningful name
 class CustomTextEdit(QtGui.QTextEdit):
@@ -374,7 +373,7 @@ class ItemsDialog(QtGui.QDialog):
             self.ui.locationDirRelPath.setText(self.dst_path)
         
         except Exception as ex:
-            helpers.show_exc_info(self, ex)
+            show_exc_info(self, ex)
             
                             
           
@@ -384,7 +383,7 @@ class ItemsDialog(QtGui.QDialog):
             self.accept()
             
         except Exception as ex:
-            helpers.show_exc_info(self, ex)
+            show_exc_info(self, ex)
     
     def button_cancel(self):
         self.reject()

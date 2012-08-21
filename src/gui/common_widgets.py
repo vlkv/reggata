@@ -8,7 +8,7 @@ import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 from PyQt4.QtCore import Qt
 import parsers
-from commands import GetNamesOfAllTagsAndFields
+from data.commands import GetNamesOfAllTagsAndFields
 from helpers import is_none_or_empty, MyMessageBox
 import logging
 import consts

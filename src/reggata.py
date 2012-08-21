@@ -33,7 +33,7 @@ from user_config import UserConfig
 import logging
 import logging.config
 import logging_default_conf
-from main_window import MainWindow
+from gui.main_window import MainWindow
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

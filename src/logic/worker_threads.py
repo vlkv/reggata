@@ -11,11 +11,11 @@ import zipfile
 import consts
 import logging
 from PyQt4 import QtCore, QtGui
-from integrity_fixer import IntegrityFixer
-from repo_mgr import *
-from db_schema import Thumbnail
+from logic.integrity_fixer import IntegrityFixer
+from data.repo_mgr import *
+from data.db_schema import Thumbnail
 from exceptions import *
-from commands import *
+from data.commands import *
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

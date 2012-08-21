@@ -6,7 +6,7 @@ Created on 27.07.2012
 '''
 
 import unittest
-import db_schema
+from data import db_schema
 import memento
 from tests_context import *
 import os
@@ -18,7 +18,7 @@ class ItemSerializationSimpleTest(unittest.TestCase):
 
     simpleItemState = '''{
     "__class__": "Item", 
-    "__module__": "db_schema", 
+    "__module__": "data.db_schema", 
     "data_ref": null, 
     "date_created": {
         "__datetime__": "datetime.datetime(2012, 7, 27, 23, 14, 14, 680387)"

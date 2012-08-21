@@ -19,7 +19,7 @@ along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
 
 Created on 11.10.2010
 
-Схема базы данных хранилища метаданных Reggata.
+Database schema of Reggata repository entities.
 '''
 
 import sqlalchemy as sqa
@@ -29,7 +29,6 @@ from sqlalchemy import ForeignKey, orm
 from helpers import is_none_or_empty
 import datetime
 import os
-import platform
 import hashlib
 import helpers
 import memento
@@ -220,7 +219,7 @@ class Item(Base, memento.Serializable):
         
     def toJson(self):
         return {"__class__": self.__class__.__name__,
-                "__module__": "db_schema",
+                "__module__": "data.db_schema",
                 "title": self.title,
                 "user_login": self.user_login,
                 "date_created": self.date_created,
@@ -521,7 +520,7 @@ class DataRef(Base, memento.Serializable):
     
     def toJson(self):
         return {"__class__": self.__class__.__name__,
-                "__module__": "db_schema",
+                "__module__": "data.db_schema",
                 "url": self.url_raw,
                 "type": self.type,
                 "hash": self.hash,

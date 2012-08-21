@@ -21,9 +21,9 @@ Created on 20.12.2010
 
 Модуль содержит классы для исправления целостности элементов хранилища.
 '''
-from db_schema import HistoryRec, Item, DataRef
+from data.db_schema import HistoryRec, Item, DataRef
 from exceptions import NotFoundError, WrongValueError
-import repo_mgr
+import data.repo_mgr
 from helpers import compute_hash
 import os
 import datetime

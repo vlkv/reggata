@@ -7,10 +7,10 @@ Created on 20.07.2012
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 import ui_changeuserpassword
-from db_schema import *
+from data.db_schema import *
 from helpers import *
 from exceptions import *
-from repo_mgr import *
+from data.repo_mgr import *
 
 
 class ChangeUserPasswordDialog(QtGui.QDialog):

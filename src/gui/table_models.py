@@ -8,12 +8,12 @@ import consts
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 import traceback
-from db_schema import Item, DataRef
+from data.db_schema import Item, DataRef
 import os
 from parsers import query_parser
-from worker_threads import ThumbnailBuilderThread
-from repo_mgr import *
-from commands import *
+from logic.worker_threads import ThumbnailBuilderThread
+from data.repo_mgr import *
+from data.commands import *
 
 class RepoItemTableModel(QtCore.QAbstractTableModel):
     '''

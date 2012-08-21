@@ -24,24 +24,24 @@ Created on 20.08.2010
 
 import ui_mainwindow
 from consts import *
-from repo_mgr import *
-from worker_threads import *
-from integrity_fixer import *
+from data.repo_mgr import *
+from logic.worker_threads import *
+from logic.integrity_fixer import *
 from helpers import *
-from tag_cloud import TagCloud
-from file_browser import FileBrowser, FileBrowserTableModel
-from items_table_dock_widget import ItemsTableDockWidget
-from table_models import RepoItemTableModel
-from action_handlers import *
+from gui.tag_cloud import TagCloud
+from gui.file_browser import FileBrowser, FileBrowserTableModel
+from gui.items_table_dock_widget import ItemsTableDockWidget
+from gui.table_models import RepoItemTableModel
+from logic.action_handlers import *
 import logging
 import consts
-import gui_proxy
-import abstract_gui
+import gui.gui_proxy
+from gui.abstract_gui import AbstractGui
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
-class MainWindow(QtGui.QMainWindow, abstract_gui.AbstractGui):
+class MainWindow(QtGui.QMainWindow, AbstractGui):
     '''
     Reggata's main window.
     '''
@@ -297,7 +297,7 @@ class MainWindow(QtGui.QMainWindow, abstract_gui.AbstractGui):
             self.ui.action_help_about, ShowAboutDialogActionHandler(self))
         
     def __initDragNDropHandlers(self):
-        self.__dragNDropGuiProxy = gui_proxy.GuiProxy(self, [])
+        self.__dragNDropGuiProxy = gui.gui_proxy.GuiProxy(self, [])
         
         self.__dragNDropActionItemAdd = QtGui.QAction(self)
         self.__dragNDropActionItemAddMany = QtGui.QAction(self)

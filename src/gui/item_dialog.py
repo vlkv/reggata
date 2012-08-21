@@ -27,13 +27,12 @@ import PyQt4.QtCore as QtCore
 
 import ui_itemdialog
 import consts
-from db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
-import helpers
+from data.db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
 from helpers import show_exc_info, is_none_or_empty, is_internal
 from parsers import definition_parser
 from parsers.util import quote
 from exceptions import MsgException
-from common_widgets import TextEdit
+from gui.common_widgets import TextEdit
 
 
 class ItemDialog(QtGui.QDialog):

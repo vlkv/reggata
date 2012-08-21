@@ -2,10 +2,10 @@ import unittest
 import tests_context
 import os
 import shutil
-from repo_mgr import RepoMgr, UnitOfWork
-from db_schema import DataRef
+from data.repo_mgr import RepoMgr, UnitOfWork
+from data.db_schema import DataRef
 import helpers
-from commands import GetExpungedItemCommand, UpdateExistingItemCommand
+from data.commands import GetExpungedItemCommand, UpdateExistingItemCommand
 
 
 class AbstractTestCaseWithRepo(unittest.TestCase):

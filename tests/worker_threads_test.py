@@ -4,10 +4,10 @@ Created on 25.01.2012
 @author: vvolkov
 '''
 import unittest
-from repo_mgr import *
-from worker_threads import DeleteGroupOfItemsThread
+from data.repo_mgr import *
+from logic.worker_threads import DeleteGroupOfItemsThread
 from abstract_test_cases import AbstractTestCaseWithRepo
-from commands import GetExpungedItemCommand
+from data.commands import GetExpungedItemCommand
 
 class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):
 

@@ -31,7 +31,7 @@ import os.path
 from exceptions import *
 from helpers import *
 import consts
-from db_schema import *
+from data.db_schema import *
 from user_config import UserConfig
 
 

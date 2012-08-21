@@ -24,7 +24,7 @@ Created on 17.10.2010
 
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
-from db_schema import User
+from data.db_schema import User
 import ui_userdialog
 from helpers import show_exc_info, computePasswordHash
 from exceptions import UnsupportedDialogModeError, MsgException
