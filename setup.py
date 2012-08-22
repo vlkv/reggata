@@ -10,6 +10,7 @@ from cx_Freeze import setup, Executable
 import imp
 import os
 import shutil
+import re
 
 class UnsupportedPlatform(Exception):
     pass
@@ -19,12 +20,13 @@ class VersionInfoNotFound(Exception):
 
 
 def get_reggata_version():
-    f = open("version.txt", "r")
-    version = f.readline()
-    if not version or len(version) == 0:
-        raise VersionInfoNotFound()
-    f.close()
-    return version.strip()
+    with open("version.txt", "r") as f:
+        version = f.readline().strip()
+        if version is None or len(version) == 0:
+            raise VersionInfoNotFound()
+        
+    result = re.sub(r"-g\S+", "", version)
+    return result
 
 
 def get_short_sys_platform():
@@ -49,6 +51,7 @@ if __name__ == '__main__':
         base = "Win32GUI"
     
     reggata_version = get_reggata_version()
+    print("Reggata version is " + reggata_version)
     target_dir = os.path.join("bin", "reggata-" + reggata_version + "_" + get_short_sys_platform()) 
     buildOptions = dict(
             compressed = True,
