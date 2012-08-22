@@ -6,7 +6,7 @@ Created on 25.01.2012
 import unittest
 from data.repo_mgr import *
 from logic.worker_threads import DeleteGroupOfItemsThread
-from abstract_test_cases import AbstractTestCaseWithRepo
+from tests.abstract_test_cases import AbstractTestCaseWithRepo
 from data.commands import GetExpungedItemCommand
 
 class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):

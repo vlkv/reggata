@@ -1,5 +1,13 @@
-TEST_REPO_BASE_PATH = "./testrepo.rgt"
-COPY_OF_TEST_REPO_BASE_PATH = "./copy_of_testrepo.rgt"
+import os
+
+
+TEST_REPO = "testrepo.rgt"
+COPY_OF_TEST_REPO = "copy_of_testrepo.rgt"
+
+__dirAbsPath = os.path.dirname(os.path.abspath(__file__))
+TEST_REPO_BASE_PATH = os.path.join(__dirAbsPath, TEST_REPO)
+COPY_OF_TEST_REPO_BASE_PATH = os.path.join(__dirAbsPath, COPY_OF_TEST_REPO)
+
 
 class ItemReliableFacts(object):
     pass

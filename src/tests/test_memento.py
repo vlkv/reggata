@@ -8,11 +8,9 @@ Created on 27.07.2012
 import unittest
 from data import db_schema
 import memento
-from tests_context import *
-import os
-from abstract_test_cases import AbstractTestCaseWithRepo
+from tests.tests_context import itemWithTagsAndFields
+from tests.abstract_test_cases import AbstractTestCaseWithRepo
 import datetime
-from test.test_capi import InstanceMethod
 
 class ItemSerializationSimpleTest(unittest.TestCase):
 
