@@ -52,6 +52,9 @@ class User(Base):
     group = sqa.Column(sqa.Enum(USER, ADMIN), nullable=False, default=USER)
     date_created = sqa.Column(sqa.DateTime)
     
+    def __init__(self):
+        pass
+    
     def check_valid(self):
         if self.login is None or self.login=="":
             raise ValueError("Attribute User.login shouldn't be empty.")        
@@ -589,14 +592,7 @@ class DataRef(Base, memento.Serializable):
     
 
 class Thumbnail(Base):
-    '''
-    Миниатюра изображения графического файла, сама ссылка на файл хранится в DataRef.
     
-    TODO: Кстати, миниатюры можно добавлять не только для графических файлов.
-    Если DataRef указывает на книгу в формате pdf, то миниатюра может содержать 
-    изображение титульного листа книги (причем не обязательно очень маленького разрешения).
-    Для mp3 файла это может быть обложка диска альбома и т.п.
-    '''
     __tablename__ = "thumbnails"
     
     data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"), primary_key=True)
