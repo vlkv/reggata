@@ -2,6 +2,9 @@ import unittest
 import os
 from tests import test_memento, test_helpers, test_repo_mgr, test_worker_threads
 
+class TestsDiscoverIsNotAvailableError(Exception):
+    pass
+    
 
 class TestRunner():
     def __init__(self):
@@ -35,8 +38,11 @@ def runTestsFromList():
 
 def discoverAndRunAllTests():
     loader = unittest.TestLoader()
-    tests = loader.discover(os.path.join(dirAbsPath, ".."))
-    testRunner = unittest.runner.TextTestRunner(verbosity=2)
+    try:
+        tests = loader.discover(os.path.join(dirAbsPath, ".."))
+        testRunner = unittest.runner.TextTestRunner(verbosity=2)
+    except AttributeError:
+        raise TestsDiscoverIsNotAvailableError()
     testRunner.run(tests)
 
 if __name__ == '__main__':
@@ -49,7 +55,7 @@ if __name__ == '__main__':
     try:
         print("Trying to discover and run all tests...")
         discoverAndRunAllTests()
-    except AttributeError as err:
+    except TestsDiscoverIsNotAvailableError:
         print("Tests discovering failed (perhaps you have old python version <= 3.1")
         print("Running all tests from predefined list.")
         runTestsFromList()
