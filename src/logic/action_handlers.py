@@ -153,14 +153,27 @@ class CreateRepoActionHandler(AbstractActionHandler):
             # the path should be normalized
             basePath = os.path.normpath(basePath)
             self._gui.active_repo = RepoMgr.createNewRepo(basePath)
-            self._gui.active_user = None
+            self._gui.active_user = self.__createDefaultUser()
         
         except Exception as ex:
             show_exc_info(self._gui, ex)
-        else:        
-            #Let the user create an account in new repository
-            self._gui.triggerCreateUserAction()
-            pass
+        
+        
+    def __createDefaultUser(self):
+        self._gui.checkActiveRepoIsNotNone()
+        
+        defaultLogin = consts.DEFAULT_USER_LOGIN
+        defaultPassword = helpers.computePasswordHash(consts.DEFAULT_USER_PASSWORD)
+        user = User(login=defaultLogin, password=defaultPassword)
+        
+        uow = self._gui.active_repo.create_unit_of_work()
+        try:
+            uow.executeCommand(SaveNewUserCommand(user))
+        finally:
+            uow.close()
+        return user
+            
+    
 
 class CloseRepoActionHandler(AbstractActionHandler):
     def __init__(self, gui):

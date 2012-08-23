@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'userdialog.ui'
 #
-# Created: Fri Jul 20 20:32:32 2012
+# Created: Thu Aug 23 22:04:03 2012
 #      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,14 +17,14 @@ except AttributeError:
 class Ui_UserDialog(object):
     def setupUi(self, UserDialog):
         UserDialog.setObjectName(_fromUtf8("UserDialog"))
-        UserDialog.resize(329, 194)
+        UserDialog.resize(274, 214)
         self.verticalLayout = QtGui.QVBoxLayout(UserDialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.gridLayout = QtGui.QGridLayout()
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.label_login = QtGui.QLabel(UserDialog)
         self.label_login.setObjectName(_fromUtf8("label_login"))
-        self.gridLayout.addWidget(self.label_login, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.label_login, 0, 0, 1, 2)
         self.lineEdit_login = QtGui.QLineEdit(UserDialog)
         self.lineEdit_login.setObjectName(_fromUtf8("lineEdit_login"))
         self.gridLayout.addWidget(self.lineEdit_login, 0, 2, 1, 1)
@@ -46,11 +46,15 @@ class Ui_UserDialog(object):
         self.gridLayout.addWidget(self.comboBox_group, 3, 2, 1, 1)
         self.label_password_repeat = QtGui.QLabel(UserDialog)
         self.label_password_repeat.setObjectName(_fromUtf8("label_password_repeat"))
-        self.gridLayout.addWidget(self.label_password_repeat, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.label_password_repeat, 2, 0, 1, 2)
         self.lineEdit_password_repeat = QtGui.QLineEdit(UserDialog)
         self.lineEdit_password_repeat.setEchoMode(QtGui.QLineEdit.Password)
         self.lineEdit_password_repeat.setObjectName(_fromUtf8("lineEdit_password_repeat"))
         self.gridLayout.addWidget(self.lineEdit_password_repeat, 2, 2, 1, 1)
+        self.label_notice = QtGui.QLabel(UserDialog)
+        self.label_notice.setWordWrap(True)
+        self.label_notice.setObjectName(_fromUtf8("label_notice"))
+        self.gridLayout.addWidget(self.label_notice, 4, 0, 1, 3)
         self.verticalLayout.addLayout(self.gridLayout)
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem)
@@ -71,4 +75,5 @@ class Ui_UserDialog(object):
         self.comboBox_group.setItemText(0, QtGui.QApplication.translate("UserDialog", "USER", None, QtGui.QApplication.UnicodeUTF8))
         self.comboBox_group.setItemText(1, QtGui.QApplication.translate("UserDialog", "ADMIN", None, QtGui.QApplication.UnicodeUTF8))
         self.label_password_repeat.setText(QtGui.QApplication.translate("UserDialog", "Repeat password:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_notice.setText(QtGui.QApplication.translate("UserDialog", "Note: default user login is \"user\" with empty password.", None, QtGui.QApplication.UnicodeUTF8))
 

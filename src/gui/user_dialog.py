@@ -57,6 +57,8 @@ class UserDialog(QtGui.QDialog):
         if mode == UserDialog.CREATE_MODE:
             self.setWindowTitle(self.tr("Create new repository user"))
             
+            self.ui.label_notice.setVisible(False)
+            
         elif mode == UserDialog.LOGIN_MODE:
             self.setWindowTitle(self.tr("Repository login"))
             
@@ -67,7 +69,9 @@ class UserDialog(QtGui.QDialog):
             self.ui.comboBox_group.setVisible(False)
         else:
             raise UnsupportedDialogModeError(self.tr("Mode={} is not supported by this dialog.").format(mode))
+        
         self.mode = mode
+        
         
     def write(self):
         '''Запись введенной в элементы gui информации в поля объекта.'''

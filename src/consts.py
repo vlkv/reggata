@@ -31,3 +31,6 @@ yacc_errorlog = ply.yacc.NullLogger()
 lex_errorlog = ply.lex.NullLogger()
 
 STATUSBAR_TIMEOUT = 5000
+
+DEFAULT_USER_LOGIN = "user"
+DEFAULT_USER_PASSWORD = ""

@@ -498,9 +498,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def checkActiveUserIsNotNone(self):
         if self.active_user is None:
             raise MsgException(self.tr("Login to a repository first."))
-    
-    def triggerCreateUserAction(self):
-        self.ui.action_user_create.trigger()
         
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
         if timeoutBeforeClear is not None:

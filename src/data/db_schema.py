@@ -52,11 +52,14 @@ class User(Base):
     group = sqa.Column(sqa.Enum(USER, ADMIN), nullable=False, default=USER)
     date_created = sqa.Column(sqa.DateTime)
     
-    def __init__(self):
-        pass
+    def __init__(self, login=None, password=None, group=USER):
+        self.login = login
+        self.password = password
+        self.group = group
+        self.date_created = datetime.datetime.today()
     
     def check_valid(self):
-        if self.login is None or self.login=="":
+        if helpers.is_none_or_empty(self.login):
             raise ValueError("Attribute User.login shouldn't be empty.")        
         return True
 
