@@ -14,7 +14,7 @@ from PyQt4 import QtCore, QtGui
 from logic.integrity_fixer import IntegrityFixer
 from data.repo_mgr import *
 from data.db_schema import Thumbnail
-from exceptions import *
+from errors import *
 from data.commands import *
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)

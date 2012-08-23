@@ -26,7 +26,7 @@ from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, \
     FieldOpVal, FieldsConjunction, CompoundQuery, SingleExtraClause
 import ply.yacc as yacc
 from parsers.query_tokens import *
-from exceptions import YaccError
+from errors import YaccError
 
 def p_query(p):
     '''query : simple_query

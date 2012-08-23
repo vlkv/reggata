@@ -28,7 +28,7 @@ from helpers import show_exc_info, is_none_or_empty
 from parsers.query_tokens import needs_quote
 from parsers.util import quote
 import parsers
-from exceptions import MsgException
+from errors import MsgException
 from user_config import UserConfig
 from data.commands import GetRelatedTagsCommand
 

@@ -14,7 +14,7 @@ class AccessError(Exception):
               
 class UnsupportedDialogModeError(Exception):
     def __init__(self, msg=None):
-        super(LoginError, self).__init__(msg)
+        super(UnsupportedDialogModeError, self).__init__(msg)
         
 class MsgException(Exception):
     '''This exception is used in situations when no error occurred,

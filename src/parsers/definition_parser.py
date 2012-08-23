@@ -24,7 +24,7 @@ Parser for text definition of tags and fields.
 
 import ply.yacc as yacc
 from parsers.definition_tokens import *
-from exceptions import YaccError
+from errors import YaccError
 
 def p_definition_empty(p):
     '''definition :

@@ -24,7 +24,7 @@ from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
 import ui_imageviewer
 from helpers import show_exc_info
-from exceptions import MsgException
+from errors import MsgException
 from user_config import UserConfig
 import logging
 import consts

@@ -23,7 +23,7 @@ Module contains a lexical analyzer of reggata query language.
 '''
 import ply.lex as lex
 import re
-from exceptions import LexError
+from errors import LexError
 import consts
 from PyQt4.QtCore import QCoreApplication
 

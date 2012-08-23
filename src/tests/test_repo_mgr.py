@@ -5,7 +5,8 @@ from tests.tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonEx
     itemWithTagsAndFields, itemWithoutFile
 from data.repo_mgr import *
 from data.commands import *
-from exceptions import AccessError, NotFoundError
+from errors import *
+
 
 
 class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):

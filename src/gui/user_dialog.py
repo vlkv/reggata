@@ -27,7 +27,7 @@ import PyQt4.QtCore as QtCore
 from data.db_schema import User
 import ui_userdialog
 from helpers import show_exc_info, computePasswordHash
-from exceptions import UnsupportedDialogModeError, MsgException
+from errors import UnsupportedDialogModeError, MsgException
 
 class UserDialog(QtGui.QDialog):
     

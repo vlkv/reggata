@@ -18,7 +18,7 @@ from gui.common_widgets import Completer, WaitDialog
 from logic.ext_app_mgr import ExtAppMgr
 from gui.image_viewer import ImageViewer
 from logic.worker_threads import *
-from exceptions import *
+from errors import *
 from gui.my_message_box import MyMessageBox
 
 

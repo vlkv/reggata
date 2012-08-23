@@ -28,7 +28,7 @@ from sqlalchemy.exc import ResourceClosedError
 import shutil
 import datetime
 import os.path
-from exceptions import *
+from errors import *
 from helpers import *
 import consts
 from data.db_schema import *

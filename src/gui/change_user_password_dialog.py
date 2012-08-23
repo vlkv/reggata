@@ -9,7 +9,7 @@ import PyQt4.QtCore as QtCore
 import ui_changeuserpassword
 from data.db_schema import *
 from helpers import *
-from exceptions import *
+from errors import *
 from data.repo_mgr import *
 
 

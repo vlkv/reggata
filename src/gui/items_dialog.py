@@ -12,7 +12,7 @@ import ui_itemsdialog
 from helpers import is_internal, is_none_or_empty, show_exc_info
 import parsers
 from data.db_schema import DataRef
-from exceptions import MsgException
+from errors import MsgException
 from gui.common_widgets import TextEdit
 
 #TODO: Rename this class to some more meaningful name

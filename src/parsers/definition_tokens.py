@@ -25,7 +25,7 @@ Tokens for parser from definition_parser module.
 from ply import lex
 import re
 import consts
-from exceptions import LexError
+from errors import LexError
 
 #Список типов токенов
 tokens = [

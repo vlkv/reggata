@@ -26,7 +26,7 @@ import os
 import consts
 import subprocess
 import shlex
-from exceptions import MsgException
+from errors import MsgException
 import logging
 from PyQt4.QtCore import QCoreApplication 
 
