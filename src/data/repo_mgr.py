@@ -23,16 +23,13 @@ Created on 30.09.2010
 '''
 
 import sqlalchemy as sqa
-from sqlalchemy.orm import sessionmaker, contains_eager, joinedload_all
-from sqlalchemy.exc import ResourceClosedError
-import shutil
-import datetime
+from sqlalchemy.orm import sessionmaker
 import os.path
-from errors import *
-from helpers import *
+from errors import CannotOpenRepoError
+import helpers 
 import consts
-from data.db_schema import *
 from user_config import UserConfig
+from data.db_schema import Base, Item, HistoryRec, DataRef
 
 
 class RepoMgr(object):
@@ -148,9 +145,9 @@ class UnitOfWork(object):
             if not os.path.exists(abs_path):
                 error_set.add(Item.ERROR_FILE_NOT_FOUND)
             else:
-                hash = helpers.compute_hash(abs_path)
+                fileHash = helpers.compute_hash(abs_path)
                 size = os.path.getsize(abs_path)
-                if item.data_ref.hash != hash or item.data_ref.size != size:
+                if item.data_ref.hash != fileHash or item.data_ref.size != size:
                     error_set.add(Item.ERROR_FILE_HASH_MISMATCH)                
         
         return error_set
@@ -184,7 +181,6 @@ class UnitOfWork(object):
         if operation != HistoryRec.CREATE and parent1_id is None:
             raise ValueError("Argument parent1_id cannot be None in CREATE operation.")
         
-        #Сохраняем историю изменения данного элемента
         hr = HistoryRec(item_id = item_0.id, item_hash=item_0.hash(), \
                         operation=operation, \
                         user_login=user_login, \
