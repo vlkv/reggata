@@ -331,11 +331,9 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
                 item.data_ref.srcAbsPath = file
                 items.append(item)
             
-            completer = Completer(self._gui.active_repo, self._gui)
-            repoBasePath = self._gui.active_repo.base_path
-            d = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.CREATE_MODE, 
-                            same_dst_path=True, completer=completer)
-            if not d.exec_():
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemsDialog(
+                items, self._gui, ItemsDialog.CREATE_MODE, sameDstPath=True):
                 return
             
             self._startWorkerThread(items)
@@ -376,11 +374,9 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                     # item.data_ref.dstRelPath will be set by ItemsDialog
                     items.append(item)
             
-            completer = Completer(self._gui.active_repo, self._gui)
-            repoBasePath = self._gui.active_repo.base_path
-            d = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.CREATE_MODE, 
-                            same_dst_path=False, completer=completer)
-            if not d.exec_():
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemsDialog(
+                items, self._gui, ItemsDialog.CREATE_MODE, sameDstPath=False):
                 return
                 
             self._startWorkerThread(items)
@@ -443,10 +439,10 @@ class EditItemActionHandler(AbstractActionHandler):
             items = []
             for itemId in itemIds:
                 items.append(uow.executeCommand(GetExpungedItemCommand(itemId)))
-            completer = Completer(self._gui.active_repo, self._gui)
-            repoBasePath = self._gui.active_repo.base_path
-            dlg = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.EDIT_MODE, completer=completer)
-            if not dlg.exec_():
+            
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemsDialog(
+                items, self._gui, ItemsDialog.EDIT_MODE, sameDstPath=True):
                 return
             
             thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, items)

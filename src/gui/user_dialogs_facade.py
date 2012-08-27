@@ -6,6 +6,7 @@ from gui.user_dialog import UserDialog
 from gui.change_user_password_dialog import ChangeUserPasswordDialog
 from gui.common_widgets import Completer
 from gui.item_dialog import ItemDialog
+from gui.items_dialog import ItemsDialog
 
 class UserDialogsFacade(object):
     '''
@@ -28,4 +29,13 @@ class UserDialogsFacade(object):
         completer = Completer(gui.active_repo, gui)
         dialog = ItemDialog(gui, item, dialogMode, completer=completer)
         return dialog.exec_()
+    
+    
+    def execItemsDialog(self, items, gui, dialogMode, sameDstPath):
+        completer = Completer(gui.active_repo, gui)
+        repoBasePath = gui.active_repo.base_path
+        d = ItemsDialog(gui, repoBasePath, items, dialogMode, 
+                        same_dst_path=sameDstPath, completer=completer)
+        return d.exec_()
+     
     
