@@ -4,6 +4,8 @@ Created on 27.08.2012
 '''
 from gui.user_dialog import UserDialog
 from gui.change_user_password_dialog import ChangeUserPasswordDialog
+from gui.common_widgets import Completer
+from gui.item_dialog import ItemDialog
 
 class UserDialogsFacade(object):
     '''
@@ -21,4 +23,9 @@ class UserDialogsFacade(object):
             return (True, dialog.newPasswordHash)
         else:
             return (False, None)
+    
+    def execItemDialog(self, item, gui, dialogMode):
+        completer = Completer(gui.active_repo, gui)
+        dialog = ItemDialog(gui, item, dialogMode, completer=completer)
+        return dialog.exec_()
     

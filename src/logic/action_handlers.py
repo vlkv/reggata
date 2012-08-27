@@ -257,22 +257,21 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 file = os.path.normpath(file)
                 item.title = os.path.basename(file)
                 item.data_ref = DataRef(type=DataRef.FILE, url=file)
-            
-            
-            completer = Completer(self._gui.active_repo, self._gui)
-            dialog = ItemDialog(self._gui, item, ItemDialog.CREATE_MODE, completer=completer)
-            if not dialog.exec_():
+
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemDialog(
+                item=item, gui=self._gui, dialogMode=ItemDialog.CREATE_MODE):
                 return
             
             uow = self._gui.active_repo.create_unit_of_work()
             try:
                 srcAbsPath = None
                 dstRelPath = None
-                if dialog.item.data_ref is not None:
-                    srcAbsPath = dialog.item.data_ref.srcAbsPath
-                    dstRelPath = dialog.item.data_ref.dstRelPath
+                if item.data_ref is not None:
+                    srcAbsPath = item.data_ref.srcAbsPath
+                    dstRelPath = item.data_ref.dstRelPath
 
-                cmd = SaveNewItemCommand(dialog.item, srcAbsPath, dstRelPath)
+                cmd = SaveNewItemCommand(item, srcAbsPath, dstRelPath)
                 thread = BackgrThread(self._gui, uow.executeCommand, cmd)
                 
                 wd = WaitDialog(self._gui, indeterminate=True)
@@ -427,10 +426,12 @@ class EditItemActionHandler(AbstractActionHandler):
         uow = self._gui.active_repo.create_unit_of_work()
         try:
             item = uow.executeCommand(GetExpungedItemCommand(itemId))
-            completer = Completer(self._gui.active_repo, self._gui)
-            item_dialog = ItemDialog(self._gui, item, ItemDialog.EDIT_MODE, completer=completer)
-            if not item_dialog.exec_():
+            
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemDialog(
+                item=item, gui=self._gui, dialogMode=ItemDialog.EDIT_MODE):
                 return
+            
             cmd = UpdateExistingItemCommand(item, self._gui.active_user.login)
             uow.executeCommand(cmd)
         finally:
