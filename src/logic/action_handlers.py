@@ -410,9 +410,10 @@ class EditItemActionHandler(AbstractActionHandler):
             item = uow.executeCommand(GetExpungedItemCommand(itemId))
             completer = Completer(self._gui.active_repo, self._gui)
             item_dialog = ItemDialog(self._gui, item, ItemDialog.EDIT_MODE, completer=completer)
-            if item_dialog.exec_():
-                cmd = UpdateExistingItemCommand(item_dialog.item, self._gui.active_user.login)
-                uow.executeCommand(cmd)
+            if not item_dialog.exec_():
+                return
+            cmd = UpdateExistingItemCommand(item, self._gui.active_user.login)
+            uow.executeCommand(cmd)
         finally:
             uow.close()
     
@@ -425,14 +426,16 @@ class EditItemActionHandler(AbstractActionHandler):
             completer = Completer(self._gui.active_repo, self._gui)
             repoBasePath = self._gui.active_repo.base_path
             dlg = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.EDIT_MODE, completer=completer)
-            if dlg.exec_():
-                thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, items)
-                        
-                wd = WaitDialog(self._gui)
-                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                wd.startWithWorkerThread(thread)     
+            if not dlg.exec_():
+                return
+            
+            thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, items)
+                    
+            wd = WaitDialog(self._gui)
+            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+            wd.startWithWorkerThread(thread)     
                 
         finally:
             uow.close()
