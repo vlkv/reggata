@@ -128,13 +128,16 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
             self._gui.checkActiveUserIsNotNone()
             
             user = self._gui.active_user
-            dialog = ChangeUserPasswordDialog(self._gui, user)
-            if not dialog.exec_():
+            
+            dialogs = UserDialogsFacade()
+            dialogExecOk, newPasswordHash = \
+                dialogs.execChangeUserPasswordDialog(user=user, gui=self._gui)
+            if not dialogExecOk:
                 return
             
             uow = self._gui.active_repo.create_unit_of_work()
             try:
-                command = ChangeUserPasswordCommand(user.login, dialog.newPasswordHash)
+                command = ChangeUserPasswordCommand(user.login, newPasswordHash)
                 uow.executeCommand(command)
             finally:
                 uow.close()
