@@ -514,6 +514,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
             if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
+            # TODO: Have to extract show message box to UserDialogsFacade
             mb = QtGui.QMessageBox()
             mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(itemIds)))
             mb.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
@@ -530,6 +531,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
             wd.startWithWorkerThread(thread)
                 
             if thread.errors > 0:
+                # TODO: Have to extract show message box to UserDialogsFacade
                 mb = MyMessageBox(self._gui)
                 mb.setWindowTitle(self.tr("Information"))
                 mb.setText(self.tr("There were {0} errors.").format(thread.errors))                    
