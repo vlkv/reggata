@@ -9,7 +9,6 @@ import PyQt4.QtGui as QtGui
 from data.repo_mgr import *
 from consts import *
 from helpers import *
-from gui.user_dialog import UserDialog
 from gui.change_user_password_dialog import ChangeUserPasswordDialog
 from gui.item_dialog import ItemDialog
 from gui.items_dialog import ItemsDialog
@@ -20,8 +19,11 @@ from gui.image_viewer import ImageViewer
 from logic.worker_threads import *
 from errors import *
 from gui.my_message_box import MyMessageBox
+from gui.user_dialogs_facade import UserDialogsFacade
+from gui.user_dialog import UserDialog
 
 
+# TODO: rename to a better name. Maybe RepoSignals
 class HandlerSignals():
     '''Named constants in this class is not the signal names, but the signal types.
     They are arguments of the following signals: handlerSignal, handlerSignals.
@@ -67,14 +69,17 @@ class CreateUserActionHandler(AbstractActionHandler):
         try:
             self._gui.checkActiveRepoIsNotNone()
             
-            u = UserDialog(User(), self._gui, UserDialog.CREATE_MODE)
-            if not u.exec_():
+            user = User()
+            
+            dialogs = UserDialogsFacade()
+            if not dialogs.execUserDialog(
+                user=user, gui=self._gui, dialogMode=UserDialog.CREATE_MODE):
                 return
             
             uow = self._gui.active_repo.create_unit_of_work()
             try:
-                uow.executeCommand(SaveNewUserCommand(u.user))
-                self._gui.active_user = u.user
+                uow.executeCommand(SaveNewUserCommand(user))
+                self._gui.active_user = user
             finally:
                 uow.close()
                 
@@ -89,11 +94,14 @@ class LoginUserActionHandler(AbstractActionHandler):
         try:
             self._gui.checkActiveRepoIsNotNone()
             
-            ud = UserDialog(User(), self._gui, mode=UserDialog.LOGIN_MODE)
-            if not ud.exec_():
-                return                     
+            user = User()
             
-            self._gui.loginUser(ud.user.login, ud.user.password)
+            dialogs = UserDialogsFacade()
+            if not dialogs.execUserDialog(
+                user=user, gui=self._gui, dialogMode=UserDialog.LOGIN_MODE):
+                return
+            
+            self._gui.loginUser(user.login, user.password)
                 
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -208,15 +216,24 @@ class OpenRepoActionHandler(AbstractActionHandler):
             self._gui.loginRecentUser()
             
         except LoginError:
-            ud = UserDialog(User(), self._gui, mode=UserDialog.LOGIN_MODE)
-            if not ud.exec_():
-                return
-            
-            self._gui.loginUser(ud.user.login, ud.user.password)
+            self.__letUserLoginByHimself()
                             
         except Exception as ex:
             show_exc_info(self._gui, ex)
 
+
+    def __letUserLoginByHimself(self):
+        user = User()
+        dialogs = UserDialogsFacade()
+        if not dialogs.execUserDialog(
+            user=user, gui=self._gui, dialogMode=UserDialog.LOGIN_MODE):
+            return
+        try:
+            self._gui.loginUser(user.login, user.password)
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        
+        
 
 class AddSingleItemActionHandler(AbstractActionHandler):
     def __init__(self, gui):
