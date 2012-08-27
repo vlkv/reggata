@@ -9,7 +9,6 @@ import PyQt4.QtGui as QtGui
 from data.repo_mgr import *
 from consts import *
 from helpers import *
-from gui.user_dialog import UserDialog
 from gui.change_user_password_dialog import ChangeUserPasswordDialog
 from gui.item_dialog import ItemDialog
 from gui.items_dialog import ItemsDialog
@@ -20,8 +19,11 @@ from gui.image_viewer import ImageViewer
 from logic.worker_threads import *
 from errors import *
 from gui.my_message_box import MyMessageBox
+from gui.user_dialogs_facade import UserDialogsFacade
+from gui.user_dialog import UserDialog
 
 
+# TODO: rename to a better name. Maybe RepoSignals
 class HandlerSignals():
     '''Named constants in this class is not the signal names, but the signal types.
     They are arguments of the following signals: handlerSignal, handlerSignals.
@@ -67,14 +69,17 @@ class CreateUserActionHandler(AbstractActionHandler):
         try:
             self._gui.checkActiveRepoIsNotNone()
             
-            u = UserDialog(User(), self._gui, UserDialog.CREATE_MODE)
-            if not u.exec_():
+            user = User()
+            
+            dialogs = UserDialogsFacade()
+            if not dialogs.execUserDialog(
+                user=user, gui=self._gui, dialogMode=UserDialog.CREATE_MODE):
                 return
             
             uow = self._gui.active_repo.create_unit_of_work()
             try:
-                uow.executeCommand(SaveNewUserCommand(u.user))
-                self._gui.active_user = u.user
+                uow.executeCommand(SaveNewUserCommand(user))
+                self._gui.active_user = user
             finally:
                 uow.close()
                 
@@ -89,11 +94,14 @@ class LoginUserActionHandler(AbstractActionHandler):
         try:
             self._gui.checkActiveRepoIsNotNone()
             
-            ud = UserDialog(User(), self._gui, mode=UserDialog.LOGIN_MODE)
-            if not ud.exec_():
-                return                     
+            user = User()
             
-            self._gui.loginUser(ud.user.login, ud.user.password)
+            dialogs = UserDialogsFacade()
+            if not dialogs.execUserDialog(
+                user=user, gui=self._gui, dialogMode=UserDialog.LOGIN_MODE):
+                return
+            
+            self._gui.loginUser(user.login, user.password)
                 
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -120,13 +128,16 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
             self._gui.checkActiveUserIsNotNone()
             
             user = self._gui.active_user
-            dialog = ChangeUserPasswordDialog(self._gui, user)
-            if not dialog.exec_():
+            
+            dialogs = UserDialogsFacade()
+            dialogExecOk, newPasswordHash = \
+                dialogs.execChangeUserPasswordDialog(user=user, gui=self._gui)
+            if not dialogExecOk:
                 return
             
             uow = self._gui.active_repo.create_unit_of_work()
             try:
-                command = ChangeUserPasswordCommand(user.login, dialog.newPasswordHash)
+                command = ChangeUserPasswordCommand(user.login, newPasswordHash)
                 uow.executeCommand(command)
             finally:
                 uow.close()
@@ -143,8 +154,8 @@ class CreateRepoActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            basePath = QtGui.QFileDialog.getExistingDirectory(
-                self._gui, self.tr("Choose a base path for new repository"))
+            basePath = self._gui.getExistingDirectory(
+                self.tr("Choose a base path for new repository"))
             if not basePath:
                 raise MsgException(
                     self.tr("You haven't chosen existent directory. Operation canceled."))
@@ -194,29 +205,38 @@ class OpenRepoActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            base_path = QtGui.QFileDialog.getExistingDirectory(
-                self._gui, self.tr("Choose a repository base path"))
+            basePath = self._gui.getExistingDirectory(
+                self.tr("Choose a repository base path"))
             
-            if not base_path:
+            if not basePath:
                 raise Exception(
                     self.tr("You haven't chosen existent directory. Operation canceled."))
 
             #QFileDialog returns forward slashes in windows! Because of this path should be normalized
-            base_path = os.path.normpath(base_path)
-            self._gui.active_repo = RepoMgr(base_path)
+            basePath = os.path.normpath(basePath)
+            self._gui.active_repo = RepoMgr(basePath)
             self._gui.active_user = None
             self._gui.loginRecentUser()
             
         except LoginError:
-            ud = UserDialog(User(), self._gui, mode=UserDialog.LOGIN_MODE)
-            if not ud.exec_():
-                return
-            
-            self._gui.loginUser(ud.user.login, ud.user.password)
+            self.__letUserLoginByHimself()
                             
         except Exception as ex:
             show_exc_info(self._gui, ex)
 
+
+    def __letUserLoginByHimself(self):
+        user = User()
+        dialogs = UserDialogsFacade()
+        if not dialogs.execUserDialog(
+            user=user, gui=self._gui, dialogMode=UserDialog.LOGIN_MODE):
+            return
+        try:
+            self._gui.loginUser(user.login, user.password)
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        
+        
 
 class AddSingleItemActionHandler(AbstractActionHandler):
     def __init__(self, gui):
@@ -237,22 +257,21 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 file = os.path.normpath(file)
                 item.title = os.path.basename(file)
                 item.data_ref = DataRef(type=DataRef.FILE, url=file)
-            
-            
-            completer = Completer(self._gui.active_repo, self._gui)
-            dialog = ItemDialog(self._gui, item, ItemDialog.CREATE_MODE, completer=completer)
-            if not dialog.exec_():
+
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemDialog(
+                item=item, gui=self._gui, dialogMode=ItemDialog.CREATE_MODE):
                 return
             
             uow = self._gui.active_repo.create_unit_of_work()
             try:
                 srcAbsPath = None
                 dstRelPath = None
-                if dialog.item.data_ref is not None:
-                    srcAbsPath = dialog.item.data_ref.srcAbsPath
-                    dstRelPath = dialog.item.data_ref.dstRelPath
+                if item.data_ref is not None:
+                    srcAbsPath = item.data_ref.srcAbsPath
+                    dstRelPath = item.data_ref.dstRelPath
 
-                cmd = SaveNewItemCommand(dialog.item, srcAbsPath, dstRelPath)
+                cmd = SaveNewItemCommand(item, srcAbsPath, dstRelPath)
                 thread = BackgrThread(self._gui, uow.executeCommand, cmd)
                 
                 wd = WaitDialog(self._gui, indeterminate=True)
@@ -312,11 +331,9 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
                 item.data_ref.srcAbsPath = file
                 items.append(item)
             
-            completer = Completer(self._gui.active_repo, self._gui)
-            repoBasePath = self._gui.active_repo.base_path
-            d = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.CREATE_MODE, 
-                            same_dst_path=True, completer=completer)
-            if not d.exec_():
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemsDialog(
+                items, self._gui, ItemsDialog.CREATE_MODE, sameDstPath=True):
                 return
             
             self._startWorkerThread(items)
@@ -339,30 +356,27 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            dir = self._gui.getExistingDirectory(self.tr("Select sigle existing directory"))
-            #dir = QtGui.QFileDialog.getExistingDirectory(self._gui, self.tr("Select one directory"))
-            if not dir:
+            dirPath = self._gui.getExistingDirectory(self.tr("Select single existing directory"))
+            if not dirPath:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
                         
-            dir = os.path.normpath(dir)
+            dirPath = os.path.normpath(dirPath)
             
             items = []
-            for root, dirs, files in os.walk(dir):
-                if os.path.relpath(root, dir) == ".reggata":
+            for root, dirs, files in os.walk(dirPath):
+                if os.path.relpath(root, dirPath) == ".reggata":
                     continue
                 for file in files:
                     item = Item(title=file, user_login=self._gui.active_user.login)
                     item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
                     item.data_ref.srcAbsPath = os.path.join(root, file)
-                    item.data_ref.srcAbsPathToRecursionRoot = dir
+                    item.data_ref.srcAbsPathToRecursionRoot = dirPath
                     # item.data_ref.dstRelPath will be set by ItemsDialog
                     items.append(item)
             
-            completer = Completer(self._gui.active_repo, self._gui)
-            repoBasePath = self._gui.active_repo.base_path
-            d = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.CREATE_MODE, 
-                            same_dst_path=False, completer=completer)
-            if not d.exec_():
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemsDialog(
+                items, self._gui, ItemsDialog.CREATE_MODE, sameDstPath=False):
                 return
                 
             self._startWorkerThread(items)
@@ -408,11 +422,14 @@ class EditItemActionHandler(AbstractActionHandler):
         uow = self._gui.active_repo.create_unit_of_work()
         try:
             item = uow.executeCommand(GetExpungedItemCommand(itemId))
-            completer = Completer(self._gui.active_repo, self._gui)
-            item_dialog = ItemDialog(self._gui, item, ItemDialog.EDIT_MODE, completer=completer)
-            if item_dialog.exec_():
-                cmd = UpdateExistingItemCommand(item_dialog.item, self._gui.active_user.login)
-                uow.executeCommand(cmd)
+            
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemDialog(
+                item=item, gui=self._gui, dialogMode=ItemDialog.EDIT_MODE):
+                return
+            
+            cmd = UpdateExistingItemCommand(item, self._gui.active_user.login)
+            uow.executeCommand(cmd)
         finally:
             uow.close()
     
@@ -422,17 +439,19 @@ class EditItemActionHandler(AbstractActionHandler):
             items = []
             for itemId in itemIds:
                 items.append(uow.executeCommand(GetExpungedItemCommand(itemId)))
-            completer = Completer(self._gui.active_repo, self._gui)
-            repoBasePath = self._gui.active_repo.base_path
-            dlg = ItemsDialog(self._gui, repoBasePath, items, ItemsDialog.EDIT_MODE, completer=completer)
-            if dlg.exec_():
-                thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, items)
-                        
-                wd = WaitDialog(self._gui)
-                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-                wd.startWithWorkerThread(thread)     
+            
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemsDialog(
+                items, self._gui, ItemsDialog.EDIT_MODE, sameDstPath=True):
+                return
+            
+            thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, items)
+                    
+            wd = WaitDialog(self._gui)
+            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+            wd.startWithWorkerThread(thread)     
                 
         finally:
             uow.close()
@@ -495,6 +514,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
             if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
+            # TODO: Have to extract show message box to UserDialogsFacade
             mb = QtGui.QMessageBox()
             mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(itemIds)))
             mb.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
@@ -511,6 +531,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
             wd.startWithWorkerThread(thread)
                 
             if thread.errors > 0:
+                # TODO: Have to extract show message box to UserDialogsFacade
                 mb = MyMessageBox(self._gui)
                 mb.setWindowTitle(self.tr("Information"))
                 mb.setText(self.tr("There were {0} errors.").format(thread.errors))                    
@@ -658,8 +679,7 @@ class ExportItemsActionHandler(AbstractActionHandler):
             if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            exportFilename = QtGui.QFileDialog.getSaveFileName(
-                parent=self._gui, caption=self.tr('Save data as..')) 
+            exportFilename = self._gui.getSaveFileName(self.tr('Save data as..')) 
             if not exportFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
@@ -689,8 +709,7 @@ class ImportItemsActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            importFromFilename = QtGui.QFileDialog.getOpenFileName(
-                parent=self._gui, caption=self.tr('Open reggata export file..')) 
+            importFromFilename = self._gui.getOpenFileName(self.tr('Open reggata export file..'))
             if not importFromFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
@@ -724,8 +743,8 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
             if len(item_ids) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            export_dir_path = QtGui.QFileDialog.getExistingDirectory(
-                self._gui, self.tr("Choose a directory path to export files into."))
+            export_dir_path = self._gui.getExistingDirectory(
+                self.tr("Choose a directory path to export files into."))
             if not export_dir_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
@@ -756,12 +775,11 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            export_filename = QtGui.QFileDialog.getSaveFileName(
-                parent=self._gui, caption=self.tr('Save results in a file.')) 
-            if not export_filename:
+            exportFilename = self._gui.getSaveFileName(self.tr('Save results in a file.'))
+            if not exportFilename:
                 raise MsgException(self.tr("Operation canceled."))
             
-            file = open(export_filename, "w", newline='')
+            file = open(exportFilename, "w", newline='')
             for row in rows:
                 item = self._gui.itemAtRow(row)
                 if item.is_data_ref_null():

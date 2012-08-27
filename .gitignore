@@ -1,6 +1,4 @@
 *.pyc
-/parsetab.py
-/parser.out
 /bin
 /.settings/*.prefs
 /build_set_env.bat
@@ -8,3 +6,6 @@
 /reggata
 /runtests
 /version.txt
+/parsetab.py
+/parser.out
+/reggata.log

@@ -47,17 +47,11 @@ class ChangeUserPasswordDialog(QtGui.QDialog):
         if self.__newPassword1Hash != self.__newPassword2Hash:
             raise MsgException("Entered new passwords do not match.")
          
-    def checkThatNewPasswordIsNotEmpty(self):
-        newPassword = self.ui.lineEdit_new_password1.text()
-        if is_none_or_empty(newPassword.strip()):
-            raise MsgException("New password should not be empty.")
-         
     def buttonOk(self):
         try:
             self.write()
             self.checkThatCurrentPasswordIsCorrect()
             self.checkThatTwoNewPasswordsAreTheSame()
-            self.checkThatNewPasswordIsNotEmpty()
             self.accept()
              
         except Exception as ex:
