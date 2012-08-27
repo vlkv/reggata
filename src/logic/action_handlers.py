@@ -154,8 +154,8 @@ class CreateRepoActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            basePath = QtGui.QFileDialog.getExistingDirectory(
-                self._gui, self.tr("Choose a base path for new repository"))
+            basePath = self._gui.getExistingDirectory(
+                self.tr("Choose a base path for new repository"))
             if not basePath:
                 raise MsgException(
                     self.tr("You haven't chosen existent directory. Operation canceled."))
@@ -205,16 +205,16 @@ class OpenRepoActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            base_path = QtGui.QFileDialog.getExistingDirectory(
-                self._gui, self.tr("Choose a repository base path"))
+            basePath = self._gui.getExistingDirectory(
+                self.tr("Choose a repository base path"))
             
-            if not base_path:
+            if not basePath:
                 raise Exception(
                     self.tr("You haven't chosen existent directory. Operation canceled."))
 
             #QFileDialog returns forward slashes in windows! Because of this path should be normalized
-            base_path = os.path.normpath(base_path)
-            self._gui.active_repo = RepoMgr(base_path)
+            basePath = os.path.normpath(basePath)
+            self._gui.active_repo = RepoMgr(basePath)
             self._gui.active_user = None
             self._gui.loginRecentUser()
             
@@ -359,22 +359,21 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            dir = self._gui.getExistingDirectory(self.tr("Select sigle existing directory"))
-            #dir = QtGui.QFileDialog.getExistingDirectory(self._gui, self.tr("Select one directory"))
-            if not dir:
+            dirPath = self._gui.getExistingDirectory(self.tr("Select single existing directory"))
+            if not dirPath:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
                         
-            dir = os.path.normpath(dir)
+            dirPath = os.path.normpath(dirPath)
             
             items = []
-            for root, dirs, files in os.walk(dir):
-                if os.path.relpath(root, dir) == ".reggata":
+            for root, dirs, files in os.walk(dirPath):
+                if os.path.relpath(root, dirPath) == ".reggata":
                     continue
                 for file in files:
                     item = Item(title=file, user_login=self._gui.active_user.login)
                     item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
                     item.data_ref.srcAbsPath = os.path.join(root, file)
-                    item.data_ref.srcAbsPathToRecursionRoot = dir
+                    item.data_ref.srcAbsPathToRecursionRoot = dirPath
                     # item.data_ref.dstRelPath will be set by ItemsDialog
                     items.append(item)
             
@@ -747,8 +746,8 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
             if len(item_ids) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            export_dir_path = QtGui.QFileDialog.getExistingDirectory(
-                self._gui, self.tr("Choose a directory path to export files into."))
+            export_dir_path = self._gui.getExistingDirectory(
+                self.tr("Choose a directory path to export files into."))
             if not export_dir_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
