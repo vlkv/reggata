@@ -129,9 +129,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         return files
     
     def getExistingDirectory(self, textMessageForUser):
-        dir = QtGui.QFileDialog.getExistingDirectory(self, textMessageForUser)
-        return dir
+        dirPath = QtGui.QFileDialog.getExistingDirectory(self, textMessageForUser)
+        return dirPath
     
+    def getSaveFileName(self, textMessageForUser):
+        filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption=textMessageForUser)
+        return filename
 
     
     def __initStatusBar(self):

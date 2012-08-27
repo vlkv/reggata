@@ -10,15 +10,22 @@ class AbstractGui(object):
     
     def setSelectedFiles(self, selectedFiles):
         raise NotImplementedError()
-        
+
+
+    # TODO: Move this group of functions to UserDialogsFacade
     def getOpenFileName(self, textMessageForUser):
         raise NotImplementedError()
-    
+
     def getOpenFileNames(self, textMessageForUser):
         raise NotImplementedError()
     
     def getExistingDirectory(self, textMessageForUser):
         raise NotImplementedError()
+    
+    def getSaveFileName(self, textMessageForUser):
+        raise NotImplementedError()
+    
+    
     
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
         raise NotImplementedError()

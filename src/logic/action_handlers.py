@@ -677,8 +677,7 @@ class ExportItemsActionHandler(AbstractActionHandler):
             if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            exportFilename = QtGui.QFileDialog.getSaveFileName(
-                parent=self._gui, caption=self.tr('Save data as..')) 
+            exportFilename = self._gui.getSaveFileName(self.tr('Save data as..')) 
             if not exportFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
@@ -708,8 +707,7 @@ class ImportItemsActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            importFromFilename = QtGui.QFileDialog.getOpenFileName(
-                parent=self._gui, caption=self.tr('Open reggata export file..')) 
+            importFromFilename = self._gui.getOpenFileName(self.tr('Open reggata export file..'))
             if not importFromFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
@@ -775,12 +773,11 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            export_filename = QtGui.QFileDialog.getSaveFileName(
-                parent=self._gui, caption=self.tr('Save results in a file.')) 
-            if not export_filename:
+            exportFilename = self._gui.getSaveFileName(self.tr('Save results in a file.'))
+            if not exportFilename:
                 raise MsgException(self.tr("Operation canceled."))
             
-            file = open(export_filename, "w", newline='')
+            file = open(exportFilename, "w", newline='')
             for row in rows:
                 item = self._gui.itemAtRow(row)
                 if item.is_data_ref_null():
