@@ -4,11 +4,13 @@ Created on 27.08.2012
 '''
 from gui.user_dialog import UserDialog
 from gui.change_user_password_dialog import ChangeUserPasswordDialog
-from gui.common_widgets import Completer
+from gui.common_widgets import Completer, WaitDialog
 from gui.item_dialog import ItemDialog
 from gui.items_dialog import ItemsDialog
+from logic.abstract_dialogs_facade import AbstractDialogsFacade
+from PyQt4 import QtCore
 
-class UserDialogsFacade(object):
+class UserDialogsFacade(AbstractDialogsFacade):
     '''
         It's a facade-like class, that have functions to invoke different dialogs to
     interact with user. 
@@ -38,4 +40,13 @@ class UserDialogsFacade(object):
                         same_dst_path=sameDstPath, completer=completer)
         return d.exec_()
      
-    
+     
+    def startThreadWithWaitDialog(self, thread, gui, indeterminate):
+        wd = WaitDialog(gui, indeterminate)
+        self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+        self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+        self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+        wd.startWithWorkerThread(thread)
+        
+        
+        

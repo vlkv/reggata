@@ -239,8 +239,9 @@ class OpenRepoActionHandler(AbstractActionHandler):
         
 
 class AddSingleItemActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
+    def __init__(self, gui, dialogs):
         super(AddSingleItemActionHandler, self).__init__(gui)
+        self.__dialogs = dialogs
         
     def handle(self):
         try:
@@ -258,8 +259,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 item.title = os.path.basename(file)
                 item.data_ref = DataRef(type=DataRef.FILE, url=file)
 
-            dialogs = UserDialogsFacade()
-            if not dialogs.execItemDialog(
+            if not self.__dialogs.execItemDialog(
                 item=item, gui=self._gui, dialogMode=ItemDialog.CREATE_MODE):
                 return
             
@@ -274,11 +274,9 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 cmd = SaveNewItemCommand(item, srcAbsPath, dstRelPath)
                 thread = BackgrThread(self._gui, uow.executeCommand, cmd)
                 
-                wd = WaitDialog(self._gui, indeterminate=True)
-                self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-                self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-                wd.startWithWorkerThread(thread)
-        
+                self.__dialogs.startThreadWithWaitDialog(
+                    thread, self._gui, indeterminate=True)
+                
             finally:
                 uow.close()
                 

@@ -5,10 +5,11 @@ Created on 27.08.2012
 import unittest
 from tests.abstract_test_cases import AbstractTestCaseWithRepo
 from logic.action_handlers import AddSingleItemActionHandler, HandlerSignals
-from gui.abstract_gui import AbstractGui
+from logic.abstract_gui import AbstractGui
 import os
 from data.db_schema import User
 from PyQt4 import QtCore
+from tests.tests_dialogs_facade import TestsDialogsFacade
 
 
 class TestsGui(QtCore.QObject, AbstractGui):
@@ -105,17 +106,20 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
     def setUp(self):
         super(AddSingleItemActionHandlerTest, self).setUp()
         self.__handlerSucceeded = False
-    
+        
     def test_saveNewMinimalItem(self):
         user = User(login="user", password="")
         srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
         
         gui = TestsGui(self.repo, user, [srcAbsPath])
-        handler = AddSingleItemActionHandler(gui)
+        dialogs = TestsDialogsFacade()
+        
+        handler = AddSingleItemActionHandler(gui, dialogs)
         gui.connectHandler(handler)
         
         handler.handle()
-        
+    
+        # TODO implement checks in a different way    
         self.assertTrue(gui.receivedSignals[0] == HandlerSignals.ITEM_CREATED)
     
 
