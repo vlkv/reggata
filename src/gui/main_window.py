@@ -36,7 +36,7 @@ from logic.action_handlers import *
 import logging
 import consts
 import gui.gui_proxy
-from gui.abstract_gui import AbstractGui
+from logic.abstract_gui import AbstractGui
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

@@ -7,7 +7,7 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 import os
-from gui.abstract_gui import AbstractGui
+from logic.abstract_gui import AbstractGui
 
 class GuiProxy(QtGui.QWidget, AbstractGui):
     
