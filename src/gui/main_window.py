@@ -66,7 +66,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.setAcceptDrops(True)
         
         
-        
+        self.__dialogs = UserDialogsFacade()
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
         self.__initContextMenu()    
@@ -235,7 +235,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         #MENU: Item
         self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_add, AddSingleItemActionHandler(self))
+            self.ui.action_item_add, AddSingleItemActionHandler(self, self.__dialogs))
         self.__actionHandlers.registerActionHandler(
             self.ui.action_item_add_many, AddManyItemsActionHandler(self))
         self.__actionHandlers.registerActionHandler(
@@ -307,7 +307,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__dragNDropActionItemAddManyRec = QtGui.QAction(self)
         
         self.__actionHandlers.registerActionHandler(
-            self.__dragNDropActionItemAdd, AddSingleItemActionHandler(self.__dragNDropGuiProxy))
+            self.__dragNDropActionItemAdd, AddSingleItemActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
         self.__actionHandlers.registerActionHandler(
             self.__dragNDropActionItemAddMany, AddManyItemsActionHandler(self.__dragNDropGuiProxy))
         self.__actionHandlers.registerActionHandler(

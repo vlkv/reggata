@@ -43,9 +43,9 @@ class UserDialogsFacade(AbstractDialogsFacade):
      
     def startThreadWithWaitDialog(self, thread, gui, indeterminate):
         wd = WaitDialog(gui, indeterminate)
-        self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-        self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-        self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
+        wd.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
+        wd.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
+        wd.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
         wd.startWithWorkerThread(thread)
         
         
