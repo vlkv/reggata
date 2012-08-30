@@ -517,15 +517,15 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
     
 class BackgrThread(QtCore.QThread):
         
-    def __init__(self, parent, callable, *args):
+    def __init__(self, parent, function, *args):
         super(BackgrThread, self).__init__(parent)
         self.args = args
-        self.callable = callable
+        self.function = function
     
     def run(self):
         try:
-            self.callable(*self.args)
-        except Exception as ex:
+            self.function(*self.args)
+        except Exception:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
         finally:
             self.emit(QtCore.SIGNAL("finished"))
