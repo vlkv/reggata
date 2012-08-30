@@ -10,6 +10,8 @@ import os
 from data.db_schema import User
 from PyQt4 import QtCore
 from tests.tests_dialogs_facade import TestsDialogsFacade
+from data.commands import GetExpungedItemCommand
+from helpers import to_db_format
 
 
 class TestsGui(QtCore.QObject, AbstractGui):
@@ -119,8 +121,20 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
         
         handler.handle()
     
-        # TODO implement checks in a different way    
-        self.assertTrue(gui.receivedSignals[0] == HandlerSignals.ITEM_CREATED)
+        #TODO: add more checks
+        dstAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "file.txt"))
+        self.assertTrue(os.path.exists(dstAbsPath))
+    
+#        try:
+#            uow = self.repo.create_unit_of_work()
+#            savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
+#            
+#            self.assertIsNotNone(savedItem.data_ref)
+#            self.assertEqual(savedItem.data_ref.url_raw, to_db_format(self.dstRelPath))
+#            self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, savedItem.data_ref.url)))
+#            
+#        finally:
+#            uow.close()
     
 
 if __name__ == "__main__":
