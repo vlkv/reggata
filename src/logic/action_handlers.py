@@ -242,6 +242,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
     def __init__(self, gui, dialogs):
         super(AddSingleItemActionHandler, self).__init__(gui)
         self.__dialogs = dialogs
+        self.lastAddedItemId = None
         
     def handle(self):
         try:
@@ -276,6 +277,8 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 
                 self.__dialogs.startThreadWithWaitDialog(
                     thread, self._gui, indeterminate=True)
+                
+                self.lastAddedItemId = thread.result
                 
             finally:
                 uow.close()

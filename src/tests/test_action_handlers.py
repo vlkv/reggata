@@ -2,13 +2,12 @@
 Created on 27.08.2012
 @author: vvolkov
 '''
-import unittest
-from tests.abstract_test_cases import AbstractTestCaseWithRepo
-from logic.action_handlers import AddSingleItemActionHandler, HandlerSignals
-from logic.abstract_gui import AbstractGui
 import os
-from data.db_schema import User
 from PyQt4 import QtCore
+from tests.abstract_test_cases import AbstractTestCaseWithRepo
+from logic.action_handlers import AddSingleItemActionHandler
+from logic.abstract_gui import AbstractGui
+from data.db_schema import User
 from tests.tests_dialogs_facade import TestsDialogsFacade
 from data.commands import GetExpungedItemCommand
 from helpers import to_db_format
@@ -121,23 +120,22 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
         
         handler.handle()
     
-        #TODO: add more checks
-        dstAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "file.txt"))
-        self.assertTrue(os.path.exists(dstAbsPath))
+        
+        dstRelPath = "file.txt"
+        savedItemId = handler.lastAddedItemId
+        try:
+            uow = self.repo.create_unit_of_work()
+            savedItem = uow.executeCommand(GetExpungedItemCommand(savedItemId))
+            
+            self.assertIsNotNone(savedItem, 
+                "Item should exist")
+            self.assertIsNotNone(savedItem.data_ref, 
+                "Item should have a DataRef object")
+            self.assertEqual(savedItem.data_ref.url_raw, to_db_format(dstRelPath), 
+                "Item's file should be located in the root of repo")
+            self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, savedItem.data_ref.url)),
+                "Item's file should exist")    
+        finally:
+            uow.close()
     
-#        try:
-#            uow = self.repo.create_unit_of_work()
-#            savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
-#            
-#            self.assertIsNotNone(savedItem.data_ref)
-#            self.assertEqual(savedItem.data_ref.url_raw, to_db_format(self.dstRelPath))
-#            self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, savedItem.data_ref.url)))
-#            
-#        finally:
-#            uow.close()
-    
-
-if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
     

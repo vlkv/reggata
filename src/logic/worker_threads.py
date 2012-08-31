@@ -521,10 +521,11 @@ class BackgrThread(QtCore.QThread):
         super(BackgrThread, self).__init__(parent)
         self.args = args
         self.callable = callable
+        self.result = None
     
     def run(self):
         try:
-            self.callable(*self.args)
+            self.result = self.callable(*self.args)
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
         finally:
