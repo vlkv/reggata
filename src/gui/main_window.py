@@ -90,8 +90,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def dropEvent(self, event):
         if event.mimeData().hasUrls:
             event.accept()
-#            for url in event.mimeData().urls():
-#                print(url.toLocalFile())
             
             files = []
             for url in event.mimeData().urls():
@@ -107,8 +105,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         else:
             event.ignore()
     
-    def __acceptDropOfOneDir(self, dir):
-        self.__dragNDropGuiProxy.setSelectedFiles([dir])
+    def __acceptDropOfOneDir(self, dirPath):
+        self.__dragNDropGuiProxy.setSelectedFiles([dirPath])
         self.__dragNDropActionItemAddManyRec.trigger()
     
     def __acceptDropOfOneFile(self, file):
@@ -193,7 +191,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         except LoginError:
             self.ui.statusbar.showMessage(self.tr("Cannot login recent repository."), STATUSBAR_TIMEOUT)
             self.active_user = None
-        except Exception as ex:
+        except Exception:
             self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), STATUSBAR_TIMEOUT)
                 
         #Restoring columns width of items table
