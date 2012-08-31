@@ -12,18 +12,17 @@ COPY_OF_TEST_REPO_BASE_PATH = os.path.join(__dirAbsPath, COPY_OF_TEST_REPO)
 class ItemReliableFacts(object):
     pass
 
-#NOTE: This item MUST NOT have any tags/fields from other users
+nonExistingItem = ItemReliableFacts()
+nonExistingItem.id = 1000000000
+
+
 itemWithFile = ItemReliableFacts()
 itemWithFile.id = 2
 itemWithFile.title = "Don't Forget Me outro jam Montreal 2006"
 itemWithFile.ownerUserLogin = "user"
 itemWithFile.relFilePath = "Dont_Forget_Me_Outro_Jam_Montreal 2006.txt"
 
-# This item id has no corresponding item in test repo
-nonExistingItem = ItemReliableFacts()
-nonExistingItem.id = 1000000000
 
-#This is an existing correct alive item
 itemWithTagsAndFields = ItemReliableFacts()
 itemWithTagsAndFields.id = 5
 itemWithTagsAndFields.title = "I Could Have Lied.txt"
@@ -35,7 +34,7 @@ itemWithTagsAndFields.fields = {"Rating": 5,
                                 "Notes": "This item has both tags and fields",
                                 "Albom": "Blood Sugar Sex Magik"}
 
-#This is an existing correct alive item
+
 itemWithoutFile = ItemReliableFacts()
 itemWithoutFile.id = 6
 itemWithoutFile.title = "Item without file"
