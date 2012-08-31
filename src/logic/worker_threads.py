@@ -179,7 +179,7 @@ class ExportItemsFilesThread(QtCore.QThread):
                 i += 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.item_ids)))
                         
-        except Exception as ex:
+        except Exception:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
             
         finally:
@@ -262,7 +262,7 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                             
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.items)), item.table_row)
                     
-        except Exception as ex:
+        except Exception:
             self.emit(QtCore.SIGNAL("exception"), sys.exc_info())
         finally:
             uow.close()
@@ -439,7 +439,7 @@ class DeleteGroupOfItemsThread(QtCore.QThread):
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.item_ids)))
                         
-        except Exception as ex:
+        except Exception:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
             
         finally:
@@ -480,7 +480,7 @@ class CreateGroupIfItemsThread(QtCore.QThread):
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
     
-        except Exception as ex:
+        except Exception:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
             
         finally:
@@ -506,7 +506,7 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
                 
-        except Exception as ex:
+        except Exception:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
         
         finally:
@@ -519,13 +519,13 @@ class BackgrThread(QtCore.QThread):
         
     def __init__(self, parent, function, *args):
         super(BackgrThread, self).__init__(parent)
-        self.args = args
-        self.function = function
+        self._args = args
+        self._function = function
         self.result = None
     
     def run(self):
         try:
-            self.result = self.function(*self.args)
+            self.result = self._function(*self._args)
         except Exception:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
         finally:
