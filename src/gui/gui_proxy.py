@@ -12,7 +12,7 @@ from logic.abstract_gui import AbstractGui
 class GuiProxy(QtGui.QWidget, AbstractGui):
     
     def __init__(self, mainWindow, selectedFiles=[]):
-        super(GuiProxy, self).__init__(mainWindow)
+        super(GuiProxy, self).__init__(None)
         self.__mainWindow = mainWindow
         self.__selectedFiles = selectedFiles
         
