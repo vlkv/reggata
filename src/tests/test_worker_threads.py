@@ -1,10 +1,7 @@
 '''
 Created on 25.01.2012
-
 @author: vvolkov
 '''
-import unittest
-from data.repo_mgr import *
 from logic.worker_threads import DeleteGroupOfItemsThread
 from tests.abstract_test_cases import AbstractTestCaseWithRepo
 from data.commands import GetExpungedItemCommand
@@ -12,7 +9,10 @@ from data.commands import GetExpungedItemCommand
 class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):
 
     def testName(self):
-        thread = DeleteGroupOfItemsThread(parent=None, repo=self.repo, item_ids=[1, 2, 3], user_login="user")
+        thread = DeleteGroupOfItemsThread(parent=None, 
+                                          repo=self.repo, 
+                                          item_ids=[1, 2, 3], 
+                                          user_login="user")
         thread.run()
         
         try:
@@ -22,9 +22,4 @@ class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):
             self.assertFalse(uow.executeCommand(GetExpungedItemCommand(3)).alive)            
         finally:
             uow.close()
-        
-        
-
-if __name__ == "__main__":
-    unittest.main()
     
