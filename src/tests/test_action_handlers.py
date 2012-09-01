@@ -108,7 +108,7 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
         super(AddSingleItemActionHandlerTest, self).setUp()
         self.__handlerSucceeded = False
         
-    def test_saveNewMinimalItem(self):
+    def test_addFileFromOutsideOfRepo(self):
         user = User(login="user", password="")
         srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
         
@@ -134,8 +134,9 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
             self.assertEqual(savedItem.data_ref.url_raw, to_db_format(dstRelPath), 
                 "Item's file should be located in the root of repo")
             self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, savedItem.data_ref.url)),
-                "Item's file should exist")    
+                "Item's file should exist")
         finally:
             uow.close()
+            
     
     
