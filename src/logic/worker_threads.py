@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
 Created on 21.01.2012
-
 @author: vlkv
 '''
 import os
@@ -16,6 +15,10 @@ from data.repo_mgr import *
 from data.db_schema import Thumbnail
 from errors import *
 from data.commands import *
+import tarfile
+from tarfile import TarInfo, TarFile
+from _pyio import open
+import io
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -28,14 +31,15 @@ class ImportItemsThread(QtCore.QThread):
         self.userLogin = userLogin
 
     def run(self):
-        srcArchive = zipfile.ZipFile(self.srcFile, "r")
+        srcArchive = TarFile.open(self.srcFile, "r")
         try:
             filenames = self.__getListOfMetadataFiles(srcArchive)
             for i in range(len(filenames)):
                 filename = filenames[i]
                 
                 #Restore item from json state
-                itemState = str(srcArchive.read(filename), "utf-8")
+                itemStateBytes = srcArchive.extractfile(filename).read()
+                itemState = str(itemStateBytes, encoding="utf-8")
                 item = memento.Decoder().decode(itemState)
                 
                 #Imported item will be owned by that user, who is performing the import
@@ -48,7 +52,7 @@ class ImportItemsThread(QtCore.QThread):
                     if os.path.exists(dstAbsPath):
                         #Skip this item. Count and remember this error
                         continue
-                    srcArchive.extract(item.data_ref.url_raw, self.repo.base_path)
+                    srcArchive.extract(item.data_ref.url_raw, path=self.repo.base_path)
                     
                 uow = self.repo.create_unit_of_work()
                 try:
@@ -57,7 +61,7 @@ class ImportItemsThread(QtCore.QThread):
                         if dstAbsPath is not None else None
                     cmd = SaveNewItemCommand(item, itemSrcAbsPath, itemDstRelPath)
                     uow.executeCommand(cmd)
-                except Exception as ex:
+                except Exception:
                     if dstAbsPath is not None:
                         os.remove(dstAbsPath)
                     #count and remember error details to show it later in GUI
@@ -66,7 +70,7 @@ class ImportItemsThread(QtCore.QThread):
 
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(filenames)))
                         
-        except Exception as ex:
+        except Exception:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
             
         finally:
@@ -75,13 +79,16 @@ class ImportItemsThread(QtCore.QThread):
 
     def __getListOfMetadataFiles(self, srcArchive):
         result = []
-        filenames = srcArchive.namelist()
-        for filename in filenames:
+        tarInfos = srcArchive.getmembers()
+        for tarInfo in tarInfos:
             #TODO use regexp here, for more precise check
+            filename = tarInfo.name
             if not filename.startswith(".reggata"):
                 continue
             result.append(filename)
         return result
+
+
 
 class ExportItemsThread(QtCore.QThread):
     def __init__(self, parent, repo, itemIds, destinationFile):
@@ -91,7 +98,7 @@ class ExportItemsThread(QtCore.QThread):
         self.dstFile = destinationFile
         
     def run(self):
-        dstArchive = zipfile.ZipFile(self.dstFile, "w")
+        dstArchive = tarfile.open(self.dstFile, "w")
         try:
             for i in range(len(self.itemIds)):
                 item = self.__getItemById(self.itemIds[i])
@@ -106,7 +113,7 @@ class ExportItemsThread(QtCore.QThread):
                         
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.itemIds)))
                         
-        except Exception as ex:
+        except Exception:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
             
         finally:
@@ -123,17 +130,30 @@ class ExportItemsThread(QtCore.QThread):
             uow.close()
         return result
     
+    
     def __putItemFileToArchive(self, item, archive):
         if item.data_ref is None:
             return
         itemFileAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
-        archive.write(itemFileAbsPath, item.data_ref.url)
+        archive.add(itemFileAbsPath, arcname=item.data_ref.url)
+        
             
     def __putItemStateToArchive(self, item, archive):
         encoder = memento.Encoder()
         itemState = encoder.encode(item)
         itemStateFilename = "id=" + str(item.id) + "_title=" + item.title
-        archive.writestr(os.path.join(".reggata/items", itemStateFilename), itemState)
+        
+        tmpFileName = os.path.join(consts.DEFAULT_TMP_DIR, "item_state.json")
+        with open(tmpFileName, "w") as f:
+            f.write(itemState)
+        archive.add(tmpFileName, arcname=os.path.join(".reggata/items", itemStateFilename))
+
+# TODO: Avoid creation of temporary file on filesystem.. 
+#        fileObj = io.StringIO(itemState)
+#        tarInfo = tarfile.TarInfo(name=os.path.join(".reggata/items", itemStateFilename))
+#        tarInfo.size = len(fileObj.getvalue())
+#        archive.addfile(tarinfo=tarInfo, fileobj=fileObj)
+        
         
     def __getItemById(self, itemId):
         item = None
@@ -160,8 +180,8 @@ class ExportItemsFilesThread(QtCore.QThread):
         uow = self.repo.create_unit_of_work()
         try:
             i = 0
-            for id in self.item_ids:
-                item = uow.executeCommand(GetExpungedItemCommand(id))
+            for itemId in self.item_ids:
+                item = uow.executeCommand(GetExpungedItemCommand(itemId))
                 if item.is_data_ref_null():
                     continue
                 
@@ -427,9 +447,9 @@ class DeleteGroupOfItemsThread(QtCore.QThread):
         uow = self.repo.create_unit_of_work()
         try:
             i = 0
-            for id in self.item_ids:
+            for itemId in self.item_ids:
                 try:
-                    cmd = DeleteItemCommand(id, self.user_login)
+                    cmd = DeleteItemCommand(itemId, self.user_login)
                     uow.executeCommand(cmd)
                 except AccessError as ex:
                     #У пользователя self.user_login нет прав удалять данный элемент
