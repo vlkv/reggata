@@ -317,7 +317,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         if self.active_user is None:
             return
         
-        actionBefore =  self.ui.menuFavorite_repositories.insertSeparator(self.ui.actionAdd_current_repository)
+        actionToInsertBefore =  self.ui.menuFavorite_repositories.insertSeparator(self.ui.actionAdd_current_repository)
 
         login = self.active_user.login
         favoriteReposInfo = self.__favoriteReposStorage.favoriteRepos(login)
@@ -326,8 +326,24 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 continue
             action = QtGui.QAction(self)
             action.setText(repoAlias)
-            self.ui.menuFavorite_repositories.insertAction(actionBefore, action)
-            # TODO: connect created action signal triggered to a slot!
+            action.repoBasePath = repoBasePath
+            self.ui.menuFavorite_repositories.insertAction(actionToInsertBefore, action)
+            self.connect(action, QtCore.SIGNAL("triggered()"), self.__openSelectedFavoriteRepoSlot)
+    
+    def __openSelectedFavoriteRepoSlot(self):
+        action = self.sender()
+        repoBasePath = action.repoBasePath
+        
+        currentUser = self.active_user
+        assert currentUser is not None
+        
+        self.active_repo = RepoMgr(repoBasePath)
+        
+        try:
+            self.loginUser(currentUser.login, currentUser.password)
+        except:
+            self.active_user = None
+        
     
     def __removeDynamicActionsFromFavoriteReposMenu(self):
         preservedActions = [self.ui.actionAdd_current_repository, 

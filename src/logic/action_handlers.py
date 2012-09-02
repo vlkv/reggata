@@ -138,6 +138,8 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
                 uow.executeCommand(command)
             finally:
                 uow.close()
+                
+            user.password = newPasswordHash
             
         except Exception as ex:
             show_exc_info(self._gui, ex)
