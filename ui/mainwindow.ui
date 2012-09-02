@@ -29,16 +29,25 @@
      <x>0</x>
      <y>0</y>
      <width>659</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_repo">
     <property name="title">
      <string>&amp;Repository</string>
     </property>
+    <widget class="QMenu" name="menuFavorite_repositories">
+     <property name="title">
+      <string>Favorite repositories...</string>
+     </property>
+     <addaction name="actionAdd_current_repository"/>
+     <addaction name="actionRemove_current_repository"/>
+    </widget>
     <addaction name="action_repo_create"/>
     <addaction name="action_repo_open"/>
     <addaction name="action_repo_close"/>
+    <addaction name="separator"/>
+    <addaction name="menuFavorite_repositories"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -267,6 +276,16 @@
   <action name="actionImportItems">
    <property name="text">
     <string>Import items (files with metadata)</string>
+   </property>
+  </action>
+  <action name="actionAdd_current_repository">
+   <property name="text">
+    <string>Add current repository</string>
+   </property>
+  </action>
+  <action name="actionRemove_current_repository">
+   <property name="text">
+    <string>Remove current repository</string>
    </property>
   </action>
  </widget>

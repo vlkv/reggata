@@ -35,10 +35,7 @@ class HandlerSignals():
     ITEM_CREATED = "itemCreated"
     ITEM_CHANGED = "itemChanged"
     ITEM_DELETED = "itemDeleted"
-    
-    @staticmethod
-    def allSignals():
-        return [HandlerSignals.ITEM_CREATED, HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_DELETED]
+    LIST_OF_FAVORITE_REPOS_CHANGED = "listOfFavoriteReposChanged"
 
 
 class AbstractActionHandler(QtCore.QObject):
@@ -183,8 +180,7 @@ class CreateRepoActionHandler(AbstractActionHandler):
         finally:
             uow.close()
         return user
-            
-    
+
 
 class CloseRepoActionHandler(AbstractActionHandler):
     def __init__(self, gui):
@@ -236,6 +232,55 @@ class OpenRepoActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         
+        
+class AddCurrentRepoToFavoritesActionHandler(AbstractActionHandler):
+    
+    def __init__(self, gui, favoriteReposStorage):
+        super(AddCurrentRepoToFavoritesActionHandler, self).__init__(gui)
+        self.__favoriteReposStorage = favoriteReposStorage
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()
+            
+            repoBasePath = self._gui.active_repo.base_path
+            userLogin = self._gui.active_user.login
+            
+            #TODO: Maybe ask user for a repoAlias...
+            self.__favoriteReposStorage.addRepoToFavorites(userLogin, 
+                                                           repoBasePath, 
+                                                           os.path.basename(repoBasePath))
+            
+            self._gui.showMessageOnStatusBar(self.tr("Current repository saved in favorites list."), STATUSBAR_TIMEOUT)
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED)
+            
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+
+class RemoveCurrentRepoFromFavoritesActionHandler(AbstractActionHandler):
+    
+    def __init__(self, gui, favoriteReposStorage):
+        super(RemoveCurrentRepoFromFavoritesActionHandler, self).__init__(gui)
+        self.__favoriteReposStorage = favoriteReposStorage
+        
+    def handle(self):
+        try:
+            self._gui.checkActiveRepoIsNotNone()
+            self._gui.checkActiveUserIsNotNone()
+            
+            repoBasePath = self._gui.active_repo.base_path
+            userLogin = self._gui.active_user.login
+            
+            self.__favoriteReposStorage.removeRepoFromFavorites(userLogin, repoBasePath)
+            
+            self._gui.showMessageOnStatusBar(self.tr("Current repository removed from favorites list."), STATUSBAR_TIMEOUT)
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED)
+            
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+
+            
         
 
 class AddSingleItemActionHandler(AbstractActionHandler):

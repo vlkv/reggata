@@ -37,6 +37,7 @@ import logging
 import consts
 import gui.gui_proxy
 from logic.abstract_gui import AbstractGui
+from logic.favorite_repos_storage import FavoriteReposStorage
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -69,13 +70,20 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__dialogs = UserDialogsFacade()
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
-        self.__initContextMenu()    
+        self.__favoriteReposStorage = FavoriteReposStorage()
+        
+        self.__initMenuActions()
+        self.__initFavoriteReposMenu()
         self.__initDragNDropHandlers()
         
         self.__initStatusBar()
         self.__initItemsTable()
         self.__initTagCloud()
         self.__initFileBrowser()
+        
+        self.__widgetsUpdateManager.subscribe(
+            self, self.__rebuildFavoriteReposMenu, 
+            [HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED])
         
         self.__restoreGuiState()
         
@@ -212,91 +220,129 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self.restoreState(state)
 
 
-    def __initContextMenu(self):
-        #MENU: Repository
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_repo_create, CreateRepoActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_repo_close, CloseRepoActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_repo_open, OpenRepoActionHandler(self))
+    def __initMenuActions(self):
+        def initRepositoryMenu():
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_repo_create, CreateRepoActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_repo_close, CloseRepoActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_repo_open, OpenRepoActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.actionAdd_current_repository, 
+                AddCurrentRepoToFavoritesActionHandler(self, self.__favoriteReposStorage))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.actionRemove_current_repository, 
+                RemoveCurrentRepoFromFavoritesActionHandler(self, self.__favoriteReposStorage))
         
-        #MENU: User
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_user_create, CreateUserActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_user_login, LoginUserActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_user_logout, LogoutUserActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
+        def initUserMenu():
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_user_create, CreateUserActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_user_login, LoginUserActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_user_logout, LogoutUserActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
+            
+        def initItemMenu():
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_add, AddSingleItemActionHandler(self, self.__dialogs))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_add_many, AddManyItemsActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_add_many_rec, AddManyItemsRecursivelyActionHandler(self))
+            # Separator
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_edit, EditItemActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_rebuild_thumbnail, RebuildItemThumbnailActionHandler(self))
+            # Separator
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_delete, DeleteItemActionHandler(self))
+            # Separator
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_view, OpenItemActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_view_image_viewer, OpenItemWithInternalImageViewerActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_view_m3u, ExportItemsToM3uAndOpenItActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManagerActionHandler(self))
+            
+            self.__actionHandlers.registerActionHandler(
+                self.ui.actionExportItems, ExportItemsActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.actionImportItems, ImportItemsActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_export_selected_items, ExportItemsFilesActionHandler(self))
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_export_items_file_paths, ExportItemsFilePathsActionHandler(self))
+            
+            # Separator
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_check_integrity, CheckItemIntegrityActionHandler(self))
+            
+            strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_fix_hash_error, FixItemIntegrityErrorActionHandler(self, strategy))
+            
+            strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_update_file_hash, FixItemIntegrityErrorActionHandler(self, strategy))
+            
+            strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_item_fix_history_rec_error, FixItemIntegrityErrorActionHandler(self, strategy))
+            
+            strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_fix_file_not_found_try_find, FixItemIntegrityErrorActionHandler(self, strategy))
+            
+            strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_fix_file_not_found_delete, FixItemIntegrityErrorActionHandler(self, strategy))
+            
+        def initHelpMenu():
+            self.__actionHandlers.registerActionHandler(
+                self.ui.action_help_about, ShowAboutDialogActionHandler(self))
+            
+        initRepositoryMenu()
+        initUserMenu()
+        initItemMenu()
+        initHelpMenu()
         
-        #MENU: Item
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_add, AddSingleItemActionHandler(self, self.__dialogs))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_add_many, AddManyItemsActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_add_many_rec, AddManyItemsRecursivelyActionHandler(self))
         
-        #SEPARATOR
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_edit, EditItemActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_rebuild_thumbnail, RebuildItemThumbnailActionHandler(self))
+    def __initFavoriteReposMenu(self):
+        if self.active_user is None:
+            return
         
-        #SEPARATOR
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_delete, DeleteItemActionHandler(self))
+        actionBefore =  self.ui.menuFavorite_repositories.insertSeparator(self.ui.actionAdd_current_repository)
+
+        login = self.active_user.login
+        favoriteReposInfo = self.__favoriteReposStorage.favoriteRepos(login)
+        for repoBasePath, repoAlias in favoriteReposInfo:
+            if helpers.is_none_or_empty(repoBasePath):
+                continue
+            action = QtGui.QAction(self)
+            action.setText(repoAlias)
+            self.ui.menuFavorite_repositories.insertAction(actionBefore, action)
+            # TODO: connect created action signal triggered to a slot!
+    
+    def __removeDynamicActionsFromFavoriteReposMenu(self):
+        preservedActions = [self.ui.actionAdd_current_repository, 
+                            self.ui.actionRemove_current_repository]
+        self.ui.menuFavorite_repositories.clear()
+        for action in preservedActions:
+            self.ui.menuFavorite_repositories.addAction(action)
         
-        #SEPARATOR
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_view, OpenItemActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_view_image_viewer, OpenItemWithInternalImageViewerActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_view_m3u, ExportItemsToM3uAndOpenItActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManagerActionHandler(self))
+    
+    def __rebuildFavoriteReposMenu(self):
+        self.__removeDynamicActionsFromFavoriteReposMenu()
+        self.__initFavoriteReposMenu()
         
-        self.__actionHandlers.registerActionHandler(
-            self.ui.actionExportItems, ExportItemsActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.actionImportItems, ImportItemsActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_export_selected_items, ExportItemsFilesActionHandler(self))
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_export_items_file_paths, ExportItemsFilePathsActionHandler(self))
-        
-        #SEPARATOR
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_check_integrity, CheckItemIntegrityActionHandler(self))
-        
-        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_fix_hash_error, FixItemIntegrityErrorActionHandler(self, strategy))
-        
-        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_update_file_hash, FixItemIntegrityErrorActionHandler(self, strategy))
-        
-        strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_item_fix_history_rec_error, FixItemIntegrityErrorActionHandler(self, strategy))
-        
-        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_fix_file_not_found_try_find, FixItemIntegrityErrorActionHandler(self, strategy))
-        
-        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_fix_file_not_found_delete, FixItemIntegrityErrorActionHandler(self, strategy))
-        
-                
-        #MENU: Help
-        self.__actionHandlers.registerActionHandler(
-            self.ui.action_help_about, ShowAboutDialogActionHandler(self))
-        
+            
+    
     def __initDragNDropHandlers(self):
         self.__dragNDropGuiProxy = gui.gui_proxy.GuiProxy(self, [])
         
@@ -405,13 +451,13 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             uow.close()
             
     def _set_active_user(self, user):
-        if type(user) != User and user is not None:
-            raise TypeError(self.tr("Argument must be an instance of User class."))
-        
         self.__active_user = user
         
-        
-        if user is not None:
+        if user is None:
+            self.ui.label_user.setText("")
+            self.ui.file_browser.model().user_login = None
+            
+        else:
             #Tell to table model that current active user has changed
             if self.model is not None and isinstance(self.model, RepoItemTableModel):
                 self.model.user_login = user.login
@@ -421,9 +467,11 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             UserConfig().storeAll({"recent_user.login":user.login, "recent_user.password":user.password})
             
             self.ui.file_browser.model().user_login = user.login
-        else:
-            self.ui.label_user.setText("")
-            self.ui.file_browser.model().user_login = None
+            
+        
+        self.__rebuildFavoriteReposMenu()
+        
+            
         
         
     def _get_active_user(self):
@@ -559,6 +607,7 @@ class WidgetsUpdateManager():
         self.__signalsWidgets[HandlerSignals.ITEM_DELETED] = []
         self.__signalsWidgets[HandlerSignals.ITEM_CHANGED] = []
         self.__signalsWidgets[HandlerSignals.ITEM_CREATED] = []
+        self.__signalsWidgets[HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED] = []
         
     def subscribe(self, widget, widgetUpdateCallable, repoSignals):
         ''' widget --- some widget that is subscribed to be updated on a number of signals.

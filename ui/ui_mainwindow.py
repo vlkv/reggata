@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Thu Aug 23 22:04:03 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Sat Sep  1 22:22:25 2012
+#      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -28,10 +28,12 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 22))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menu_repo = QtGui.QMenu(self.menubar)
         self.menu_repo.setObjectName(_fromUtf8("menu_repo"))
+        self.menuFavorite_repositories = QtGui.QMenu(self.menu_repo)
+        self.menuFavorite_repositories.setObjectName(_fromUtf8("menuFavorite_repositories"))
         self.menu = QtGui.QMenu(self.menubar)
         self.menu.setObjectName(_fromUtf8("menu"))
         self.menuItem = QtGui.QMenu(self.menubar)
@@ -110,9 +112,17 @@ class Ui_MainWindow(object):
         self.actionExportItems.setObjectName(_fromUtf8("actionExportItems"))
         self.actionImportItems = QtGui.QAction(MainWindow)
         self.actionImportItems.setObjectName(_fromUtf8("actionImportItems"))
+        self.actionAdd_current_repository = QtGui.QAction(MainWindow)
+        self.actionAdd_current_repository.setObjectName(_fromUtf8("actionAdd_current_repository"))
+        self.actionRemove_current_repository = QtGui.QAction(MainWindow)
+        self.actionRemove_current_repository.setObjectName(_fromUtf8("actionRemove_current_repository"))
+        self.menuFavorite_repositories.addAction(self.actionAdd_current_repository)
+        self.menuFavorite_repositories.addAction(self.actionRemove_current_repository)
         self.menu_repo.addAction(self.action_repo_create)
         self.menu_repo.addAction(self.action_repo_open)
         self.menu_repo.addAction(self.action_repo_close)
+        self.menu_repo.addSeparator()
+        self.menu_repo.addAction(self.menuFavorite_repositories.menuAction())
         self.menu.addAction(self.action_user_create)
         self.menu.addAction(self.action_user_login)
         self.menu.addAction(self.action_user_logout)
@@ -159,6 +169,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Reggata", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_repo.setTitle(QtGui.QApplication.translate("MainWindow", "&Repository", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuFavorite_repositories.setTitle(QtGui.QApplication.translate("MainWindow", "Favorite repositories...", None, QtGui.QApplication.UnicodeUTF8))
         self.menu.setTitle(QtGui.QApplication.translate("MainWindow", "&User", None, QtGui.QApplication.UnicodeUTF8))
         self.menuItem.setTitle(QtGui.QApplication.translate("MainWindow", "&Item", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFix_integrity_errors.setTitle(QtGui.QApplication.translate("MainWindow", "Fix integrity errors", None, QtGui.QApplication.UnicodeUTF8))
@@ -197,5 +208,7 @@ class Ui_MainWindow(object):
         self.actionExportItems.setText(QtGui.QApplication.translate("MainWindow", "Export items (files with metadata)", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExportItems.setToolTip(QtGui.QApplication.translate("MainWindow", "Export items with files and metadata", None, QtGui.QApplication.UnicodeUTF8))
         self.actionImportItems.setText(QtGui.QApplication.translate("MainWindow", "Import items (files with metadata)", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAdd_current_repository.setText(QtGui.QApplication.translate("MainWindow", "Add current repository", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRemove_current_repository.setText(QtGui.QApplication.translate("MainWindow", "Remove current repository", None, QtGui.QApplication.UnicodeUTF8))
 
 import resources_rc
