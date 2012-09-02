@@ -994,4 +994,33 @@ along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses<
                         
         self.ui.textEdit.setHtml(title + text)
 
+
+
+class OpenFavoriteRepoActionHandler(QtCore.QObject):
+    def __init__(self, gui):
+        super(OpenFavoriteRepoActionHandler, self).__init__()
+        self._gui = gui
+
+    def handle(self):
+        try:
+            action = self.sender()
+            repoBasePath = action.repoBasePath
+            
+            currentUser = self._gui.active_user
+            assert currentUser is not None
+            
+            self._gui.active_repo = RepoMgr(repoBasePath)
+            
+            try:
+                self._gui.loginUser(currentUser.login, currentUser.password)
+                self._gui.showMessageOnStatusBar(self.tr("Repository opened. Login succeded."), STATUSBAR_TIMEOUT)
+                
+            except LoginError:
+                self._gui.active_user = None
+                self._gui.showMessageOnStatusBar(self.tr("Repository opened. Login failed."), STATUSBAR_TIMEOUT)
+        
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        
+        
     

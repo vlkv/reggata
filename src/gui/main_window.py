@@ -327,22 +327,9 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             action = QtGui.QAction(self)
             action.setText(repoAlias)
             action.repoBasePath = repoBasePath
+            action.handler = OpenFavoriteRepoActionHandler(self)
+            self.connect(action, QtCore.SIGNAL("triggered()"), action.handler.handle)
             self.ui.menuFavorite_repositories.insertAction(actionToInsertBefore, action)
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.__openSelectedFavoriteRepoSlot)
-    
-    def __openSelectedFavoriteRepoSlot(self):
-        action = self.sender()
-        repoBasePath = action.repoBasePath
-        
-        currentUser = self.active_user
-        assert currentUser is not None
-        
-        self.active_repo = RepoMgr(repoBasePath)
-        
-        try:
-            self.loginUser(currentUser.login, currentUser.password)
-        except:
-            self.active_user = None
         
     
     def __removeDynamicActionsFromFavoriteReposMenu(self):
