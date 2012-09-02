@@ -10,6 +10,8 @@ from user_config import UserConfig
 import ply.yacc
 import ply.lex
 
+DEBUG = False
+
 ROOT_LOGGER = "reggata"
 
 METADATA_DIR = ".reggata"

@@ -52,10 +52,15 @@ class WaitDialog(QtGui.QDialog):
         self.setLayout(vbox)
     
     def startWithWorkerThread(self, thread):
-        thread.start()
-        thread.wait(1000)
-        if thread.isRunning():
-            self.exec_()
+        if consts.DEBUG:
+            # Breakpoints do not work in other threads. 
+            # If you want to debug code of worker background threads, set consts.DEBUG to True
+            thread.run()
+        else:
+            thread.start()
+            thread.wait(1000)
+            if thread.isRunning():
+                self.exec_()
     
     def indeterminate_timer(self):
         value = self.progress_bar.value()
