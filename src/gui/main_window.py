@@ -29,7 +29,7 @@ from logic.worker_threads import *
 from logic.integrity_fixer import *
 from helpers import *
 from gui.tag_cloud import TagCloud
-from gui.file_browser import FileBrowser, FileBrowserTableModel
+#from gui.file_browser import FileBrowser, FileBrowserTableModel
 from gui.items_table_dock_widget import ItemsTableDockWidget
 from gui.table_models import RepoItemTableModel
 from logic.action_handlers import *
@@ -79,7 +79,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__initStatusBar()
         self.__initItemsTable()
         self.__initTagCloud()
-        self.__initFileBrowser()
+        #self.__initFileBrowser()
         
         self.__widgetsUpdateManager.subscribe(
             self, self.__rebuildFavoriteReposMenu, 
@@ -178,14 +178,14 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
              HandlerSignals.ITEM_DELETED])
         self.ui.menuTools.addAction(self.ui.dockWidget_tag_cloud.toggleViewAction())
 
-    def __initFileBrowser(self):
-        self.ui.file_browser = FileBrowser(self)
-        self.ui.dockWidget_file_browser = QtGui.QDockWidget(self.tr("File browser"), self)
-        self.ui.dockWidget_file_browser.setObjectName("dockWidget_file_browser")
-        self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.ui.dockWidget_file_browser)
-        self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.dockWidget_items_table)
-        self.ui.menuTools.addAction(self.ui.dockWidget_file_browser.toggleViewAction())
+#    def __initFileBrowser(self):
+#        self.ui.file_browser = FileBrowser(self)
+#        self.ui.dockWidget_file_browser = QtGui.QDockWidget(self.tr("File browser"), self)
+#        self.ui.dockWidget_file_browser.setObjectName("dockWidget_file_browser")
+#        self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)
+#        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.ui.dockWidget_file_browser)
+#        self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.dockWidget_items_table)
+#        self.ui.menuTools.addAction(self.ui.dockWidget_file_browser.toggleViewAction())
 
     def __restoreGuiState(self):
         #Try to open and login recent repository with recent user login
@@ -206,7 +206,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui.dockWidget_items_table.restore_columns_width()
         
         #Restoring columns width of file browser
-        self.restore_file_browser_state()
+        #self.restore_file_browser_state()
         
         #Restoring main window size
         width = int(UserConfig().get("main_window.width", 640))
@@ -390,47 +390,47 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui.dockWidget_items_table.save_columns_width()
         
         #Storing file browser table columns width
-        self.save_file_browser_state()
+        #self.save_file_browser_state()
         
         logger.info("Reggata Main Window is closing")
         
         
     
     
-    def restore_file_browser_state(self):
-        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.FILENAME, 
-                                            int(UserConfig().get("file_browser.FILENAME.width", 450)))
-        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.TAGS, 
-                                            int(UserConfig().get("file_browser.TAGS.width", 280)))
-        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.USERS, 
-                                            int(UserConfig().get("file_browser.USERS.width", 100)))
-        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.STATUS, 
-                                            int(UserConfig().get("file_browser.STATUS.width", 100)))
-        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.RATING, 
-                                            int(UserConfig().get("file_browser.RATING.width", 100)))
+#    def restore_file_browser_state(self):
+#        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.FILENAME, 
+#                                            int(UserConfig().get("file_browser.FILENAME.width", 450)))
+#        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.TAGS, 
+#                                            int(UserConfig().get("file_browser.TAGS.width", 280)))
+#        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.USERS, 
+#                                            int(UserConfig().get("file_browser.USERS.width", 100)))
+#        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.STATUS, 
+#                                            int(UserConfig().get("file_browser.STATUS.width", 100)))
+#        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.RATING, 
+#                                            int(UserConfig().get("file_browser.RATING.width", 100)))
 
 
-    def save_file_browser_state(self):
-        #Storing file browser table columns width
-        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.FILENAME)
-        if width > 0:
-            UserConfig().store("file_browser.FILENAME.width", str(width))
-            
-        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.TAGS)
-        if width > 0:
-            UserConfig().store("file_browser.TAGS.width", str(width))
-        
-        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.USERS)
-        if width > 0:
-            UserConfig().store("file_browser.USERS.width", str(width))
-        
-        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.STATUS)
-        if width > 0:
-            UserConfig().store("file_browser.STATUS.width", str(width))
-                                        
-        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.RATING)
-        if width > 0:
-            UserConfig().store("file_browser.RATING.width", str(width))
+#    def save_file_browser_state(self):
+#        #Storing file browser table columns width
+#        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.FILENAME)
+#        if width > 0:
+#            UserConfig().store("file_browser.FILENAME.width", str(width))
+#            
+#        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.TAGS)
+#        if width > 0:
+#            UserConfig().store("file_browser.TAGS.width", str(width))
+#        
+#        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.USERS)
+#        if width > 0:
+#            UserConfig().store("file_browser.USERS.width", str(width))
+#        
+#        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.STATUS)
+#        if width > 0:
+#            UserConfig().store("file_browser.STATUS.width", str(width))
+#                                        
+#        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.RATING)
+#        if width > 0:
+#            UserConfig().store("file_browser.RATING.width", str(width))
                     
 
     def event(self, e):
@@ -458,7 +458,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         if user is None:
             self.ui.label_user.setText("")
-            self.ui.file_browser.model().user_login = None
+            #self.ui.file_browser.model().user_login = None
             
         else:
             #Tell to table model that current active user has changed
@@ -469,7 +469,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             
             UserConfig().storeAll({"recent_user.login":user.login, "recent_user.password":user.password})
             
-            self.ui.file_browser.model().user_login = user.login
+            #self.ui.file_browser.model().user_login = user.login
             
         
         self.__rebuildFavoriteReposMenu()
@@ -510,23 +510,23 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                     self.active_user.login if self.active_user is not None else None)
                 self.ui.dockWidget_items_table.setTableModel(self.model)                
                 
-                self.ui.file_browser.repo = repo         
+                #self.ui.file_browser.repo = repo         
                  
                 #TODO move this completer update into the dockWidget_items_table class
                 completer = Completer(repo=repo, parent=self.ui.dockWidget_items_table)
                 self.ui.dockWidget_items_table.set_tag_completer(completer)
                 
-                self.restore_file_browser_state()
+                #self.restore_file_browser_state()
                 self.ui.dockWidget_items_table.restore_columns_width()
                 
             else:
-                self.save_file_browser_state()
+                #self.save_file_browser_state()
                 self.ui.dockWidget_items_table.save_columns_width()
                 
                 self.ui.label_repo.setText("")
                 self.model = None
                 self.ui.dockWidget_items_table.setTableModel(None)
-                self.ui.file_browser.repo = None
+                #self.ui.file_browser.repo = None
             
                 self.ui.dockWidget_items_table.set_tag_completer(None)
                 
