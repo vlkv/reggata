@@ -635,27 +635,23 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
                 raise MsgException(self.tr("There are no selected items."))
             
             start_index = 0
-            abs_paths = []
+            items = []
             if len(rows) == 1:
                 #If there is only one selected item, pass to viewer all items in this table model
                 for row in range(self._gui.rowCount()):
-                    abs_paths.append(os.path.join(
-                        self._gui.active_repo.base_path, self._gui.itemAtRow(row).data_ref.url))
+                    items.append(self._gui.itemAtRow(row))
                 #This is the index of the first image to show
                 start_index = rows.pop()
             else:
                 for row in rows:
-                    abs_paths.append(os.path.join(
-                        self._gui.active_repo.base_path, self._gui.itemAtRow(row).data_ref.url))
+                    items.append(self._gui.itemAtRow(row))
             
-            iv = ImageViewer(self._gui, self._gui.active_repo, self._gui.active_user.login, abs_paths)
-            iv.set_current_image_index(start_index)
+            iv = ImageViewer(self._gui, items, start_index, self._gui.active_repo, self._gui.active_user.login)
             iv.show()
-            #TODO scroll items table to the last item shown in ImageViewer
+            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            
         except Exception as ex:
             show_exc_info(self._gui, ex)
-        else:
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
 class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):

@@ -3,11 +3,12 @@
 from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
 import ui_imageviewer
-from helpers import show_exc_info
+from helpers import show_exc_info, is_none_or_empty
 from errors import MsgException
 from user_config import UserConfig
 import logging
 import consts
+import os
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -45,6 +46,8 @@ class Canvas(QtGui.QWidget):
                                              Qt.KeepAspectRatio)
     
     def paintEvent(self, paint_event):
+        if self.abs_path is None:
+            return
 
         if self.original.isNull():
             if not self.original.load(self.abs_path):
@@ -99,8 +102,6 @@ class Canvas(QtGui.QWidget):
         self._abs_path = path
         self.original = QtGui.QPixmap()
         self.scaled = QtGui.QPixmap()
-        
-        self.parent().ui.statusbar.showMessage(self._abs_path)
     
     def mouseMoveEvent(self, ev):
         self.x += (ev.pos().x() - self.press_x)
@@ -138,23 +139,30 @@ class ImageViewer(QtGui.QMainWindow):
     This is a built-in Reggata Image Viewer.
     '''
 
-    def __init__(self, parent, repo, userLogin, absPaths=[]):
+    def __init__(self, parent, items, startItemIndex=0, repo=None, userLogin=None):
+        '''
+            parent --- parent of this widget.
+            items --- a list of items to show.
+            startItemIndex --- index of the first item to show. 
+            Parameters repo and userLogin are optional. You should pass them, if you want to 
+        be able to edit items.
+        '''
         super(ImageViewer, self).__init__(parent)
         self.ui = ui_imageviewer.Ui_ImageViewer()
         self.ui.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
         
+        
+        self.items = items
+        self.i_current = startItemIndex if 0 <= startItemIndex < len(items) else 0
         self.repo = repo
         self.user_login = userLogin
-        self.abs_paths = absPaths
         
         self.ui.canvas = Canvas(self)
         self.setCentralWidget(self.ui.canvas)
         
-        self.i_current = 0 if len(self.abs_paths) > 0 else None
-        if self.i_current is not None:
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
-        
+        self.__renderCurrentItemFile()
+            
         self.connect(self.ui.action_prev, QtCore.SIGNAL("triggered()"), self.action_prev)
         self.connect(self.ui.action_next, QtCore.SIGNAL("triggered()"), self.action_next)        
         self.connect(self.ui.action_zoom_in, QtCore.SIGNAL("triggered()"), self.action_zoom_in)
@@ -190,15 +198,7 @@ class ImageViewer(QtGui.QMainWindow):
         self.ui.canvas.setContextMenuPolicy(Qt.CustomContextMenu)
         self.connect(self.ui.canvas, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), \
                      lambda pos: self.menu.exec_(self.ui.canvas.mapToGlobal(pos)))
-    
-    
-    def set_current_image_index(self, value):
-        if 0 <= value < len(self.abs_paths):
-            self.i_current = value
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
-            self.update()
-        else:
-            raise ValueError(self.tr("Image index is out of range."))  
+        
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Plus:
@@ -252,11 +252,10 @@ class ImageViewer(QtGui.QMainWindow):
     def action_next(self):
         try:
             self.i_current += 1
-            if self.i_current >= len(self.abs_paths):
+            if self.i_current >= len(self.items):
                 self.i_current = 0
             
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
-            self.update()
+            self.__renderCurrentItemFile()
             
         except Exception as ex:
             show_exc_info(self, ex)
@@ -265,13 +264,26 @@ class ImageViewer(QtGui.QMainWindow):
         try:
             self.i_current -= 1
             if self.i_current < 0:
-                self.i_current = len(self.abs_paths) - 1
+                self.i_current = len(self.items) - 1
             
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
-            self.update()
+            self.__renderCurrentItemFile()
             
         except Exception as ex:
             show_exc_info(self, ex)
+            
+            
+    def __renderCurrentItemFile(self):
+        item = self.items[self.i_current]
+        if item.data_ref is not None:
+            path = os.path.join(self.repo.base_path, item.data_ref.url)
+        else:
+            path = None
+        self.ui.canvas.abs_path = path
+        self.update()
+        
+        message = item.title + ", " + (path if path is not None else self.tr("No file"))        
+        self.ui.statusbar.showMessage(message)
+        
             
     def action_edit_item(self):
         try:
