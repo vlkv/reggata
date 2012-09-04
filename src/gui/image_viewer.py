@@ -138,7 +138,7 @@ class ImageViewer(QtGui.QMainWindow):
     This is a built-in Reggata Image Viewer.
     '''
 
-    def __init__(self, repo, userLogin, parent=None, absPaths=[]):
+    def __init__(self, parent, repo, userLogin, absPaths=[]):
         super(ImageViewer, self).__init__(parent)
         self.ui = ui_imageviewer.Ui_ImageViewer()
         self.ui.setupUi(self)

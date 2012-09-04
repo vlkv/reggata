@@ -648,7 +648,7 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
                     abs_paths.append(os.path.join(
                         self._gui.active_repo.base_path, self._gui.itemAtRow(row).data_ref.url))
             
-            iv = ImageViewer(self._gui.active_repo, self._gui.active_user.login, self._gui, abs_paths)
+            iv = ImageViewer(self._gui, self._gui.active_repo, self._gui.active_user.login, abs_paths)
             iv.set_current_image_index(start_index)
             iv.show()
             #TODO scroll items table to the last item shown in ImageViewer
