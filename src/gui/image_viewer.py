@@ -1,24 +1,4 @@
 # -*- coding: utf-8 -*-
-'''
-Copyright 2010 Vitaly Volkov
-
-This file is part of Reggata.
-
-Reggata is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Reggata is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
-
-Created on 13.12.2010
-'''
 
 from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
@@ -33,7 +13,8 @@ logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 class Canvas(QtGui.QWidget):
     '''
-    Виджет, для отображения изображений, с функциями зуммирования, панорамирования и т.п.
+        This is a widget for image rendering. It also provides basic functions 
+        of zooming, panoraming and so on.
     '''
     
     def __init__(self, parent=None):
@@ -86,16 +67,6 @@ class Canvas(QtGui.QWidget):
         self.scale = self.scale / koeff
         self.update()
 
-#    def wheelEvent(self, event):
-#        if event.delta() > 0:
-#            self.zoom_in()
-#            self.x -= (event.pos().x() - self.x)/2
-#            self.y -= (event.pos().y() - self.y)/2            
-#        else:
-#            self.zoom_out()
-#            self.x += (event.pos().x() - self.x)/2
-#            self.y += (event.pos().y() - self.y)/2
-
     @property
     def fit_window(self):
         return self._fit_window
@@ -130,7 +101,6 @@ class Canvas(QtGui.QWidget):
         self.original = QtGui.QPixmap()
         self.scaled = QtGui.QPixmap()
         
-        #TODO Может тут лучше послать сигнал?
         self.parent().ui.statusbar.showMessage(self._abs_path)
     
     def mouseMoveEvent(self, ev):
@@ -166,12 +136,8 @@ class Canvas(QtGui.QWidget):
 
 class ImageViewer(QtGui.QMainWindow):
     '''
-    Встроенный просмотрщик изображений.
+    This is a built-in Reggata Image Viewer.
     '''
-    #TODO Если вдруг в список файлов, которые нужно отобразить будет содержать 
-    #невероятно много элементов, тогда в конструктор можно передавать не список, 
-    #а объект, который ведет себя как список, но на самом деле --- выполняет
-    #буферизованное чтение информации из БД
 
     def __init__(self, repo, user_login, parent=None, abs_paths=[]):
         super(ImageViewer, self).__init__(parent)
@@ -198,7 +164,7 @@ class ImageViewer(QtGui.QMainWindow):
         
         self.connect(self.ui.canvas, QtCore.SIGNAL("fit_window_changed"), lambda x: self.ui.action_fit_window.setChecked(x))
         
-        #Пытаемся восстанавливить размер окна, как был при последнем запуске
+        # Trying to restore window size
         try:
             width = int(UserConfig().get("image_viewer.width", 640))
             height = int(UserConfig().get("image_viewer.height", 480))
@@ -206,7 +172,7 @@ class ImageViewer(QtGui.QMainWindow):
         except:
             pass
         
-        #Делаем так, чтобы размер окна сохранялся при изменении
+        # This code stores window size (after window resizing) 
         self.save_state_timer = QtCore.QTimer(self)
         self.save_state_timer.setSingleShot(True)
         self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_window_state)
@@ -263,7 +229,7 @@ class ImageViewer(QtGui.QMainWindow):
                 
     
     def resizeEvent(self, resize_event):
-        self.save_state_timer.start(3000) #Повторный вызов start() делает перезапуск таймера        
+        self.save_state_timer.start(3000)        
     
     def action_zoom_in(self):
         try:            
