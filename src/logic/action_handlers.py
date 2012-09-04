@@ -21,21 +21,7 @@ from errors import *
 from gui.my_message_box import MyMessageBox
 from gui.user_dialogs_facade import UserDialogsFacade
 from gui.user_dialog import UserDialog
-
-
-# TODO: rename to a better name. Maybe RepoSignals
-class HandlerSignals():
-    '''Named constants in this class is not the signal names, but the signal types.
-    They are arguments of the following signals: handlerSignal, handlerSignals.
-    handlerSignal accepts single signal type. handlerSignals accepts a list of
-    signal types. See also WidgetsUpdateManager, ActionHandlerStorage and
-    AbstractActionHandler classes.
-    '''
-    
-    ITEM_CREATED = "itemCreated"
-    ITEM_CHANGED = "itemChanged"
-    ITEM_DELETED = "itemDeleted"
-    LIST_OF_FAVORITE_REPOS_CHANGED = "listOfFavoriteReposChanged"
+from logic.handler_signals import HandlerSignals
 
 
 class AbstractActionHandler(QtCore.QObject):
@@ -634,19 +620,21 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            start_index = 0
+            startIndex = 0 #This is the index of the first image to show
             items = []
             if len(rows) == 1:
                 #If there is only one selected item, pass to viewer all items in this table model
                 for row in range(self._gui.rowCount()):
                     items.append(self._gui.itemAtRow(row))
-                #This is the index of the first image to show
-                start_index = rows.pop()
+                startIndex = rows.pop()
+                
             else:
                 for row in rows:
                     items.append(self._gui.itemAtRow(row))
             
-            iv = ImageViewer(self._gui, items, start_index, self._gui.active_repo, self._gui.active_user.login)
+            iv = ImageViewer(self._gui, self._gui.widgetsUpdateManager(),
+                             self._gui.active_repo, self._gui.active_user.login,
+                             items, startIndex)
             iv.show()
             self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             

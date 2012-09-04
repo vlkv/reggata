@@ -3,7 +3,8 @@
 from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
 import ui_imageviewer
-from helpers import show_exc_info, is_none_or_empty
+import helpers
+from helpers import show_exc_info
 from errors import MsgException
 from user_config import UserConfig
 import logging
@@ -12,7 +13,7 @@ import os
 from data.commands import GetExpungedItemCommand, UpdateExistingItemCommand
 from gui.user_dialogs_facade import UserDialogsFacade
 from gui.item_dialog import ItemDialog
-import helpers
+from logic.handler_signals import HandlerSignals
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -143,12 +144,14 @@ class ImageViewer(QtGui.QMainWindow):
     This is a built-in Reggata Image Viewer.
     '''
 
-    def __init__(self, parent, items, startItemIndex=0, repo=None, userLogin=None):
+    def __init__(self, parent, widgetsUpdateManager, repo, userLogin, items, startItemIndex=0):
         '''
             parent --- parent of this widget.
+            widgetsUpdateManager --- object that would inform other widgets that some 
+        Item has changed after edit action.
             items --- a list of items to show.
             startItemIndex --- index of the first item to show. 
-            Parameters repo and userLogin are optional. You should pass them, if you want to 
+             
         be able to edit items.
         '''
         super(ImageViewer, self).__init__(parent)
@@ -156,6 +159,11 @@ class ImageViewer(QtGui.QMainWindow):
         self.ui.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
         
+        self.__widgetsUpdateManager = widgetsUpdateManager
+        self.connect(self, QtCore.SIGNAL("handlerSignal"),
+                     self.__widgetsUpdateManager.onHandlerSignal)
+        self.connect(self, QtCore.SIGNAL("handlerSignals"),
+                     self.__widgetsUpdateManager.onHandlerSignals)
         
         self.items = items
         self.i_current = startItemIndex if 0 <= startItemIndex < len(items) else 0
@@ -306,9 +314,8 @@ class ImageViewer(QtGui.QMainWindow):
         except Exception as ex:
             show_exc_info(self, ex)
         else:
-            pass
-            #self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
-            # TODO: inform MainWindow widgets to update the edited item
+            # TODO: pass some item id so widgets could update only edited item 
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
     
      
     def __editSingleItem(self, itemId):

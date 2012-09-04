@@ -57,3 +57,7 @@ class AbstractGui(object):
                            _set_active_user)
     
     
+    def widgetsUpdateManager(self):
+        raise NotImplementedError()
+    
+    

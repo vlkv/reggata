@@ -577,8 +577,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             itemIds.append(self.itemAtRow(row).id)
         return itemIds
     
-    
-
+    def widgetsUpdateManager(self):
+        return self.__widgetsUpdateManager
     
             
 
