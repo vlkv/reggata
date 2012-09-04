@@ -9,6 +9,10 @@ from user_config import UserConfig
 import logging
 import consts
 import os
+from data.commands import GetExpungedItemCommand, UpdateExistingItemCommand
+from gui.user_dialogs_facade import UserDialogsFacade
+from gui.item_dialog import ItemDialog
+import helpers
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -170,6 +174,8 @@ class ImageViewer(QtGui.QMainWindow):
         self.connect(self.ui.action_fit_window, QtCore.SIGNAL("triggered(bool)"), self.action_fit_window)
         self.ui.action_fit_window.setChecked(self.ui.canvas.fit_window)
         
+        self.connect(self.ui.action_edit_item, QtCore.SIGNAL("triggered()"), self.action_edit_item)
+        
         self.connect(self.ui.canvas, QtCore.SIGNAL("fit_window_changed"), \
                      lambda x: self.ui.action_fit_window.setChecked(x))
         
@@ -185,12 +191,6 @@ class ImageViewer(QtGui.QMainWindow):
         self.save_state_timer = QtCore.QTimer(self)
         self.save_state_timer.setSingleShot(True)
         self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_window_state)
-        
-        #Actions: edit item
-        self.ui.action_edit_item = QtGui.QAction(self.tr("Edit item"), self)
-        self.addAction(self.ui.action_edit_item)
-        self.ui.action_edit_item.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+E")))       
-        self.connect(self.ui.action_edit_item, QtCore.SIGNAL("triggered()"), self.action_edit_item)
         
         #Context menu
         self.menu = QtGui.QMenu()
@@ -284,12 +284,52 @@ class ImageViewer(QtGui.QMainWindow):
         message = item.title + ", " + (path if path is not None else self.tr("No file"))        
         self.ui.statusbar.showMessage(message)
         
+   
             
+    def __checkActiveRepoIsNotNone(self):
+        if self.repo is None:
+            raise MsgException(self.tr("Cannot edit items, repository is not given."))
+    
+    def __checkActiveUserIsNotNone(self):
+        if helpers.is_none_or_empty(self.user_login):
+            raise MsgException(self.tr("Cannot edit items, user is not given."))
+            
+   
     def action_edit_item(self):
         try:
-            raise MsgException("Not implemented yet.")
+            self.__checkActiveRepoIsNotNone()
+            self.__checkActiveUserIsNotNone()            
+            
+            itemId = self.items[self.i_current].id
+            self.__editSingleItem(itemId)
+            
         except Exception as ex:
             show_exc_info(self, ex)
-        
-        
+        else:
+            pass
+            #self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
+            # TODO: inform MainWindow widgets to update the edited item
+    
+     
+    def __editSingleItem(self, itemId):
+        uow = self.repo.create_unit_of_work()
+        try:
+            item = uow.executeCommand(GetExpungedItemCommand(itemId))
+            
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemDialog(
+                item=item, gui=self, dialogMode=ItemDialog.EDIT_MODE):
+                self.ui.statusbar.showMessage(self.tr("Operation cancelled."), consts.STATUSBAR_TIMEOUT)
+                return
+            
+            cmd = UpdateExistingItemCommand(item, self.user_login)
+            uow.executeCommand(cmd)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), consts.STATUSBAR_TIMEOUT)
+        finally:
+            uow.close()
+            
+    # This property is needed for partial compatibility with AbstractGui
+    @property
+    def active_repo(self):
+        return self.repo
     

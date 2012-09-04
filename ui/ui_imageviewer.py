@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'imageviewer.ui'
 #
-# Created: Fri Jul 20 20:32:31 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Tue Sep  4 22:07:08 2012
+#      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -22,7 +22,7 @@ class Ui_ImageViewer(object):
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         ImageViewer.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(ImageViewer)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 562, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 562, 22))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         ImageViewer.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(ImageViewer)
@@ -60,11 +60,14 @@ class Ui_ImageViewer(object):
         icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/icons/fit_window.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.action_fit_window.setIcon(icon4)
         self.action_fit_window.setObjectName(_fromUtf8("action_fit_window"))
+        self.action_edit_item = QtGui.QAction(ImageViewer)
+        self.action_edit_item.setObjectName(_fromUtf8("action_edit_item"))
         self.toolBar.addAction(self.action_prev)
         self.toolBar.addAction(self.action_next)
         self.toolBar.addAction(self.action_zoom_in)
         self.toolBar.addAction(self.action_zoom_out)
         self.toolBar.addAction(self.action_fit_window)
+        self.toolBar.addAction(self.action_edit_item)
 
         self.retranslateUi(ImageViewer)
         QtCore.QMetaObject.connectSlotsByName(ImageViewer)
@@ -77,5 +80,8 @@ class Ui_ImageViewer(object):
         self.action_zoom_in.setText(QtGui.QApplication.translate("ImageViewer", "Zoom In", None, QtGui.QApplication.UnicodeUTF8))
         self.action_zoom_out.setText(QtGui.QApplication.translate("ImageViewer", "Zoom Out", None, QtGui.QApplication.UnicodeUTF8))
         self.action_fit_window.setText(QtGui.QApplication.translate("ImageViewer", "Fit Window", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_edit_item.setText(QtGui.QApplication.translate("ImageViewer", "Edit Item", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_edit_item.setToolTip(QtGui.QApplication.translate("ImageViewer", "Edit Item", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_edit_item.setShortcut(QtGui.QApplication.translate("ImageViewer", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
 
 import resources_rc
