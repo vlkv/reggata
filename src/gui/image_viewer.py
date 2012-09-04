@@ -142,16 +142,16 @@ class ImageViewer(QtGui.QMainWindow):
         super(ImageViewer, self).__init__(parent)
         self.ui = ui_imageviewer.Ui_ImageViewer()
         self.ui.setupUi(self)
+        self.setWindowModality(Qt.WindowModal)
         
         self.repo = repo
         self.user_login = userLogin
-        
         self.abs_paths = absPaths
-        self.i_current = 0 if len(self.abs_paths) > 0 else None
         
         self.ui.canvas = Canvas(self)
         self.setCentralWidget(self.ui.canvas)
-        self.ui.action_fit_window.setChecked(self.ui.canvas.fit_window)
+        
+        self.i_current = 0 if len(self.abs_paths) > 0 else None
         if self.i_current is not None:
             self.ui.canvas.abs_path = self.abs_paths[self.i_current]
         
@@ -160,8 +160,10 @@ class ImageViewer(QtGui.QMainWindow):
         self.connect(self.ui.action_zoom_in, QtCore.SIGNAL("triggered()"), self.action_zoom_in)
         self.connect(self.ui.action_zoom_out, QtCore.SIGNAL("triggered()"), self.action_zoom_out)
         self.connect(self.ui.action_fit_window, QtCore.SIGNAL("triggered(bool)"), self.action_fit_window)
+        self.ui.action_fit_window.setChecked(self.ui.canvas.fit_window)
         
-        self.connect(self.ui.canvas, QtCore.SIGNAL("fit_window_changed"), lambda x: self.ui.action_fit_window.setChecked(x))
+        self.connect(self.ui.canvas, QtCore.SIGNAL("fit_window_changed"), \
+                     lambda x: self.ui.action_fit_window.setChecked(x))
         
         # Trying to restore window size
         try:
@@ -175,25 +177,23 @@ class ImageViewer(QtGui.QMainWindow):
         self.save_state_timer = QtCore.QTimer(self)
         self.save_state_timer.setSingleShot(True)
         self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_window_state)
-    
-        self.setWindowModality(Qt.WindowModal)
-        
-        
         
         #Actions: edit item
         self.ui.action_edit_item = QtGui.QAction(self.tr("Edit item"), self)
         self.addAction(self.ui.action_edit_item)
         self.ui.action_edit_item.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+E")))       
         self.connect(self.ui.action_edit_item, QtCore.SIGNAL("triggered()"), self.action_edit_item)
+        
         #Context menu
         self.menu = QtGui.QMenu()
         self.menu.addAction(self.ui.action_edit_item)
         self.ui.canvas.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.connect(self.ui.canvas, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), lambda pos: self.menu.exec_(self.ui.canvas.mapToGlobal(pos)))
+        self.connect(self.ui.canvas, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), \
+                     lambda pos: self.menu.exec_(self.ui.canvas.mapToGlobal(pos)))
     
     
     def set_current_image_index(self, value):
-        if 0 <= value < len(self.abs_paths): 
+        if 0 <= value < len(self.abs_paths):
             self.i_current = value
             self.ui.canvas.abs_path = self.abs_paths[self.i_current]
             self.update()
@@ -276,12 +276,6 @@ class ImageViewer(QtGui.QMainWindow):
     def action_edit_item(self):
         try:
             raise MsgException("Not implemented yet.")
-        except Exception as ex:
-            show_exc_info(self, ex)
-            
-    def action_template(self):
-        try:
-            pass
         except Exception as ex:
             show_exc_info(self, ex)
         
