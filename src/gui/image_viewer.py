@@ -14,7 +14,7 @@ logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 class Canvas(QtGui.QWidget):
     '''
         This is a widget for image rendering. It also provides basic functions 
-        of zooming, panoraming and so on.
+    of zooming, panoraming and so on.
     '''
     
     def __init__(self, parent=None):
@@ -48,7 +48,6 @@ class Canvas(QtGui.QWidget):
 
         if self.original.isNull():
             if not self.original.load(self.abs_path):
-                #self.ui.statusbar.showMessage(self.tr("Cannot load image {0}.").format(self.abs_paths[self.i_current]))
                 return
             
         if self.scaled.isNull() and not self.original.isNull():
@@ -139,15 +138,15 @@ class ImageViewer(QtGui.QMainWindow):
     This is a built-in Reggata Image Viewer.
     '''
 
-    def __init__(self, repo, user_login, parent=None, abs_paths=[]):
+    def __init__(self, repo, userLogin, parent=None, absPaths=[]):
         super(ImageViewer, self).__init__(parent)
         self.ui = ui_imageviewer.Ui_ImageViewer()
         self.ui.setupUi(self)
         
         self.repo = repo
-        self.user_login = user_login
+        self.user_login = userLogin
         
-        self.abs_paths = abs_paths
+        self.abs_paths = absPaths
         self.i_current = 0 if len(self.abs_paths) > 0 else None
         
         self.ui.canvas = Canvas(self)
