@@ -160,19 +160,19 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
 
 
     def __initTagCloud(self):
-        self.ui.tag_cloud = TagCloud(self)
+        self.ui.tagCloud = TagCloud(self)
         self.ui.dockWidget_tag_cloud = QtGui.QDockWidget(self.tr("Tag cloud"), self)
         self.ui.dockWidget_tag_cloud.setObjectName("dockWidget_tag_cloud")
-        self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
+        self.ui.dockWidget_tag_cloud.setWidget(self.ui.tagCloud)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
         
-        self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), 
+        self.connect(self.ui.tagCloud, QtCore.SIGNAL("selectedTagsChanged"), 
                      self.ui.itemsTableToolGui.selected_tags_changed)
         self.connect(self.ui.itemsTableToolGui, QtCore.SIGNAL("queryTextResetted"), 
-                     self.ui.tag_cloud.reset)
+                     self.ui.tagCloud.reset)
         
         self.__widgetsUpdateManager.subscribe(
-            self.ui.tag_cloud, self.ui.tag_cloud.refresh, 
+            self.ui.tagCloud, self.ui.tagCloud.refresh, 
             [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 
              HandlerSignals.ITEM_DELETED])
         
@@ -468,7 +468,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def onCurrentRepoChanged(self):
         repo = self._model.repo
         try:
-            self.ui.tag_cloud.repo = repo
+            self.ui.tagCloud.repo = repo
             
             if repo is not None:
                 UserConfig().store("recent_repo.base_path", repo.base_path)
