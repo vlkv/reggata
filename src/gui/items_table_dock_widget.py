@@ -18,10 +18,10 @@ from errors import *
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
-class ItemsTableDockWidget(QtGui.QWidget):
+class ItemsTableToolGui(QtGui.QWidget):
     
     def __init__(self, parent):
-        super(ItemsTableDockWidget, self).__init__(parent)
+        super(ItemsTableToolGui, self).__init__(parent)
         self.ui = Ui_ItemsTableToolGui()
         self.ui.setupUi(self)
         

@@ -11,7 +11,7 @@ from logic.integrity_fixer import *
 from helpers import *
 from gui.tag_cloud import TagCloud
 #from gui.file_browser import FileBrowser, FileBrowserTableModel
-from gui.items_table_dock_widget import ItemsTableDockWidget
+from gui.items_table_dock_widget import ItemsTableToolGui
 from logic.items_table_model import ItemsTableModel
 from logic.action_handlers import *
 import logging
@@ -111,7 +111,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui.statusbar.addPermanentWidget(self.ui.label_user)
 
     def __initItemsTable(self):
-        self.ui.dockWidget_items_table = ItemsTableDockWidget(self)
+        self.ui.dockWidget_items_table = ItemsTableToolGui(self)
         itemsTableDockWidget = QtGui.QDockWidget(self.tr("Items Table"), self)
         itemsTableDockWidget.setObjectName("itemsTableDockWidget")
         itemsTableDockWidget.setWidget(self.ui.dockWidget_items_table)
