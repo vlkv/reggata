@@ -9,6 +9,9 @@ import os
 from logic.abstract_gui import AbstractGui
 
 class GuiProxy(QtGui.QWidget, AbstractGui):
+    '''
+        This GuiProxy class substitutes MainWindow object in drag'n'drop actions.
+    '''
     
     def __init__(self, mainWindow, selectedFiles=[]):
         super(GuiProxy, self).__init__(None)
@@ -18,39 +21,6 @@ class GuiProxy(QtGui.QWidget, AbstractGui):
     def setSelectedFiles(self, selectedFiles):
         self.__selectedFiles = selectedFiles
         
-    def getOpenFileName(self, textMessageForUser):
-        if (len(self.__selectedFiles) == 0):
-            return None
-        
-        fileName = self.__selectedFiles[0]
-        if os.path.exists(fileName) and os.path.isfile(fileName):
-            return fileName
-        
-        return None
-    
-    def getOpenFileNames(self, textMessageForUser):
-        if (len(self.__selectedFiles) == 0):
-            return None
-        
-        fileNames = []
-        for path in self.__selectedFiles:
-            if os.path.exists(path) and os.path.isfile(path):
-                fileNames.append(path)
-        
-        if (len(fileNames) == 0):
-            return None
-        
-        return fileNames
-    
-    def getExistingDirectory(self, textMessageForUser):
-        if (len(self.__selectedFiles) == 0):
-            return None
-        
-        for path in self.__selectedFiles:
-            if os.path.exists(path) and os.path.isdir(path):
-                return path
-            
-        return None
     
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
         self.__mainWindow.showMessageOnStatusBar(text, timeoutBeforeClear)

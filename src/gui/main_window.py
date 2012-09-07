@@ -33,17 +33,16 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         super(MainWindow, self).__init__(parent)
         self.ui = ui_mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
-        
-        self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
-        
-        #Table itemsTableModel for items table
-        self.itemsTableModel = None
-        
-        self.items_lock = QtCore.QReadWriteLock()
-        
         self.setCentralWidget(None)
         self.setAcceptDrops(True)
         
+        self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
+        
+        # TODO: I guess, itemsTableModel should be moved somewhere... out from here
+        self.itemsTableModel = None
+        
+        # TODO: itemsLock should be in MainWindowModel, or maybe deeper...
+        self.items_lock = QtCore.QReadWriteLock()
         
         self.__dialogs = UserDialogsFacade()
         self.__widgetsUpdateManager = WidgetsUpdateManager()
@@ -102,23 +101,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def __acceptDropOfManyFiles(self, files):
         self.__dragNDropGuiProxy.setSelectedFiles(files)
         self.__dragNDropActionItemAddMany.trigger()
-
-
-    def getOpenFileName(self, textMessageForUser):
-        file = QtGui.QFileDialog.getOpenFileName(self, textMessageForUser)
-        return file
-    
-    def getOpenFileNames(self, textMessageForUser):
-        files = QtGui.QFileDialog.getOpenFileNames(self, textMessageForUser)
-        return files
-    
-    def getExistingDirectory(self, textMessageForUser):
-        dirPath = QtGui.QFileDialog.getExistingDirectory(self, textMessageForUser)
-        return dirPath
-    
-    def getSaveFileName(self, textMessageForUser):
-        filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption=textMessageForUser)
-        return filename
 
     
     def __initStatusBar(self):

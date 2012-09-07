@@ -5,26 +5,12 @@ Created on 21.08.2012
 
 class AbstractGui(object):
     '''
-    This interface is used in action_handlers. It is implemented by MainWindow and GuiProxy.
+        This interface is used in action_handlers. It is implemented by 
+    MainWindow, GuiProxy, TestsGui.
     '''
     
     def setSelectedFiles(self, selectedFiles):
         raise NotImplementedError()
-
-
-    # TODO: Move this group of functions to UserDialogsFacade
-    def getOpenFileName(self, textMessageForUser):
-        raise NotImplementedError()
-
-    def getOpenFileNames(self, textMessageForUser):
-        raise NotImplementedError()
-    
-    def getExistingDirectory(self, textMessageForUser):
-        raise NotImplementedError()
-    
-    def getSaveFileName(self, textMessageForUser):
-        raise NotImplementedError()
-    
     
     
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):

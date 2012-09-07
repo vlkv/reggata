@@ -8,7 +8,7 @@ from gui.common_widgets import Completer, WaitDialog
 from gui.item_dialog import ItemDialog
 from gui.items_dialog import ItemsDialog
 from logic.abstract_dialogs_facade import AbstractDialogsFacade
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 
 class UserDialogsFacade(AbstractDialogsFacade):
     '''
@@ -48,5 +48,21 @@ class UserDialogsFacade(AbstractDialogsFacade):
         wd.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
         wd.startWithWorkerThread(thread)
         
-        
+    
+    def getOpenFileName(self, gui, textMessageForUser):
+        file = QtGui.QFileDialog.getOpenFileName(gui, textMessageForUser)
+        return file
+    
+    def getOpenFileNames(self, gui, textMessageForUser):
+        files = QtGui.QFileDialog.getOpenFileNames(gui, textMessageForUser)
+        return files
+    
+    def getExistingDirectory(self, gui, textMessageForUser):
+        dirPath = QtGui.QFileDialog.getExistingDirectory(gui, textMessageForUser)
+        return dirPath
+    
+    def getSaveFileName(self, gui, textMessageForUser):
+        filename = QtGui.QFileDialog.getSaveFileName(parent=gui, caption=textMessageForUser)
+        return filename
+    
         

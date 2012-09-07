@@ -19,3 +19,16 @@ class AbstractDialogsFacade(object):
     
     def startThreadWithWaitDialog(self, thread, gui, indeterminate):
         raise NotImplementedError()
+    
+    def getOpenFileName(self, gui, textMessageForUser):
+        raise NotImplementedError()
+    
+    def getOpenFileNames(self, gui, textMessageForUser):
+        raise NotImplementedError()
+    
+    def getExistingDirectory(self, gui, textMessageForUser):
+        raise NotImplementedError()
+    
+    def getSaveFileName(self, gui, textMessageForUser):
+        raise NotImplementedError()
+    

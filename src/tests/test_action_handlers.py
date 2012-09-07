@@ -20,48 +20,13 @@ class TestsGuiModel():
 
 
 class TestsGui(QtCore.QObject, AbstractGui):
-    def __init__(self, repo, user, selectedFiles=[]):
+    def __init__(self, repo, user):
         super(QtCore.QObject, self).__init__()
-        self.__selectedFiles = selectedFiles
         self.receivedSignals = []
         self.__model = TestsGuiModel(repo, user, self)
         
     def setSelectedFiles(self, selectedFiles):
         self.__selectedFiles = selectedFiles
-        
-    def getOpenFileName(self, textMessageForUser):
-        if (len(self.__selectedFiles) == 0):
-            return None
-        
-        fileName = self.__selectedFiles[0]
-        if os.path.exists(fileName) and os.path.isfile(fileName):
-            return fileName
-        
-        return None
-    
-    def getOpenFileNames(self, textMessageForUser):
-        if (len(self.__selectedFiles) == 0):
-            return None
-        
-        fileNames = []
-        for path in self.__selectedFiles:
-            if os.path.exists(path) and os.path.isfile(path):
-                fileNames.append(path)
-        
-        if (len(fileNames) == 0):
-            return None
-        
-        return fileNames
-    
-    def getExistingDirectory(self, textMessageForUser):
-        if (len(self.__selectedFiles) == 0):
-            return None
-        
-        for path in self.__selectedFiles:
-            if os.path.exists(path) and os.path.isdir(path):
-                return path
-            
-        return None
     
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
         pass
@@ -103,8 +68,8 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
         user = User(login="user", password="")
         srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
         
-        gui = TestsGui(self.repo, user, [srcAbsPath])
-        dialogs = TestsDialogsFacade()
+        gui = TestsGui(self.repo, user)
+        dialogs = TestsDialogsFacade(selectedFiles=[srcAbsPath])
         
         handler = AddSingleItemActionHandler(gui, dialogs)
         gui.connectHandler(handler)
