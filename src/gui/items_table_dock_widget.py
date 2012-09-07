@@ -15,6 +15,7 @@ from gui.common_widgets import TextEdit
 from helpers import *
 import consts
 import logging
+from errors import *
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
