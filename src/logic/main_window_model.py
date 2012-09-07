@@ -2,6 +2,8 @@
 Created on 07.09.2012
 @author: vlkv
 '''
+from user_config import UserConfig
+from data.commands import LoginUserCommand
 
 class MainWindowModel(object):
     
@@ -32,4 +34,20 @@ class MainWindowModel(object):
     
     
     
+    def loginRecentUser(self):
+        login = UserConfig().get("recent_user.login")
+        password = UserConfig().get("recent_user.password")
+        self.loginUser(login, password)
         
+        
+    def loginUser(self, login, password):
+        self._mainWindow.checkActiveRepoIsNotNone()
+        
+        uow = self._repo.createUnitOfWork()
+        try:
+            user = uow.executeCommand(LoginUserCommand(login, password))
+            self.user = user
+        finally:
+            uow.close()
+
+

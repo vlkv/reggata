@@ -152,7 +152,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         try:
             tmp = UserConfig()["recent_repo.base_path"]
             self._model.repo = RepoMgr(tmp)
-            self.loginRecentUser()
+            self._model.loginRecentUser()
         except CannotOpenRepoError:
             self.ui.statusbar.showMessage(self.tr("Cannot open recent repository."), STATUSBAR_TIMEOUT)
             self._model.repo = None
@@ -402,24 +402,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     
     model = property(fget=__get_model)
         
+        
     
-    def loginRecentUser(self):
-        login = UserConfig().get("recent_user.login")
-        password = UserConfig().get("recent_user.password")
-        self.loginUser(login, password)
-        
-        
-    def loginUser(self, login, password):
-        self.checkActiveRepoIsNotNone()
-        
-        uow = self._model.repo.createUnitOfWork()
-        try:
-            user = uow.executeCommand(LoginUserCommand(login, password))
-            self._model.user = user
-        finally:
-            uow.close()
-    
-            
     def onCurrentUserChanged(self):
         user = self._model.user
         if user is None:

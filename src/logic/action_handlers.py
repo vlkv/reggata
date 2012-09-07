@@ -84,7 +84,7 @@ class LoginUserActionHandler(AbstractActionHandler):
                 user=user, gui=self._gui, dialogMode=UserDialog.LOGIN_MODE):
                 return
             
-            self._gui.loginUser(user.login, user.password)
+            self._gui.model.loginUser(user.login, user.password)
                 
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -203,7 +203,7 @@ class OpenRepoActionHandler(AbstractActionHandler):
             basePath = os.path.normpath(basePath)
             self._gui.model.repo = RepoMgr(basePath)
             self._gui.model.user = None
-            self._gui.loginRecentUser()
+            self._gui.model.loginRecentUser()
             
         except LoginError:
             self.__letUserLoginByHimself()
@@ -219,7 +219,7 @@ class OpenRepoActionHandler(AbstractActionHandler):
             user=user, gui=self._gui, dialogMode=UserDialog.LOGIN_MODE):
             return
         try:
-            self._gui.loginUser(user.login, user.password)
+            self._gui.model.loginUser(user.login, user.password)
         except Exception as ex:
             show_exc_info(self._gui, ex)
         
@@ -1006,7 +1006,7 @@ class OpenFavoriteRepoActionHandler(QtCore.QObject):
             self._gui.model.repo = RepoMgr(repoBasePath)
             
             try:
-                self._gui.loginUser(currentUser.login, currentUser.password)
+                self._gui.model.loginUser(currentUser.login, currentUser.password)
                 self._gui.showMessageOnStatusBar(self.tr("Repository opened. Login succeded."), STATUSBAR_TIMEOUT)
                 
             except LoginError:
