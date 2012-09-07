@@ -29,6 +29,7 @@ import shlex
 from errors import MsgException
 import logging
 from PyQt4.QtCore import QCoreApplication 
+import sys
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -84,6 +85,7 @@ class ExtAppMgr(object):
         command = command.replace('%d', '"' + os.path.dirname(abs_path) + '"')
         command = command.replace('%f', '"' + abs_path + '"')
         args = shlex.split(command)
+        args = self.__modifyArgsIfOnWindowsAndPathIsNetwork(args)
         logger.debug("subprocess.Popen(args), args=%s", args)
         
         #subprocess.call(args) #This call would block the current thread
@@ -101,11 +103,20 @@ class ExtAppMgr(object):
         command = command.replace('%d', '"' + os.path.dirname(abs_path) + '"')
         command = command.replace('%f', '"' + abs_path + '"')
         args = shlex.split(command)
+        args = self.__modifyArgsIfOnWindowsAndPathIsNetwork(args)
         logger.debug("subprocess.Popen(args), args=%s", args)
         
         pid = subprocess.Popen(args).pid 
         logger.info("Created subprocess with PID = %d", pid)
         
         
+    def __modifyArgsIfOnWindowsAndPathIsNetwork(self, args):
+        # This is a hack... On Windows shlex fails to handle correctly network paths such as
+        # \\Tiger\SYSTEM (C)\home\testrepo.rgt\file.txt
+        if not sys.platform.startswith("win"):
+            return
+        if args[1].startswith("\\"):
+            args[1] = "\\" + args[1]
+        return args
 
 
