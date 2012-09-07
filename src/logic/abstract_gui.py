@@ -47,15 +47,12 @@ class AbstractGui(object):
                            _set_active_repo)
     
     
-    def _get_active_user(self):
+    def _get_model(self):
         raise NotImplementedError()
     
-    def _set_active_user(self, user):
-        raise NotImplementedError()
+    model = property(fget=_get_model)
+    
         
-    active_user = property(_get_active_user, 
-                           _set_active_user)
-    
     
     def widgetsUpdateManager(self):
         raise NotImplementedError()

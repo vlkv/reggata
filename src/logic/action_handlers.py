@@ -62,7 +62,7 @@ class CreateUserActionHandler(AbstractActionHandler):
             uow = self._gui.active_repo.createUnitOfWork()
             try:
                 uow.executeCommand(SaveNewUserCommand(user))
-                self._gui.active_user = user
+                self._gui.model.user = user
             finally:
                 uow.close()
                 
@@ -95,7 +95,7 @@ class LogoutUserActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.active_user = None
+            self._gui.model.user = None
         except Exception as ex:
             show_exc_info(self._gui, ex)
 
@@ -110,7 +110,7 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            user = self._gui.active_user
+            user = self._gui.model.user
             
             dialogs = UserDialogsFacade()
             dialogExecOk, newPasswordHash = \
@@ -149,7 +149,7 @@ class CreateRepoActionHandler(AbstractActionHandler):
             # the path should be normalized
             basePath = os.path.normpath(basePath)
             self._gui.active_repo = RepoMgr.createNewRepo(basePath)
-            self._gui.active_user = self.__createDefaultUser()
+            self._gui.model.user = self.__createDefaultUser()
         
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -178,7 +178,7 @@ class CloseRepoActionHandler(AbstractActionHandler):
         try:
             self._gui.checkActiveRepoIsNotNone()
             self._gui.active_repo = None
-            self._gui.active_user = None
+            self._gui.model.user = None
         except Exception as ex:
             show_exc_info(self._gui, ex)
                    
@@ -199,7 +199,7 @@ class OpenRepoActionHandler(AbstractActionHandler):
             #QFileDialog returns forward slashes in windows! Because of this path should be normalized
             basePath = os.path.normpath(basePath)
             self._gui.active_repo = RepoMgr(basePath)
-            self._gui.active_user = None
+            self._gui.model.user = None
             self._gui.loginRecentUser()
             
         except LoginError:
@@ -233,7 +233,7 @@ class AddCurrentRepoToFavoritesActionHandler(AbstractActionHandler):
             self._gui.checkActiveUserIsNotNone()
             
             repoBasePath = self._gui.active_repo.base_path
-            userLogin = self._gui.active_user.login
+            userLogin = self._gui.model.user.login
             
             #TODO: Maybe ask user for a repoAlias...
             self.__favoriteReposStorage.addRepoToFavorites(userLogin, 
@@ -258,7 +258,7 @@ class RemoveCurrentRepoFromFavoritesActionHandler(AbstractActionHandler):
             self._gui.checkActiveUserIsNotNone()
             
             repoBasePath = self._gui.active_repo.base_path
-            userLogin = self._gui.active_user.login
+            userLogin = self._gui.model.user.login
             
             self.__favoriteReposStorage.removeRepoFromFavorites(userLogin, repoBasePath)
             
@@ -282,7 +282,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            item = Item(user_login=self._gui.active_user.login)
+            item = Item(user_login=self._gui.model.user.login)
             
             #User can push Cancel button and do not select a file now
             #In such a case, Item will be added without file reference
@@ -359,7 +359,7 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
             items = []
             for file in files:
                 file = os.path.normpath(file)
-                item = Item(user_login=self._gui.active_user.login)
+                item = Item(user_login=self._gui.model.user.login)
                 item.title = os.path.basename(file)
                 item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
                 item.data_ref.srcAbsPath = file
@@ -401,7 +401,7 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                 if os.path.relpath(root, dirPath) == ".reggata":
                     continue
                 for file in files:
-                    item = Item(title=file, user_login=self._gui.active_user.login)
+                    item = Item(title=file, user_login=self._gui.model.user.login)
                     item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
                     item.data_ref.srcAbsPath = os.path.join(root, file)
                     item.data_ref.srcAbsPathToRecursionRoot = dirPath
@@ -462,7 +462,7 @@ class EditItemActionHandler(AbstractActionHandler):
                 item=item, gui=self._gui, dialogMode=ItemDialog.EDIT_MODE):
                 return
             
-            cmd = UpdateExistingItemCommand(item, self._gui.active_user.login)
+            cmd = UpdateExistingItemCommand(item, self._gui.model.user.login)
             uow.executeCommand(cmd)
         finally:
             uow.close()
@@ -556,7 +556,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
                 raise CancelOperationError()
             
             thread = DeleteGroupOfItemsThread(
-                self._gui, self._gui.active_repo, itemIds, self._gui.active_user.login)
+                self._gui, self._gui.active_repo, itemIds, self._gui.model.user.login)
                                     
             wd = WaitDialog(self._gui)
             self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
@@ -633,7 +633,7 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
                     items.append(self._gui.itemAtRow(row))
             
             iv = ImageViewer(self._gui, self._gui.widgetsUpdateManager(),
-                             self._gui.active_repo, self._gui.active_user.login,
+                             self._gui.active_repo, self._gui.model.user.login,
                              items, startIndex)
             iv.show()
             self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
@@ -658,7 +658,7 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
             tmp_dir = UserConfig().get("tmp_dir", consts.DEFAULT_TMP_DIR)
             if not os.path.exists(tmp_dir):
                 os.makedirs(tmp_dir)
-            m3u_filename = str(os.getpid()) + self._gui.active_user.login + str(time.time()) + ".m3u"
+            m3u_filename = str(os.getpid()) + self._gui.model.user.login + str(time.time()) + ".m3u"
             m3u_file = open(os.path.join(tmp_dir, m3u_filename), "wt")
             for row in rows:
                 m3u_file.write(os.path.join(self._gui.active_repo.base_path, 
@@ -746,7 +746,7 @@ class ImportItemsActionHandler(AbstractActionHandler):
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
             thread = ImportItemsThread(self._gui, self._gui.active_repo, importFromFilename, 
-                                       self._gui.active_user.login)
+                                       self._gui.model.user.login)
                                     
             wd = WaitDialog(self._gui)
             self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
@@ -856,7 +856,7 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
                 items.append(item)
                         
             thread = ItemIntegrityFixerThread(
-                self._gui, self._gui.active_repo, items, self._gui.items_lock, self.__strategy, self._gui.active_user.login)
+                self._gui, self._gui.active_repo, items, self._gui.items_lock, self.__strategy, self._gui.model.user.login)
             
             self.connect(thread, QtCore.SIGNAL("progress"),
                          lambda percents, row: refresh(percents, row))
@@ -990,7 +990,7 @@ class OpenFavoriteRepoActionHandler(QtCore.QObject):
             action = self.sender()
             repoBasePath = action.repoBasePath
             
-            currentUser = self._gui.active_user
+            currentUser = self._gui.model.user
             assert currentUser is not None
             
             self._gui.active_repo = RepoMgr(repoBasePath)
@@ -1000,7 +1000,7 @@ class OpenFavoriteRepoActionHandler(QtCore.QObject):
                 self._gui.showMessageOnStatusBar(self.tr("Repository opened. Login succeded."), STATUSBAR_TIMEOUT)
                 
             except LoginError:
-                self._gui.active_user = None
+                self._gui.model.user = None
                 self._gui.showMessageOnStatusBar(self.tr("Repository opened. Login failed."), STATUSBAR_TIMEOUT)
         
         except Exception as ex:

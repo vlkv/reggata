@@ -25,6 +25,7 @@ class MainWindowModel(object):
     
     def __set_user(self, user):
         self._user = user
+        self._mainWindow.onUserChanged()
     
     user = property(fget=__get_user, fset=__set_user)
     

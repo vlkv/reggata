@@ -176,7 +176,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self.active_repo = None
         except LoginError:
             self.ui.statusbar.showMessage(self.tr("Cannot login recent repository."), STATUSBAR_TIMEOUT)
-            self.active_user = None
+            self._model.user = None
         except Exception:
             self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), STATUSBAR_TIMEOUT)
                 
@@ -292,12 +292,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         
     def __initFavoriteReposMenu(self):
-        if self.active_user is None:
+        if self._model.user is None:
             return
         
         actionToInsertBefore =  self.ui.menuFavorite_repositories.insertSeparator(self.ui.actionAdd_current_repository)
 
-        login = self.active_user.login
+        login = self._model.user.login
         favoriteReposInfo = self.__favoriteReposStorage.favoriteRepos(login)
         for repoBasePath, repoAlias in favoriteReposInfo:
             if helpers.is_none_or_empty(repoBasePath):
@@ -413,6 +413,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
 
     def event(self, e):
         return super(MainWindow, self).event(e)
+    
+    
+    def __get_model(self):
+        return self._model
+    
+    model = property(fget=__get_model)
         
     
     def loginRecentUser(self):
@@ -427,19 +433,18 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         uow = self.active_repo.createUnitOfWork()
         try:
             user = uow.executeCommand(LoginUserCommand(login, password))
-            self.active_user = user
+            self._model.user = user
         finally:
             uow.close()
+    
             
-    def _set_active_user(self, user):
-        self._model.user = user
-        
+    def onUserChanged(self):
+        user = self._model.user
         if user is None:
             self.ui.label_user.setText("")
             #self.ui.file_browser.model().user_login = None
             
         else:
-            #Tell to table itemsTableModel that current active user has changed
             if self.itemsTableModel is not None and isinstance(self.itemsTableModel, RepoItemTableModel):
                 self.itemsTableModel.user_login = user.login
         
@@ -448,20 +453,11 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             UserConfig().storeAll({"recent_user.login":user.login, "recent_user.password":user.password})
             
             #self.ui.file_browser.model().user_login = user.login
-            
         
         self.__rebuildFavoriteReposMenu()
         
-            
-        
-        
-    def _get_active_user(self):
-        return self._model.user
-    
-    active_user = property(_get_active_user, 
-                           _set_active_user, 
-                           doc="Active user is a user after sucessfull login.")
-    
+
+
     
     def _set_active_repo(self, repo):
         try:
@@ -482,7 +478,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 
                 self.itemsTableModel = RepoItemTableModel(
                     repo, self.items_lock, 
-                    self.active_user.login if self.active_user is not None else None)
+                    self._model.user.login if self._model.user is not None else None)
                 self.ui.dockWidget_items_table.setTableModel(self.itemsTableModel)                
                 
                 #self.ui.file_browser.repo = repo         
@@ -523,7 +519,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             raise MsgException(self.tr("Open a repository first."))
             
     def checkActiveUserIsNotNone(self):
-        if self.active_user is None:
+        if self._model.user is None:
             raise MsgException(self.tr("Login to a repository first."))
         
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):

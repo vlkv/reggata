@@ -12,14 +12,19 @@ from tests.tests_dialogs_facade import TestsDialogsFacade
 from data.commands import GetExpungedItemCommand
 from helpers import to_db_format
 
+class TestsGuiModel():
+    def __init__(self, repo, user, gui):
+        self.repo = repo
+        self.user = user
+        self.gui = gui
+
 
 class TestsGui(QtCore.QObject, AbstractGui):
     def __init__(self, repo, user, selectedFiles=[]):
         super(QtCore.QObject, self).__init__()
         self.__selectedFiles = selectedFiles
-        self.__repo = repo
-        self.__user = user
         self.receivedSignals = []
+        self.__model = TestsGuiModel(repo, user, self)
         
     def setSelectedFiles(self, selectedFiles):
         self.__selectedFiles = selectedFiles
@@ -70,24 +75,21 @@ class TestsGui(QtCore.QObject, AbstractGui):
 
 
     def _get_active_repo(self):
-        return self.__repo
+        return self.__model.repo
     
     def _set_active_repo(self, repo):
-        self.__repo = repo
+        self.__model.repo = repo
         
     active_repo = property(_get_active_repo, 
                            _set_active_repo)
     
     
+    def _get_model(self):
+        return self.__model
     
-    def _get_active_user(self):
-        return self.__user
+    model = property(fget=_get_model)
     
-    def _set_active_user(self, user):
-        self.__user = user
-        
-    active_user = property(_get_active_user, 
-                           _set_active_user)
+    
     
     
     def _onHandlerSignals(self, handlerSignals):

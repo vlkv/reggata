@@ -74,15 +74,10 @@ class GuiProxy(QtGui.QWidget, AbstractGui):
                            _set_active_repo)
     
     
+    def _get_model(self):
+        return self.__mainWindow.model
     
-    def _get_active_user(self):
-        return self.__mainWindow._get_active_user()
-    
-    def _set_active_user(self, user):
-        self.__mainWindow._set_active_user(user)
-        
-    active_user = property(_get_active_user, 
-                           _set_active_user)
+    model = property(fget=_get_model)
     
     
         
