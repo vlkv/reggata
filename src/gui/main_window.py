@@ -12,7 +12,7 @@ from helpers import *
 from gui.tag_cloud import TagCloud
 #from gui.file_browser import FileBrowser, FileBrowserTableModel
 from gui.items_table_dock_widget import ItemsTableDockWidget
-from gui.items_table_model import ItemsTableModel
+from logic.items_table_model import ItemsTableModel
 from logic.action_handlers import *
 import logging
 import consts

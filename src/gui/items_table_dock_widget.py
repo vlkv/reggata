@@ -9,7 +9,7 @@ from PyQt4.QtCore import Qt
 
 import ui_itemstabledockwidget
 from user_config import UserConfig
-from gui.items_table_model import ItemsTableModel
+from logic.items_table_model import ItemsTableModel
 from parsers import query_parser
 from gui.common_widgets import TextEdit
 from helpers import *
