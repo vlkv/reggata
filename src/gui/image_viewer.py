@@ -1,39 +1,26 @@
 # -*- coding: utf-8 -*-
-'''
-Copyright 2010 Vitaly Volkov
-
-This file is part of Reggata.
-
-Reggata is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Reggata is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
-
-Created on 13.12.2010
-'''
 
 from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
 import ui_imageviewer
+import helpers
 from helpers import show_exc_info
 from errors import MsgException
 from user_config import UserConfig
 import logging
 import consts
+import os
+from data.commands import GetExpungedItemCommand, UpdateExistingItemCommand
+from gui.user_dialogs_facade import UserDialogsFacade
+from gui.item_dialog import ItemDialog
+from logic.handler_signals import HandlerSignals
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 class Canvas(QtGui.QWidget):
     '''
-    Виджет, для отображения изображений, с функциями зуммирования, панорамирования и т.п.
+        This is a widget for image rendering. It also provides basic functions 
+    of zooming, panoraming and so on.
     '''
     
     def __init__(self, parent=None):
@@ -64,10 +51,11 @@ class Canvas(QtGui.QWidget):
                                              Qt.KeepAspectRatio)
     
     def paintEvent(self, paint_event):
+        if self.abs_path is None:
+            return
 
         if self.original.isNull():
             if not self.original.load(self.abs_path):
-                #self.ui.statusbar.showMessage(self.tr("Cannot load image {0}.").format(self.abs_paths[self.i_current]))
                 return
             
         if self.scaled.isNull() and not self.original.isNull():
@@ -85,16 +73,6 @@ class Canvas(QtGui.QWidget):
     def zoom_out(self, koeff=1.5):
         self.scale = self.scale / koeff
         self.update()
-
-#    def wheelEvent(self, event):
-#        if event.delta() > 0:
-#            self.zoom_in()
-#            self.x -= (event.pos().x() - self.x)/2
-#            self.y -= (event.pos().y() - self.y)/2            
-#        else:
-#            self.zoom_out()
-#            self.x += (event.pos().x() - self.x)/2
-#            self.y += (event.pos().y() - self.y)/2
 
     @property
     def fit_window(self):
@@ -129,9 +107,6 @@ class Canvas(QtGui.QWidget):
         self._abs_path = path
         self.original = QtGui.QPixmap()
         self.scaled = QtGui.QPixmap()
-        
-        #TODO Может тут лучше послать сигнал?
-        self.parent().ui.statusbar.showMessage(self._abs_path)
     
     def mouseMoveEvent(self, ev):
         self.x += (ev.pos().x() - self.press_x)
@@ -166,39 +141,53 @@ class Canvas(QtGui.QWidget):
 
 class ImageViewer(QtGui.QMainWindow):
     '''
-    Встроенный просмотрщик изображений.
+    This is a built-in Reggata Image Viewer.
     '''
-    #TODO Если вдруг в список файлов, которые нужно отобразить будет содержать 
-    #невероятно много элементов, тогда в конструктор можно передавать не список, 
-    #а объект, который ведет себя как список, но на самом деле --- выполняет
-    #буферизованное чтение информации из БД
 
-    def __init__(self, repo, user_login, parent=None, abs_paths=[]):
+    def __init__(self, parent, widgetsUpdateManager, repo, userLogin, items, startItemIndex=0):
+        '''
+            parent --- parent of this widget.
+            widgetsUpdateManager --- object that would inform other widgets that some 
+        Item has changed after edit action.
+            items --- a list of items to show.
+            startItemIndex --- index of the first item to show. 
+             
+        be able to edit items.
+        '''
         super(ImageViewer, self).__init__(parent)
         self.ui = ui_imageviewer.Ui_ImageViewer()
         self.ui.setupUi(self)
+        self.setWindowModality(Qt.WindowModal)
         
+        self.__widgetsUpdateManager = widgetsUpdateManager
+        self.connect(self, QtCore.SIGNAL("handlerSignal"),
+                     self.__widgetsUpdateManager.onHandlerSignal)
+        self.connect(self, QtCore.SIGNAL("handlerSignals"),
+                     self.__widgetsUpdateManager.onHandlerSignals)
+        
+        self.items = items
+        self.i_current = startItemIndex if 0 <= startItemIndex < len(items) else 0
         self.repo = repo
-        self.user_login = user_login
-        
-        self.abs_paths = abs_paths
-        self.i_current = 0 if len(self.abs_paths) > 0 else None
+        self.user_login = userLogin
         
         self.ui.canvas = Canvas(self)
         self.setCentralWidget(self.ui.canvas)
-        self.ui.action_fit_window.setChecked(self.ui.canvas.fit_window)
-        if self.i_current is not None:
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
         
+        self.__renderCurrentItemFile()
+            
         self.connect(self.ui.action_prev, QtCore.SIGNAL("triggered()"), self.action_prev)
         self.connect(self.ui.action_next, QtCore.SIGNAL("triggered()"), self.action_next)        
         self.connect(self.ui.action_zoom_in, QtCore.SIGNAL("triggered()"), self.action_zoom_in)
         self.connect(self.ui.action_zoom_out, QtCore.SIGNAL("triggered()"), self.action_zoom_out)
         self.connect(self.ui.action_fit_window, QtCore.SIGNAL("triggered(bool)"), self.action_fit_window)
+        self.ui.action_fit_window.setChecked(self.ui.canvas.fit_window)
         
-        self.connect(self.ui.canvas, QtCore.SIGNAL("fit_window_changed"), lambda x: self.ui.action_fit_window.setChecked(x))
+        self.connect(self.ui.action_edit_item, QtCore.SIGNAL("triggered()"), self.action_edit_item)
         
-        #Пытаемся восстанавливить размер окна, как был при последнем запуске
+        self.connect(self.ui.canvas, QtCore.SIGNAL("fit_window_changed"), \
+                     lambda x: self.ui.action_fit_window.setChecked(x))
+        
+        # Trying to restore window size
         try:
             width = int(UserConfig().get("image_viewer.width", 640))
             height = int(UserConfig().get("image_viewer.height", 480))
@@ -206,34 +195,18 @@ class ImageViewer(QtGui.QMainWindow):
         except:
             pass
         
-        #Делаем так, чтобы размер окна сохранялся при изменении
+        # This code stores window size (after window resizing) 
         self.save_state_timer = QtCore.QTimer(self)
         self.save_state_timer.setSingleShot(True)
         self.connect(self.save_state_timer, QtCore.SIGNAL("timeout()"), self.save_window_state)
-    
-        self.setWindowModality(Qt.WindowModal)
         
-        
-        
-        #Actions: edit item
-        self.ui.action_edit_item = QtGui.QAction(self.tr("Edit item"), self)
-        self.addAction(self.ui.action_edit_item)
-        self.ui.action_edit_item.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+E")))       
-        self.connect(self.ui.action_edit_item, QtCore.SIGNAL("triggered()"), self.action_edit_item)
         #Context menu
         self.menu = QtGui.QMenu()
         self.menu.addAction(self.ui.action_edit_item)
         self.ui.canvas.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.connect(self.ui.canvas, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), lambda pos: self.menu.exec_(self.ui.canvas.mapToGlobal(pos)))
-    
-    
-    def set_current_image_index(self, value):
-        if 0 <= value < len(self.abs_paths): 
-            self.i_current = value
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
-            self.update()
-        else:
-            raise ValueError(self.tr("Image index is out of range."))  
+        self.connect(self.ui.canvas, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), \
+                     lambda pos: self.menu.exec_(self.ui.canvas.mapToGlobal(pos)))
+        
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Plus:
@@ -263,7 +236,7 @@ class ImageViewer(QtGui.QMainWindow):
                 
     
     def resizeEvent(self, resize_event):
-        self.save_state_timer.start(3000) #Повторный вызов start() делает перезапуск таймера        
+        self.save_state_timer.start(3000)        
     
     def action_zoom_in(self):
         try:            
@@ -287,11 +260,10 @@ class ImageViewer(QtGui.QMainWindow):
     def action_next(self):
         try:
             self.i_current += 1
-            if self.i_current >= len(self.abs_paths):
+            if self.i_current >= len(self.items):
                 self.i_current = 0
             
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
-            self.update()
+            self.__renderCurrentItemFile()
             
         except Exception as ex:
             show_exc_info(self, ex)
@@ -300,25 +272,71 @@ class ImageViewer(QtGui.QMainWindow):
         try:
             self.i_current -= 1
             if self.i_current < 0:
-                self.i_current = len(self.abs_paths) - 1
+                self.i_current = len(self.items) - 1
             
-            self.ui.canvas.abs_path = self.abs_paths[self.i_current]
-            self.update()
+            self.__renderCurrentItemFile()
             
         except Exception as ex:
             show_exc_info(self, ex)
             
+            
+    def __renderCurrentItemFile(self):
+        item = self.items[self.i_current]
+        if item.data_ref is not None:
+            path = os.path.join(self.repo.base_path, item.data_ref.url)
+        else:
+            path = None
+        self.ui.canvas.abs_path = path
+        self.update()
+        
+        message = item.title + ", " + (path if path is not None else self.tr("No file"))        
+        self.ui.statusbar.showMessage(message)
+        
+   
+            
+    def __checkActiveRepoIsNotNone(self):
+        if self.repo is None:
+            raise MsgException(self.tr("Cannot edit items, repository is not given."))
+    
+    def __checkActiveUserIsNotNone(self):
+        if helpers.is_none_or_empty(self.user_login):
+            raise MsgException(self.tr("Cannot edit items, user is not given."))
+            
+   
     def action_edit_item(self):
         try:
-            raise MsgException("Not implemented yet.")
-        except Exception as ex:
-            show_exc_info(self, ex)
+            self.__checkActiveRepoIsNotNone()
+            self.__checkActiveUserIsNotNone()            
             
-    def action_template(self):
-        try:
-            pass
+            itemId = self.items[self.i_current].id
+            self.__editSingleItem(itemId)
+            
         except Exception as ex:
             show_exc_info(self, ex)
-        
-        
+        else:
+            # TODO: pass some item id so widgets could update only edited item 
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
+    
+     
+    def __editSingleItem(self, itemId):
+        uow = self.repo.create_unit_of_work()
+        try:
+            item = uow.executeCommand(GetExpungedItemCommand(itemId))
+            
+            dialogs = UserDialogsFacade()
+            if not dialogs.execItemDialog(
+                item=item, gui=self, dialogMode=ItemDialog.EDIT_MODE):
+                self.ui.statusbar.showMessage(self.tr("Operation cancelled."), consts.STATUSBAR_TIMEOUT)
+                return
+            
+            cmd = UpdateExistingItemCommand(item, self.user_login)
+            uow.executeCommand(cmd)
+            self.ui.statusbar.showMessage(self.tr("Operation completed."), consts.STATUSBAR_TIMEOUT)
+        finally:
+            uow.close()
+            
+    # This property is needed for partial compatibility with AbstractGui
+    @property
+    def active_repo(self):
+        return self.repo
     

@@ -1,6 +1,7 @@
 import unittest
 import os
-from tests import test_memento, test_helpers, test_repo_mgr, test_worker_threads
+from tests import test_memento, test_helpers, test_repo_mgr, test_worker_threads,\
+    test_action_handlers
 
 class TestsDiscoverIsNotAvailableError(Exception):
     pass
@@ -23,6 +24,9 @@ class TestRunner():
         self.addTestCase(test_repo_mgr.UpdateItemTest)
         
         self.addTestCase(test_worker_threads.DeleteGroupOfItemsThreadTest)
+        
+        self.addTestCase(test_action_handlers.AddSingleItemActionHandlerTest)
+        
 
     def addTestCase(self, testCaseCls):
         self.suite.addTests(unittest.TestLoader().loadTestsFromTestCase(testCaseCls))
