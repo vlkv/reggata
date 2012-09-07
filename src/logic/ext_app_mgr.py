@@ -114,7 +114,7 @@ class ExtAppMgr(object):
         # This is a hack... On Windows shlex fails to handle correctly network paths such as
         # \\Tiger\SYSTEM (C)\home\testrepo.rgt\file.txt
         if not sys.platform.startswith("win"):
-            return
+            return args
         if args[1].startswith("\\"):
             args[1] = "\\" + args[1]
         return args
