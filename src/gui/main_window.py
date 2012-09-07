@@ -432,11 +432,9 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             
             if repo is not None:
                 UserConfig().store("recent_repo.base_path", repo.base_path)
-                    
-                (head, tail) = os.path.split(repo.base_path)
-                while tail == "" and head != "":
-                    (head, tail) = os.path.split(head)
-                self.ui.label_repo.setText("<b>" + tail + "</b>")
+                
+                self.ui.label_repo.setText("<b>" + os.path.basename(repo.base_path) + "</b>")
+                self.ui.label_repo.setToolTip(repo.base_path)
                 
                 self.ui.statusbar.showMessage(self.tr("Opened repository from {}.")
                                               .format(repo.base_path), STATUSBAR_TIMEOUT)
@@ -444,11 +442,10 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.itemsTableModel = RepoItemTableModel(
                     repo, self.items_lock, 
                     self._model.user.login if self._model.user is not None else None)
-                self.ui.dockWidget_items_table.setTableModel(self.itemsTableModel)                
-                
-                #self.ui.file_browser.repo = repo         
+                self.ui.dockWidget_items_table.setTableModel(self.itemsTableModel)
+                #self.ui.file_browser.repo = repo
                  
-                #TODO move this completer update into the dockWidget_items_table class
+                #TODO move this completer into the dockWidget_items_table class
                 completer = Completer(repo=repo, parent=self.ui.dockWidget_items_table)
                 self.ui.dockWidget_items_table.set_tag_completer(completer)
                 
@@ -460,6 +457,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.dockWidget_items_table.save_columns_width()
                 
                 self.ui.label_repo.setText("")
+                self.ui.label_repo.setToolTip("")
+                
                 self.itemsTableModel = None
                 self.ui.dockWidget_items_table.setTableModel(None)
                 #self.ui.file_browser.repo = None
