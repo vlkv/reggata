@@ -9,7 +9,7 @@ from PyQt4.QtCore import Qt
 
 import ui_itemstabledockwidget
 from user_config import UserConfig
-from gui.items_table_model import RepoItemTableModel
+from gui.items_table_model import ItemsTableModel
 from parsers import query_parser
 from gui.common_widgets import TextEdit
 from helpers import *
@@ -47,9 +47,9 @@ class ItemsTableDockWidget(QtGui.QDockWidget):
         self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
         
         #Tuning table cell rendering
-        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.TITLE, HTMLDelegate(self))
-        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.IMAGE_THUMB, ImageThumbDelegate(self))                 
-        self.ui.tableView_items.setItemDelegateForColumn(RepoItemTableModel.RATING, RatingDelegate(self))
+        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.TITLE, HTMLDelegate(self))
+        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.IMAGE_THUMB, ImageThumbDelegate(self))                 
+        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.RATING, RatingDelegate(self))
         
         #Turn on table sorting
         self.ui.tableView_items.setSortingEnabled(True)
@@ -149,31 +149,31 @@ class ItemsTableDockWidget(QtGui.QDockWidget):
         self.ui.tableView_items.resizeRowsToContents()
 
     def restore_columns_width(self):
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.ID, int(UserConfig().get("items_table.ID.width", 55)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 430)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 220)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 100)))
-        self.ui.tableView_items.setColumnWidth(RepoItemTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 100)))
+        self.ui.tableView_items.setColumnWidth(ItemsTableModel.ID, int(UserConfig().get("items_table.ID.width", 55)))
+        self.ui.tableView_items.setColumnWidth(ItemsTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 430)))
+        self.ui.tableView_items.setColumnWidth(ItemsTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
+        self.ui.tableView_items.setColumnWidth(ItemsTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 220)))
+        self.ui.tableView_items.setColumnWidth(ItemsTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 100)))
+        self.ui.tableView_items.setColumnWidth(ItemsTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 100)))
         
     def save_columns_width(self):
-        width_id = self.ui.tableView_items.columnWidth(RepoItemTableModel.ID)
+        width_id = self.ui.tableView_items.columnWidth(ItemsTableModel.ID)
         if width_id > 0:            
             UserConfig().store("items_table.ID.width", str(width_id))
                         
-        width_title = self.ui.tableView_items.columnWidth(RepoItemTableModel.TITLE)
+        width_title = self.ui.tableView_items.columnWidth(ItemsTableModel.TITLE)
         if width_title > 0:
             UserConfig().store("items_table.TITLE.width", str(width_title))
         
-        width_list_of_tags = self.ui.tableView_items.columnWidth(RepoItemTableModel.LIST_OF_TAGS)
+        width_list_of_tags = self.ui.tableView_items.columnWidth(ItemsTableModel.LIST_OF_TAGS)
         if width_list_of_tags > 0:
             UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
         
-        width_state = self.ui.tableView_items.columnWidth(RepoItemTableModel.STATE)
+        width_state = self.ui.tableView_items.columnWidth(ItemsTableModel.STATE)
         if width_state > 0:
             UserConfig().store("items_table.STATE.width", str(width_state))
         
-        width_rating = self.ui.tableView_items.columnWidth(RepoItemTableModel.RATING)
+        width_rating = self.ui.tableView_items.columnWidth(ItemsTableModel.RATING)
         if width_rating > 0:
             UserConfig().store("items_table.RATING.width", str(width_rating))
     

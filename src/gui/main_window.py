@@ -12,7 +12,7 @@ from helpers import *
 from gui.tag_cloud import TagCloud
 #from gui.file_browser import FileBrowser, FileBrowserTableModel
 from gui.items_table_dock_widget import ItemsTableDockWidget
-from gui.items_table_model import RepoItemTableModel
+from gui.items_table_model import ItemsTableModel
 from logic.action_handlers import *
 import logging
 import consts
@@ -438,7 +438,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.statusbar.showMessage(self.tr("Opened repository from {}.")
                                               .format(repo.base_path), STATUSBAR_TIMEOUT)
                 
-                itemsTableModel = RepoItemTableModel(
+                itemsTableModel = ItemsTableModel(
                     repo, self.items_lock, 
                     self._model.user.login if self._model.user is not None else None)
                 self.ui.dockWidget_items_table.itemsTableModel = itemsTableModel 

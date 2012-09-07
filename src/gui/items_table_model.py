@@ -15,7 +15,7 @@ from logic.worker_threads import ThumbnailBuilderThread
 from data.repo_mgr import *
 from data.commands import *
 
-class RepoItemTableModel(QtCore.QAbstractTableModel):
+class ItemsTableModel(QtCore.QAbstractTableModel):
     '''
     This class is a model of a table (QTableView) with repository Items.
     '''
@@ -28,7 +28,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
     RATING = 5
     
     def __init__(self, repo, items_lock, user_login):
-        super(RepoItemTableModel, self).__init__()
+        super(ItemsTableModel, self).__init__()
         self.repo = repo
         self.items = []
         self._user_login = user_login
@@ -244,7 +244,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
         return None
     
     def flags(self, index):
-        default_flags = super(RepoItemTableModel, self).flags(index)
+        default_flags = super(ItemsTableModel, self).flags(index)
         
         if index.column() == self.RATING:
             return Qt.ItemFlags(default_flags | QtCore.Qt.ItemIsEditable)             
