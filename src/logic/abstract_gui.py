@@ -37,16 +37,6 @@ class AbstractGui(object):
         raise NotImplementedError()
     
 
-    def _get_active_repo(self):
-        raise NotImplementedError()
-    
-    def _set_active_repo(self, repo):
-        raise NotImplementedError()
-        
-    active_repo = property(_get_active_repo, 
-                           _set_active_repo)
-    
-    
     def _get_model(self):
         raise NotImplementedError()
     

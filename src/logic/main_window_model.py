@@ -16,6 +16,7 @@ class MainWindowModel(object):
     
     def __set_repo(self, repo):
         self._repo = repo
+        self._mainWindow.onCurrentRepoChanged()
     
     repo = property(fget=__get_repo, fset=__set_repo)
         
@@ -25,7 +26,7 @@ class MainWindowModel(object):
     
     def __set_user(self, user):
         self._user = user
-        self._mainWindow.onUserChanged()
+        self._mainWindow.onCurrentUserChanged()
     
     user = property(fget=__get_user, fset=__set_user)
     

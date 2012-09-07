@@ -28,14 +28,14 @@ class UserDialogsFacade(AbstractDialogsFacade):
             return (False, None)
     
     def execItemDialog(self, item, gui, dialogMode):
-        completer = Completer(gui.active_repo, gui)
+        completer = Completer(gui.model.repo, gui)
         dialog = ItemDialog(gui, item, dialogMode, completer=completer)
         return dialog.exec_()
     
     
     def execItemsDialog(self, items, gui, dialogMode, sameDstPath):
-        completer = Completer(gui.active_repo, gui)
-        repoBasePath = gui.active_repo.base_path
+        completer = Completer(gui.model.repo, gui)
+        repoBasePath = gui.model.repo.base_path
         d = ItemsDialog(gui, repoBasePath, items, dialogMode, 
                         same_dst_path=sameDstPath, completer=completer)
         return d.exec_()

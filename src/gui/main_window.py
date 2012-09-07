@@ -169,11 +169,11 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         #Try to open and login recent repository with recent user login
         try:
             tmp = UserConfig()["recent_repo.base_path"]
-            self.active_repo = RepoMgr(tmp)
+            self._model.repo = RepoMgr(tmp)
             self.loginRecentUser()
         except CannotOpenRepoError:
             self.ui.statusbar.showMessage(self.tr("Cannot open recent repository."), STATUSBAR_TIMEOUT)
-            self.active_repo = None
+            self._model.repo = None
         except LoginError:
             self.ui.statusbar.showMessage(self.tr("Cannot login recent repository."), STATUSBAR_TIMEOUT)
             self._model.user = None
@@ -430,7 +430,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def loginUser(self, login, password):
         self.checkActiveRepoIsNotNone()
         
-        uow = self.active_repo.createUnitOfWork()
+        uow = self._model.repo.createUnitOfWork()
         try:
             user = uow.executeCommand(LoginUserCommand(login, password))
             self._model.user = user
@@ -438,7 +438,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             uow.close()
     
             
-    def onUserChanged(self):
+    def onCurrentUserChanged(self):
         user = self._model.user
         if user is None:
             self.ui.label_user.setText("")
@@ -459,10 +459,9 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
 
 
     
-    def _set_active_repo(self, repo):
+    def onCurrentRepoChanged(self):
+        repo = self._model.repo
         try:
-            self._model.repo = repo
-            
             self.ui.tag_cloud.repo = repo
             
             if repo is not None:
@@ -501,21 +500,13 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             
                 self.ui.dockWidget_items_table.set_tag_completer(None)
                 
-                
-                
         except Exception as ex:
             raise CannotOpenRepoError(str(ex), ex)
-                
-    def _get_active_repo(self):
-        return self._model.repo
-    
-    active_repo = property(_get_active_repo, 
-                           _set_active_repo, 
-                           doc="Repo that has been opened.")
+
         
     
     def checkActiveRepoIsNotNone(self):
-        if self.active_repo is None:
+        if self._model.repo is None:
             raise MsgException(self.tr("Open a repository first."))
             
     def checkActiveUserIsNotNone(self):

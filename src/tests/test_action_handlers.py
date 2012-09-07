@@ -72,17 +72,6 @@ class TestsGui(QtCore.QObject, AbstractGui):
     def checkActiveUserIsNotNone(self):
         pass
 
-
-
-    def _get_active_repo(self):
-        return self.__model.repo
-    
-    def _set_active_repo(self, repo):
-        self.__model.repo = repo
-        
-    active_repo = property(_get_active_repo, 
-                           _set_active_repo)
-    
     
     def _get_model(self):
         return self.__model

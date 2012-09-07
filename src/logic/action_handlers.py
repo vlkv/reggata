@@ -59,7 +59,7 @@ class CreateUserActionHandler(AbstractActionHandler):
                 user=user, gui=self._gui, dialogMode=UserDialog.CREATE_MODE):
                 return
             
-            uow = self._gui.active_repo.createUnitOfWork()
+            uow = self._gui.model.repo.createUnitOfWork()
             try:
                 uow.executeCommand(SaveNewUserCommand(user))
                 self._gui.model.user = user
@@ -118,7 +118,7 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
             if not dialogExecOk:
                 return
             
-            uow = self._gui.active_repo.createUnitOfWork()
+            uow = self._gui.model.repo.createUnitOfWork()
             try:
                 command = ChangeUserPasswordCommand(user.login, newPasswordHash)
                 uow.executeCommand(command)
@@ -148,7 +148,7 @@ class CreateRepoActionHandler(AbstractActionHandler):
             # QFileDialog returns forward slashes in windows! Because of this 
             # the path should be normalized
             basePath = os.path.normpath(basePath)
-            self._gui.active_repo = RepoMgr.createNewRepo(basePath)
+            self._gui.model.repo = RepoMgr.createNewRepo(basePath)
             self._gui.model.user = self.__createDefaultUser()
         
         except Exception as ex:
@@ -162,7 +162,7 @@ class CreateRepoActionHandler(AbstractActionHandler):
         defaultPassword = helpers.computePasswordHash(consts.DEFAULT_USER_PASSWORD)
         user = User(login=defaultLogin, password=defaultPassword)
         
-        uow = self._gui.active_repo.createUnitOfWork()
+        uow = self._gui.model.repo.createUnitOfWork()
         try:
             uow.executeCommand(SaveNewUserCommand(user))
         finally:
@@ -177,7 +177,7 @@ class CloseRepoActionHandler(AbstractActionHandler):
     def handle(self):
         try:
             self._gui.checkActiveRepoIsNotNone()
-            self._gui.active_repo = None
+            self._gui.model.repo = None
             self._gui.model.user = None
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -198,7 +198,7 @@ class OpenRepoActionHandler(AbstractActionHandler):
 
             #QFileDialog returns forward slashes in windows! Because of this path should be normalized
             basePath = os.path.normpath(basePath)
-            self._gui.active_repo = RepoMgr(basePath)
+            self._gui.model.repo = RepoMgr(basePath)
             self._gui.model.user = None
             self._gui.loginRecentUser()
             
@@ -232,7 +232,7 @@ class AddCurrentRepoToFavoritesActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            repoBasePath = self._gui.active_repo.base_path
+            repoBasePath = self._gui.model.repo.base_path
             userLogin = self._gui.model.user.login
             
             #TODO: Maybe ask user for a repoAlias...
@@ -257,7 +257,7 @@ class RemoveCurrentRepoFromFavoritesActionHandler(AbstractActionHandler):
             self._gui.checkActiveRepoIsNotNone()
             self._gui.checkActiveUserIsNotNone()
             
-            repoBasePath = self._gui.active_repo.base_path
+            repoBasePath = self._gui.model.repo.base_path
             userLogin = self._gui.model.user.login
             
             self.__favoriteReposStorage.removeRepoFromFavorites(userLogin, repoBasePath)
@@ -297,7 +297,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 item=item, gui=self._gui, dialogMode=ItemDialog.CREATE_MODE):
                 return
             
-            uow = self._gui.active_repo.createUnitOfWork()
+            uow = self._gui.model.repo.createUnitOfWork()
             try:
                 srcAbsPath = None
                 dstRelPath = None
@@ -331,7 +331,7 @@ class AddManyItemsAbstractActionHandler(AbstractActionHandler):
         self._errorLog = []
     
     def _startWorkerThread(self, items):
-        thread = CreateGroupIfItemsThread(self._gui, self._gui.active_repo, items)
+        thread = CreateGroupIfItemsThread(self._gui, self._gui.model.repo, items)
         
         wd = WaitDialog(self._gui)
         self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
@@ -453,7 +453,7 @@ class EditItemActionHandler(AbstractActionHandler):
             
     
     def __editSingleItem(self, itemId):
-        uow = self._gui.active_repo.createUnitOfWork()
+        uow = self._gui.model.repo.createUnitOfWork()
         try:
             item = uow.executeCommand(GetExpungedItemCommand(itemId))
             
@@ -468,7 +468,7 @@ class EditItemActionHandler(AbstractActionHandler):
             uow.close()
     
     def __editManyItems(self, itemIds):
-        uow = self._gui.active_repo.createUnitOfWork()
+        uow = self._gui.model.repo.createUnitOfWork()
         try:
             items = []
             for itemId in itemIds:
@@ -479,7 +479,7 @@ class EditItemActionHandler(AbstractActionHandler):
                 items, self._gui, ItemsDialog.EDIT_MODE, sameDstPath=True):
                 return
             
-            thread = UpdateGroupOfItemsThread(self._gui, self._gui.active_repo, items)
+            thread = UpdateGroupOfItemsThread(self._gui, self._gui.model.repo, items)
                     
             wd = WaitDialog(self._gui)
             self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
@@ -512,7 +512,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
                 raise MsgException(self.tr("There are no selected items."))
             
             
-            uow = self._gui.active_repo.createUnitOfWork()
+            uow = self._gui.model.repo.createUnitOfWork()
             try:
                 items = []
                 for row in rows:                    
@@ -520,7 +520,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
                     items.append(self._gui.itemsTableModel.items[row])
                  
                 thread = ThumbnailBuilderThread(
-                    self._gui, self._gui.active_repo, items, self._gui.items_lock, rebuild=True)
+                    self._gui, self._gui.model.repo, items, self._gui.items_lock, rebuild=True)
                 self.connect(thread, QtCore.SIGNAL("exception"), 
                              lambda exc_info: show_exc_info(self._gui, exc_info[1], details=format_exc_info(*exc_info)))
                 self.connect(thread, QtCore.SIGNAL("progress"), 
@@ -556,7 +556,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
                 raise CancelOperationError()
             
             thread = DeleteGroupOfItemsThread(
-                self._gui, self._gui.active_repo, itemIds, self._gui.model.user.login)
+                self._gui, self._gui.model.repo, itemIds, self._gui.model.user.login)
                                     
             wd = WaitDialog(self._gui)
             self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
@@ -600,7 +600,7 @@ class OpenItemActionHandler(AbstractActionHandler):
                 raise MsgException(self.tr("Action 'View item' can be applied only to items linked with files."))
             
             eam = ExtAppMgr()
-            eam.invoke(os.path.join(self._gui.active_repo.base_path, data_ref.url))
+            eam.invoke(os.path.join(self._gui.model.repo.base_path, data_ref.url))
             
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -633,7 +633,7 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
                     items.append(self._gui.itemAtRow(row))
             
             iv = ImageViewer(self._gui, self._gui.widgetsUpdateManager(),
-                             self._gui.active_repo, self._gui.model.user.login,
+                             self._gui.model.repo, self._gui.model.user.login,
                              items, startIndex)
             iv.show()
             self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
@@ -661,7 +661,7 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
             m3u_filename = str(os.getpid()) + self._gui.model.user.login + str(time.time()) + ".m3u"
             m3u_file = open(os.path.join(tmp_dir, m3u_filename), "wt")
             for row in rows:
-                m3u_file.write(os.path.join(self._gui.active_repo.base_path, 
+                m3u_file.write(os.path.join(self._gui.model.repo.base_path, 
                                             self._gui.itemAtRow(row).data_ref.url) + os.linesep)                                            
             m3u_file.close()
             
@@ -690,7 +690,7 @@ class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
                     self.tr("This action can be applied only to the items linked with files."))
             
             eam = ExtAppMgr()
-            eam.external_file_manager(os.path.join(self._gui.active_repo.base_path, data_ref.url))
+            eam.external_file_manager(os.path.join(self._gui.model.repo.base_path, data_ref.url))
                         
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -715,7 +715,7 @@ class ExportItemsActionHandler(AbstractActionHandler):
             if not exportFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
-            thread = ExportItemsThread(self._gui, self._gui.active_repo, itemIds, exportFilename)
+            thread = ExportItemsThread(self._gui, self._gui.model.repo, itemIds, exportFilename)
                                     
             wd = WaitDialog(self._gui)
             self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
@@ -745,7 +745,7 @@ class ImportItemsActionHandler(AbstractActionHandler):
             if not importFromFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
-            thread = ImportItemsThread(self._gui, self._gui.active_repo, importFromFilename, 
+            thread = ImportItemsThread(self._gui, self._gui.model.repo, importFromFilename, 
                                        self._gui.model.user.login)
                                     
             wd = WaitDialog(self._gui)
@@ -780,7 +780,7 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
             if not export_dir_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
-            thread = ExportItemsFilesThread(self._gui, self._gui.active_repo, item_ids, export_dir_path)
+            thread = ExportItemsFilesThread(self._gui, self._gui.model.repo, item_ids, export_dir_path)
                                     
             wd = WaitDialog(self._gui)
             self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
@@ -816,7 +816,7 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
                 item = self._gui.itemAtRow(row)
                 if item.is_data_ref_null():
                     continue
-                textline = self._gui.active_repo.base_path + \
+                textline = self._gui.model.repo.base_path + \
                     os.sep + self._gui.itemAtRow(row).data_ref.url + os.linesep
                 file.write(textline)
             file.close()
@@ -856,7 +856,7 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
                 items.append(item)
                         
             thread = ItemIntegrityFixerThread(
-                self._gui, self._gui.active_repo, items, self._gui.items_lock, self.__strategy, self._gui.model.user.login)
+                self._gui, self._gui.model.repo, items, self._gui.items_lock, self.__strategy, self._gui.model.user.login)
             
             self.connect(thread, QtCore.SIGNAL("progress"),
                          lambda percents, row: refresh(percents, row))
@@ -898,7 +898,7 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
                 items.append(item)
              
             thread = ItemIntegrityCheckerThread(
-                self._gui, self._gui.active_repo, items, self._gui.items_lock)
+                self._gui, self._gui.model.repo, items, self._gui.items_lock)
             self.connect(thread, QtCore.SIGNAL("progress"), 
                          lambda percents, row: refresh(percents, row))
             self.connect(thread, QtCore.SIGNAL("finished"), 
@@ -993,7 +993,7 @@ class OpenFavoriteRepoActionHandler(QtCore.QObject):
             currentUser = self._gui.model.user
             assert currentUser is not None
             
-            self._gui.active_repo = RepoMgr(repoBasePath)
+            self._gui.model.repo = RepoMgr(repoBasePath)
             
             try:
                 self._gui.loginUser(currentUser.login, currentUser.password)

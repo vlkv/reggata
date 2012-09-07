@@ -2,7 +2,6 @@
 Created on 20.08.2012
 @author: vlkv
 '''
-
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
@@ -62,17 +61,6 @@ class GuiProxy(QtGui.QWidget, AbstractGui):
     def checkActiveUserIsNotNone(self):
         self.__mainWindow.checkActiveUserIsNotNone()
 
-
-
-    def _get_active_repo(self):
-        return self.__mainWindow._get_active_repo()
-    
-    def _set_active_repo(self, repo):
-        self.__mainWindow._set_active_repo(repo)
-        
-    active_repo = property(_get_active_repo, 
-                           _set_active_repo)
-    
     
     def _get_model(self):
         return self.__mainWindow.model

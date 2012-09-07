@@ -335,8 +335,16 @@ class ImageViewer(QtGui.QMainWindow):
         finally:
             uow.close()
             
+    
     # This property is needed for partial compatibility with AbstractGui
+    # It is called by DialogsFacade to create Completer object 
     @property
-    def active_repo(self):
-        return self.repo
+    def model(self):
+        class FakeModel(object):
+            pass
+        
+        fakeModel = FakeModel()
+        fakeModel.repo = self.repo
+        return fakeModel
+    
     
