@@ -19,6 +19,7 @@ import consts
 import gui.gui_proxy
 from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage
+#from logic.main_window_model import MainWindowModel
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -33,14 +34,16 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui = ui_mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
         
+        #self._mainWindowModel = MainWindowModel(mainWindow=self, repo=None, user=None)
+        
         #Current opened (active) repository (RepoMgr object)
         self.__active_repo = None
         
         #Current logined (active) user
         self.__active_user = None
         
-        #Table model for items table
-        self.model = None
+        #Table itemsTableModel for items table
+        self.itemsTableModel = None
         
         self.items_lock = QtCore.QReadWriteLock()
         
@@ -442,9 +445,9 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             #self.ui.file_browser.model().user_login = None
             
         else:
-            #Tell to table model that current active user has changed
-            if self.model is not None and isinstance(self.model, RepoItemTableModel):
-                self.model.user_login = user.login
+            #Tell to table itemsTableModel that current active user has changed
+            if self.itemsTableModel is not None and isinstance(self.itemsTableModel, RepoItemTableModel):
+                self.itemsTableModel.user_login = user.login
         
             self.ui.label_user.setText("<b>" + user.login + "</b>")
             
@@ -467,9 +470,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     
     
     def _set_active_repo(self, repo):
-        if not isinstance(repo, RepoMgr) and not repo is None:
-            raise TypeError(self.tr("Argument must be of RepoMgr class."))
-    
         try:
             self.__active_repo = repo
             
@@ -486,10 +486,10 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.statusbar.showMessage(self.tr("Opened repository from {}.")
                                               .format(repo.base_path), STATUSBAR_TIMEOUT)
                 
-                self.model = RepoItemTableModel(
+                self.itemsTableModel = RepoItemTableModel(
                     repo, self.items_lock, 
                     self.active_user.login if self.active_user is not None else None)
-                self.ui.dockWidget_items_table.setTableModel(self.model)                
+                self.ui.dockWidget_items_table.setTableModel(self.itemsTableModel)                
                 
                 #self.ui.file_browser.repo = repo         
                  
@@ -505,7 +505,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.dockWidget_items_table.save_columns_width()
                 
                 self.ui.label_repo.setText("")
-                self.model = None
+                self.itemsTableModel = None
                 self.ui.dockWidget_items_table.setTableModel(None)
                 #self.ui.file_browser.repo = None
             
@@ -543,13 +543,13 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         return self.ui.dockWidget_items_table.selected_rows()
     
     def itemAtRow(self, row):
-        return self.model.items[row]
+        return self.itemsTableModel.items[row]
     
     def rowCount(self):
-        return self.model.rowCount()
+        return self.itemsTableModel.rowCount()
     
     def resetSingleRow(self, row):
-        self.model.reset_single_row(row)
+        self.itemsTableModel.reset_single_row(row)
             
     def selectedItemIds(self):
         #Maybe we should use this fun only, and do not use rows outside the GUI code
