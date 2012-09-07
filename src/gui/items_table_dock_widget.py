@@ -1,13 +1,12 @@
 '''
 Created on 21.01.2012
-
 @author: vlkv
 '''
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 
-import ui_itemstabledockwidget
+from ui_itemstabletoolgui import Ui_ItemsTableToolGui
 from user_config import UserConfig
 from logic.items_table_model import ItemsTableModel
 from parsers import query_parser
@@ -19,11 +18,11 @@ from errors import *
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
-class ItemsTableDockWidget(QtGui.QDockWidget):
+class ItemsTableDockWidget(QtGui.QWidget):
     
     def __init__(self, parent):
         super(ItemsTableDockWidget, self).__init__(parent)
-        self.ui = ui_itemstabledockwidget.Ui_ItemsTableDockWidget()
+        self.ui = Ui_ItemsTableToolGui()
         self.ui.setupUi(self)
         
         self.itemsTableModel = None

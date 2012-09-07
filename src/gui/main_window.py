@@ -112,14 +112,21 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
 
     def __initItemsTable(self):
         self.ui.dockWidget_items_table = ItemsTableDockWidget(self)
+        itemsTableDockWidget = QtGui.QDockWidget(self.tr("Items Table"), self)
+        itemsTableDockWidget.setObjectName("itemsTableDockWidget")
+        itemsTableDockWidget.setWidget(self.ui.dockWidget_items_table)
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, itemsTableDockWidget)
+        
         self.menu = self.__createItemsTableContextMenu()
         self.ui.dockWidget_items_table.addContextMenu(self.menu)
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_items_table)
+        
         self.__widgetsUpdateManager.subscribe(
             self.ui.dockWidget_items_table, self.ui.dockWidget_items_table.query_exec, 
             [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 
              HandlerSignals.ITEM_DELETED])
-        self.ui.menuTools.addAction(self.ui.dockWidget_items_table.toggleViewAction())
+
+        self.ui.menuTools.addAction(itemsTableDockWidget.toggleViewAction())
+
 
     def __initTagCloud(self):
         self.ui.tag_cloud = TagCloud(self)
@@ -127,14 +134,17 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui.dockWidget_tag_cloud.setObjectName("dockWidget_tag_cloud")
         self.ui.dockWidget_tag_cloud.setWidget(self.ui.tag_cloud)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
+        
         self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), 
                      self.ui.dockWidget_items_table.selected_tags_changed)
         self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("queryTextResetted"), 
                      self.ui.tag_cloud.reset)
+        
         self.__widgetsUpdateManager.subscribe(
             self.ui.tag_cloud, self.ui.tag_cloud.refresh, 
             [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 
              HandlerSignals.ITEM_DELETED])
+        
         self.ui.menuTools.addAction(self.ui.dockWidget_tag_cloud.toggleViewAction())
 
 #    def __initFileBrowser(self):
