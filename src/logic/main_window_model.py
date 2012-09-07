@@ -4,6 +4,7 @@ Created on 07.09.2012
 '''
 from user_config import UserConfig
 from data.commands import LoginUserCommand
+from errors import MsgException
 
 class MainWindowModel(object):
     
@@ -41,7 +42,7 @@ class MainWindowModel(object):
         
         
     def loginUser(self, login, password):
-        self._mainWindow.checkActiveRepoIsNotNone()
+        self.checkActiveRepoIsNotNone()
         
         uow = self._repo.createUnitOfWork()
         try:
@@ -51,3 +52,12 @@ class MainWindowModel(object):
             uow.close()
 
 
+    def checkActiveRepoIsNotNone(self):
+        if self._repo is None:
+            raise MsgException(self.tr("Open a repository first."))
+            
+    def checkActiveUserIsNotNone(self):
+        if self._user is None:
+            raise MsgException(self.tr("Login to a repository first."))
+        
+        

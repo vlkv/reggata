@@ -25,13 +25,6 @@ class GuiProxy(QtGui.QWidget, AbstractGui):
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
         self.__mainWindow.showMessageOnStatusBar(text, timeoutBeforeClear)
     
-    def checkActiveRepoIsNotNone(self):
-        self.__mainWindow.checkActiveRepoIsNotNone()
-            
-    def checkActiveUserIsNotNone(self):
-        self.__mainWindow.checkActiveUserIsNotNone()
-
-    
     def _get_model(self):
         return self.__mainWindow.model
     

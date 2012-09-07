@@ -13,10 +13,19 @@ from data.commands import GetExpungedItemCommand
 from helpers import to_db_format
 
 class TestsGuiModel():
+    '''
+        This is a replacement for MainWindowModel in tests.
+    '''
     def __init__(self, repo, user, gui):
         self.repo = repo
         self.user = user
         self.gui = gui
+        
+    def checkActiveRepoIsNotNone(self):
+        pass
+            
+    def checkActiveUserIsNotNone(self):
+        pass
 
 
 class TestsGui(QtCore.QObject, AbstractGui):
@@ -30,13 +39,6 @@ class TestsGui(QtCore.QObject, AbstractGui):
     
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
         pass
-    
-    def checkActiveRepoIsNotNone(self):
-        pass
-            
-    def checkActiveUserIsNotNone(self):
-        pass
-
     
     def _get_model(self):
         return self.__model

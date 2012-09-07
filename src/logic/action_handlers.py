@@ -50,7 +50,7 @@ class CreateUserActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
             
             user = User()
             
@@ -75,7 +75,7 @@ class LoginUserActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
             
             user = User()
             
@@ -107,8 +107,8 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
             
             user = self._gui.model.user
             
@@ -158,7 +158,7 @@ class CreateRepoActionHandler(AbstractActionHandler):
         
         
     def __createDefaultUser(self):
-        self._gui.checkActiveRepoIsNotNone()
+        self._gui.model.checkActiveRepoIsNotNone()
         
         defaultLogin = consts.DEFAULT_USER_LOGIN
         defaultPassword = helpers.computePasswordHash(consts.DEFAULT_USER_PASSWORD)
@@ -178,7 +178,7 @@ class CloseRepoActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
             self._gui.model.repo = None
             self._gui.model.user = None
         except Exception as ex:
@@ -232,8 +232,8 @@ class AddCurrentRepoToFavoritesActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
             
             repoBasePath = self._gui.model.repo.base_path
             userLogin = self._gui.model.user.login
@@ -257,8 +257,8 @@ class RemoveCurrentRepoFromFavoritesActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
             
             repoBasePath = self._gui.model.repo.base_path
             userLogin = self._gui.model.user.login
@@ -282,8 +282,8 @@ class AddSingleItemActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
             
             item = Item(user_login=self._gui.model.user.login)
             
@@ -352,8 +352,8 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
             
             dialogs = UserDialogsFacade()
             
@@ -391,8 +391,8 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
         ''' Add many items recursively from given directory to the repo.
         '''
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
             
             dialogs = UserDialogsFacade()
             dirPath = dialogs.getExistingDirectory(self.tr("Select single existing directory"))
@@ -437,8 +437,8 @@ class EditItemActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()            
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()            
             
             itemIds = self._gui.selectedItemIds()
             if len(itemIds) == 0:
@@ -508,8 +508,8 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
             QtCore.QCoreApplication.processEvents()
         
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
                     
             rows = self._gui.selectedRows()
             if len(rows) == 0:
@@ -545,8 +545,8 @@ class DeleteItemActionHandler(AbstractActionHandler):
     
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
                         
             itemIds = self._gui.selectedItemIds()
             if len(itemIds) == 0:
@@ -617,8 +617,8 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()            
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()            
             
             rows = self._gui.selectedRows()
             if len(rows) == 0:
@@ -652,8 +652,8 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
             
             rows = self._gui.selectedRows()
             if len(rows) == 0:
@@ -709,7 +709,7 @@ class ExportItemsActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
             
             itemIds = self._gui.selectedItemIds()
             if len(itemIds) == 0:
@@ -743,8 +743,8 @@ class ImportItemsActionHandler(AbstractActionHandler):
     
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
             
             dialogs = UserDialogsFacade()
             
@@ -776,7 +776,7 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
             
             item_ids = self._gui.selectedItemIds()
             if len(item_ids) == 0:
@@ -810,7 +810,7 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            self._gui.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
             
             rows = self._gui.selectedRows()
             if len(rows) == 0:
@@ -852,8 +852,8 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
             QtCore.QCoreApplication.processEvents()
         
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()
             
             rows = self._gui.selectedRows()
             if len(rows) == 0:
@@ -894,8 +894,8 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
             QtCore.QCoreApplication.processEvents()
         
         try:
-            self._gui.checkActiveRepoIsNotNone()
-            self._gui.checkActiveUserIsNotNone()            
+            self._gui.model.checkActiveRepoIsNotNone()
+            self._gui.model.checkActiveUserIsNotNone()            
             
             rows = self._gui.selectedRows()
             if len(rows) == 0:

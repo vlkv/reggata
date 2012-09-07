@@ -469,15 +469,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             raise CannotOpenRepoError(str(ex), ex)
 
         
-    
-    def checkActiveRepoIsNotNone(self):
-        if self._model.repo is None:
-            raise MsgException(self.tr("Open a repository first."))
-            
-    def checkActiveUserIsNotNone(self):
-        if self._model.user is None:
-            raise MsgException(self.tr("Login to a repository first."))
-        
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
         if timeoutBeforeClear is not None:
             self.ui.statusbar.showMessage(text, timeoutBeforeClear)

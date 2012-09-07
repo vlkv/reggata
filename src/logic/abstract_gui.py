@@ -16,13 +16,7 @@ class AbstractGui(object):
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
         raise NotImplementedError()
     
-    def checkActiveRepoIsNotNone(self):
-        raise NotImplementedError()
-            
-    def checkActiveUserIsNotNone(self):
-        raise NotImplementedError()
     
-
     def _get_model(self):
         raise NotImplementedError()
     
