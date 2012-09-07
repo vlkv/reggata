@@ -2,16 +2,16 @@
 Created on 07.09.2012
 @author: vlkv
 '''
-from logic.abstract_tool_model import AbstractToolModel
+from logic.abstract_tool import AbstractTool
 from gui.test_tool_gui import TestToolGui
 from PyQt4 import QtCore, QtGui
 from logic.handler_signals import HandlerSignals
 
 
-class TestToolModel(QtCore.QObject, AbstractToolModel):
+class TestTool(QtCore.QObject, AbstractTool):
 
     def __init__(self):
-        super(TestToolModel, self).__init__()
+        super(TestTool, self).__init__()
 
         
     def id(self):

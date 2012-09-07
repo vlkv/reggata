@@ -20,7 +20,7 @@ import gui.gui_proxy
 from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage
 from logic.main_window_model import MainWindowModel
-from logic.test_tool import TestToolModel
+from logic.test_tool import TestTool
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -115,7 +115,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def __getAvailableTools(self):
         # TODO: Here we shall return a TagCloud, ItemsTable and a FileBrowser
         # TODO: Discovering of tools should be dynamic, like plugin system
-        return [TestToolModel()]
+        return [TestTool()]
     
     def __initTool(self, aTool):
         self._model.addToolModel(aTool)
