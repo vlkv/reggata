@@ -142,17 +142,17 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     
 
     def __initItemsTable(self):
-        self.ui.dockWidget_items_table = ItemsTableToolGui(self)
+        self.ui.itemsTableToolGui = ItemsTableToolGui(self)
         itemsTableDockWidget = QtGui.QDockWidget(self.tr("Items Table"), self)
         itemsTableDockWidget.setObjectName("itemsTableDockWidget")
-        itemsTableDockWidget.setWidget(self.ui.dockWidget_items_table)
+        itemsTableDockWidget.setWidget(self.ui.itemsTableToolGui)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, itemsTableDockWidget)
         
         self.menu = self.__createItemsTableContextMenu()
-        self.ui.dockWidget_items_table.addContextMenu(self.menu)
+        self.ui.itemsTableToolGui.addContextMenu(self.menu)
         
         self.__widgetsUpdateManager.subscribe(
-            self.ui.dockWidget_items_table, self.ui.dockWidget_items_table.query_exec, 
+            self.ui.itemsTableToolGui, self.ui.itemsTableToolGui.query_exec, 
             [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 
              HandlerSignals.ITEM_DELETED])
 
@@ -167,8 +167,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
         
         self.connect(self.ui.tag_cloud, QtCore.SIGNAL("selectedTagsChanged"), 
-                     self.ui.dockWidget_items_table.selected_tags_changed)
-        self.connect(self.ui.dockWidget_items_table, QtCore.SIGNAL("queryTextResetted"), 
+                     self.ui.itemsTableToolGui.selected_tags_changed)
+        self.connect(self.ui.itemsTableToolGui, QtCore.SIGNAL("queryTextResetted"), 
                      self.ui.tag_cloud.reset)
         
         self.__widgetsUpdateManager.subscribe(
@@ -184,7 +184,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
 #        self.ui.dockWidget_file_browser.setObjectName("dockWidget_file_browser")
 #        self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)
 #        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.ui.dockWidget_file_browser)
-#        self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.dockWidget_items_table)
+#        self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.itemsTableToolGui)
 #        self.ui.menuTools.addAction(self.ui.dockWidget_file_browser.toggleViewAction())
 
     def __restoreGuiState(self):
@@ -203,7 +203,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), STATUSBAR_TIMEOUT)
                 
         #Restoring columns width of items table
-        self.ui.dockWidget_items_table.restore_columns_width()
+        self.ui.itemsTableToolGui.restore_columns_width()
         
         #Restoring columns width of file browser
         #self.restore_file_browser_state()
@@ -387,7 +387,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         #Storing main window size
         UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
         
-        self.ui.dockWidget_items_table.save_columns_width()
+        self.ui.itemsTableToolGui.save_columns_width()
         
         #Storing file browser table columns width
         #self.save_file_browser_state()
@@ -451,8 +451,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             #self.ui.file_browser.model().user_login = None
             
         else:
-            if self.ui.dockWidget_items_table.itemsTableModel is not None:
-                self.ui.dockWidget_items_table.itemsTableModel.user_login = user.login
+            if self.ui.itemsTableToolGui.itemsTableModel is not None:
+                self.ui.itemsTableToolGui.itemsTableModel.user_login = user.login
         
             self.ui.label_user.setText("<b>" + user.login + "</b>")
             
@@ -482,29 +482,29 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 itemsTableModel = ItemsTableModel(
                     repo, self.items_lock, 
                     self._model.user.login if self._model.user is not None else None)
-                self.ui.dockWidget_items_table.itemsTableModel = itemsTableModel 
-                self.ui.dockWidget_items_table.setTableModel(itemsTableModel)
+                self.ui.itemsTableToolGui.itemsTableModel = itemsTableModel 
+                self.ui.itemsTableToolGui.setTableModel(itemsTableModel)
                 #self.ui.file_browser.repo = repo
                  
-                #TODO move this completer into the dockWidget_items_table class
-                completer = Completer(repo=repo, parent=self.ui.dockWidget_items_table)
-                self.ui.dockWidget_items_table.set_tag_completer(completer)
+                #TODO move this completer into the itemsTableToolGui class
+                completer = Completer(repo=repo, parent=self.ui.itemsTableToolGui)
+                self.ui.itemsTableToolGui.set_tag_completer(completer)
                 
                 #self.restore_file_browser_state()
-                self.ui.dockWidget_items_table.restore_columns_width()
+                self.ui.itemsTableToolGui.restore_columns_width()
                 
             else:
                 #self.save_file_browser_state()
-                self.ui.dockWidget_items_table.save_columns_width()
+                self.ui.itemsTableToolGui.save_columns_width()
                 
                 self.ui.label_repo.setText("")
                 self.ui.label_repo.setToolTip("")
                 
-                self.ui.dockWidget_items_table.itemsTableModel = None
-                self.ui.dockWidget_items_table.setTableModel(None)
+                self.ui.itemsTableToolGui.itemsTableModel = None
+                self.ui.itemsTableToolGui.setTableModel(None)
                 #self.ui.file_browser.repo = None
             
-                self.ui.dockWidget_items_table.set_tag_completer(None)
+                self.ui.itemsTableToolGui.set_tag_completer(None)
                 
         except Exception as ex:
             raise CannotOpenRepoError(str(ex), ex)
@@ -518,16 +518,16 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
     #TODO: This functions should be moved to ItemsTableWidget and FileBrowserWidget
     def selectedRows(self):
-        return self.ui.dockWidget_items_table.selected_rows()
+        return self.ui.itemsTableToolGui.selected_rows()
     
     def itemAtRow(self, row):
-        return self.ui.dockWidget_items_table.itemsTableModel.items[row]
+        return self.ui.itemsTableToolGui.itemsTableModel.items[row]
     
     def rowCount(self):
-        return self.ui.dockWidget_items_table.itemsTableModel.rowCount()
+        return self.ui.itemsTableToolGui.itemsTableModel.rowCount()
     
     def resetSingleRow(self, row):
-        self.ui.dockWidget_items_table.itemsTableModel.reset_single_row(row)
+        self.ui.itemsTableToolGui.itemsTableModel.reset_single_row(row)
             
     def selectedItemIds(self):
         #Maybe we should use this fun only, and do not use rows outside the GUI code
