@@ -19,7 +19,7 @@ import consts
 import gui.gui_proxy
 from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage
-#from logic.main_window_model import MainWindowModel
+from logic.main_window_model import MainWindowModel
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -34,13 +34,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui = ui_mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
         
-        #self._mainWindowModel = MainWindowModel(mainWindow=self, repo=None, user=None)
-        
-        #Current opened (active) repository (RepoMgr object)
-        self.__active_repo = None
-        
-        #Current logined (active) user
-        self.__active_user = None
+        self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
         
         #Table itemsTableModel for items table
         self.itemsTableModel = None
@@ -438,7 +432,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             uow.close()
             
     def _set_active_user(self, user):
-        self.__active_user = user
+        self._model.user = user
         
         if user is None:
             self.ui.label_user.setText("")
@@ -462,7 +456,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         
     def _get_active_user(self):
-        return self.__active_user
+        return self._model.user
     
     active_user = property(_get_active_user, 
                            _set_active_user, 
@@ -471,7 +465,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     
     def _set_active_repo(self, repo):
         try:
-            self.__active_repo = repo
+            self._model.repo = repo
             
             self.ui.tag_cloud.repo = repo
             
@@ -517,7 +511,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             raise CannotOpenRepoError(str(ex), ex)
                 
     def _get_active_repo(self):
-        return self.__active_repo
+        return self._model.repo
     
     active_repo = property(_get_active_repo, 
                            _set_active_repo, 
