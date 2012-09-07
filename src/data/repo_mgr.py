@@ -1,27 +1,8 @@
 # -*- coding: utf-8 -*-
 '''
-Copyright 2010 Vitaly Volkov
-
-This file is part of Reggata.
-
-Reggata is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Reggata is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
-
 Created on 30.09.2010
-
 @author: vlkv
 '''
-
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
 import os.path
@@ -33,11 +14,13 @@ from data.db_schema import Base, Item, HistoryRec, DataRef
 
 
 class RepoMgr(object):
-    ''' Represents one single repository. Manages it as a whole.
+    '''
+        Represents one single repository. Manages it as a whole.
     '''
         
     def __init__(self, path_to_repo):
-        ''' Opens an existing repository at given path. 
+        '''
+            Opens an existing repository at given path. 
         '''
         try:
             self._base_path = path_to_repo
@@ -60,7 +43,8 @@ class RepoMgr(object):
     
     @property
     def base_path(self):
-        ''' Repository base path is the root directory of the repository.
+        '''
+            Repository base path is the root directory of the repository.
         '''
         return self._base_path
     
@@ -70,12 +54,13 @@ class RepoMgr(object):
         
     @staticmethod
     def createNewRepo(base_path):
-        ''' Initializes a new repo at a given path. This consists of these steps:
-        1) Checks that base_path exists
-        2) Checks that <base_path>/.reggata directory does not exist yet
-        3) Creates <base_path>/.reggata directory in repository root and
+        '''
+            Initializes a new repo at a given path. This consists of these steps:
+            1) Checks that base_path exists
+            2) Checks that <base_path>/.reggata directory does not exist yet
+            3) Creates <base_path>/.reggata directory in repository root and
         empty sqlite database inside it.
-        4) At last, this function opens just created repository and
+            4) At last, this function opens just created repository and
         returns RepoMgr object, associated with it.
         '''
         if (not os.path.exists(base_path)):
@@ -97,7 +82,8 @@ class RepoMgr(object):
 
 
 class UnitOfWork(object):
-    ''' This class allows you to open a working session with database (unit of work), 
+    '''
+        This class allows you to open a working session with database (unit of work), 
     do some actions and close the session.
     '''
     
@@ -125,22 +111,19 @@ class UnitOfWork(object):
     #TODO: extract this fun to separate command class..
     @staticmethod
     def _check_item_integrity(session, item, repo_base_path):
-        '''Возвращает множество целых чисел (кодов ошибок). Коды ошибок (константы)
-        объявлены как статические члены класса Item.
-        
-        Если ошибок нет, то возвращает пустое множество.
+        '''
+            Returns a set of integer error codes. Error codes are declared in 
+        Item class.
+            Returns empty set, if there are no errors.
         '''
         
         error_set = set()
         
-        #Нужно проверить, есть ли запись в истории
         hr = UnitOfWork._find_item_latest_history_rec(session, item)
         if hr is None:
             error_set.add(Item.ERROR_HISTORY_REC_NOT_FOUND)
         
-        #Если есть связанный DataRef объект типа FILE,
-        if item.data_ref is not None and item.data_ref.type == DataRef.FILE:                    
-            #    нужно проверить есть ли файл
+        if item.data_ref is not None and item.data_ref.type == DataRef.FILE:
             abs_path = os.path.join(repo_base_path, item.data_ref.url)
             if not os.path.exists(abs_path):
                 error_set.add(Item.ERROR_FILE_NOT_FOUND)
@@ -156,8 +139,8 @@ class UnitOfWork(object):
     @staticmethod
     def _find_item_latest_history_rec(session, item_0):
         '''
-        Возвращает последнюю запись из истории, относящуюся к элементу item_0.
-        Либо возвращает None, если не удалось найти такую запись.
+            Returns the latest history record of item_0 Item object.
+        Also, it returns None, if the record was not found.
         '''
         data_ref_hash = None
         data_ref_url = None
