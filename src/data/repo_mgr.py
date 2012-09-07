@@ -92,7 +92,7 @@ class RepoMgr(object):
         return RepoMgr(base_path)
         
 
-    def create_unit_of_work(self):
+    def createUnitOfWork(self):
         return UnitOfWork(self.Session(), self.base_path)
 
 

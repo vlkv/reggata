@@ -258,7 +258,7 @@ class Completer(QtGui.QListWidget):
         if self.repo is None:
             raise ValueError(self.tr("Completer does'n connected to repository."))
 
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             self.words = uow.executeCommand(GetNamesOfAllTagsAndFields())
         finally:

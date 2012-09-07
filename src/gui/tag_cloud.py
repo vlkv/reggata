@@ -113,7 +113,7 @@ class TagCloud(QtGui.QTextEdit):
         if self.repo is None:
             self.setText("")
         else:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             try:
                 cmd = GetRelatedTagsCommand(list(self.tags), limit=self.limit)
                 tags = uow.executeCommand(cmd)

@@ -146,7 +146,7 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
             listdir.append(fname)            
         
         #TODO do this in a separate thread
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             for fname in listdir:
                 if os.path.isfile(os.path.join(self._root_path, fname)):

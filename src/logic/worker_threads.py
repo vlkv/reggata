@@ -54,7 +54,7 @@ class ImportItemsThread(QtCore.QThread):
                         continue
                     srcArchive.extract(item.data_ref.url_raw, path=self.repo.base_path)
                     
-                uow = self.repo.create_unit_of_work()
+                uow = self.repo.createUnitOfWork()
                 try:
                     itemSrcAbsPath = dstAbsPath
                     itemDstRelPath = os.path.relpath(dstAbsPath, self.repo.base_path) \
@@ -122,7 +122,7 @@ class ExportItemsThread(QtCore.QThread):
     
     def __isItemIntegrityOk(self, item):
         result = False;
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             error_set = uow._check_item_integrity(uow.session, item, self.repo.base_path) 
             result = (len(error_set) == 0)
@@ -157,7 +157,7 @@ class ExportItemsThread(QtCore.QThread):
         
     def __getItemById(self, itemId):
         item = None
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             item = uow.executeCommand(GetExpungedItemCommand(itemId))
         finally:
@@ -177,7 +177,7 @@ class ExportItemsFilesThread(QtCore.QThread):
     def run(self):
         self.errors = 0
         self.detailed_message = ""
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             i = 0
             for itemId in self.item_ids:
@@ -235,7 +235,7 @@ class ItemIntegrityFixerThread(QtCore.QThread):
     
     def run(self):
         
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         
         fixers = dict()
         for error_code, strategy in self.strategy.items():
@@ -307,7 +307,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
     
     def run(self):
         error_count = 0
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             #Список self.items должен содержать только что извлеченные из БД элементы
             #(вместе с data_ref объектами).
@@ -354,7 +354,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
         self.rebuild = rebuild
 
     def run(self):
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             thumbnail_size = int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE))
             
@@ -444,7 +444,7 @@ class DeleteGroupOfItemsThread(QtCore.QThread):
     def run(self):
         self.errors = 0
         self.detailed_message = ""
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             i = 0
             for itemId in self.item_ids:
@@ -478,7 +478,7 @@ class CreateGroupIfItemsThread(QtCore.QThread):
     def run(self):        
         self.error_log = []
         self.created_objects_count = 0
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             i = 0
             for item in self.items:
@@ -517,7 +517,7 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
         self.items = items
 
     def run(self):
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             i = 0
             for item in self.items:

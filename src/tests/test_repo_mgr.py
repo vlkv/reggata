@@ -29,14 +29,14 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         # "Minimal item" here means that this item has no data references, tags or fields
         item = Item("user", "Minimal Item")
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             cmd = SaveNewItemCommand(item)
             self.savedItemId = uow.executeCommand(cmd)
         finally:
             uow.close()
             
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
             self.assertEqual(savedItem.title, item.title)
             
@@ -53,7 +53,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         nonExistentUserLogin = "NonExistentUserLogin" 
         item = Item(nonExistentUserLogin, "Item's title")
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             cmd = SaveNewItemCommand(item)
             self.assertRaises(AccessError, uow.executeCommand, (cmd))
             
@@ -64,7 +64,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         userLogin = None
         item = Item(userLogin, "Item's title")
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             cmd = SaveNewItemCommand(item)
             self.assertRaises(AccessError, uow.executeCommand, (cmd))
         finally:
@@ -74,7 +74,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         userLogin = ""
         item = Item(userLogin, "Item's title")
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             cmd = SaveNewItemCommand(item)
             self.assertRaises(AccessError, uow.executeCommand, (cmd))
         finally:
@@ -89,14 +89,14 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         self.srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
         self.dstRelPath = os.path.join("dir1", "dir2", "dir3", "newFile.txt")
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             cmd = SaveNewItemCommand(item, self.srcAbsPath, self.dstRelPath)
             self.savedItemId = uow.executeCommand(cmd)
         finally:
             uow.close()
             
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
             self.assertEqual(savedItem.title, item.title)
             
@@ -127,14 +127,14 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             self.repo.base_path, "this", "is", "untracked", "file.txt"))
         self.dstRelPath = os.path.join("this", "is", "untracked", "file.txt")
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             cmd = SaveNewItemCommand(item, self.srcAbsPath, self.dstRelPath)
             self.savedItemId = uow.executeCommand(cmd)
         finally:
             uow.close()
             
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
             self.assertEqual(savedItem.title, item.title)
             
@@ -163,14 +163,14 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             self.repo.base_path, "lyrics", "led_zeppelin", "stairway_to_heaven.txt"))
         self.dstRelPath = os.path.join("dir1", "dir2", "dir3", "copy_of_stairway_to_heaven.txt")
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             cmd = SaveNewItemCommand(item, self.srcAbsPath, self.dstRelPath)
             self.savedItemId = uow.executeCommand(cmd)
         finally:
             uow.close()
             
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
             self.assertEqual(savedItem.title, item.title)
             
@@ -201,7 +201,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         item.add_tag(tagNameNew, userLogin)
         
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             cmd = SaveNewItemCommand(item)
             savedItemId = uow.executeCommand(cmd)
         finally:
@@ -231,7 +231,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         item.set_field_value(fieldTwo[0], fieldTwo[1], userLogin)
         
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             cmd = SaveNewItemCommand(item)
             savedItemId = uow.executeCommand(cmd)
         finally:
@@ -257,7 +257,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
     def test_deleteExistingItemWithExistingPhysicalFileByOwner(self):
         userThatDeletesItem = itemWithFile.ownerUserLogin
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             itemBeforeDelete = uow.executeCommand(GetExpungedItemCommand(itemWithFile.id))
             
             cmd = DeleteItemCommand(itemWithFile.id, userThatDeletesItem, 
@@ -267,7 +267,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
             uow.close()
         
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             deletedItem = uow.executeCommand(GetExpungedItemCommand(itemWithFile.id))
             self.assertFalse(deletedItem.alive)
             self.assertIsNone(deletedItem.data_ref)

@@ -101,7 +101,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             self.reset_single_row(row)
             QtCore.QCoreApplication.processEvents()
         
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             #Нужно остановить поток (запущенный от предыдущего запроса), если будет выполнен новый запрос (этот)
             if self.thread is not None and self.thread.isRunning():
@@ -265,7 +265,7 @@ class RepoItemTableModel(QtCore.QAbstractTableModel):
             item.set_field_value(consts.RATING_FIELD, value, self.user_login)
             
             #Store new rating value into database
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             try:
                 cmd = UpdateExistingItemCommand(item, self.user_login)
                 uow.executeCommand(cmd)

@@ -59,7 +59,7 @@ class CreateUserActionHandler(AbstractActionHandler):
                 user=user, gui=self._gui, dialogMode=UserDialog.CREATE_MODE):
                 return
             
-            uow = self._gui.active_repo.create_unit_of_work()
+            uow = self._gui.active_repo.createUnitOfWork()
             try:
                 uow.executeCommand(SaveNewUserCommand(user))
                 self._gui.active_user = user
@@ -118,7 +118,7 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
             if not dialogExecOk:
                 return
             
-            uow = self._gui.active_repo.create_unit_of_work()
+            uow = self._gui.active_repo.createUnitOfWork()
             try:
                 command = ChangeUserPasswordCommand(user.login, newPasswordHash)
                 uow.executeCommand(command)
@@ -162,7 +162,7 @@ class CreateRepoActionHandler(AbstractActionHandler):
         defaultPassword = helpers.computePasswordHash(consts.DEFAULT_USER_PASSWORD)
         user = User(login=defaultLogin, password=defaultPassword)
         
-        uow = self._gui.active_repo.create_unit_of_work()
+        uow = self._gui.active_repo.createUnitOfWork()
         try:
             uow.executeCommand(SaveNewUserCommand(user))
         finally:
@@ -297,7 +297,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 item=item, gui=self._gui, dialogMode=ItemDialog.CREATE_MODE):
                 return
             
-            uow = self._gui.active_repo.create_unit_of_work()
+            uow = self._gui.active_repo.createUnitOfWork()
             try:
                 srcAbsPath = None
                 dstRelPath = None
@@ -453,7 +453,7 @@ class EditItemActionHandler(AbstractActionHandler):
             
     
     def __editSingleItem(self, itemId):
-        uow = self._gui.active_repo.create_unit_of_work()
+        uow = self._gui.active_repo.createUnitOfWork()
         try:
             item = uow.executeCommand(GetExpungedItemCommand(itemId))
             
@@ -468,7 +468,7 @@ class EditItemActionHandler(AbstractActionHandler):
             uow.close()
     
     def __editManyItems(self, itemIds):
-        uow = self._gui.active_repo.create_unit_of_work()
+        uow = self._gui.active_repo.createUnitOfWork()
         try:
             items = []
             for itemId in itemIds:
@@ -512,7 +512,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
                 raise MsgException(self.tr("There are no selected items."))
             
             
-            uow = self._gui.active_repo.create_unit_of_work()
+            uow = self._gui.active_repo.createUnitOfWork()
             try:
                 items = []
                 for row in rows:                    

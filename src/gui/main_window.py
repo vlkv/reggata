@@ -427,7 +427,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def loginUser(self, login, password):
         self.checkActiveRepoIsNotNone()
         
-        uow = self.active_repo.create_unit_of_work()
+        uow = self.active_repo.createUnitOfWork()
         try:
             user = uow.executeCommand(LoginUserCommand(login, password))
             self.active_user = user

@@ -319,7 +319,7 @@ class ImageViewer(QtGui.QMainWindow):
     
      
     def __editSingleItem(self, itemId):
-        uow = self.repo.create_unit_of_work()
+        uow = self.repo.createUnitOfWork()
         try:
             item = uow.executeCommand(GetExpungedItemCommand(itemId))
             

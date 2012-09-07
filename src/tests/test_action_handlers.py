@@ -124,7 +124,7 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
         dstRelPath = "file.txt"
         savedItemId = handler.lastAddedItemId
         try:
-            uow = self.repo.create_unit_of_work()
+            uow = self.repo.createUnitOfWork()
             savedItem = uow.executeCommand(GetExpungedItemCommand(savedItemId))
             
             self.assertIsNotNone(savedItem, 
