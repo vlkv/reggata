@@ -12,11 +12,11 @@ class GuiProxy(QtGui.QWidget, AbstractGui):
     '''
         This GuiProxy class substitutes MainWindow object in drag'n'drop actions.
     '''
-    
     def __init__(self, mainWindow, selectedFiles=[]):
         super(GuiProxy, self).__init__(None)
         self.__mainWindow = mainWindow
         self.__selectedFiles = selectedFiles
+    
         
     def setSelectedFiles(self, selectedFiles):
         self.__selectedFiles = selectedFiles
@@ -24,6 +24,7 @@ class GuiProxy(QtGui.QWidget, AbstractGui):
     
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
         self.__mainWindow.showMessageOnStatusBar(text, timeoutBeforeClear)
+    
     
     def _get_model(self):
         return self.__mainWindow.model
