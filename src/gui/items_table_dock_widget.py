@@ -9,7 +9,7 @@ from PyQt4.QtCore import Qt
 
 import ui_itemstabledockwidget
 from user_config import UserConfig
-from gui.table_models import RepoItemTableModel
+from gui.items_table_model import RepoItemTableModel
 from parsers import query_parser
 from gui.common_widgets import TextEdit
 from helpers import *
