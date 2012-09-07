@@ -20,6 +20,11 @@ class MainWindowModel(AbstractMainWindowModel):
         self._repo = repo
         self._user = user
         self._mainWindow = mainWindow
+        self._toolModels = []
+    
+    
+    def addToolModel(self, toolModel):
+        self._toolModels.append(toolModel)
     
     
     def __get_repo(self):
@@ -42,7 +47,6 @@ class MainWindowModel(AbstractMainWindowModel):
     user = property(fget=__get_user, fset=__set_user)
     
     
-    
     def loginRecentUser(self):
         login = UserConfig().get("recent_user.login")
         password = UserConfig().get("recent_user.password")
@@ -63,6 +67,7 @@ class MainWindowModel(AbstractMainWindowModel):
     def checkActiveRepoIsNotNone(self):
         if self._repo is None:
             raise MsgException(self.tr("Open a repository first."))
+    
             
     def checkActiveUserIsNotNone(self):
         if self._user is None:

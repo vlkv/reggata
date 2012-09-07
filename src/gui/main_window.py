@@ -20,15 +20,15 @@ import gui.gui_proxy
 from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage
 from logic.main_window_model import MainWindowModel
+from logic.test_tool import TestToolModel
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
 class MainWindow(QtGui.QMainWindow, AbstractGui):
     '''
-    Reggata's main window.
+        Reggata's main window.
     '''
-    
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.ui = ui_mainwindow.Ui_MainWindow()
@@ -37,8 +37,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.setAcceptDrops(True)
         
         self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
-        
-        
         
         # TODO: itemsLock should be in MainWindowModel, or maybe deeper...
         self.items_lock = QtCore.QReadWriteLock()
@@ -56,6 +54,9 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__initItemsTable()
         self.__initTagCloud()
         #self.__initFileBrowser()
+        
+        for tool in self.__getAvailableTools():
+            self.__initTool(tool)
         
         self.__widgetsUpdateManager.subscribe(
             self, self.__rebuildFavoriteReposMenu, 
@@ -109,6 +110,36 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui.statusbar.addPermanentWidget(self.ui.label_repo)
         self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("User:")))
         self.ui.statusbar.addPermanentWidget(self.ui.label_user)
+
+        
+    def __getAvailableTools(self):
+        # TODO: Here we shall return a TagCloud, ItemsTable and a FileBrowser
+        # TODO: Discovering of tools should be dynamic, like plugin system
+        return [TestToolModel()]
+    
+    def __initTool(self, aTool):
+        self._model.addToolModel(aTool)
+        
+        toolGui = aTool.createGui(self)
+        toolDockWidget = QtGui.QDockWidget(aTool.title(), self)
+        toolDockWidget.setObjectName(aTool.id() + "DockWidget")
+        toolDockWidget.setWidget(toolGui)
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, toolDockWidget)
+        
+        # TODO: There should be some config file with settings where to put 
+        # menu actions of the tool
+        toolMainMenu = aTool.createMainMenuActions(self.ui.menubar, self)
+        self.ui.menubar.addAction(toolMainMenu.menuAction())
+        
+        self.__widgetsUpdateManager.subscribe(
+            aTool, aTool.update, aTool.handlerSignals())
+
+        enableDisableAction = toolDockWidget.toggleViewAction()
+        self.connect(enableDisableAction, QtCore.SIGNAL("toggled(bool)"), aTool.toggleEnableDisable)
+        self.ui.menuTools.addAction(enableDisableAction)
+        
+    
+    
 
     def __initItemsTable(self):
         self.ui.dockWidget_items_table = ItemsTableToolGui(self)
