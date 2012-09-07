@@ -531,15 +531,19 @@ class WidgetsUpdateManager():
         self.__signalsWidgets[HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED] = []
         
     def subscribe(self, widget, widgetUpdateCallable, repoSignals):
-        ''' widget --- some widget that is subscribed to be updated on a number of signals.
-            widgetUpdateCallable --- function that performs widget update.
-            repoSignals --- list of signal names on which widget is subscribed.
+        ''' 
+            Subscribes 'widget' on 'repoSignals'. Function 'widgetUpdateCallable' 
+        will be invoked every time a signal from 'repoSignals' is received.
+            'widget' --- some widget that is subscribed to be updated on a number of signals.
+            'widgetUpdateCallable' --- function that performs widget update.
+            'repoSignals' --- list of signal names on which widget is subscribed.
         '''
         for repoSignal in repoSignals:
             self.__signalsWidgets[repoSignal].append((widget, widgetUpdateCallable))
             
     def unsubscribe(self, widget):
-        ''' Unsubscribes given widget from all previously registered signals.
+        ''' 
+            Unsubscribes given widget from all previously registered signals.
         '''
         for widgets in self.__signalsWidgets.values():
             j = None
