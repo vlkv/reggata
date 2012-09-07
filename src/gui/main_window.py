@@ -112,7 +112,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
 
     def __initItemsTable(self):
         self.ui.dockWidget_items_table = ItemsTableDockWidget(self)
-        self.menu = self.__initItemsTableContextMenu()
+        self.menu = self.__createItemsTableContextMenu()
         self.ui.dockWidget_items_table.addContextMenu(self.menu)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_items_table)
         self.__widgetsUpdateManager.subscribe(
@@ -320,8 +320,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self.__dragNDropGuiProxy))
 
 
-    # TODO: rename to __createItemsTableContextMenu
-    def __initItemsTableContextMenu(self):
+    def __createItemsTableContextMenu(self):
         menu = QtGui.QMenu(self)
         menu.addAction(self.ui.action_item_view)
         menu.addAction(self.ui.action_item_view_m3u)
