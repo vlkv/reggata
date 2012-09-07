@@ -31,7 +31,7 @@ class ImportItemsThread(QtCore.QThread):
         self.userLogin = userLogin
 
     def run(self):
-        srcArchive = TarFile.open(self.srcFile, "r")
+        srcArchive = TarFile.open(self.srcFile, "r", format=tarfile.PAX_FORMAT)
         try:
             filenames = self.__getListOfMetadataFiles(srcArchive)
             for i in range(len(filenames)):
@@ -98,7 +98,7 @@ class ExportItemsThread(QtCore.QThread):
         self.dstFile = destinationFile
         
     def run(self):
-        dstArchive = tarfile.open(self.dstFile, "w")
+        dstArchive = tarfile.open(self.dstFile, "w", format=tarfile.PAX_FORMAT)
         try:
             for i in range(len(self.itemIds)):
                 item = self.__getItemById(self.itemIds[i])
