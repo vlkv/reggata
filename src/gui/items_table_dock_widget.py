@@ -26,6 +26,8 @@ class ItemsTableDockWidget(QtGui.QDockWidget):
         self.ui = ui_itemstabledockwidget.Ui_ItemsTableDockWidget()
         self.ui.setupUi(self)
         
+        self.itemsTableModel = None
+        
         #Widgets for text queries
         self.ui.lineEdit_query = TextEdit(self, one_line=True)
         tmp = QtGui.QHBoxLayout(self.ui.widget_lineEdit_query)

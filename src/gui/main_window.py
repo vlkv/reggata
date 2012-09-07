@@ -38,8 +38,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
         
-        # TODO: I guess, itemsTableModel should be moved somewhere... out from here
-        self.itemsTableModel = None
+        
         
         # TODO: itemsLock should be in MainWindowModel, or maybe deeper...
         self.items_lock = QtCore.QReadWriteLock()
@@ -321,6 +320,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self.__dragNDropGuiProxy))
 
 
+    # TODO: rename to __createItemsTableContextMenu
     def __initItemsTableContextMenu(self):
         menu = QtGui.QMenu(self)
         menu.addAction(self.ui.action_item_view)
@@ -411,8 +411,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             #self.ui.file_browser.model().user_login = None
             
         else:
-            if self.itemsTableModel is not None and isinstance(self.itemsTableModel, RepoItemTableModel):
-                self.itemsTableModel.user_login = user.login
+            if self.ui.dockWidget_items_table.itemsTableModel is not None:
+                self.ui.dockWidget_items_table.itemsTableModel.user_login = user.login
         
             self.ui.label_user.setText("<b>" + user.login + "</b>")
             
@@ -439,10 +439,11 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.statusbar.showMessage(self.tr("Opened repository from {}.")
                                               .format(repo.base_path), STATUSBAR_TIMEOUT)
                 
-                self.itemsTableModel = RepoItemTableModel(
+                itemsTableModel = RepoItemTableModel(
                     repo, self.items_lock, 
                     self._model.user.login if self._model.user is not None else None)
-                self.ui.dockWidget_items_table.setTableModel(self.itemsTableModel)
+                self.ui.dockWidget_items_table.itemsTableModel = itemsTableModel 
+                self.ui.dockWidget_items_table.setTableModel(itemsTableModel)
                 #self.ui.file_browser.repo = repo
                  
                 #TODO move this completer into the dockWidget_items_table class
@@ -459,7 +460,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.label_repo.setText("")
                 self.ui.label_repo.setToolTip("")
                 
-                self.itemsTableModel = None
+                self.ui.dockWidget_items_table.itemsTableModel = None
                 self.ui.dockWidget_items_table.setTableModel(None)
                 #self.ui.file_browser.repo = None
             
@@ -480,13 +481,13 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         return self.ui.dockWidget_items_table.selected_rows()
     
     def itemAtRow(self, row):
-        return self.itemsTableModel.items[row]
+        return self.ui.dockWidget_items_table.itemsTableModel.items[row]
     
     def rowCount(self):
-        return self.itemsTableModel.rowCount()
+        return self.ui.dockWidget_items_table.itemsTableModel.rowCount()
     
     def resetSingleRow(self, row):
-        self.itemsTableModel.reset_single_row(row)
+        self.ui.dockWidget_items_table.itemsTableModel.reset_single_row(row)
             
     def selectedItemIds(self):
         #Maybe we should use this fun only, and do not use rows outside the GUI code
