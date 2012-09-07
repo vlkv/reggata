@@ -118,7 +118,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         return [TestTool()]
     
     def __initTool(self, aTool):
-        self._model.addToolModel(aTool)
+        self._model.addTool(aTool)
         
         toolGui = aTool.createGui(self)
         toolDockWidget = QtGui.QDockWidget(aTool.title(), self)

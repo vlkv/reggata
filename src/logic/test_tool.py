@@ -9,7 +9,9 @@ from logic.handler_signals import HandlerSignals
 
 
 class TestTool(QtCore.QObject, AbstractTool):
-
+    '''
+        This is an minimal Tool that does nothing. It can be used as a template for creating new Tools.
+    '''
     def __init__(self):
         super(TestTool, self).__init__()
 

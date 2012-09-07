@@ -20,11 +20,11 @@ class MainWindowModel(AbstractMainWindowModel):
         self._repo = repo
         self._user = user
         self._mainWindow = mainWindow
-        self._toolModels = []
+        self._tools = []
     
     
-    def addToolModel(self, toolModel):
-        self._toolModels.append(toolModel)
+    def addTool(self, tool):
+        self._tools.append(tool)
     
     
     def __get_repo(self):
