@@ -519,9 +519,10 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
             uow = self._gui.model.repo.createUnitOfWork()
             try:
                 items = []
-                for row in rows:                    
-                    self._gui.itemAtRow(row).table_row = row
-                    items.append(self._gui.itemsTableModel.items[row])
+                for row in rows:      
+                    item = self._gui.itemAtRow(row)
+                    item.table_row = row
+                    items.append(item)
                  
                 thread = ThumbnailBuilderThread(
                     self._gui, self._gui.model.repo, items, self._gui.items_lock, rebuild=True)
