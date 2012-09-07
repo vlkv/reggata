@@ -11,8 +11,9 @@ from data.db_schema import User
 from tests.tests_dialogs_facade import TestsDialogsFacade
 from data.commands import GetExpungedItemCommand
 from helpers import to_db_format
+from logic.main_window_model import AbstractMainWindowModel
 
-class TestsGuiModel():
+class TestsGuiModel(AbstractMainWindowModel):
     '''
         This is a replacement for MainWindowModel in tests.
     '''

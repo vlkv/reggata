@@ -6,7 +6,15 @@ from user_config import UserConfig
 from data.commands import LoginUserCommand
 from errors import MsgException
 
-class MainWindowModel(object):
+class AbstractMainWindowModel(object):
+    '''
+        This is a declarative base class for MainWindowModel, 
+    just to be able to quickly find all it's descendants.
+    '''
+    pass
+
+
+class MainWindowModel(AbstractMainWindowModel):
     
     def __init__(self, mainWindow, repo, user):
         self._repo = repo
