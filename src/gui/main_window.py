@@ -11,7 +11,7 @@ from logic.integrity_fixer import *
 from helpers import *
 from gui.tag_cloud import TagCloud
 #from gui.file_browser import FileBrowser, FileBrowserTableModel
-from gui.items_table_dock_widget import ItemsTableToolGui
+from gui.items_table_tool_gui import ItemsTableToolGui
 from logic.items_table_model import ItemsTableModel
 from logic.action_handlers import *
 import logging
