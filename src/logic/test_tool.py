@@ -62,10 +62,6 @@ class TestTool(QtCore.QObject, AbstractTool):
             self.enable()
         else:
             self.disable()
-        
-        
-    def onToggleOpenCloseAction(self, toggled):
-        pass
     
     
     def update(self):
@@ -74,4 +70,3 @@ class TestTool(QtCore.QObject, AbstractTool):
         
         
         
-         
