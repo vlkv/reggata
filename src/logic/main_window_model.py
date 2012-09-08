@@ -4,7 +4,7 @@ Created on 07.09.2012
 '''
 from user_config import UserConfig
 from data.commands import LoginUserCommand
-from errors import MsgException
+from errors import MsgException, CurrentRepoIsNoneError, CurrentUserIsNoneError
 
 class AbstractMainWindowModel(object):
     '''
@@ -82,12 +82,12 @@ class MainWindowModel(AbstractMainWindowModel):
 
     def checkActiveRepoIsNotNone(self):
         if self._repo is None:
-            raise MsgException(self.tr("Open a repository first."))
+            raise CurrentRepoIsNoneError("Current repository is None")
     
             
     def checkActiveUserIsNotNone(self):
         if self._user is None:
-            raise MsgException(self.tr("Login to a repository first."))
+            raise CurrentUserIsNoneError("Current user is None")
         
     
     def restoreRecentState(self):

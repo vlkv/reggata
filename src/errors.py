@@ -39,6 +39,16 @@ class CannotOpenRepoError(Exception):
     def __init__(self, msg=None, cause=None):
         super(CannotOpenRepoError, self).__init__(msg)
         self.cause = cause
+        
+class CurrentRepoIsNoneError(Exception):
+    def __init__(self, msg=None, cause=None):
+        super(CurrentRepoIsNoneError, self).__init__(msg)
+        self.cause = cause
+        
+class CurrentUserIsNoneError(Exception):
+    def __init__(self, msg=None, cause=None):
+        super(CurrentUserIsNoneError, self).__init__(msg)
+        self.cause = cause
 
 class LexError(Exception):
     def __init__(self, msg=None, cause=None):

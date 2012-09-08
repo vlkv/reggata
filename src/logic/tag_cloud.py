@@ -27,7 +27,7 @@ class TagCloud(QtCore.QObject, AbstractTool):
 
         
     def title(self):
-        return self.tr("Items Table Tool")
+        return self.tr("Tag Cloud Tool")
 
         
     def createGui(self, guiParent):

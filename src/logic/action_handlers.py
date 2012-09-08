@@ -141,7 +141,7 @@ class CreateRepoActionHandler(AbstractActionHandler):
         try:
             dialogs = UserDialogsFacade()
             basePath = dialogs.getExistingDirectory(
-                self.tr("Choose a base path for new repository"))
+                self._gui, self.tr("Choose a base path for new repository"))
             
             if not basePath:
                 raise MsgException(
@@ -181,6 +181,7 @@ class CloseRepoActionHandler(AbstractActionHandler):
             self._gui.model.checkActiveRepoIsNotNone()
             self._gui.model.repo = None
             self._gui.model.user = None
+            
         except Exception as ex:
             show_exc_info(self._gui, ex)
                    
@@ -193,7 +194,7 @@ class OpenRepoActionHandler(AbstractActionHandler):
         try:
             dialogs = UserDialogsFacade()
             basePath = dialogs.getExistingDirectory(
-                self.tr("Choose a repository base path"))
+                self._gui, self.tr("Choose a repository base path"))
             
             if not basePath:
                 raise Exception(
@@ -289,7 +290,8 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             
             #User can push Cancel button and do not select a file now
             #In such a case, Item will be added without file reference
-            file = self.__dialogs.getOpenFileName(self.tr("Select a file to link with new Item."))
+            file = self.__dialogs.getOpenFileName(
+                self._gui, self.tr("Select a file to link with new Item."))
             
             if not is_none_or_empty(file):
                 file = os.path.normpath(file)
@@ -357,7 +359,7 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
             
             dialogs = UserDialogsFacade()
             
-            files = dialogs.getOpenFileNames(self.tr("Select file to add"))
+            files = dialogs.getOpenFileNames(self._gui, self.tr("Select file to add"))
             if len(files) == 0:
                 raise MsgException(self.tr("No files chosen. Operation cancelled."))
             
@@ -395,7 +397,8 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             self._gui.model.checkActiveUserIsNotNone()
             
             dialogs = UserDialogsFacade()
-            dirPath = dialogs.getExistingDirectory(self.tr("Select single existing directory"))
+            dirPath = dialogs.getExistingDirectory(
+                self._gui, self.tr("Select single existing directory"))
             if not dirPath:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
                         
@@ -717,7 +720,7 @@ class ExportItemsActionHandler(AbstractActionHandler):
                 raise MsgException(self.tr("There are no selected items."))
             
             dialogs = UserDialogsFacade()
-            exportFilename = dialogs.getSaveFileName(self.tr('Save data as..')) 
+            exportFilename = dialogs.getSaveFileName(self._gui, self.tr('Save data as..')) 
             if not exportFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
@@ -749,7 +752,7 @@ class ImportItemsActionHandler(AbstractActionHandler):
             
             dialogs = UserDialogsFacade()
             
-            importFromFilename = dialogs.getOpenFileName(self.tr('Open reggata export file..'))
+            importFromFilename = dialogs.getOpenFileName(self._gui, self.tr('Open reggata export file..'))
             if not importFromFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
@@ -785,7 +788,7 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
             
             dialogs = UserDialogsFacade()
             export_dir_path = dialogs.getExistingDirectory(
-                self.tr("Choose a directory path to export files into."))
+                self._gui, self.tr("Choose a directory path to export files into."))
             
             if not export_dir_path:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
@@ -818,7 +821,7 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
                 raise MsgException(self.tr("There are no selected items."))
             
             dialogs = UserDialogsFacade()
-            exportFilename = dialogs.getSaveFileName(self.tr('Save results in a file.'))
+            exportFilename = dialogs.getSaveFileName(self._gui, self.tr('Save results in a file.'))
             if not exportFilename:
                 raise MsgException(self.tr("Operation canceled."))
             
