@@ -41,17 +41,20 @@ class MainWindowModel(AbstractMainWindowModel):
         
         self._mainWindow.initMainMenuForTool(aTool)
         
-        for relatedToolId in aTool.relatedToolIds():
-            relatedTool = self.toolById(relatedToolId)
-            if relatedTool is None:
-                continue
-            aTool.connectRelatedTool(relatedTool)
+        self.__findAndConnectRelatedToolsFor(aTool)
         
         self._mainWindow.subscribeToolForUpdates(aTool)
         
 
         
+    def __findAndConnectRelatedToolsFor(self, aTool):
+        assert aTool is not None
         
+        for relatedToolId in aTool.relatedToolIds():
+            relatedTool = self.toolById(relatedToolId)
+            if relatedTool is None:
+                continue
+            aTool.connectRelatedTool(relatedTool)
         
     
     
