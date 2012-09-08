@@ -77,8 +77,6 @@ class TestTool(QtCore.QObject, AbstractTool):
     def restoreRecentState(self):
         pass
     
-    def baseToolIds(self):
-        return []
     
     
         

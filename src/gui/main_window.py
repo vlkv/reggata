@@ -130,10 +130,11 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         toolMainMenu = aTool.createMainMenuActions(self.ui.menubar, self)
         self.ui.menubar.addAction(toolMainMenu.menuAction())
         
-        # TODO: connect this tool with other tools, which it depends on. Something like:
-        for baseToolId in aTool.baseToolIds():
-            baseTool = self._model.toolById(baseToolId)
-            aTool.connectBaseTool(baseTool)
+        for relatedToolId in aTool.relatedToolIds():
+            relatedTool = self._model.toolById(relatedToolId)
+            if relatedTool is None:
+                continue
+            aTool.connectRelatedTool(relatedTool)
         
         self.__widgetsUpdateManager.subscribe(
             aTool, aTool.update, aTool.handlerSignals())

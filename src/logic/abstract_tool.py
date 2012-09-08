@@ -7,4 +7,10 @@ class AbstractTool(object):
     
     def __init__(self):
         pass
-        
+    
+    
+    def relatedToolIds(self):
+        return []
+    
+    def connectRelatedTool(self, relatedTool):
+        pass

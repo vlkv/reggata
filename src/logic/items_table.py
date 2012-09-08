@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
 Created on 21.01.2012
-
 @author: vlkv
 '''
 import os
@@ -18,11 +17,12 @@ from logic.abstract_tool import AbstractTool
 from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
 from logic.handler_signals import HandlerSignals
 from gui.common_widgets import Completer
+from gui.tag_cloud import TagCloud
 
 
 class ItemsTable(QtCore.QObject, AbstractTool):
     
-    TOOL_ID = "ItemsTable"
+    TOOL_ID = "ItemsTableTool"
     
     def __init__(self, itemsLock):
         super(ItemsTable, self).__init__()
@@ -121,7 +121,13 @@ class ItemsTable(QtCore.QObject, AbstractTool):
         self._gui.restore_columns_width()
 
 
-    def baseToolIds(self):
-        return []
+    def relatedToolIds(self):
+        return [TagCloud.TOOL_ID]
+    
+    def connectRelatedTool(self, relatedTool):
+        assert relatedTool is not None
+        
+        # TODO implement connect algorithm
+        pass
     
     

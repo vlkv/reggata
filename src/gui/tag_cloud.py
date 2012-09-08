@@ -59,6 +59,8 @@ class TagCloud(QtGui.QTextEdit):
     Виджет для отображения облака тегов.
     '''
     
+    TOOL_ID = "TagCloudTool"
+    
     def __init__(self, parent=None, repo=None):
         #Current word in tag cloud under the mouse cursor
         self.word = None
