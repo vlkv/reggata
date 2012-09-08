@@ -1,24 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Copyright 2010 Vitaly Volkov
-
-This file is part of Reggata.
-
-Reggata is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Reggata is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
-
 Created on 13.11.2010
-
 @author: vlkv
 '''
 import PyQt4.QtCore as QtCore
@@ -32,15 +14,13 @@ from errors import MsgException
 from user_config import UserConfig
 from data.commands import GetRelatedTagsCommand
 
-#TODO Сделать по Ctr+F поиск тега в облаке (т.к. в хранилище обычно очень много тегов)
-
 def scale_value(value, src_range, dst_range):
-    ''' Выполняет масштабирование значения value, которое может варьироваться в пределах
-    от src_range[0] до src_range[1], после чего значение попадает в диапазон от dst_range[0] до 
-    dst_range[1].
-        Если value находится вне диапазона src_range, то оно будет сдвинуто на соответствующую
-        границу.
-    '''    
+    ''' 
+        Scales 'value' from range [src_range[0], src_range[1]] 
+    to different range [dst_range[0], dst_range[1]]. If 'value' is out 
+    from source range, it is aligned on the corresponding boundary of 
+    destination range.
+    '''
     if src_range[0] > src_range[1]:
         raise ValueError("Incorrect range, src_range[0] must be less then src_range[1].")
     
@@ -56,7 +36,7 @@ def scale_value(value, src_range, dst_range):
 
 class TagCloud(QtGui.QTextEdit):
     '''
-    Виджет для отображения облака тегов.
+        TagCloud is a widget for displaying and interacting with a Cloud of Tags.
     '''
     
     TOOL_ID = "TagCloudTool"
@@ -71,11 +51,11 @@ class TagCloud(QtGui.QTextEdit):
         super(TagCloud, self).__init__(parent)
         self.setMouseTracking(True)
         self.setReadOnly(True)
-        self.tags = set() #Выбранные теги
-        self.not_tags = set() #Выбранные отрицания тегов
+        self.tags = set()
+        self.not_tags = set()
         self._repo = repo
         
-        self.menu = None #Это ссылка на контекстное меню (при нажатии правой кнопки мыши)
+        self.menu = None # TODO: rename to contextMenu
         
         try:
             self._limit = int(UserConfig().get("tag_cloud.limit", 0))
@@ -110,7 +90,7 @@ class TagCloud(QtGui.QTextEdit):
     
     
     def refresh(self):        
-        #TODO Реализовать фильтрацию по пользователям
+        #TODO Implement filtering by user login
         
         if self.repo is None:
             self.setText("")
@@ -134,7 +114,7 @@ class TagCloud(QtGui.QTextEdit):
                 for tag in tags:
                     font_size = sizes.get(tag.c, 0)
                     
-                    #Тут как раз НЕ нужно escape-ить имена тегов!                    
+                    # We should NOT escape tag names here                    
                     text = text + ' <font style="BACKGROUND-COLOR: {0}" size="+{1}" color="{2}">'.format(self.bg_color, font_size, self.text_color) + tag.name + '</font>'
                     
                 self.setText(text)
@@ -171,7 +151,6 @@ class TagCloud(QtGui.QTextEdit):
     
     
     def mouseMoveEvent(self, e):
-        
         #Get current word under cursor
         cursor = self.cursorForPosition(e.pos())
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
@@ -196,15 +175,16 @@ class TagCloud(QtGui.QTextEdit):
             cursor.mergeCharFormat(format)
             self.word = word
         
-        #TODO Если тег содержит пробелы (или другие символы, типа - (дефис)) 
-        #то word неправильно определяется!
-        #Надо будет что-то по этому поводу сделать
+        # NOTE: There is a problem when tag contains a spaces or dashes (and other special chars).
+        # word is detected incorrectly in such a case. 
+        # TODO: Have to fix this problem
         return super(TagCloud, self).mouseMoveEvent(e)
     
     
     def mouseDoubleClickEvent(self, e):
-        '''Добавление тега в запрос.'''
-        
+        '''
+            Adds a tag to the query (from mouse double click). 
+        '''
         if not is_none_or_empty(self.word):
             if e.modifiers() == Qt.ControlModifier:
                 self.not_tags.add(self.word)
@@ -229,7 +209,9 @@ class TagCloud(QtGui.QTextEdit):
         self.menu.exec_(e.globalPos())        
         
     def _and_tag(self):
-        '''Добавление тега в запрос (через контекстное меню).'''
+        '''
+            Adds a tag to the query (from context menu).
+        '''
         try:
             sel_text = self.textCursor().selectedText()
             if not sel_text:                
@@ -245,7 +227,9 @@ class TagCloud(QtGui.QTextEdit):
             show_exc_info(self, ex)
         
     def _and_not_tag(self):
-        '''Добавление отрицания тега в запрос (через контекстное меню).'''
+        '''
+            Adds a tag negation (NOT Tag) to the query (from context menu).
+        '''
         try:
             sel_text = self.textCursor().selectedText()
             if not sel_text:                
