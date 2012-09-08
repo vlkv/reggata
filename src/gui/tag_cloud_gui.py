@@ -34,9 +34,9 @@ def scale_value(value, src_range, dst_range):
         result = dst_range[1]
     return result
 
-class TagCloud(QtGui.QTextEdit):
+class TagCloudGui(QtGui.QTextEdit):
     '''
-        TagCloud is a widget for displaying and interacting with a Cloud of Tags.
+        TagCloudGui is a widget for displaying and interacting with a Cloud of Tags.
     '''
     
     TOOL_ID = "TagCloudTool"
@@ -48,7 +48,7 @@ class TagCloud(QtGui.QTextEdit):
         #This is a list of tuples (tag_name, count_of_items_with_this_tag)
         self.tag_count = None
         
-        super(TagCloud, self).__init__(parent)
+        super(TagCloudGui, self).__init__(parent)
         self.setMouseTracking(True)
         self.setReadOnly(True)
         self.tags = set()
@@ -145,7 +145,7 @@ class TagCloud(QtGui.QTextEdit):
                 if tag_name == self.word:
                     QtGui.QToolTip.showText(e.globalPos(), str(tag_count))
                     break
-        return super(TagCloud, self).event(e)
+        return super(TagCloudGui, self).event(e)
     
       
     
@@ -178,7 +178,7 @@ class TagCloud(QtGui.QTextEdit):
         # NOTE: There is a problem when tag contains a spaces or dashes (and other special chars).
         # word is detected incorrectly in such a case. 
         # TODO: Have to fix this problem
-        return super(TagCloud, self).mouseMoveEvent(e)
+        return super(TagCloudGui, self).mouseMoveEvent(e)
     
     
     def mouseDoubleClickEvent(self, e):

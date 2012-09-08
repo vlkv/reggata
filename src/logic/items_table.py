@@ -17,7 +17,7 @@ from logic.abstract_tool import AbstractTool
 from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
 from logic.handler_signals import HandlerSignals
 from gui.common_widgets import Completer
-from gui.tag_cloud import TagCloud
+from gui.tag_cloud_gui import TagCloudGui
 
 
 class ItemsTable(QtCore.QObject, AbstractTool):
@@ -122,7 +122,7 @@ class ItemsTable(QtCore.QObject, AbstractTool):
 
 
     def relatedToolIds(self):
-        return [TagCloud.TOOL_ID]
+        return [TagCloudGui.TOOL_ID]
     
     def connectRelatedTool(self, relatedTool):
         assert relatedTool is not None

@@ -9,7 +9,7 @@ from data.repo_mgr import *
 from logic.worker_threads import *
 from logic.integrity_fixer import *
 from helpers import *
-from gui.tag_cloud import TagCloud
+from gui.tag_cloud_gui import TagCloudGui
 #from gui.file_browser import FileBrowser, FileBrowserTableModel
 #from gui.items_table_tool_gui import ItemsTableToolGui
 from logic.items_table import ItemsTable
@@ -145,7 +145,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
 
     def __initTagCloud(self):
-        self.ui.tagCloud = TagCloud(self)
+        self.ui.tagCloud = TagCloudGui(self)
         self.ui.dockWidget_tag_cloud = QtGui.QDockWidget(self.tr("Tag cloud"), self)
         self.ui.dockWidget_tag_cloud.setObjectName("dockWidget_tag_cloud")
         self.ui.dockWidget_tag_cloud.setWidget(self.ui.tagCloud)
