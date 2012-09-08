@@ -11,8 +11,8 @@ from logic.integrity_fixer import *
 from helpers import *
 from gui.tag_cloud import TagCloud
 #from gui.file_browser import FileBrowser, FileBrowserTableModel
-from gui.items_table_tool_gui import ItemsTableToolGui
-from logic.items_table import ItemsTableModel
+#from gui.items_table_tool_gui import ItemsTableToolGui
+from logic.items_table import ItemsTable
 from logic.action_handlers import *
 import logging
 import consts
@@ -51,7 +51,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__initDragNDropHandlers()
         
         self.__initStatusBar()
-        self.__initItemsTable()
         self.__initTagCloud()
         #self.__initFileBrowser()
         
@@ -115,7 +114,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def __getAvailableTools(self):
         # TODO: Here we shall return a TagCloud, ItemsTable and a FileBrowser
         # TODO: Discovering of tools should be dynamic, like plugin system
-        return [TestTool()]
+        return [TestTool(), ItemsTable(itemsLock=self.items_lock)]
     
     def __initTool(self, aTool):
         self._model.addTool(aTool)
@@ -131,6 +130,11 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         toolMainMenu = aTool.createMainMenuActions(self.ui.menubar, self)
         self.ui.menubar.addAction(toolMainMenu.menuAction())
         
+        # TODO: connect this tool with other tools, which it depends on. Something like:
+        for baseToolId in aTool.baseToolIds():
+            baseTool = self._model.toolById(baseToolId)
+            aTool.connectBaseTool(baseTool)
+        
         self.__widgetsUpdateManager.subscribe(
             aTool, aTool.update, aTool.handlerSignals())
 
@@ -138,26 +142,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.connect(enableDisableAction, QtCore.SIGNAL("toggled(bool)"), aTool.toggleEnableDisable)
         self.ui.menuTools.addAction(enableDisableAction)
         
-    
-    
-
-    def __initItemsTable(self):
-        self.ui.itemsTableToolGui = ItemsTableToolGui(self)
-        itemsTableDockWidget = QtGui.QDockWidget(self.tr("Items Table"), self)
-        itemsTableDockWidget.setObjectName("itemsTableDockWidget")
-        itemsTableDockWidget.setWidget(self.ui.itemsTableToolGui)
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, itemsTableDockWidget)
-        
-        self.menu = self.__createItemsTableContextMenu()
-        self.ui.itemsTableToolGui.addContextMenu(self.menu)
-        
-        self.__widgetsUpdateManager.subscribe(
-            self.ui.itemsTableToolGui, self.ui.itemsTableToolGui.query_exec, 
-            [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 
-             HandlerSignals.ITEM_DELETED])
-
-        self.ui.menuTools.addAction(itemsTableDockWidget.toggleViewAction())
-
 
     def __initTagCloud(self):
         self.ui.tagCloud = TagCloud(self)
@@ -166,10 +150,10 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui.dockWidget_tag_cloud.setWidget(self.ui.tagCloud)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
         
-        self.connect(self.ui.tagCloud, QtCore.SIGNAL("selectedTagsChanged"), 
-                     self.ui.itemsTableToolGui.selected_tags_changed)
-        self.connect(self.ui.itemsTableToolGui, QtCore.SIGNAL("queryTextResetted"), 
-                     self.ui.tagCloud.reset)
+#        self.connect(self.ui.tagCloud, QtCore.SIGNAL("selectedTagsChanged"), 
+#                     self.ui.itemsTableToolGui.selected_tags_changed)
+#        self.connect(self.ui.itemsTableToolGui, QtCore.SIGNAL("queryTextResetted"), 
+#                     self.ui.tagCloud.reset)
         
         self.__widgetsUpdateManager.subscribe(
             self.ui.tagCloud, self.ui.tagCloud.refresh, 
@@ -188,8 +172,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
 #        self.ui.menuTools.addAction(self.ui.dockWidget_file_browser.toggleViewAction())
 
     def __restoreGuiState(self):
-        #Try to open and login recent repository with recent user login
+        
+        self._model.restoreRecentState()
+        
+        #TODO: move resoring of recent repo and user to the MainWindowModel
         try:
+            #Try to open and login recent repository with recent user login
             tmp = UserConfig()["recent_repo.base_path"]
             self._model.repo = RepoMgr(tmp)
             self._model.loginRecentUser()
@@ -202,12 +190,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         except Exception:
             self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), STATUSBAR_TIMEOUT)
                 
-        #Restoring columns width of items table
-        self.ui.itemsTableToolGui.restore_columns_width()
-        
-        #Restoring columns width of file browser
-        #self.restore_file_browser_state()
-        
         #Restoring main window size
         width = int(UserConfig().get("main_window.width", 640))
         height = int(UserConfig().get("main_window.height", 480))
@@ -383,56 +365,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         #Storing all dock widgets position and size
         byte_arr = self.saveState()
         UserConfig().store("main_window.state", str(byte_arr.data()))
-        
-        #Storing main window size
+                
         UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
-        
-        self.ui.itemsTableToolGui.save_columns_width()
-        
-        #Storing file browser table columns width
-        #self.save_file_browser_state()
         
         logger.info("Reggata Main Window is closing")
         
         
-    
-    
-#    def restore_file_browser_state(self):
-#        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.FILENAME, 
-#                                            int(UserConfig().get("file_browser.FILENAME.width", 450)))
-#        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.TAGS, 
-#                                            int(UserConfig().get("file_browser.TAGS.width", 280)))
-#        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.USERS, 
-#                                            int(UserConfig().get("file_browser.USERS.width", 100)))
-#        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.STATUS, 
-#                                            int(UserConfig().get("file_browser.STATUS.width", 100)))
-#        self.ui.file_browser.setColumnWidth(FileBrowserTableModel.RATING, 
-#                                            int(UserConfig().get("file_browser.RATING.width", 100)))
-
-
-#    def save_file_browser_state(self):
-#        #Storing file browser table columns width
-#        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.FILENAME)
-#        if width > 0:
-#            UserConfig().store("file_browser.FILENAME.width", str(width))
-#            
-#        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.TAGS)
-#        if width > 0:
-#            UserConfig().store("file_browser.TAGS.width", str(width))
-#        
-#        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.USERS)
-#        if width > 0:
-#            UserConfig().store("file_browser.USERS.width", str(width))
-#        
-#        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.STATUS)
-#        if width > 0:
-#            UserConfig().store("file_browser.STATUS.width", str(width))
-#                                        
-#        width = self.ui.file_browser.columnWidth(FileBrowserTableModel.RATING)
-#        if width > 0:
-#            UserConfig().store("file_browser.RATING.width", str(width))
-                    
-
     def event(self, e):
         return super(MainWindow, self).event(e)
     
@@ -448,18 +386,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         user = self._model.user
         if user is None:
             self.ui.label_user.setText("")
-            #self.ui.file_browser.model().user_login = None
             
         else:
-            if self.ui.itemsTableToolGui.itemsTableModel is not None:
-                self.ui.itemsTableToolGui.itemsTableModel.user_login = user.login
-        
-            self.ui.label_user.setText("<b>" + user.login + "</b>")
-            
             UserConfig().storeAll({"recent_user.login":user.login, "recent_user.password":user.password})
             
-            #self.ui.file_browser.model().user_login = user.login
-        
+            self.ui.label_user.setText("<b>" + user.login + "</b>")
+            
         self.__rebuildFavoriteReposMenu()
         
 
@@ -468,6 +400,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def onCurrentRepoChanged(self):
         repo = self._model.repo
         try:
+            # This would be removed, when TagCloud become a Tool
             self.ui.tagCloud.repo = repo
             
             if repo is not None:
@@ -478,33 +411,9 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 
                 self.ui.statusbar.showMessage(self.tr("Opened repository from {}.")
                                               .format(repo.base_path), STATUSBAR_TIMEOUT)
-                
-                itemsTableModel = ItemsTableModel(
-                    repo, self.items_lock, 
-                    self._model.user.login if self._model.user is not None else None)
-                self.ui.itemsTableToolGui.itemsTableModel = itemsTableModel 
-                self.ui.itemsTableToolGui.setTableModel(itemsTableModel)
-                #self.ui.file_browser.repo = repo
-                 
-                #TODO move this completer into the itemsTableToolGui class
-                completer = Completer(repo=repo, parent=self.ui.itemsTableToolGui)
-                self.ui.itemsTableToolGui.set_tag_completer(completer)
-                
-                #self.restore_file_browser_state()
-                self.ui.itemsTableToolGui.restore_columns_width()
-                
-            else:
-                #self.save_file_browser_state()
-                self.ui.itemsTableToolGui.save_columns_width()
-                
+            else:                
                 self.ui.label_repo.setText("")
                 self.ui.label_repo.setToolTip("")
-                
-                self.ui.itemsTableToolGui.itemsTableModel = None
-                self.ui.itemsTableToolGui.setTableModel(None)
-                #self.ui.file_browser.repo = None
-            
-                self.ui.itemsTableToolGui.set_tag_completer(None)
                 
         except Exception as ex:
             raise CannotOpenRepoError(str(ex), ex)
@@ -516,18 +425,19 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         else:
             self.ui.statusbar.showMessage(text)
         
-    #TODO: This functions should be moved to ItemsTableWidget and FileBrowserWidget
+    #TODO: This functions should be removed from MainWindow to Tools
     def selectedRows(self):
-        return self.ui.itemsTableToolGui.selected_rows()
+        return self._model.toolById(ItemsTable.TOOL_ID).gui().selected_rows()
+        
     
     def itemAtRow(self, row):
-        return self.ui.itemsTableToolGui.itemsTableModel.items[row]
+        return self._model.toolById(ItemsTable.TOOL_ID).gui().itemsTableModel.items[row]
     
     def rowCount(self):
-        return self.ui.itemsTableToolGui.itemsTableModel.rowCount()
+        return self._model.toolById(ItemsTable.TOOL_ID).gui().itemsTableModel.rowCount()
     
     def resetSingleRow(self, row):
-        self.ui.itemsTableToolGui.itemsTableModel.reset_single_row(row)
+        return self._model.toolById(ItemsTable.TOOL_ID).gui().itemsTableModel.reset_single_row(row)
             
     def selectedItemIds(self):
         #Maybe we should use this fun only, and do not use rows outside the GUI code

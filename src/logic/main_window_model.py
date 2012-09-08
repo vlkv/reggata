@@ -25,6 +25,18 @@ class MainWindowModel(AbstractMainWindowModel):
     
     def addTool(self, tool):
         self._tools.append(tool)
+        
+    def tools(self):
+        return self._tools
+    
+    def toolById(self, toolId):
+        foundTools = [tool for tool in self._tools if tool.id() == toolId]
+        
+        if len(foundTools) == 0:
+            return None
+        
+        assert len(foundTools) == 1, "Tool id=%s is not unique!" % str(toolId)
+        return foundTools[0]
     
     
     def __get_repo(self):
@@ -33,6 +45,8 @@ class MainWindowModel(AbstractMainWindowModel):
     def __set_repo(self, repo):
         self._repo = repo
         self._mainWindow.onCurrentRepoChanged()
+        for tool in self._tools:
+            tool.setRepo(repo)
     
     repo = property(fget=__get_repo, fset=__set_repo)
         
@@ -43,6 +57,8 @@ class MainWindowModel(AbstractMainWindowModel):
     def __set_user(self, user):
         self._user = user
         self._mainWindow.onCurrentUserChanged()
+        for tool in self._tools:
+            tool.setUser(user)
     
     user = property(fget=__get_user, fset=__set_user)
     
@@ -73,4 +89,11 @@ class MainWindowModel(AbstractMainWindowModel):
         if self._user is None:
             raise MsgException(self.tr("Login to a repository first."))
         
+    
+    def restoreRecentState(self):
+        
+        #TODO: here we should restore recent user and recent repo
+    
+        for tool in self._tools:
+            tool.restoreRecentState()
         

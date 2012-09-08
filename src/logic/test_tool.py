@@ -68,5 +68,17 @@ class TestTool(QtCore.QObject, AbstractTool):
         self._gui.update()
         
         
-        
+    def setRepo(self, repo):
+        pass
+
+    def setUser(self, user):
+        pass
+    
+    def restoreRecentState(self):
+        pass
+    
+    def baseToolIds(self):
+        return []
+    
+    
         
