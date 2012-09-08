@@ -9,8 +9,6 @@ from data.repo_mgr import *
 from logic.worker_threads import *
 from logic.integrity_fixer import *
 from helpers import *
-#from gui.file_browser import FileBrowser, FileBrowserTableModel
-#from gui.items_table_tool_gui import ItemsTableToolGui
 from logic.action_handlers import *
 import logging
 import consts
@@ -36,13 +34,16 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.setCentralWidget(None)
         self.setAcceptDrops(True)
         
-        self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
-        
         # TODO: itemsLock should be in MainWindowModel, or maybe deeper...
         self.items_lock = QtCore.QReadWriteLock()
         
-        self.__dialogs = UserDialogsFacade()
         self.__widgetsUpdateManager = WidgetsUpdateManager()
+        
+        self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
+        
+        
+        
+        self.__dialogs = UserDialogsFacade()
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
         self.__favoriteReposStorage = FavoriteReposStorage()
         
@@ -53,8 +54,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__initStatusBar()
         #self.__initFileBrowser()
         
-        for tool in self.__getAvailableTools():
-            self.__initTool(tool)
+        
         
         self.__widgetsUpdateManager.subscribe(
             self, self.__rebuildFavoriteReposMenu, 
@@ -62,7 +62,27 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         self.__restoreGuiState()
         
+    def initDockWidgetForTool(self, aTool):
+        toolGui = aTool.createGui(self)
+        toolDockWidget = QtGui.QDockWidget(aTool.title(), self)
+        toolDockWidget.setObjectName(aTool.id() + "DockWidget")
+        toolDockWidget.setWidget(toolGui)
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, toolDockWidget)
         
+        enableDisableAction = toolDockWidget.toggleViewAction()
+        self.connect(enableDisableAction, QtCore.SIGNAL("toggled(bool)"), aTool.toggleEnableDisable)
+        self.ui.menuTools.addAction(enableDisableAction)
+        
+        
+    def initMainMenuForTool(self, aTool):
+        # TODO: There should be some config file with settings where to put 
+        # menu actions of the tool
+        toolMainMenu = aTool.createMainMenuActions(self.ui.menubar, self)
+        if toolMainMenu is not None:
+            self.ui.menubar.addAction(toolMainMenu.menuAction())
+    
+    def subscribeToolForUpdates(self, aTool):
+        self.__widgetsUpdateManager.subscribe(aTool, aTool.update, aTool.handlerSignals())
     
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls:
@@ -108,42 +128,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui.statusbar.addPermanentWidget(self.ui.label_repo)
         self.ui.statusbar.addPermanentWidget(QtGui.QLabel(self.tr("User:")))
         self.ui.statusbar.addPermanentWidget(self.ui.label_user)
-
-        
-    def __getAvailableTools(self):
-        # TODO: Here we shall return a TagCloud, ItemsTable and a FileBrowser
-        # TODO: Discovering of tools should be dynamic, like plugin system
-        return [TestTool(), ItemsTable(itemsLock=self.items_lock), TagCloud()]
     
-    
-    def __initTool(self, aTool):
-        self._model.addTool(aTool)
-        
-        toolGui = aTool.createGui(self)
-        toolDockWidget = QtGui.QDockWidget(aTool.title(), self)
-        toolDockWidget.setObjectName(aTool.id() + "DockWidget")
-        toolDockWidget.setWidget(toolGui)
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, toolDockWidget)
-        
-        # TODO: There should be some config file with settings where to put 
-        # menu actions of the tool
-        toolMainMenu = aTool.createMainMenuActions(self.ui.menubar, self)
-        if toolMainMenu is not None:
-            self.ui.menubar.addAction(toolMainMenu.menuAction())
-        
-        for relatedToolId in aTool.relatedToolIds():
-            relatedTool = self._model.toolById(relatedToolId)
-            if relatedTool is None:
-                continue
-            aTool.connectRelatedTool(relatedTool)
-        
-        self.__widgetsUpdateManager.subscribe(aTool, aTool.update, aTool.handlerSignals())
-
-        enableDisableAction = toolDockWidget.toggleViewAction()
-        self.connect(enableDisableAction, QtCore.SIGNAL("toggled(bool)"), aTool.toggleEnableDisable)
-        self.ui.menuTools.addAction(enableDisableAction)
-        
-
 
 #    def __initFileBrowser(self):
 #        self.ui.file_browser = FileBrowser(self)

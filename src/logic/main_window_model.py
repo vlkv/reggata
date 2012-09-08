@@ -4,7 +4,10 @@ Created on 07.09.2012
 '''
 from user_config import UserConfig
 from data.commands import LoginUserCommand
-from errors import MsgException, CurrentRepoIsNoneError, CurrentUserIsNoneError
+from errors import CurrentRepoIsNoneError, CurrentUserIsNoneError
+from logic.test_tool import TestTool
+from logic.items_table import ItemsTable
+from logic.tag_cloud import TagCloud
 
 class AbstractMainWindowModel(object):
     '''
@@ -21,11 +24,37 @@ class MainWindowModel(AbstractMainWindowModel):
         self._user = user
         self._mainWindow = mainWindow
         self._tools = []
-    
-    
-    def addTool(self, tool):
-        self._tools.append(tool)
         
+        for tool in self.__getAvailableTools():
+            self.__initTool(tool)
+    
+    def __getAvailableTools(self):
+        # TODO: Here we shall return a TagCloud, ItemsTable and a FileBrowser
+        # TODO: Discovering of tools should be dynamic, like plugin system
+        return [TestTool(), ItemsTable(itemsLock=self._mainWindow.items_lock), TagCloud()]
+    
+    
+    def __initTool(self, aTool):
+        self._tools.append(aTool)
+        
+        self._mainWindow.initDockWidgetForTool(aTool)
+        
+        self._mainWindow.initMainMenuForTool(aTool)
+        
+        for relatedToolId in aTool.relatedToolIds():
+            relatedTool = self.toolById(relatedToolId)
+            if relatedTool is None:
+                continue
+            aTool.connectRelatedTool(relatedTool)
+        
+        self._mainWindow.subscribeToolForUpdates(aTool)
+        
+
+        
+        
+        
+    
+    
     def tools(self):
         return self._tools
     
