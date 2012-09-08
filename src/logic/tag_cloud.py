@@ -16,8 +16,6 @@ class TagCloud(QtCore.QObject, AbstractTool):
         super(TagCloud, self).__init__()
         
         self._repo = None
-        self._user = None
-        
         
         self._gui = None
         
@@ -66,10 +64,7 @@ class TagCloud(QtCore.QObject, AbstractTool):
         self._gui.repo = repo
     
     def setUser(self, user):
-        self._user = user
-        userLogin = user.login if user is not None else None
         pass
-    
     
     def restoreRecentState(self):
         pass

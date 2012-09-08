@@ -91,9 +91,7 @@ class MainWindowModel(AbstractMainWindowModel):
         
     
     def restoreRecentState(self):
-        
-        #TODO: here we should restore recent user and recent repo
-    
+        #TODO: here we should restore recent user and recent repo. It is done in MainWindow now...
         for tool in self._tools:
             tool.restoreRecentState()
         
