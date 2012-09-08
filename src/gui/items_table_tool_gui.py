@@ -8,7 +8,7 @@ from PyQt4.QtCore import Qt
 
 from ui_itemstabletoolgui import Ui_ItemsTableToolGui
 from user_config import UserConfig
-from logic.items_table_model import ItemsTableModel
+from logic.items_table import ItemsTableModel
 from parsers import query_parser
 from gui.common_widgets import TextEdit
 from helpers import *

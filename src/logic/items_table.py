@@ -14,10 +14,16 @@ from parsers import query_parser
 from logic.worker_threads import ThumbnailBuilderThread
 from data.repo_mgr import *
 from data.commands import *
+from logic.abstract_tool import AbstractTool
+
+
+class ItemsTable(AbstractTool):
+    pass
+
 
 class ItemsTableModel(QtCore.QAbstractTableModel):
     '''
-    This class is a model of a table (QTableView) with repository Items.
+        This class is a model of a table (QTableView) with repository Items.
     '''
     
     ID = 0
