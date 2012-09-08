@@ -39,8 +39,6 @@ class TagCloudGui(QtGui.QTextEdit):
         TagCloudGui is a widget for displaying and interacting with a Cloud of Tags.
     '''
     
-    TOOL_ID = "TagCloudTool"
-    
     def __init__(self, parent=None, repo=None):
         #Current word in tag cloud under the mouse cursor
         self.word = None

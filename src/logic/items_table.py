@@ -17,7 +17,7 @@ from logic.abstract_tool import AbstractTool
 from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
 from logic.handler_signals import HandlerSignals
 from gui.common_widgets import Completer
-from gui.tag_cloud_gui import TagCloudGui
+from logic.tag_cloud import TagCloud
 
 
 class ItemsTable(QtCore.QObject, AbstractTool):
@@ -122,12 +122,20 @@ class ItemsTable(QtCore.QObject, AbstractTool):
 
 
     def relatedToolIds(self):
-        return [TagCloudGui.TOOL_ID]
+        return [TagCloud.TOOL_ID]
+    
     
     def connectRelatedTool(self, relatedTool):
         assert relatedTool is not None
         
-        # TODO implement connect algorithm
-        pass
+        if relatedTool.id() == TagCloud.TOOL_ID:
+            self.__connectTagCloudTool(relatedTool)
+        else:
+            assert False, "Unexpected relatedTool.id() = " + str(relatedTool.id())
     
+    
+    def __connectTagCloudTool(self, tagCloud):
+        tagCloud._connectItemsTableTool(self)
+        
+        
     

@@ -9,10 +9,8 @@ from data.repo_mgr import *
 from logic.worker_threads import *
 from logic.integrity_fixer import *
 from helpers import *
-from gui.tag_cloud_gui import TagCloudGui
 #from gui.file_browser import FileBrowser, FileBrowserTableModel
 #from gui.items_table_tool_gui import ItemsTableToolGui
-from logic.items_table import ItemsTable
 from logic.action_handlers import *
 import logging
 import consts
@@ -21,6 +19,8 @@ from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage
 from logic.main_window_model import MainWindowModel
 from logic.test_tool import TestTool
+from logic.items_table import ItemsTable
+from logic.tag_cloud import TagCloud
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -51,7 +51,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__initDragNDropHandlers()
         
         self.__initStatusBar()
-        self.__initTagCloud()
         #self.__initFileBrowser()
         
         for tool in self.__getAvailableTools():
@@ -114,7 +113,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def __getAvailableTools(self):
         # TODO: Here we shall return a TagCloud, ItemsTable and a FileBrowser
         # TODO: Discovering of tools should be dynamic, like plugin system
-        return [TestTool(), ItemsTable(itemsLock=self.items_lock)]
+        return [TestTool(), ItemsTable(itemsLock=self.items_lock), TagCloud()]
+    
     
     def __initTool(self, aTool):
         self._model.addTool(aTool)
@@ -128,7 +128,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         # TODO: There should be some config file with settings where to put 
         # menu actions of the tool
         toolMainMenu = aTool.createMainMenuActions(self.ui.menubar, self)
-        self.ui.menubar.addAction(toolMainMenu.menuAction())
+        if toolMainMenu is not None:
+            self.ui.menubar.addAction(toolMainMenu.menuAction())
         
         for relatedToolId in aTool.relatedToolIds():
             relatedTool = self._model.toolById(relatedToolId)
@@ -136,32 +137,13 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 continue
             aTool.connectRelatedTool(relatedTool)
         
-        self.__widgetsUpdateManager.subscribe(
-            aTool, aTool.update, aTool.handlerSignals())
+        self.__widgetsUpdateManager.subscribe(aTool, aTool.update, aTool.handlerSignals())
 
         enableDisableAction = toolDockWidget.toggleViewAction()
         self.connect(enableDisableAction, QtCore.SIGNAL("toggled(bool)"), aTool.toggleEnableDisable)
         self.ui.menuTools.addAction(enableDisableAction)
         
 
-    def __initTagCloud(self):
-        self.ui.tagCloud = TagCloudGui(self)
-        self.ui.dockWidget_tag_cloud = QtGui.QDockWidget(self.tr("Tag cloud"), self)
-        self.ui.dockWidget_tag_cloud.setObjectName("dockWidget_tag_cloud")
-        self.ui.dockWidget_tag_cloud.setWidget(self.ui.tagCloud)
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.ui.dockWidget_tag_cloud)
-        
-#        self.connect(self.ui.tagCloud, QtCore.SIGNAL("selectedTagsChanged"), 
-#                     self.ui.itemsTableToolGui.selected_tags_changed)
-#        self.connect(self.ui.itemsTableToolGui, QtCore.SIGNAL("queryTextResetted"), 
-#                     self.ui.tagCloud.reset)
-        
-        self.__widgetsUpdateManager.subscribe(
-            self.ui.tagCloud, self.ui.tagCloud.refresh, 
-            [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 
-             HandlerSignals.ITEM_DELETED])
-        
-        self.ui.menuTools.addAction(self.ui.dockWidget_tag_cloud.toggleViewAction())
 
 #    def __initFileBrowser(self):
 #        self.ui.file_browser = FileBrowser(self)
@@ -401,9 +383,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def onCurrentRepoChanged(self):
         repo = self._model.repo
         try:
-            # This would be removed, when TagCloud become a Tool
-            self.ui.tagCloud.repo = repo
-            
             if repo is not None:
                 UserConfig().store("recent_repo.base_path", repo.base_path)
                 
