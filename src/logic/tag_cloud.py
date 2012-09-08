@@ -56,7 +56,7 @@ class TagCloud(QtCore.QObject, AbstractTool):
     
     
     def update(self):
-        self._gui.update()
+        self._gui.refresh()
         
         
     def setRepo(self, repo):
