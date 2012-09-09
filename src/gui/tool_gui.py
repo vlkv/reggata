@@ -3,8 +3,9 @@ Created on 09.09.2012
 @author: vlkv
 '''
 from PyQt4 import QtGui
+from logic.abstract_tool_gui import AbstractToolGui
 
-class ToolGui(QtGui.QWidget):
+class ToolGui(QtGui.QWidget, AbstractToolGui):
 
     def __init__(self, parent):
         super(ToolGui, self).__init__(parent)
