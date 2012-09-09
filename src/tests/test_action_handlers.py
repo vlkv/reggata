@@ -32,33 +32,11 @@ class TestsGuiModel(AbstractMainWindowModel):
 class TestsGui(QtCore.QObject, AbstractGui):
     def __init__(self, repo, user):
         super(QtCore.QObject, self).__init__()
-        self.receivedSignals = []
         self.__model = TestsGuiModel(repo, user, self)
-        
-    def setSelectedFiles(self, selectedFiles):
-        self.__selectedFiles = selectedFiles
-    
-    def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
-        pass
     
     def _get_model(self):
         return self.__model
-    
     model = property(fget=_get_model)
-    
-    
-    
-    
-    def _onHandlerSignals(self, handlerSignals):
-        self.receivedSignals.append(handlerSignals)
-    
-    def _onHandlerSignal(self, handlerSignal):
-        self.receivedSignals.append([handlerSignal])
-    
-    def connectHandler(self, handler):
-        self.connect(self, QtCore.SIGNAL("handlerSignal"), self._onHandlerSignal)
-        self.connect(self, QtCore.SIGNAL("handlerSignals"), self._onHandlerSignals)
-        
 
     
 class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
@@ -75,7 +53,6 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
         dialogs = TestsDialogsFacade(selectedFiles=[srcAbsPath])
         
         handler = AddSingleItemActionHandler(gui.model, dialogs)
-        gui.connectHandler(handler)
         
         handler.handle()
     
