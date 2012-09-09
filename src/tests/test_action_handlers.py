@@ -47,10 +47,10 @@ class TestsToolGui(QtCore.QObject, AbstractToolGui):
     model = property(fget=_get_model)
 
     
-class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
+class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
     
     def setUp(self):
-        super(AddSingleItemActionHandlerTest, self).setUp()
+        super(AddItemsActionHandlerTest, self).setUp()
         self.__handlerSucceeded = False
         
     def test_addFileFromOutsideOfRepo(self):

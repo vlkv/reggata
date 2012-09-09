@@ -25,7 +25,7 @@ class TestRunner():
         
         self.addTestCase(test_worker_threads.DeleteGroupOfItemsThreadTest)
         
-        self.addTestCase(test_action_handlers.AddSingleItemActionHandlerTest)
+        self.addTestCase(test_action_handlers.AddItemsActionHandlerTest)
         
 
     def addTestCase(self, testCaseCls):
