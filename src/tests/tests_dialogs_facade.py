@@ -17,14 +17,14 @@ class TestsDialogsFacade(AbstractDialogsFacade):
     def execChangeUserPasswordDialog(self, user, gui):
         return True
     
-    def execItemDialog(self, item, gui, dialogMode):
+    def execItemDialog(self, item, gui, repo, dialogMode):
         
         if item.data_ref is not None:
             item.data_ref.srcAbsPath = item.data_ref.url 
             item.data_ref.dstRelPath = os.path.basename(item.data_ref.url)
         return True
     
-    def execItemsDialog(self, items, gui, dialogMode, sameDstPath):
+    def execItemsDialog(self, items, gui, repo, dialogMode, sameDstPath):
         return True
      
      

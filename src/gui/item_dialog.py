@@ -44,10 +44,12 @@ class ItemDialog(QtGui.QDialog):
     EDIT_MODE = "EDIT_MODE"
     VIEW_MODE = "VIEW_MODE"
 
-    def __init__(self, parent, item, mode, completer=None):
+    def __init__(self, parent, item, repoBasePath, mode, completer=None):
         super(ItemDialog, self).__init__(parent)
         self.ui = ui_itemdialog.Ui_ItemDialog()
         self.ui.setupUi(self)
+        
+        self.repoBasePath = repoBasePath
         
         self.completer = completer
         
@@ -86,7 +88,7 @@ class ItemDialog(QtGui.QDialog):
             #Make an absolute path to the DataRef file
             fileAbsPath = self.item.data_ref.url
             if not os.path.isabs(fileAbsPath):
-                fileAbsPath = os.path.join(self.parent.model.repo.base_path, fileAbsPath)
+                fileAbsPath = os.path.join(self.repoBasePath, fileAbsPath)
             if not os.path.exists(fileAbsPath):
                 self.ui.fileAbsPath.setText("FILE NOT FOUND: " + fileAbsPath)
             else:
@@ -189,7 +191,7 @@ class ItemDialog(QtGui.QDialog):
         
         srcAbsPath = self.ui.fileAbsPath.text()
         
-        isFileInsideRepo = is_internal(srcAbsPath, self.parent.model.repo.base_path)
+        isFileInsideRepo = is_internal(srcAbsPath, self.repoBasePath)
         
         dirRelPath = self.ui.fileLocationDirRelPath.text()
         if not is_none_or_empty(dirRelPath):
@@ -198,7 +200,7 @@ class ItemDialog(QtGui.QDialog):
             dstRelPath = os.path.join(dirRelPath, filename)
         elif isFileInsideRepo:
             #File will stay where it is
-            dstRelPath = os.path.relpath(srcAbsPath, self.parent.model.repo.base_path)
+            dstRelPath = os.path.relpath(srcAbsPath, self.repoBasePath)
         else:
             #File will be copied to the repository root
             dstRelPath = os.path.basename(srcAbsPath)
@@ -261,15 +263,15 @@ class ItemDialog(QtGui.QDialog):
             directory = QtGui.QFileDialog.getExistingDirectory(
                 self, 
                 self.tr("Select destination path within repository"), 
-                self.parent.model.repo.base_path)
+                self.repoBasePath)
             
             if is_none_or_empty(directory):
                 return
             
-            if not is_internal(directory, self.parent.model.repo.base_path):
+            if not is_internal(directory, self.repoBasePath):
                 raise MsgException(self.tr("Chosen directory is out of active repository."))
             else:
-                new_dst_path = os.path.relpath(directory, self.parent.model.repo.base_path)
+                new_dst_path = os.path.relpath(directory, self.repoBasePath)
                 if new_dst_path != ".":
                     new_dst_path = "." + os.path.sep + new_dst_path
                 

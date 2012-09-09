@@ -53,6 +53,7 @@ class ItemsTable(AbstractTool):
          
         return self._gui
     
+    @property
     def gui(self):
         return self._gui
 
@@ -62,7 +63,8 @@ class ItemsTable(AbstractTool):
         menu = self._gui.createMenuWithActions()
         
         self._actionHandlers.registerActionHandler(
-            self._gui.actions['addOneItem'], AddSingleItemActionHandler(self._mainWindow, self._dialogsFacade))
+            self._gui.actions['addOneItem'], 
+            AddSingleItemActionHandler(self, self._dialogsFacade))
         
         return menu
     
@@ -131,6 +133,9 @@ class ItemsTable(AbstractTool):
     def update(self):
         self._gui.update()
         
+    @property
+    def repo(self):
+        return self._repo
         
     def setRepo(self, repo):
         self._repo = repo
@@ -150,11 +155,24 @@ class ItemsTable(AbstractTool):
         
             self._gui.set_tag_completer(None)
     
+    def checkActiveRepoIsNotNone(self):
+        if self._repo is None:
+            raise CurrentRepoIsNoneError("Current repository is None")
+    
+    
+    @property
+    def user(self):
+        return self._user
+    
     def setUser(self, user):
         self._user = user
         userLogin = user.login if user is not None else None
         if self._gui.itemsTableModel is not None:
-            self._gui.itemsTableModel.user_login = userLogin
+            self._gui.itemsTableModel.user_login = userLogin 
+            
+    def checkActiveUserIsNotNone(self):
+        if self._user is None:
+            raise CurrentUserIsNoneError("Current user is None")
     
     
     def restoreRecentState(self):

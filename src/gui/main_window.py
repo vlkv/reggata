@@ -58,6 +58,10 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self, self.__rebuildFavoriteReposMenu, 
             [HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED])
         
+        self.__widgetsUpdateManager.subscribe(
+            self, self.showMessageOnStatusBar, 
+            [HandlerSignals.STATUS_BAR_MESSAGE])
+        
         self.__restoreGuiState()
         
     def widgetsUpdateManager(self):
@@ -200,8 +204,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
             
         def initItemMenu():
-            self.__actionHandlers.registerActionHandler(
-                self.ui.action_item_add, AddSingleItemActionHandler(self, self.__dialogs))
             self.__actionHandlers.registerActionHandler(
                 self.ui.action_item_add_many, AddManyItemsActionHandler(self))
             self.__actionHandlers.registerActionHandler(
@@ -381,17 +383,17 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
     #TODO: This functions should be removed from MainWindow to Tools
     def selectedRows(self):
-        return self._model.toolById(ItemsTable.TOOL_ID).gui().selected_rows()
+        return self._model.toolById(ItemsTable.TOOL_ID).gui.selected_rows()
         
     
     def itemAtRow(self, row):
-        return self._model.toolById(ItemsTable.TOOL_ID).gui().itemsTableModel.items[row]
+        return self._model.toolById(ItemsTable.TOOL_ID).gui.itemsTableModel.items[row]
     
     def rowCount(self):
-        return self._model.toolById(ItemsTable.TOOL_ID).gui().itemsTableModel.rowCount()
+        return self._model.toolById(ItemsTable.TOOL_ID).gui.itemsTableModel.rowCount()
     
     def resetSingleRow(self, row):
-        return self._model.toolById(ItemsTable.TOOL_ID).gui().itemsTableModel.reset_single_row(row)
+        return self._model.toolById(ItemsTable.TOOL_ID).gui.itemsTableModel.reset_single_row(row)
             
     def selectedItemIds(self):
         #Maybe we should use this fun only, and do not use rows outside the GUI code
@@ -399,10 +401,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         for row in self.selectedRows():
             itemIds.append(self.itemAtRow(row).id)
         return itemIds
-    
-    def widgetsUpdateManager(self):
-        return self.__widgetsUpdateManager
-    
     
     
 class WidgetsUpdateManager():
@@ -412,6 +410,7 @@ class WidgetsUpdateManager():
         self.__signalsWidgets[HandlerSignals.ITEM_CHANGED] = []
         self.__signalsWidgets[HandlerSignals.ITEM_CREATED] = []
         self.__signalsWidgets[HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED] = []
+        self.__signalsWidgets[HandlerSignals.STATUS_BAR_MESSAGE] = []
         
     def subscribe(self, widget, widgetUpdateCallable, repoSignals):
         ''' 
@@ -447,9 +446,9 @@ class WidgetsUpdateManager():
                     aCallable()
                     alreadyUpdatedWidgets.append(aWidget)
     
-    def onHandlerSignal(self, handlerSignal):
+    def onHandlerSignal(self, handlerSignal, *params):
         widgets = self.__signalsWidgets[handlerSignal]
         for aWidget, aCallable in widgets:
-            aCallable()
+            aCallable(*params)
             
 

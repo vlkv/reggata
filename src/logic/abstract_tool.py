@@ -18,6 +18,12 @@ class AbstractTool(QtCore.QObject):
     def connectRelatedTool(self, relatedTool):
         pass
     
+    def setRepo(self, repo):
+        pass
+
+    def setUser(self, user):
+        pass
     
-    
+    def restoreRecentState(self):
+        pass
     

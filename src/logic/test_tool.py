@@ -68,14 +68,7 @@ class TestTool(AbstractTool):
         self._gui.update()
         
         
-    def setRepo(self, repo):
-        pass
-
-    def setUser(self, user):
-        pass
     
-    def restoreRecentState(self):
-        pass
     
     
     

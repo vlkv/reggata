@@ -16,3 +16,4 @@ class HandlerSignals():
     ITEM_CHANGED = "itemChanged"
     ITEM_DELETED = "itemDeleted"
     LIST_OF_FAVORITE_REPOS_CHANGED = "listOfFavoriteReposChanged"
+    STATUS_BAR_MESSAGE = "statusBarMessage"

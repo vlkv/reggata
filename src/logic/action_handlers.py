@@ -52,9 +52,10 @@ class ActionHandlerStorage():
 
 
 class AbstractActionHandler(QtCore.QObject):
-    def __init__(self, gui=None):
+    def __init__(self, tool=None):
         super(AbstractActionHandler, self).__init__()
-        self._gui = gui
+        self._gui = tool # TODO: remove self._gui as soon as possible from here
+        self._tool = tool
         
     def handle(self):
         raise NotImplementedError("This function should be overriden in subclass")
@@ -303,22 +304,22 @@ class RemoveCurrentRepoFromFavoritesActionHandler(AbstractActionHandler):
         
 
 class AddSingleItemActionHandler(AbstractActionHandler):
-    def __init__(self, gui, dialogs):
-        super(AddSingleItemActionHandler, self).__init__(gui)
+    def __init__(self, tool, dialogs):
+        super(AddSingleItemActionHandler, self).__init__(tool)
         self.__dialogs = dialogs
         self.lastAddedItemId = None
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
             
-            item = Item(user_login=self._gui.model.user.login)
+            item = Item(user_login=self._tool.user.login)
             
             #User can push Cancel button and do not select a file now
             #In such a case, Item will be added without file reference
             file = self.__dialogs.getOpenFileName(
-                self._gui, self.tr("Select a file to link with new Item."))
+                self._tool.gui, self.tr("Select a file to link with new Item."))
             
             if not is_none_or_empty(file):
                 file = os.path.normpath(file)
@@ -326,10 +327,10 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 item.data_ref = DataRef(type=DataRef.FILE, url=file)
 
             if not self.__dialogs.execItemDialog(
-                item=item, gui=self._gui, dialogMode=ItemDialog.CREATE_MODE):
+                item=item, gui=self._tool.gui, repo=self._tool.repo, dialogMode=ItemDialog.CREATE_MODE):
                 return
             
-            uow = self._gui.model.repo.createUnitOfWork()
+            uow = self._tool.repo.createUnitOfWork()
             try:
                 srcAbsPath = None
                 dstRelPath = None
@@ -338,10 +339,10 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                     dstRelPath = item.data_ref.dstRelPath
 
                 cmd = SaveNewItemCommand(item, srcAbsPath, dstRelPath)
-                thread = BackgrThread(self._gui, uow.executeCommand, cmd)
+                thread = BackgrThread(self._tool.gui, uow.executeCommand, cmd)
                 
                 self.__dialogs.startThreadWithWaitDialog(
-                    thread, self._gui, indeterminate=True)
+                    thread, self._tool.gui, indeterminate=True)
                 
                 self.lastAddedItemId = thread.result
                 
@@ -350,9 +351,10 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 
                 
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
         else:
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.STATUS_BAR_MESSAGE, 
+                      self.tr("Item added to repository."), consts.STATUSBAR_TIMEOUT)
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
 
 class AddManyItemsAbstractActionHandler(AbstractActionHandler):
@@ -400,7 +402,7 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
                 items.append(item)
             
             if not dialogs.execItemsDialog(
-                items, self._gui, ItemsDialog.CREATE_MODE, sameDstPath=True):
+                items, self._gui, self._gui.model.repo, ItemsDialog.CREATE_MODE, sameDstPath=True):
                 return
             
             self._startWorkerThread(items)
@@ -444,7 +446,7 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                     items.append(item)
             
             if not dialogs.execItemsDialog(
-                items, self._gui, ItemsDialog.CREATE_MODE, sameDstPath=False):
+                items, self._gui, self._gui.model.repo, ItemsDialog.CREATE_MODE, sameDstPath=False):
                 return
                 
             self._startWorkerThread(items)
@@ -493,7 +495,7 @@ class EditItemActionHandler(AbstractActionHandler):
             
             dialogs = UserDialogsFacade()
             if not dialogs.execItemDialog(
-                item=item, gui=self._gui, dialogMode=ItemDialog.EDIT_MODE):
+                item=item, gui=self._gui, repo=self._gui.model.repo, dialogMode=ItemDialog.EDIT_MODE):
                 return
             
             cmd = UpdateExistingItemCommand(item, self._gui.model.user.login)
@@ -510,7 +512,7 @@ class EditItemActionHandler(AbstractActionHandler):
             
             dialogs = UserDialogsFacade()
             if not dialogs.execItemsDialog(
-                items, self._gui, ItemsDialog.EDIT_MODE, sameDstPath=True):
+                items, self._gui, self._gui.model.repo, ItemsDialog.EDIT_MODE, sameDstPath=True):
                 return
             
             thread = UpdateGroupOfItemsThread(self._gui, self._gui.model.repo, items)

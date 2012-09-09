@@ -82,8 +82,8 @@ class TagCloud(AbstractTool):
         
     def _connectItemsTableTool(self, itemsTable):
         self.connect(self._gui, QtCore.SIGNAL("selectedTagsChanged"), 
-                     itemsTable.gui().selected_tags_changed)
-        self.connect(itemsTable.gui(), QtCore.SIGNAL("queryTextResetted"), 
+                     itemsTable.gui.selected_tags_changed)
+        self.connect(itemsTable.gui, QtCore.SIGNAL("queryTextResetted"), 
                      self._gui.reset)
         
             

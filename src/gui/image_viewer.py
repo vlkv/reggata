@@ -325,7 +325,7 @@ class ImageViewer(QtGui.QMainWindow):
             
             dialogs = UserDialogsFacade()
             if not dialogs.execItemDialog(
-                item=item, gui=self, dialogMode=ItemDialog.EDIT_MODE):
+                item=item, gui=self, repo=self.repo, dialogMode=ItemDialog.EDIT_MODE):
                 self.ui.statusbar.showMessage(self.tr("Operation cancelled."), consts.STATUSBAR_TIMEOUT)
                 return
             

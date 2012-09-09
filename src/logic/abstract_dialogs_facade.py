@@ -11,10 +11,10 @@ class AbstractDialogsFacade(object):
     def execChangeUserPasswordDialog(self, user, gui):
         raise NotImplementedError()
     
-    def execItemDialog(self, item, gui, dialogMode):
+    def execItemDialog(self, item, gui, repo, dialogMode):
         raise NotImplementedError()
     
-    def execItemsDialog(self, items, gui, dialogMode, sameDstPath):
+    def execItemsDialog(self, items, gui, repo, dialogMode, sameDstPath):
         raise NotImplementedError()
     
     def startThreadWithWaitDialog(self, thread, gui, indeterminate):
