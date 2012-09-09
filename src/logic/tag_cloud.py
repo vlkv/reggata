@@ -66,16 +66,11 @@ class TagCloud(AbstractTool):
     def setRepo(self, repo):
         self._repo = repo
         self._gui.repo = repo
-    
-    def setUser(self, user):
-        pass
-    
-    def restoreRecentState(self):
-        pass
 
 
     def relatedToolIds(self):
         return ["ItemsTableTool"] # Cannot reference to ItemsTable.TOOL_ID because of recursive imports...
+    
     
     def connectRelatedTool(self, relatedTool):
         assert relatedTool is not None
