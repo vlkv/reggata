@@ -31,9 +31,13 @@ class TagCloud(AbstractTool):
     def createGui(self, guiParent):
         self._gui = TagCloudGui(parent=guiParent, repo=self._repo)
         return self._gui
+
     
-    def gui(self):
+    def __getGui(self):
         return self._gui
+    
+    gui = property(fget=__getGui)
+
 
     def handlerSignals(self):
         return [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 

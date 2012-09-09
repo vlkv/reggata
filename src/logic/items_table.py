@@ -53,9 +53,12 @@ class ItemsTable(AbstractTool):
          
         return self._gui
     
-    @property
-    def gui(self):
+    
+    def __getGui(self):
         return self._gui
+    
+    gui = property(fget=__getGui)
+
 
     
     
