@@ -8,6 +8,7 @@ from errors import CurrentRepoIsNoneError, CurrentUserIsNoneError
 from logic.test_tool import TestTool
 from logic.items_table import ItemsTable
 from logic.tag_cloud import TagCloud
+from PyQt4 import QtCore
 
 class AbstractMainWindowModel(object):
     '''
@@ -23,17 +24,27 @@ class MainWindowModel(AbstractMainWindowModel):
         self._repo = repo
         self._user = user
         self._mainWindow = mainWindow
+        
+        self._itemsLock = QtCore.QReadWriteLock()
+        
         self._tools = []
         
         for tool in self.__getAvailableTools():
             self.__initTool(tool)
     
+    
+    def _getItemsLock(self):
+        return self._itemsLock
+    
+    itemsLock = property(fget=_getItemsLock)
+    
+
     def __getAvailableTools(self):
         # TODO: Here we shall return a TagCloud, ItemsTable and a FileBrowser
         # TODO: Discovering of tools should be dynamic, like plugin system
         return [TestTool(), 
                 ItemsTable(self._mainWindow.widgetsUpdateManager(), 
-                           self._mainWindow.items_lock,
+                           self._itemsLock,
                            self._mainWindow,
                            self._mainWindow.dialogsFacade()),
                 TagCloud()]

@@ -33,7 +33,7 @@ class TestsDialogsFacade(AbstractDialogsFacade):
         
         
         
-    def getOpenFileName(self, textMessageForUser):
+    def getOpenFileName(self, gui, textMessageForUser):
         if (len(self.__selectedFiles) == 0):
             return None
         
@@ -43,7 +43,7 @@ class TestsDialogsFacade(AbstractDialogsFacade):
         
         return None
     
-    def getOpenFileNames(self, textMessageForUser):
+    def getOpenFileNames(self, gui, textMessageForUser):
         if (len(self.__selectedFiles) == 0):
             return None
         
@@ -57,7 +57,7 @@ class TestsDialogsFacade(AbstractDialogsFacade):
         
         return fileNames
     
-    def getExistingDirectory(self, textMessageForUser):
+    def getExistingDirectory(self, gui, textMessageForUser):
         if (len(self.__selectedFiles) == 0):
             return None
         

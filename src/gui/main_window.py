@@ -33,8 +33,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.setCentralWidget(None)
         self.setAcceptDrops(True)
         
-        # TODO: itemsLock should be in MainWindowModel, or maybe deeper...
-        self.items_lock = QtCore.QReadWriteLock()
+        
         
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         

@@ -555,7 +555,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
                     items.append(item)
                  
                 thread = ThumbnailBuilderThread(
-                    self._gui, self._gui.model.repo, items, self._gui.items_lock, rebuild=True)
+                    self._gui, self._gui.model.repo, items, self._gui.model.itemsLock, rebuild=True)
                 self.connect(thread, QtCore.SIGNAL("exception"), 
                              lambda exc_info: show_exc_info(self._gui, exc_info[1], details=format_exc_info(*exc_info)))
                 self.connect(thread, QtCore.SIGNAL("progress"), 
@@ -897,7 +897,7 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
                 items.append(item)
                         
             thread = ItemIntegrityFixerThread(
-                self._gui, self._gui.model.repo, items, self._gui.items_lock, self.__strategy, self._gui.model.user.login)
+                self._gui, self._gui.model.repo, items, self._gui.model.itemsLock, self.__strategy, self._gui.model.user.login)
             
             self.connect(thread, QtCore.SIGNAL("progress"),
                          lambda percents, row: refresh(percents, row))
@@ -939,7 +939,7 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
                 items.append(item)
              
             thread = ItemIntegrityCheckerThread(
-                self._gui, self._gui.model.repo, items, self._gui.items_lock)
+                self._gui, self._gui.model.repo, items, self._gui.model.itemsLock)
             self.connect(thread, QtCore.SIGNAL("progress"), 
                          lambda percents, row: refresh(percents, row))
             self.connect(thread, QtCore.SIGNAL("finished"), 
