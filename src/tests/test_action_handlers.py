@@ -27,7 +27,7 @@ class TestsGuiModel(AbstractMainWindowModel):
             
     def checkActiveUserIsNotNone(self):
         pass
-
+    
 
 class TestsGui(QtCore.QObject, AbstractGui):
     def __init__(self, repo, user):
@@ -74,7 +74,7 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
         gui = TestsGui(self.repo, user)
         dialogs = TestsDialogsFacade(selectedFiles=[srcAbsPath])
         
-        handler = AddSingleItemActionHandler(gui, dialogs)
+        handler = AddSingleItemActionHandler(gui.model, dialogs)
         gui.connectHandler(handler)
         
         handler.handle()
