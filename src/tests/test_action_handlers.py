@@ -56,16 +56,18 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
     def test_addFileFromOutsideOfRepo(self):
         user = User(login="user", password="")
         srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
+        dstRelPath = "file.txt"
+        
+        self.assertFalse(os.path.exists(os.path.join(self.repo.base_path, dstRelPath)), 
+            "Target file should not be already in the repo root")
+        
         
         tool = TestsToolModel(self.repo, user)
         dialogs = TestsDialogsFacade(selectedFiles=[srcAbsPath])
-        
         handler = AddSingleItemActionHandler(tool, dialogs)
+        handler.handle()    
         
-        handler.handle()
-    
         
-        dstRelPath = "file.txt"
         savedItemId = handler.lastAddedItemId
         try:
             uow = self.repo.createUnitOfWork()
