@@ -365,9 +365,9 @@ class AddManyItemsAbstractActionHandler(AbstractActionHandler):
         self._errorLog = []
     
     def _startWorkerThread(self, items):
-        thread = CreateGroupIfItemsThread(self._gui, self._gui.model.repo, items)
+        thread = CreateGroupIfItemsThread(self._tool.gui, self._tool.repo, items)
         
-        wd = WaitDialog(self._gui)
+        wd = WaitDialog(self._tool.gui)
         self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
         self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
         self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
@@ -378,40 +378,44 @@ class AddManyItemsAbstractActionHandler(AbstractActionHandler):
         
  
 class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
-    def __init__(self, gui):
-        super(AddManyItemsActionHandler, self).__init__(gui)
+    def __init__(self, tool, dialogs):
+        super(AddManyItemsActionHandler, self).__init__(tool)
+        self.__dialogs = dialogs
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
             
-            dialogs = UserDialogsFacade()
-            
-            files = dialogs.getOpenFileNames(self._gui, self.tr("Select file to add"))
+            files = self.__dialogs.getOpenFileNames(self._tool.gui, self.tr("Select file to add"))
             if len(files) == 0:
                 raise MsgException(self.tr("No files chosen. Operation cancelled."))
             
             items = []
             for file in files:
                 file = os.path.normpath(file)
-                item = Item(user_login=self._gui.model.user.login)
+                item = Item(user_login=self._tool.user.login)
                 item.title = os.path.basename(file)
                 item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
                 item.data_ref.srcAbsPath = file
                 items.append(item)
             
-            if not dialogs.execItemsDialog(
-                items, self._gui, self._gui.model.repo, ItemsDialog.CREATE_MODE, sameDstPath=True):
+            if not self.__dialogs.execItemsDialog(
+                items, self._tool.gui, self._tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=True):
                 return
             
             self._startWorkerThread(items)
+            
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
                 
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
+            
         finally:
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed. Stored {} files, skipped {} files.").format(self._createdObjectsCount, len(self._errorLog)))
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.STATUS_BAR_MESSAGE, 
+                      self.tr("Operation completed. Stored {} files, skipped {} files.")
+                        .format(self._createdObjectsCount, len(self._errorLog)))
+            
         
         
 class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):

@@ -35,8 +35,7 @@ class UserDialogsFacade(AbstractDialogsFacade):
     
     def execItemsDialog(self, items, gui, repo, dialogMode, sameDstPath):
         completer = Completer(repo, gui)
-        repoBasePath = gui.model.repo.base_path
-        d = ItemsDialog(gui, repoBasePath, items, dialogMode, 
+        d = ItemsDialog(gui, repo.base_path, items, dialogMode, 
                         same_dst_path=sameDstPath, completer=completer)
         return d.exec_()
      

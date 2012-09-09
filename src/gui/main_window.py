@@ -205,8 +205,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             
         def initItemMenu():
             self.__actionHandlers.registerActionHandler(
-                self.ui.action_item_add_many, AddManyItemsActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
                 self.ui.action_item_add_many_rec, AddManyItemsRecursivelyActionHandler(self))
             # Separator
             self.__actionHandlers.registerActionHandler(
@@ -312,7 +310,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__actionHandlers.registerActionHandler(
             self.__dragNDropActionItemAdd, AddSingleItemActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
         self.__actionHandlers.registerActionHandler(
-            self.__dragNDropActionItemAddMany, AddManyItemsActionHandler(self.__dragNDropGuiProxy))
+            self.__dragNDropActionItemAddMany, AddManyItemsActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
         self.__actionHandlers.registerActionHandler(
             self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self.__dragNDropGuiProxy))
 
@@ -406,11 +404,9 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
 class WidgetsUpdateManager():
     def __init__(self):
         self.__signalsWidgets = dict()
-        self.__signalsWidgets[HandlerSignals.ITEM_DELETED] = []
-        self.__signalsWidgets[HandlerSignals.ITEM_CHANGED] = []
-        self.__signalsWidgets[HandlerSignals.ITEM_CREATED] = []
-        self.__signalsWidgets[HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED] = []
-        self.__signalsWidgets[HandlerSignals.STATUS_BAR_MESSAGE] = []
+        for handlerSignal in HandlerSignals.allPossibleSignals():
+            self.__signalsWidgets[handlerSignal] = []
+        
         
     def subscribe(self, widget, widgetUpdateCallable, repoSignals):
         ''' 

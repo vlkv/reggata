@@ -17,3 +17,13 @@ class HandlerSignals():
     ITEM_DELETED = "itemDeleted"
     LIST_OF_FAVORITE_REPOS_CHANGED = "listOfFavoriteReposChanged"
     STATUS_BAR_MESSAGE = "statusBarMessage"
+
+
+    @staticmethod
+    def allPossibleSignals():
+        return [HandlerSignals.ITEM_CREATED,
+                HandlerSignals.ITEM_CHANGED,
+                HandlerSignals.ITEM_DELETED,
+                HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED,
+                HandlerSignals.STATUS_BAR_MESSAGE,
+                ]
