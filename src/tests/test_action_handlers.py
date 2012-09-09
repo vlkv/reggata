@@ -3,24 +3,25 @@ Created on 27.08.2012
 @author: vvolkov
 '''
 import os
-from PyQt4 import QtCore
 from tests.abstract_test_cases import AbstractTestCaseWithRepo
 from logic.action_handlers import AddSingleItemActionHandler
-from logic.abstract_gui import AbstractGui
 from data.db_schema import User
 from tests.tests_dialogs_facade import TestsDialogsFacade
 from data.commands import GetExpungedItemCommand
 from helpers import to_db_format
-from logic.main_window_model import AbstractMainWindowModel
+from logic.abstract_tool import AbstractTool
+from logic.abstract_tool_gui import AbstractToolGui
+from PyQt4 import QtCore
 
-class TestsGuiModel(AbstractMainWindowModel):
+class TestsToolModel(AbstractTool):
     '''
-        This is a replacement for MainWindowModel in tests.
+        This is a replacement for ItemsTable in tests.
     '''
-    def __init__(self, repo, user, gui):
+    def __init__(self, repo, user):
+        super(TestsToolModel, self).__init__()
         self.repo = repo
         self.user = user
-        self.gui = gui
+        self._gui = None
         
     def checkActiveRepoIsNotNone(self):
         pass
@@ -28,14 +29,21 @@ class TestsGuiModel(AbstractMainWindowModel):
     def checkActiveUserIsNotNone(self):
         pass
     
+    def _getGui(self):
+        if self._gui is None:
+            self._gui = TestsToolGui(self)
+        return self._gui
+    gui = property(fget=_getGui)
+    
 
-class TestsGui(QtCore.QObject, AbstractGui):
-    def __init__(self, repo, user):
-        super(QtCore.QObject, self).__init__()
-        self.__model = TestsGuiModel(repo, user, self)
+class TestsToolGui(QtCore.QObject, AbstractToolGui):
+    
+    def __init__(self, model):
+        super(TestsToolGui, self).__init__()
+        self._model = model
     
     def _get_model(self):
-        return self.__model
+        return self._model
     model = property(fget=_get_model)
 
     
@@ -49,10 +57,10 @@ class AddSingleItemActionHandlerTest(AbstractTestCaseWithRepo):
         user = User(login="user", password="")
         srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
         
-        gui = TestsGui(self.repo, user)
+        tool = TestsToolModel(self.repo, user)
         dialogs = TestsDialogsFacade(selectedFiles=[srcAbsPath])
         
-        handler = AddSingleItemActionHandler(gui.model, dialogs)
+        handler = AddSingleItemActionHandler(tool, dialogs)
         
         handler.handle()
     
