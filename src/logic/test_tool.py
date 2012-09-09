@@ -8,7 +8,7 @@ from PyQt4 import QtCore, QtGui
 from logic.handler_signals import HandlerSignals
 
 
-class TestTool(QtCore.QObject, AbstractTool):
+class TestTool(AbstractTool):
     '''
         This is an minimal Tool that does nothing. It can be used as a template for creating new Tools.
     '''

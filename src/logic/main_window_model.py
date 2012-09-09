@@ -31,7 +31,12 @@ class MainWindowModel(AbstractMainWindowModel):
     def __getAvailableTools(self):
         # TODO: Here we shall return a TagCloud, ItemsTable and a FileBrowser
         # TODO: Discovering of tools should be dynamic, like plugin system
-        return [TestTool(), ItemsTable(itemsLock=self._mainWindow.items_lock), TagCloud()]
+        return [TestTool(), 
+                ItemsTable(self._mainWindow.widgetsUpdateManager(), 
+                           self._mainWindow.items_lock,
+                           self._mainWindow,
+                           self._mainWindow.dialogsFacade()),
+                TagCloud()]
     
     
     def __initTool(self, aTool):

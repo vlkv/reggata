@@ -8,7 +8,7 @@ from gui.tag_cloud_gui import TagCloudGui
 from logic.handler_signals import HandlerSignals
 
 
-class TagCloud(QtCore.QObject, AbstractTool):
+class TagCloud(AbstractTool):
     
     TOOL_ID = "TagCloudTool"
     

@@ -16,9 +16,8 @@ import gui.gui_proxy
 from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage
 from logic.main_window_model import MainWindowModel
-from logic.test_tool import TestTool
 from logic.items_table import ItemsTable
-from logic.tag_cloud import TagCloud
+
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -39,12 +38,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         
+        self.__dialogs = UserDialogsFacade()
+        
         self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
         
-        
-        
-        self.__dialogs = UserDialogsFacade()
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
+        
         self.__favoriteReposStorage = FavoriteReposStorage()
         
         self.__initMenuActions()
@@ -61,6 +60,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             [HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED])
         
         self.__restoreGuiState()
+        
+    def widgetsUpdateManager(self):
+        return self.__widgetsUpdateManager
+    
+    def dialogsFacade(self):
+        return self.__dialogs
         
     def initDockWidgetForTool(self, aTool):
         toolGui = aTool.createGui(self)
@@ -311,22 +316,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self.__dragNDropGuiProxy))
 
 
-    def __createItemsTableContextMenu(self):
-        menu = QtGui.QMenu(self)
-        menu.addAction(self.ui.action_item_view)
-        menu.addAction(self.ui.action_item_view_m3u)
-        menu.addAction(self.ui.action_item_view_image_viewer)
-        menu.addAction(self.ui.action_item_to_external_filemanager)
-        menu.addMenu(self.ui.menuExport_items)
-        menu.addSeparator()
-        menu.addAction(self.ui.action_item_edit)
-        menu.addAction(self.ui.action_item_rebuild_thumbnail)        
-        menu.addSeparator()
-        menu.addAction(self.ui.action_item_delete)
-        menu.addSeparator()
-        menu.addAction(self.ui.action_item_check_integrity)
-        menu.addMenu(self.ui.menuFix_integrity_errors)
-        return menu
+    
         
 
     def closeEvent(self, event):
@@ -413,28 +403,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     
     def widgetsUpdateManager(self):
         return self.__widgetsUpdateManager
-    
-            
-
-    
-class ActionHandlerStorage():
-    def __init__(self, widgetsUpdateManager):
-        self.__actions = dict()
-        self.__widgetsUpdateManager = widgetsUpdateManager
-        
-    def registerActionHandler(self, qAction, actionHandler):
-        assert not (qAction in self.__actions), "Given qAction already registered"
-        
-        QtCore.QObject.connect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
-        actionHandler.connectSignals(self.__widgetsUpdateManager)
-        
-        self.__actions[qAction] = actionHandler
-    
-    def clear(self):
-        for qAction, actionHandler in self.__actions.items():
-            actionHandler.disconnectSignals(self.__widgetsUpdateManager)
-            QtCore.QObject.disconnect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
-        self.__actions.clear()
     
     
     

@@ -18,19 +18,23 @@ from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
 from logic.handler_signals import HandlerSignals
 from gui.common_widgets import Completer
 from logic.tag_cloud import TagCloud
+from logic.action_handlers import ActionHandlerStorage, AddSingleItemActionHandler
 
 
-class ItemsTable(QtCore.QObject, AbstractTool):
+class ItemsTable(AbstractTool):
     
     TOOL_ID = "ItemsTableTool"
     
-    def __init__(self, itemsLock):
+    def __init__(self, widgetsUpdateManager, itemsLock, mainWindow, dialogsFacade):
         super(ItemsTable, self).__init__()
         
         self._repo = None
         self._user = None
         
+        self._widgetsUpdateManager = widgetsUpdateManager
         self._itemsLock = itemsLock
+        self._mainWindow = mainWindow
+        self._dialogsFacade = dialogsFacade
         
         self._gui = None
         
@@ -44,28 +48,64 @@ class ItemsTable(QtCore.QObject, AbstractTool):
 
         
     def createGui(self, guiParent):
-        self._gui = ItemsTableToolGui(guiParent) 
+        self._gui = ItemsTableToolGui(guiParent)
+        self._actionHandlers = ActionHandlerStorage(self._widgetsUpdateManager)
+         
         return self._gui
     
     def gui(self):
         return self._gui
 
     
+    
     def createMainMenuActions(self, menuParent, actionsParent):
-        menu = QtGui.QMenu(menuParent)
-        menu.setTitle(self.tr("Items Table"))
+        menu = self._gui.createMenuWithActions()
         
-        # TODO create and return correct actions
-        
-        action1 = QtGui.QAction(actionsParent)
-        action1.setText(self.tr("Action 1"))
-        menu.addAction(action1)
-        
-        action2 = QtGui.QAction(actionsParent)
-        action2.setText(self.tr("Action 2"))
-        menu.addAction(action2)
+        self._actionHandlers.registerActionHandler(
+            self._gui.actions['addOneItem'], AddSingleItemActionHandler(self._mainWindow, self._dialogsFacade))
         
         return menu
+    
+#        # Separator
+#        self.__actionHandlers.registerActionHandler(
+#            self.ui.action_item_check_integrity, CheckItemIntegrityActionHandler(self))
+#        
+#        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
+#        self.__actionHandlers.registerActionHandler(
+#            self.ui.action_item_fix_hash_error, FixItemIntegrityErrorActionHandler(self, strategy))
+#        
+#        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
+#        self.__actionHandlers.registerActionHandler(
+#            self.ui.action_item_update_file_hash, FixItemIntegrityErrorActionHandler(self, strategy))
+#        
+#        strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
+#        self.__actionHandlers.registerActionHandler(
+#            self.ui.action_item_fix_history_rec_error, FixItemIntegrityErrorActionHandler(self, strategy))
+#        
+#        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
+#        self.__actionHandlers.registerActionHandler(
+#            self.ui.action_fix_file_not_found_try_find, FixItemIntegrityErrorActionHandler(self, strategy))
+#        
+#        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
+#        self.__actionHandlers.registerActionHandler(
+#            self.ui.action_fix_file_not_found_delete, FixItemIntegrityErrorActionHandler(self, strategy))
+
+#    def __createItemsTableContextMenu(self):
+#        menu = QtGui.QMenu(self)
+#        menu.addAction(self.ui.action_item_view)
+#        menu.addAction(self.ui.action_item_view_m3u)
+#        menu.addAction(self.ui.action_item_view_image_viewer)
+#        menu.addAction(self.ui.action_item_to_external_filemanager)
+#        menu.addMenu(self.ui.menuExport_items)
+#        menu.addSeparator()
+#        menu.addAction(self.ui.action_item_edit)
+#        menu.addAction(self.ui.action_item_rebuild_thumbnail)        
+#        menu.addSeparator()
+#        menu.addAction(self.ui.action_item_delete)
+#        menu.addSeparator()
+#        menu.addAction(self.ui.action_item_check_integrity)
+#        menu.addMenu(self.ui.menuFix_integrity_errors)
+#        return menu
 
     
     def handlerSignals(self):

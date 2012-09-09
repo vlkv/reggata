@@ -16,17 +16,16 @@ import logging
 from errors import *
 from data.commands import *
 from logic.worker_threads import ThumbnailBuilderThread
+from gui.tool_gui import ToolGui
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
-class ItemsTableToolGui(QtGui.QWidget):
+class ItemsTableToolGui(ToolGui):
     
     def __init__(self, parent):
         super(ItemsTableToolGui, self).__init__(parent)
         self.ui = Ui_ItemsTableToolGui()
         self.ui.setupUi(self)
-        
-        
         
         #Widgets for text queries
         self.ui.lineEdit_query = TextEdit(self, one_line=True)
@@ -191,6 +190,53 @@ class ItemsTableToolGui(QtGui.QWidget):
         if width_rating > 0:
             UserConfig().store("items_table.RATING.width", str(width_rating))
     
+    def __buildActions(self):
+        assert len(self.actions) == 0
+        
+        self.actions['addOneItem'] = self._createAction(self.tr("Add one item"))
+        self.actions['addManyItems'] = self._createAction(self.tr("Add many items"))
+        self.actions['addManuItemsRec'] = self._createAction(self.tr("Add many items recursively"))
+        
+        self.actions['editItem'] = self._createAction(self.tr("Edit item"))
+        self.actions['rebuildItemsThumbnail'] = self._createAction(self.tr("Rebuild item's thumbnail"))
+        
+        self.actions['deleteItem'] = self._createAction(self.tr("Delete item"))
+        
+        self.actions['openItem'] = self._createAction(self.tr("Open item"))
+        self.actions['openItemWithBuiltinImageViewer'] = self._createAction(self.tr("Open item with built-in Image Viewer"))
+        self.actions['createM3uAndOpenIt'] = self._createAction(self.tr("Create m3u playlist and open it"))
+        self.actions['openItemWithExternalFileManager'] = self._createAction(self.tr("Open containing directory"))
+        
+        self.actions['exportItems'] = self._createAction(self.tr("Export items"))
+        self.actions['exportItemsFiles'] = self._createAction(self.tr("Export items' files"))
+        self.actions['exportItemsFilePaths'] = self._createAction(self.tr("Export items' file paths"))
+        
+    
+    def createMenuWithActions(self):
+        if len(self.actions) == 0:
+            self.__buildActions()
+        assert len(self.actions) > 0
+        
+        menu = self._createMenu(self.tr("Items Table"), self)
+        menu.addAction(self.actions['addOneItem'])
+        menu.addAction(self.actions['addManyItems'])
+        menu.addAction(self.actions['addManuItemsRec'])
+        menu.addSeparator()
+        menu.addAction(self.actions['editItem'])
+        menu.addAction(self.actions['rebuildItemsThumbnail'])
+        menu.addSeparator()
+        menu.addAction(self.actions['deleteItem'])
+        menu.addSeparator()
+        menu.addAction(self.actions['openItem'])
+        menu.addAction(self.actions['openItemWithBuiltinImageViewer'])
+        menu.addAction(self.actions['createM3uAndOpenIt'])
+        menu.addAction(self.actions['openItemWithExternalFileManager'])
+        menu.addSeparator()
+        subMenuExport = self._createAndAddSubMenu(self.tr("Export"), self, menu)
+        subMenuExport.addAction(self.actions['exportItems'])
+        subMenuExport.addAction(self.actions['exportItemsFiles'])
+        subMenuExport.addAction(self.actions['exportItemsFilePaths'])
+        return menu
     
     
 class ItemsTableModel(QtCore.QAbstractTableModel):

@@ -24,6 +24,33 @@ from gui.user_dialog import UserDialog
 from logic.handler_signals import HandlerSignals
 
 
+class ActionHandlerStorage():
+    def __init__(self, widgetsUpdateManager):
+        self.__actions = dict()
+        self.__widgetsUpdateManager = widgetsUpdateManager
+    
+    # TODO: rename to register()
+    def registerActionHandler(self, qAction, actionHandler):
+        assert not (qAction in self.__actions), "Given qAction already registered"
+        
+        QtCore.QObject.connect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
+        actionHandler.connectSignals(self.__widgetsUpdateManager)
+        
+        self.__actions[qAction] = actionHandler
+    
+    def unregister(self):
+        # TODO add more args and implement
+        pass
+    
+    # TODO rename to unregisterAll()
+    def clear(self):
+        for qAction, actionHandler in self.__actions.items():
+            actionHandler.disconnectSignals(self.__widgetsUpdateManager)
+            QtCore.QObject.disconnect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
+        self.__actions.clear()
+
+
+
 class AbstractActionHandler(QtCore.QObject):
     def __init__(self, gui=None):
         super(AbstractActionHandler, self).__init__()
