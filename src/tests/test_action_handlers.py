@@ -5,7 +5,7 @@ Created on 27.08.2012
 import os
 from tests.abstract_test_cases import AbstractTestCaseWithRepo
 from logic.action_handlers import AddSingleItemActionHandler, AddManyItemsActionHandler,\
-    AddManyItemsRecursivelyActionHandler
+    AddManyItemsRecursivelyActionHandler, EditItemActionHandler
 from data.db_schema import User
 from tests.tests_dialogs_facade import TestsDialogsFacade
 from data.commands import GetExpungedItemCommand
@@ -13,6 +13,7 @@ from helpers import to_db_format
 from logic.abstract_tool import AbstractTool
 from logic.abstract_tool_gui import AbstractToolGui
 from PyQt4 import QtCore
+from tests.tests_context import itemWithTagsAndFields
 
 class TestsToolModel(AbstractTool):
     '''
@@ -42,10 +43,18 @@ class TestsToolGui(QtCore.QObject, AbstractToolGui):
     def __init__(self, model):
         super(TestsToolGui, self).__init__()
         self._model = model
+        self._selectedItemIds = []
     
     def _get_model(self):
         return self._model
     model = property(fget=_get_model)
+    
+    def selectedItemIds(self):
+        return self._selectedItemIds
+    
+    def setSelectedItemIds(self, itemIds):
+        self._selectedItemIds = itemIds
+        
 
     
 class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
@@ -121,7 +130,7 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
                     "Item's file should exist")
             finally:
                 uow.close()
-            
+        
             
     def test_addRecursivelyDirFromOutsideOfRepo(self):
         user = User(login="user", password="")
@@ -156,4 +165,36 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
             finally:
                 uow.close()
             
+            
+    
+    def test_editSingleItem(self):
+        user = User(login="user", password="")
+        
+        tool = TestsToolModel(self.repo, user)
+        tool.gui.setSelectedItemIds([itemWithTagsAndFields.id])
+        dialogs = RemoveAllTagsFromItemDialogsFacade()
+        
+        handler = EditItemActionHandler(tool, dialogs)
+        handler.handle()
+        
+        try:
+            uow = self.repo.createUnitOfWork()
+            editedItem = uow.executeCommand(GetExpungedItemCommand(itemWithTagsAndFields.id))
+            
+            self.assertIsNotNone(editedItem, 
+                "Item should exist")
+            self.assertTrue(editedItem.alive,
+                "Item should be alive")
+            self.assertEqual(len(editedItem.item_tags), 0,
+                "Item should have no tags, because we've just removed them all")    
+        finally:
+            uow.close()
+        
+    
+class RemoveAllTagsFromItemDialogsFacade(TestsDialogsFacade): 
+    def execItemDialog(self, item, gui, repo, dialogMode):
+        del item.item_tags[:]
+        return True    
+        
+        
     

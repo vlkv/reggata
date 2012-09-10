@@ -67,6 +67,24 @@ class ItemsTable(AbstractTool):
             self._gui.actions['addManuItemsRec'], 
             AddManyItemsRecursivelyActionHandler(self, self._dialogsFacade))
         
+        self._actionHandlers.registerActionHandler(
+            self._gui.actions['editItem'], 
+            EditItemActionHandler(self, self._dialogsFacade))
+        
+#        self.actions['editItem']
+#        self.actions['rebuildItemsThumbnail']
+#        
+#        self.actions['deleteItem']
+#        
+#        self.actions['openItem']
+#        self.actions['openItemWithBuiltinImageViewer']
+#        self.actions['createM3uAndOpenIt']
+#        self.actions['openItemWithExternalFileManager']
+#        
+#        self.actions['exportItems']
+#        self.actions['exportItemsFiles']
+#        self.actions['exportItemsFilePaths']
+        
     
 #        # Separator
 #        self.__actionHandlers.registerActionHandler(

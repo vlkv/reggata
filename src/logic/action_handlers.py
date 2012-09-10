@@ -463,26 +463,20 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                 self.tr("Operation completed. Stored {} files, skipped {} files.")
                     .format(self._createdObjectsCount, len(self._errorLog)))
             
-            
-            
-            
-            
-            
-            
-
 
 
 
 class EditItemActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(EditItemActionHandler, self).__init__(gui)
+    def __init__(self, tool, dialogs):
+        super(EditItemActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()            
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()            
             
-            itemIds = self._gui.selectedItemIds()
+            itemIds = self._tool.gui.selectedItemIds()
             if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -493,22 +487,23 @@ class EditItemActionHandler(AbstractActionHandler):
                             
         except Exception as ex:
             show_exc_info(self._gui, ex)
+            
         else:
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.STATUS_BAR_MESSAGE, 
+                self.tr("Editing done."), STATUSBAR_TIMEOUT)
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
             
     
     def __editSingleItem(self, itemId):
-        uow = self._gui.model.repo.createUnitOfWork()
+        uow = self._tool.repo.createUnitOfWork()
         try:
             item = uow.executeCommand(GetExpungedItemCommand(itemId))
             
-            dialogs = UserDialogsFacade()
-            if not dialogs.execItemDialog(
-                item=item, gui=self._gui, repo=self._gui.model.repo, dialogMode=ItemDialog.EDIT_MODE):
+            if not self._dialogs.execItemDialog(
+                item=item, gui=self._tool.gui, repo=self._tool.repo, dialogMode=ItemDialog.EDIT_MODE):
                 return
             
-            cmd = UpdateExistingItemCommand(item, self._gui.model.user.login)
+            cmd = UpdateExistingItemCommand(item, self._tool.user.login)
             uow.executeCommand(cmd)
         finally:
             uow.close()
