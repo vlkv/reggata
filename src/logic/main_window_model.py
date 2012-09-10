@@ -35,12 +35,11 @@ class MainWindowModel(AbstractMainWindowModel):
     
     def _getItemsLock(self):
         return self._itemsLock
-    
+
     itemsLock = property(fget=_getItemsLock)
     
 
     def __getAvailableTools(self):
-        # TODO: Here we shall return a TagCloud, ItemsTable and a FileBrowser
         # TODO: Discovering of tools should be dynamic, like plugin system
         return [TestTool(), 
                 ItemsTable(self._mainWindow.widgetsUpdateManager(), 
@@ -65,7 +64,6 @@ class MainWindowModel(AbstractMainWindowModel):
         self.__findAndConnectRelatedToolsFor(aTool)
         
         self._mainWindow.subscribeToolForUpdates(aTool)
-        
 
         
     def __findAndConnectRelatedToolsFor(self, aTool):
@@ -76,11 +74,11 @@ class MainWindowModel(AbstractMainWindowModel):
             if relatedTool is None:
                 continue
             aTool.connectRelatedTool(relatedTool)
-        
     
     
     def tools(self):
         return self._tools
+    
     
     def toolById(self, toolId):
         foundTools = [tool for tool in self._tools if tool.id() == toolId]
@@ -141,10 +139,12 @@ class MainWindowModel(AbstractMainWindowModel):
     def checkActiveUserIsNotNone(self):
         if self._user is None:
             raise CurrentUserIsNoneError("Current user is None")
+    
         
     def storeCurrentState(self):
         for tool in self._tools:
             tool.storeCurrentState()
+    
     
     def restoreRecentState(self):
         #TODO: here we should restore recent user and recent repo. It is done in MainWindow now...
