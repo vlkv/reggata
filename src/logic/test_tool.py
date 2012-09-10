@@ -38,22 +38,6 @@ class TestTool(AbstractTool):
     def handlerSignals(self):
         return [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 
              HandlerSignals.ITEM_DELETED]
-
-
-    def enable(self):
-        pass
-
-    
-    def disable(self):
-        pass
-
-    
-    def toggleEnableDisable(self, enable):
-        if enable:
-            self.enable()
-        else:
-            self.disable()
-    
     
     def update(self):
         self._gui.update()

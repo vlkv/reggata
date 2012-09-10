@@ -57,8 +57,6 @@ class ItemsTable(AbstractTool):
     def __getGui(self):
         return self._gui
     gui = property(fget=__getGui)
-
-
     
     
     def connectActionsWithActionHandlers(self):
@@ -123,21 +121,6 @@ class ItemsTable(AbstractTool):
         return [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 
              HandlerSignals.ITEM_DELETED]
 
-
-    def enable(self):
-        pass
-
-    
-    def disable(self):
-        pass
-
-    
-    def toggleEnableDisable(self, enable):
-        if enable:
-            self.enable()
-        else:
-            self.disable()
-    
     
     def update(self):
         self._gui.update()

@@ -27,3 +27,15 @@ class AbstractTool(QtCore.QObject):
     def connectActionsWithActionHandlers(self):
         pass
     
+    
+    def enable(self):
+        pass
+    
+    def disable(self):
+        pass
+    
+    def toggleEnableDisable(self, enable):
+        if enable:
+            self.enable()
+        else:
+            self.disable()
