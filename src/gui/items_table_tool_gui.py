@@ -186,7 +186,9 @@ class ItemsTableToolGui(ToolGui):
             UserConfig().store("items_table.RATING.width", str(width_rating))
     
     def buildActions(self):
-        assert len(self.actions) == 0, "Actions should be built only once"
+        if len(self.actions) > 0:
+            logger.info("Actions already built")
+            return
         
         self.actions['addOneItem'] = self._createAction(self.tr("Add one item"))
         self.actions['addManyItems'] = self._createAction(self.tr("Add many items"))
@@ -209,7 +211,9 @@ class ItemsTableToolGui(ToolGui):
     
     def buildMainMenu(self):
         assert len(self.actions) > 0, "Actions should be already built"
-        assert self._mainMenu is None, "Main Menu of this Tool should be built only once"
+        if self._mainMenu is not None:
+            logger.info("Main Menu of this Tool already built")
+            return
         
         self._mainMenu = self._createMenu(self.tr("Items Table"), self)
         menu = self._mainMenu
@@ -235,7 +239,9 @@ class ItemsTableToolGui(ToolGui):
     
     
     def __buildContextMenu(self):
-        assert self.__context_menu is None, "Context menu should be built only once"
+        if self.__context_menu is not None:
+            logger.info("Context menu of this Tool already built")
+            return
     
         self.__context_menu = self._createMenu(menuTitle=None, menuParent=self)
         menu = self.__context_menu
