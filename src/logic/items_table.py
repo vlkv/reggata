@@ -3,23 +3,15 @@
 Created on 21.01.2012
 @author: vlkv
 '''
-import os
-import consts
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
-import traceback
-from data.db_schema import Item, DataRef
-from parsers import query_parser
-from logic.worker_threads import ThumbnailBuilderThread
-from data.repo_mgr import *
-from data.commands import *
 from logic.abstract_tool import AbstractTool
-from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
 from logic.handler_signals import HandlerSignals
-from gui.common_widgets import Completer
 from logic.tag_cloud import TagCloud
-from logic.action_handlers import ActionHandlerStorage, AddSingleItemActionHandler, AddManyItemsActionHandler,\
-    AddManyItemsRecursivelyActionHandler
+from logic.action_handlers import *
+from gui.common_widgets import Completer
+from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
+from parsers import query_parser
 
 
 class ItemsTable(AbstractTool):
