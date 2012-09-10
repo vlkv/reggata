@@ -21,6 +21,9 @@ class AbstractTool(QtCore.QObject):
     def setUser(self, user):
         pass
     
+    def storeCurrentState(self):
+        pass
+    
     def restoreRecentState(self):
         pass
     

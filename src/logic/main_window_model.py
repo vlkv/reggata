@@ -142,6 +142,9 @@ class MainWindowModel(AbstractMainWindowModel):
         if self._user is None:
             raise CurrentUserIsNoneError("Current user is None")
         
+    def storeCurrentState(self):
+        for tool in self._tools:
+            tool.storeCurrentState()
     
     def restoreRecentState(self):
         #TODO: here we should restore recent user and recent repo. It is done in MainWindow now...

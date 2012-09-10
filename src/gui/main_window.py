@@ -145,6 +145,18 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
 #        self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.itemsTableToolGui)
 #        self.ui.menuTools.addAction(self.ui.dockWidget_file_browser.toggleViewAction())
 
+    def closeEvent(self, event):
+        self._model.storeCurrentState()
+        
+        #Storing all dock widgets position and size
+        byte_arr = self.saveState()
+        UserConfig().store("main_window.state", str(byte_arr.data()))
+                
+        UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
+        
+        logger.info("Reggata Main Window is closing")
+        
+
     def __restoreGuiState(self):
         
         self._model.restoreRecentState()
@@ -313,14 +325,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     
         
 
-    def closeEvent(self, event):
-        #Storing all dock widgets position and size
-        byte_arr = self.saveState()
-        UserConfig().store("main_window.state", str(byte_arr.data()))
-                
-        UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
-        
-        logger.info("Reggata Main Window is closing")
+    
         
         
     def event(self, e):
