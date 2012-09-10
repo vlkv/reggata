@@ -24,6 +24,7 @@ class ItemsTable(AbstractTool):
         self._repo = None
         self._user = None
         self._gui = None
+        self._actionHandlers = None
         
         self._widgetsUpdateManager = widgetsUpdateManager
         self._itemsLock = itemsLock
@@ -140,6 +141,7 @@ class ItemsTable(AbstractTool):
             self._gui.itemsTableModel = None
         
             self._gui.set_tag_completer(None)
+    
     
     def checkActiveRepoIsNotNone(self):
         if self._repo is None:
