@@ -33,7 +33,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.setCentralWidget(None)
         self.setAcceptDrops(True)
         
-        
         # TODO: updateManager should be moved to MainWindowModel
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         
@@ -44,6 +43,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         # TODO: actionHandlerStorage should be moved to MainWindowModel
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
         
+        # TODO: favoriteReposStorage should be moved to MainWindowModel
         self.__favoriteReposStorage = FavoriteReposStorage()
         
         self.__initMenuActions()
@@ -51,9 +51,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__initDragNDropHandlers()
         
         self.__initStatusBar()
-        #self.__initFileBrowser()
-        
-        
         
         self.__widgetsUpdateManager.subscribe(
             self, self.__rebuildFavoriteReposMenu, 
@@ -64,6 +61,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             [HandlerSignals.STATUS_BAR_MESSAGE])
         
         self.__restoreGuiState()
+        
         
     def widgetsUpdateManager(self):
         return self.__widgetsUpdateManager
