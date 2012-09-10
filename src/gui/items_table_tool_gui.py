@@ -117,14 +117,14 @@ class ItemsTableToolGui(ToolGui):
     def query_page(self):
         return self.ui.spinBox_page.value()
     
-    def selected_rows(self):
+    def selectedRows(self):
         #We use set, because selectedIndexes() may return duplicates
         rows = set()
         for index in self.ui.tableView_items.selectionModel().selectedIndexes():
             rows.add(index.row())
         return rows
 
-    def selected_item_ids(self):
+    def selectedItemIds(self):
         #We use set, because selectedIndexes() may return duplicates
         item_ids = set()
         for index in self.ui.tableView_items.selectionModel().selectedIndexes():

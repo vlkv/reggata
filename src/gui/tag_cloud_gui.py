@@ -64,7 +64,9 @@ class TagCloudGui(ToolGui):
     
     def _emitSelectedTagsChanged(self, tags, notTags):
         self.emit(QtCore.SIGNAL("selectedTagsChanged"), tags, notTags)
-        
+
+    def refresh(self):
+        self.__tagCloudTextEdit.refresh()
 
 
 class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
