@@ -5,7 +5,6 @@ Created on 07.09.2012
 from user_config import UserConfig
 from data.commands import LoginUserCommand
 from errors import CurrentRepoIsNoneError, CurrentUserIsNoneError
-from logic.test_tool import TestTool
 from logic.items_table import ItemsTable
 from logic.tag_cloud import TagCloud
 from PyQt4 import QtCore
@@ -41,8 +40,7 @@ class MainWindowModel(AbstractMainWindowModel):
 
     def __getAvailableTools(self):
         # TODO: Discovering of tools should be dynamic, like plugin system
-        return [TestTool(), 
-                ItemsTable(self._mainWindow.widgetsUpdateManager(), 
+        return [ItemsTable(self._mainWindow.widgetsUpdateManager(), 
                            self._itemsLock,
                            self._mainWindow,
                            self._mainWindow.dialogsFacade()),
