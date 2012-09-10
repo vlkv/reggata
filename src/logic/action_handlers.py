@@ -307,7 +307,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(AddSingleItemActionHandler, self).__init__(tool)
         self.__dialogs = dialogs
-        self.lastAddedItemId = None
+        self.lastSavedItemId = None
         
     def handle(self):
         try:
@@ -344,7 +344,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 self.__dialogs.startThreadWithWaitDialog(
                     thread, self._tool.gui, indeterminate=True)
                 
-                self.lastAddedItemId = thread.result
+                self.lastSavedItemId = thread.result
                 
             finally:
                 uow.close()

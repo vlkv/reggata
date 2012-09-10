@@ -4,7 +4,8 @@ Created on 27.08.2012
 '''
 import os
 from tests.abstract_test_cases import AbstractTestCaseWithRepo
-from logic.action_handlers import AddSingleItemActionHandler, AddManyItemsActionHandler
+from logic.action_handlers import AddSingleItemActionHandler, AddManyItemsActionHandler,\
+    AddManyItemsRecursivelyActionHandler
 from data.db_schema import User
 from tests.tests_dialogs_facade import TestsDialogsFacade
 from data.commands import GetExpungedItemCommand
@@ -66,11 +67,10 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
         handler = AddSingleItemActionHandler(tool, dialogs)
         handler.handle()    
         
-        
-        savedItemId = handler.lastAddedItemId
+        self.assertIsNotNone(handler.lastSavedItemId)
         try:
             uow = self.repo.createUnitOfWork()
-            savedItem = uow.executeCommand(GetExpungedItemCommand(savedItemId))
+            savedItem = uow.executeCommand(GetExpungedItemCommand(handler.lastSavedItemId))
             
             self.assertIsNotNone(savedItem, 
                 "Item should exist")
@@ -83,7 +83,7 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
         finally:
             uow.close()
             
-    def test_addAFewFilesFromOutsideOfRepo(self):
+    def test_addTwoFilesFromOutsideOfRepo(self):
         user = User(login="user", password="")
         srcAbsPath = []
         dstRelPath = []
@@ -121,5 +121,37 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
             finally:
                 uow.close()
             
-    
+    def test_addRecursivelyDirFromOutsideOfRepo(self):
+        user = User(login="user", password="")
+        srcDirAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp"))
+        
+        dstRelPaths = []
+        for root, dirs, files in os.walk(srcDirAbsPath):
+            for file in files:
+                dstRelPaths.append(os.path.relpath(file, srcDirAbsPath))
+        
+        
+        tool = TestsToolModel(self.repo, user)
+        dialogs = TestsDialogsFacade(selectedFiles=[srcDirAbsPath])
+        handler = AddManyItemsRecursivelyActionHandler(tool, dialogs)
+        handler.handle()
+        
+        
+        self.assertEqual(len(handler.lastSavedItemIds), len(dstRelPaths))
+        for i, savedItemId in enumerate(handler.lastSavedItemIds):
+            try:
+                uow = self.repo.createUnitOfWork()
+                savedItem = uow.executeCommand(GetExpungedItemCommand(savedItemId))
+                
+                self.assertIsNotNone(savedItem, 
+                    "Item should exist")
+                self.assertIsNotNone(savedItem.data_ref, 
+                    "Item should have a DataRef object")
+                self.assertEqual(savedItem.data_ref.url_raw, to_db_format(dstRelPaths[i]), 
+                    "Item's file should be located in the root of repo")
+                self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, savedItem.data_ref.url)),
+                    "Item's file should exist")
+            finally:
+                uow.close()
+            
     
