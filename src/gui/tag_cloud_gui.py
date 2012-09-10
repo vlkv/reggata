@@ -16,6 +16,8 @@ from data.commands import GetRelatedTagsCommand
 from logic.abstract_tool_gui import AbstractToolGui
 from gui.tool_gui import ToolGui
 
+
+
 def scale_value(value, src_range, dst_range):
     ''' 
         Scales 'value' from range [src_range[0], src_range[1]] 
@@ -35,6 +37,7 @@ def scale_value(value, src_range, dst_range):
     elif result > dst_range[1]:
         result = dst_range[1]
     return result
+
 
 
 class TagCloudGui(ToolGui):
@@ -62,6 +65,7 @@ class TagCloudGui(ToolGui):
     def _emitSelectedTagsChanged(self, tags, notTags):
         self.emit(QtCore.SIGNAL("selectedTagsChanged"), tags, notTags)
         
+
 
 class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
     '''
@@ -233,7 +237,7 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
             self.connect(self.action_and_not_tag, QtCore.SIGNAL("triggered()"), self._and_not_tag)
                         
             self.action_set_limit = self.menu.addAction(self.tr("Limit number of tags"))
-            self.connect(self.action_set_limit, QtCore.SIGNAL("triggered()"), self._set_limit)
+            self.connect(self.action_set_limit, QtCore.SIGNAL("triggered()"), self._onSetLimitActionTriggered)
         self.menu.exec_(e.globalPos())        
         
     def _and_tag(self):
@@ -272,7 +276,7 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
         except Exception as ex:
             show_exc_info(self, ex)
         
-    def _set_limit(self):
+    def _onSetLimitActionTriggered(self):
         i, ok = QtGui.QInputDialog.getInteger(self, self.tr("Reggata input dialog"), \
             self.tr("Enter new value for maximum number of tags in the cloud (0 - unlimited)."), \
             value=self.limit, min=0, max=1000000000)
