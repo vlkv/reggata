@@ -466,10 +466,10 @@ class DeleteGroupOfItemsThread(QtCore.QThread):
             uow.close()
             self.emit(QtCore.SIGNAL("finished"))
             
-# TODO: rename to CreateGroupOfItemsThread
-class CreateGroupIfItemsThread(QtCore.QThread):
+
+class CreateGroupOfItemsThread(QtCore.QThread):
     def __init__(self, parent, repo, items):
-        super(CreateGroupIfItemsThread, self).__init__(parent)
+        super(CreateGroupOfItemsThread, self).__init__(parent)
         self.repo = repo
         self.items = items
         self.error_log = []

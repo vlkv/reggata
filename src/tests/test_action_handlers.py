@@ -122,6 +122,7 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
             finally:
                 uow.close()
             
+            
     def test_addRecursivelyDirFromOutsideOfRepo(self):
         user = User(login="user", password="")
         srcDirAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp"))
@@ -149,7 +150,7 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
                 self.assertIsNotNone(savedItem.data_ref, 
                     "Item should have a DataRef object")
                 self.assertEqual(savedItem.data_ref.url_raw, to_db_format(dstRelPaths[i]), 
-                    "Item's file should be located in the root of repo")
+                    "Item's file not found in repo")
                 self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, savedItem.data_ref.url)),
                     "Item's file should exist")
             finally:

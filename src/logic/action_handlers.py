@@ -366,7 +366,7 @@ class AddManyItemsAbstractActionHandler(AbstractActionHandler):
         self.lastSavedItemIds = []
     
     def _startWorkerThread(self, items):
-        thread = CreateGroupIfItemsThread(self._tool.gui, self._tool.repo, items)
+        thread = CreateGroupOfItemsThread(self._tool.gui, self._tool.repo, items)
         
         self._dialogs.startThreadWithWaitDialog(
                 thread, self._tool.gui, indeterminate=False)
