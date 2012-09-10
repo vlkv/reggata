@@ -25,6 +25,11 @@ class TestsDialogsFacade(AbstractDialogsFacade):
         return True
     
     def execItemsDialog(self, items, gui, repo, dialogMode, sameDstPath):
+        
+        for item in items:
+            if item.data_ref is not None:
+                item.data_ref.srcAbsPath = item.data_ref.url 
+                item.data_ref.dstRelPath = os.path.basename(item.data_ref.url)
         return True
      
      

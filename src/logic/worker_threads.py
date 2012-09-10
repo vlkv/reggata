@@ -474,6 +474,7 @@ class CreateGroupIfItemsThread(QtCore.QThread):
         self.items = items
         self.error_log = []
         self.created_objects_count = 0
+        self.lastSavedItemIds = []
     
     def run(self):        
         self.error_log = []
@@ -489,7 +490,8 @@ class CreateGroupIfItemsThread(QtCore.QThread):
                     if item.data_ref:
                         srcAbsPath = item.data_ref.srcAbsPath
                         dstRelPath = item.data_ref.dstRelPath
-                    uow.executeCommand(SaveNewItemCommand(item, srcAbsPath, dstRelPath))
+                    savedItemId = uow.executeCommand(SaveNewItemCommand(item, srcAbsPath, dstRelPath))
+                    self.lastSavedItemIds.append(savedItemId)
                     self.created_objects_count += 1
                     
                 except (ValueError, DataRefAlreadyExistsError):

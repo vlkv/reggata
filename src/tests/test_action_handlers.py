@@ -4,7 +4,7 @@ Created on 27.08.2012
 '''
 import os
 from tests.abstract_test_cases import AbstractTestCaseWithRepo
-from logic.action_handlers import AddSingleItemActionHandler
+from logic.action_handlers import AddSingleItemActionHandler, AddManyItemsActionHandler
 from data.db_schema import User
 from tests.tests_dialogs_facade import TestsDialogsFacade
 from data.commands import GetExpungedItemCommand
@@ -51,7 +51,6 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
     
     def setUp(self):
         super(AddItemsActionHandlerTest, self).setUp()
-        self.__handlerSucceeded = False
         
     def test_addFileFromOutsideOfRepo(self):
         user = User(login="user", password="")
@@ -83,6 +82,44 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
                 "Item's file should exist")
         finally:
             uow.close()
+            
+    def test_addAFewFilesFromOutsideOfRepo(self):
+        user = User(login="user", password="")
+        srcAbsPath = []
+        dstRelPath = []
+        srcAbsPath.append(os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt")))
+        dstRelPath.append("file.txt")
+        srcAbsPath.append(os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "grub.conf")))
+        dstRelPath.append("grub.conf")
+        
+        self.assertFalse(os.path.exists(os.path.join(self.repo.base_path, dstRelPath[0])), 
+            "Target file should not be already in the repo root")
+        self.assertFalse(os.path.exists(os.path.join(self.repo.base_path, dstRelPath[1])), 
+            "Target file should not be already in the repo root")
+        
+        
+        tool = TestsToolModel(self.repo, user)
+        dialogs = TestsDialogsFacade(selectedFiles=[srcAbsPath[0], srcAbsPath[1]])
+        handler = AddManyItemsActionHandler(tool, dialogs)
+        handler.handle()
+        
+        
+        self.assertEqual(len(dstRelPath), len(handler.lastSavedItemIds))
+        for i, savedItemId in enumerate(handler.lastSavedItemIds):
+            try:
+                uow = self.repo.createUnitOfWork()
+                savedItem = uow.executeCommand(GetExpungedItemCommand(savedItemId))
+                
+                self.assertIsNotNone(savedItem, 
+                    "Item should exist")
+                self.assertIsNotNone(savedItem.data_ref, 
+                    "Item should have a DataRef object")
+                self.assertEqual(savedItem.data_ref.url_raw, to_db_format(dstRelPath[i]), 
+                    "Item's file should be located in the root of repo")
+                self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, savedItem.data_ref.url)),
+                    "Item's file should exist")
+            finally:
+                uow.close()
             
     
     

@@ -358,36 +358,34 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
 
 class AddManyItemsAbstractActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(AddManyItemsAbstractActionHandler, self).__init__(gui)
-        
+    def __init__(self, tool, dialogs):
+        super(AddManyItemsAbstractActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
         self._createdObjectsCount = 0
         self._errorLog = []
+        self.lastSavedItemIds = []
     
     def _startWorkerThread(self, items):
         thread = CreateGroupIfItemsThread(self._tool.gui, self._tool.repo, items)
         
-        wd = WaitDialog(self._tool.gui)
-        self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-        self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-        self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-        wd.startWithWorkerThread(thread)
+        self._dialogs.startThreadWithWaitDialog(
+                thread, self._tool.gui, indeterminate=False)
             
         self._createdObjectsCount = thread.created_objects_count
         self._errorLog = thread.error_log
+        self.lastSavedItemIds = thread.lastSavedItemIds
         
  
 class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
     def __init__(self, tool, dialogs):
-        super(AddManyItemsActionHandler, self).__init__(tool)
-        self.__dialogs = dialogs
+        super(AddManyItemsActionHandler, self).__init__(tool, dialogs)
         
     def handle(self):
         try:
             self._tool.checkActiveRepoIsNotNone()
             self._tool.checkActiveUserIsNotNone()
             
-            files = self.__dialogs.getOpenFileNames(self._tool.gui, self.tr("Select file to add"))
+            files = self._dialogs.getOpenFileNames(self._tool.gui, self.tr("Select file to add"))
             if len(files) == 0:
                 raise MsgException(self.tr("No files chosen. Operation cancelled."))
             
@@ -396,11 +394,11 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
                 file = os.path.normpath(file)
                 item = Item(user_login=self._tool.user.login)
                 item.title = os.path.basename(file)
-                item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
+                item.data_ref = DataRef(type=DataRef.FILE, url=file) #DataRef.url doesn't important here
                 item.data_ref.srcAbsPath = file
                 items.append(item)
             
-            if not self.__dialogs.execItemsDialog(
+            if not self._dialogs.execItemsDialog(
                 items, self._tool.gui, self._tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=True):
                 return
             
@@ -419,8 +417,8 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
         
         
 class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
-    def __init__(self, gui):
-        super(AddManyItemsRecursivelyActionHandler, self).__init__(gui)
+    def __init__(self, gui, dialogs):
+        super(AddManyItemsRecursivelyActionHandler, self).__init__(gui, dialogs)
         
     def handle(self):
         ''' Add many items recursively from given directory to the repo.
@@ -429,8 +427,7 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             self._gui.model.checkActiveRepoIsNotNone()
             self._gui.model.checkActiveUserIsNotNone()
             
-            dialogs = UserDialogsFacade()
-            dirPath = dialogs.getExistingDirectory(
+            dirPath = self._dialogs.getExistingDirectory(
                 self._gui, self.tr("Select single existing directory"))
             if not dirPath:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
@@ -449,7 +446,7 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                     # item.data_ref.dstRelPath will be set by ItemsDialog
                     items.append(item)
             
-            if not dialogs.execItemsDialog(
+            if not self._dialogs.execItemsDialog(
                 items, self._gui, self._gui.model.repo, ItemsDialog.CREATE_MODE, sameDstPath=False):
                 return
                 
