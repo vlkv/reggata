@@ -18,7 +18,8 @@ from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
 from logic.handler_signals import HandlerSignals
 from gui.common_widgets import Completer
 from logic.tag_cloud import TagCloud
-from logic.action_handlers import ActionHandlerStorage, AddSingleItemActionHandler, AddManyItemsActionHandler
+from logic.action_handlers import ActionHandlerStorage, AddSingleItemActionHandler, AddManyItemsActionHandler,\
+    AddManyItemsRecursivelyActionHandler
 
 
 class ItemsTable(AbstractTool):
@@ -73,6 +74,9 @@ class ItemsTable(AbstractTool):
             self._gui.actions['addManyItems'], 
             AddManyItemsActionHandler(self, self._dialogsFacade))
         
+        self._actionHandlers.registerActionHandler(
+            self._gui.actions['addManuItemsRec'], 
+            AddManyItemsRecursivelyActionHandler(self, self._dialogsFacade))
         
         
         return menu

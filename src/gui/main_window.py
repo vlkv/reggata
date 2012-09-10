@@ -205,9 +205,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             
         def initItemMenu():
             self.__actionHandlers.registerActionHandler(
-                self.ui.action_item_add_many_rec, AddManyItemsRecursivelyActionHandler(self))
-            # Separator
-            self.__actionHandlers.registerActionHandler(
                 self.ui.action_item_edit, EditItemActionHandler(self))
             self.__actionHandlers.registerActionHandler(
                 self.ui.action_item_rebuild_thumbnail, RebuildItemThumbnailActionHandler(self))
@@ -312,7 +309,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__actionHandlers.registerActionHandler(
             self.__dragNDropActionItemAddMany, AddManyItemsActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
         self.__actionHandlers.registerActionHandler(
-            self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self.__dragNDropGuiProxy))
+            self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
 
 
     
