@@ -54,17 +54,15 @@ class ItemsTable(AbstractTool):
          
         return self._gui
     
-    
     def __getGui(self):
         return self._gui
-    
     gui = property(fget=__getGui)
 
 
     
     
-    def createMainMenuActions(self, menuParent, actionsParent):
-        menu = self._gui.createMenuWithActions()
+    def connectActionsWithActionHandlers(self):
+        assert len(self._gui.actions) > 0, "Actions should be already built in ToolGui"
         
         self._actionHandlers.registerActionHandler(
             self._gui.actions['addOneItem'], 
@@ -78,8 +76,6 @@ class ItemsTable(AbstractTool):
             self._gui.actions['addManuItemsRec'], 
             AddManyItemsRecursivelyActionHandler(self, self._dialogsFacade))
         
-        
-        return menu
     
 #        # Separator
 #        self.__actionHandlers.registerActionHandler(

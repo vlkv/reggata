@@ -190,8 +190,8 @@ class ItemsTableToolGui(ToolGui):
         if width_rating > 0:
             UserConfig().store("items_table.RATING.width", str(width_rating))
     
-    def __buildActions(self):
-        assert len(self.actions) == 0
+    def buildActions(self):
+        assert len(self.actions) == 0, "Actions should be built only once"
         
         self.actions['addOneItem'] = self._createAction(self.tr("Add one item"))
         self.actions['addManyItems'] = self._createAction(self.tr("Add many items"))
@@ -212,31 +212,29 @@ class ItemsTableToolGui(ToolGui):
         self.actions['exportItemsFilePaths'] = self._createAction(self.tr("Export items' file paths"))
         
     
-    def createMenuWithActions(self):
-        if len(self.actions) == 0:
-            self.__buildActions()
-        assert len(self.actions) > 0
+    def buildMainMenu(self):
+        assert len(self.actions) > 0, "Actions should be already built"
+        assert self._mainMenu is None, "Main Menu of this Tool should be built only once"
         
-        menu = self._createMenu(self.tr("Items Table"), self)
-        menu.addAction(self.actions['addOneItem'])
-        menu.addAction(self.actions['addManyItems'])
-        menu.addAction(self.actions['addManuItemsRec'])
-        menu.addSeparator()
-        menu.addAction(self.actions['editItem'])
-        menu.addAction(self.actions['rebuildItemsThumbnail'])
-        menu.addSeparator()
-        menu.addAction(self.actions['deleteItem'])
-        menu.addSeparator()
-        menu.addAction(self.actions['openItem'])
-        menu.addAction(self.actions['openItemWithBuiltinImageViewer'])
-        menu.addAction(self.actions['createM3uAndOpenIt'])
-        menu.addAction(self.actions['openItemWithExternalFileManager'])
-        menu.addSeparator()
-        subMenuExport = self._createAndAddSubMenu(self.tr("Export"), self, menu)
+        self._mainMenu = self._createMenu(self.tr("Items Table"), self)
+        self._mainMenu.addAction(self.actions['addOneItem'])
+        self._mainMenu.addAction(self.actions['addManyItems'])
+        self._mainMenu.addAction(self.actions['addManuItemsRec'])
+        self._mainMenu.addSeparator()
+        self._mainMenu.addAction(self.actions['editItem'])
+        self._mainMenu.addAction(self.actions['rebuildItemsThumbnail'])
+        self._mainMenu.addSeparator()
+        self._mainMenu.addAction(self.actions['deleteItem'])
+        self._mainMenu.addSeparator()
+        self._mainMenu.addAction(self.actions['openItem'])
+        self._mainMenu.addAction(self.actions['openItemWithBuiltinImageViewer'])
+        self._mainMenu.addAction(self.actions['createM3uAndOpenIt'])
+        self._mainMenu.addAction(self.actions['openItemWithExternalFileManager'])
+        self._mainMenu.addSeparator()
+        subMenuExport = self._createAndAddSubMenu(self.tr("Export"), self, self._mainMenu)
         subMenuExport.addAction(self.actions['exportItems'])
         subMenuExport.addAction(self.actions['exportItemsFiles'])
         subMenuExport.addAction(self.actions['exportItemsFilePaths'])
-        return menu
     
     
 class ItemsTableModel(QtCore.QAbstractTableModel):

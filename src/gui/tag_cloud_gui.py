@@ -13,6 +13,8 @@ import parsers
 from errors import MsgException
 from user_config import UserConfig
 from data.commands import GetRelatedTagsCommand
+from logic.abstract_tool_gui import AbstractToolGui
+from gui.tool_gui import ToolGui
 
 def scale_value(value, src_range, dst_range):
     ''' 
@@ -34,19 +36,47 @@ def scale_value(value, src_range, dst_range):
         result = dst_range[1]
     return result
 
-class TagCloudGui(QtGui.QTextEdit):
+
+class TagCloudGui(ToolGui):
+    def __init__(self, parent=None, repo=None):
+        super(TagCloudGui, self).__init__(parent)
+        self.__tagCloudTextEdit = TagCloudTextEdit(parent, repo)
+        
+        self.connect(self.__tagCloudTextEdit, 
+                     QtCore.SIGNAL("selectedTagsChanged"), 
+                     self._emitSelectedTagsChanged)
+        
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(self.__tagCloudTextEdit)
+        self.setLayout(layout)
+        
+    def reset(self):
+        self.__tagCloudTextEdit.reset()
+
+    def _setRepo(self, value):
+        self.__tagCloudTextEdit.repo = value
+    def _getRepo(self):
+        return self.__tagCloudTextEdit.repo
+    repo = property(_getRepo, _setRepo)
+    
+    def _emitSelectedTagsChanged(self, tags, notTags):
+        self.emit(QtCore.SIGNAL("selectedTagsChanged"), tags, notTags)
+        
+
+class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
     '''
-        TagCloudGui is a widget for displaying and interacting with a Cloud of Tags.
+        TagCloudTextEdit is a widget for displaying and interacting with a Cloud of Tags.
     '''
     
     def __init__(self, parent=None, repo=None):
+        super(TagCloudTextEdit, self).__init__(parent)
+        
         #Current word in tag cloud under the mouse cursor
         self.word = None
         
         #This is a list of tuples (tag_name, count_of_items_with_this_tag)
         self.tag_count = None
         
-        super(TagCloudGui, self).__init__(parent)
         self.setMouseTracking(True)
         self.setReadOnly(True)
         self.tags = set()
@@ -143,7 +173,7 @@ class TagCloudGui(QtGui.QTextEdit):
                 if tag_name == self.word:
                     QtGui.QToolTip.showText(e.globalPos(), str(tag_count))
                     break
-        return super(TagCloudGui, self).event(e)
+        return super(TagCloudTextEdit, self).event(e)
     
       
     
@@ -176,7 +206,7 @@ class TagCloudGui(QtGui.QTextEdit):
         # NOTE: There is a problem when tag contains a spaces or dashes (and other special chars).
         # word is detected incorrectly in such a case. 
         # TODO: Have to fix this problem
-        return super(TagCloudGui, self).mouseMoveEvent(e)
+        return super(TagCloudTextEdit, self).mouseMoveEvent(e)
     
     
     def mouseDoubleClickEvent(self, e):

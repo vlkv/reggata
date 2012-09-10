@@ -9,9 +9,6 @@ class AbstractTool(QtCore.QObject):
     def __init__(self):
         super(AbstractTool, self).__init__()
     
-    def createMainMenuActions(self, menuParent, actionsParent):
-        return None
-    
     def relatedToolIds(self):
         return []
     
@@ -25,5 +22,8 @@ class AbstractTool(QtCore.QObject):
         pass
     
     def restoreRecentState(self):
+        pass
+    
+    def connectActionsWithActionHandlers(self):
         pass
     

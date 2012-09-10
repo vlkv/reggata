@@ -82,12 +82,10 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui.menuTools.addAction(enableDisableAction)
         
         
-    def initMainMenuForTool(self, aTool):
-        # TODO: There should be some config file with settings where to put 
-        # menu actions of the tool
-        toolMainMenu = aTool.createMainMenuActions(self.ui.menubar, self)
-        if toolMainMenu is not None:
-            self.ui.menubar.addAction(toolMainMenu.menuAction())
+    def addToolMainMenu(self, toolMainMenu):
+        assert toolMainMenu is not None
+        self.ui.menubar.addAction(toolMainMenu.menuAction())
+        
     
     def subscribeToolForUpdates(self, aTool):
         self.__widgetsUpdateManager.subscribe(aTool, aTool.update, aTool.handlerSignals())

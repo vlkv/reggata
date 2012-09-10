@@ -14,6 +14,8 @@ class TestTool(AbstractTool):
     '''
     def __init__(self):
         super(TestTool, self).__init__()
+        
+        
 
         
     def id(self):
@@ -25,23 +27,12 @@ class TestTool(AbstractTool):
 
         
     def createGui(self, guiParent):
-        self._gui = TestToolGui(guiParent) 
+        self._gui = TestToolGui(parent=guiParent)
         return self._gui
-
     
-    def createMainMenuActions(self, menuParent, actionsParent):
-        menu = QtGui.QMenu(menuParent)
-        menu.setTitle(self.tr("Test Tool Menu"))
-        
-        action1 = QtGui.QAction(actionsParent)
-        action1.setText(self.tr("Action 1"))
-        menu.addAction(action1)
-        
-        action2 = QtGui.QAction(actionsParent)
-        action2.setText(self.tr("Action 2"))
-        menu.addAction(action2)
-        
-        return menu
+    def __getGui(self):
+        return self._gui
+    gui = property(fget=__getGui)
 
     
     def handlerSignals(self):
