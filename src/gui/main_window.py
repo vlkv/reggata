@@ -34,13 +34,14 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.setAcceptDrops(True)
         
         
-        
+        # TODO: updateManager should be moved to MainWindowModel
         self.__widgetsUpdateManager = WidgetsUpdateManager()
         
         self.__dialogs = UserDialogsFacade()
         
         self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
         
+        # TODO: actionHandlerStorage should be moved to MainWindowModel
         self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
         
         self.__favoriteReposStorage = FavoriteReposStorage()
