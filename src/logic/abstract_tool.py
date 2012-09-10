@@ -4,6 +4,7 @@ Created on 07.09.2012
 '''
 from PyQt4 import QtCore
 
+
 class AbstractTool(QtCore.QObject):
     
     def __init__(self):
@@ -30,7 +31,6 @@ class AbstractTool(QtCore.QObject):
     def connectActionsWithActionHandlers(self):
         pass
     
-    
     def enable(self):
         pass
     
@@ -42,3 +42,5 @@ class AbstractTool(QtCore.QObject):
             self.enable()
         else:
             self.disable()
+            
+            
