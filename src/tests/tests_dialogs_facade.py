@@ -18,18 +18,22 @@ class TestsDialogsFacade(AbstractDialogsFacade):
         return True
     
     def execItemDialog(self, item, gui, repo, dialogMode):
-        
         if item.data_ref is not None:
             item.data_ref.srcAbsPath = item.data_ref.url 
             item.data_ref.dstRelPath = os.path.basename(item.data_ref.url)
         return True
     
     def execItemsDialog(self, items, gui, repo, dialogMode, sameDstPath):
-        
         for item in items:
-            if item.data_ref is not None:
-                item.data_ref.srcAbsPath = item.data_ref.url 
+            if item.data_ref is None:
+                continue
+            
+            item.data_ref.srcAbsPath = item.data_ref.url
+            
+            if item.data_ref.srcAbsPathToRecursionRoot is None: 
                 item.data_ref.dstRelPath = os.path.basename(item.data_ref.url)
+            else:
+                item.data_ref.dstRelPath = os.path.relpath(item.data_ref.url, item.data_ref.srcAbsPathToRecursionRoot)
         return True
      
      

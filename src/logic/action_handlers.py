@@ -394,7 +394,7 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
                 file = os.path.normpath(file)
                 item = Item(user_login=self._tool.user.login)
                 item.title = os.path.basename(file)
-                item.data_ref = DataRef(type=DataRef.FILE, url=file) #DataRef.url doesn't important here
+                item.data_ref = DataRef(type=DataRef.FILE, url=file) #DataRef.url can be changed in ItemsDialog
                 item.data_ref.srcAbsPath = file
                 items.append(item)
             
@@ -417,18 +417,19 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
         
         
 class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
-    def __init__(self, gui, dialogs):
-        super(AddManyItemsRecursivelyActionHandler, self).__init__(gui, dialogs)
+    def __init__(self, tool, dialogs):
+        super(AddManyItemsRecursivelyActionHandler, self).__init__(tool, dialogs)
         
     def handle(self):
-        ''' Add many items recursively from given directory to the repo.
+        '''
+            Add many items recursively from given directory to the repo.
         '''
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
             
             dirPath = self._dialogs.getExistingDirectory(
-                self._gui, self.tr("Select single existing directory"))
+                self._tool.gui, self.tr("Select single existing directory"))
             if not dirPath:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
                         
@@ -439,24 +440,32 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                 if os.path.relpath(root, dirPath) == ".reggata":
                     continue
                 for file in files:
-                    item = Item(title=file, user_login=self._gui.model.user.login)
-                    item.data_ref = DataRef(type=DataRef.FILE, url=None) #DataRef.url doesn't important here
-                    item.data_ref.srcAbsPath = os.path.join(root, file)
+                    item = Item(title=file, user_login=self._tool.user.login)
+                    srcAbsPath = os.path.join(root, file)
+                    item.data_ref = DataRef(type=DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
+                    item.data_ref.srcAbsPath = srcAbsPath
                     item.data_ref.srcAbsPathToRecursionRoot = dirPath
                     # item.data_ref.dstRelPath will be set by ItemsDialog
                     items.append(item)
             
             if not self._dialogs.execItemsDialog(
-                items, self._gui, self._gui.model.repo, ItemsDialog.CREATE_MODE, sameDstPath=False):
+                items, self._tool.gui, self._tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=False):
                 return
                 
             self._startWorkerThread(items)
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
                 
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
+            
         finally:
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed. Stored {} files, skipped {} files.").format(self._createdObjectsCount, len(self._errorLog)))
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
+            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.STATUS_BAR_MESSAGE, 
+                self.tr("Operation completed. Stored {} files, skipped {} files.")
+                    .format(self._createdObjectsCount, len(self._errorLog)))
+            
+            
+            
+            
             
             
             

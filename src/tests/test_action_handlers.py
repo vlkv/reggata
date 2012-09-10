@@ -83,6 +83,7 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
         finally:
             uow.close()
             
+            
     def test_addTwoFilesFromOutsideOfRepo(self):
         user = User(login="user", password="")
         srcAbsPath = []
@@ -128,7 +129,7 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
         dstRelPaths = []
         for root, dirs, files in os.walk(srcDirAbsPath):
             for file in files:
-                dstRelPaths.append(os.path.relpath(file, srcDirAbsPath))
+                dstRelPaths.append(os.path.relpath(os.path.join(root, file), srcDirAbsPath))
         
         
         tool = TestsToolModel(self.repo, user)
