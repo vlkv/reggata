@@ -23,13 +23,12 @@ class ItemsTable(AbstractTool):
         
         self._repo = None
         self._user = None
+        self._gui = None
         
         self._widgetsUpdateManager = widgetsUpdateManager
         self._itemsLock = itemsLock
         self._mainWindow = mainWindow
         self._dialogsFacade = dialogsFacade
-        
-        self._gui = None
         
         
     def id(self):
@@ -45,6 +44,7 @@ class ItemsTable(AbstractTool):
         self._actionHandlers = ActionHandlerStorage(self._widgetsUpdateManager)
          
         return self._gui
+    
     
     def __getGui(self):
         return self._gui
@@ -117,9 +117,11 @@ class ItemsTable(AbstractTool):
     def update(self):
         self._gui.update()
         
+        
     @property
     def repo(self):
         return self._repo
+        
         
     def setRepo(self, repo):
         self._repo = repo
@@ -153,6 +155,7 @@ class ItemsTable(AbstractTool):
         userLogin = user.login if user is not None else None
         if self._gui.itemsTableModel is not None:
             self._gui.itemsTableModel.user_login = userLogin 
+            
             
     def checkActiveUserIsNotNone(self):
         if self._user is None:
