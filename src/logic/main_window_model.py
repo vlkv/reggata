@@ -52,11 +52,8 @@ class MainWindowModel(AbstractMainWindowModel):
         
         self._mainWindow.initDockWidgetForTool(aTool)
         
-        aTool.gui.buildActions()
-        aTool.connectActionsWithActionHandlers()
-        aTool.gui.buildMainMenu()
-        if aTool.gui.mainMenu is not None:
-            # NOTE: Tool may have no actions and no menus
+        toolMainMenu = aTool.buildGuiMainMenu()
+        if toolMainMenu is not None:
             self._mainWindow.addToolMainMenu(aTool.gui.mainMenu)
         
         self.__findAndConnectRelatedToolsFor(aTool)

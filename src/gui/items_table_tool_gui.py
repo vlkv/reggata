@@ -20,6 +20,7 @@ from gui.tool_gui import ToolGui
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
+
 class ItemsTableToolGui(ToolGui):
     
     def __init__(self, parent):
@@ -55,8 +56,8 @@ class ItemsTableToolGui(ToolGui):
         
         self.__table_model = None
         
-        
         self.__context_menu = None
+        self.__initContextMenu()
     
     
     def __getTableModel(self):
@@ -141,13 +142,7 @@ class ItemsTableToolGui(ToolGui):
         text = self.ui.lineEdit_query.setText(text)
         self.query_exec()
     
-    def addContextMenu(self, menu):
-        self.__context_menu = menu
-        self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
     
-    def showContextMenu(self, pos):
-        self.__context_menu.exec_(self.ui.tableView_items.mapToGlobal(pos))
         
         
     def _resize_row_to_contents(self, top_left, bottom_right):
@@ -217,24 +212,62 @@ class ItemsTableToolGui(ToolGui):
         assert self._mainMenu is None, "Main Menu of this Tool should be built only once"
         
         self._mainMenu = self._createMenu(self.tr("Items Table"), self)
-        self._mainMenu.addAction(self.actions['addOneItem'])
-        self._mainMenu.addAction(self.actions['addManyItems'])
-        self._mainMenu.addAction(self.actions['addManuItemsRec'])
-        self._mainMenu.addSeparator()
-        self._mainMenu.addAction(self.actions['editItem'])
-        self._mainMenu.addAction(self.actions['rebuildItemsThumbnail'])
-        self._mainMenu.addSeparator()
-        self._mainMenu.addAction(self.actions['deleteItem'])
-        self._mainMenu.addSeparator()
-        self._mainMenu.addAction(self.actions['openItem'])
-        self._mainMenu.addAction(self.actions['openItemWithBuiltinImageViewer'])
-        self._mainMenu.addAction(self.actions['createM3uAndOpenIt'])
-        self._mainMenu.addAction(self.actions['openItemWithExternalFileManager'])
-        self._mainMenu.addSeparator()
-        subMenuExport = self._createAndAddSubMenu(self.tr("Export"), self, self._mainMenu)
+        menu = self._mainMenu
+        
+        menu.addAction(self.actions['addOneItem'])
+        menu.addAction(self.actions['addManyItems'])
+        menu.addAction(self.actions['addManuItemsRec'])
+        menu.addSeparator()
+        menu.addAction(self.actions['editItem'])
+        menu.addAction(self.actions['rebuildItemsThumbnail'])
+        menu.addSeparator()
+        menu.addAction(self.actions['deleteItem'])
+        menu.addSeparator()
+        menu.addAction(self.actions['openItem'])
+        menu.addAction(self.actions['openItemWithBuiltinImageViewer'])
+        menu.addAction(self.actions['createM3uAndOpenIt'])
+        menu.addAction(self.actions['openItemWithExternalFileManager'])
+        menu.addSeparator()
+        subMenuExport = self._createAndAddSubMenu(self.tr("Export"), self, menu)
         subMenuExport.addAction(self.actions['exportItems'])
         subMenuExport.addAction(self.actions['exportItemsFiles'])
         subMenuExport.addAction(self.actions['exportItemsFilePaths'])
+    
+    
+    def __buildContextMenu(self):
+        assert self.__context_menu is None, "Context menu should be built only once"
+    
+        self.__context_menu = self._createMenu(menuTitle=None, menuParent=self)
+        menu = self.__context_menu
+        
+        menu.addAction(self.actions['openItem'])
+        menu.addAction(self.actions['openItemWithBuiltinImageViewer'])
+        menu.addAction(self.actions['createM3uAndOpenIt'])
+        menu.addAction(self.actions['openItemWithExternalFileManager'])
+        menu.addSeparator()
+        menu.addAction(self.actions['editItem'])
+        menu.addAction(self.actions['rebuildItemsThumbnail'])
+        menu.addSeparator()
+        menu.addAction(self.actions['deleteItem'])
+        menu.addSeparator()
+        subMenuExport = self._createAndAddSubMenu(self.tr("Export"), self, menu)
+        subMenuExport.addAction(self.actions['exportItems'])
+        subMenuExport.addAction(self.actions['exportItemsFiles'])
+        subMenuExport.addAction(self.actions['exportItemsFilePaths'])
+        
+    
+    def __addContextMenu(self):
+        assert self.__context_menu is not None, "Context menu is not built"
+        self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
+        
+    def __initContextMenu(self):
+        self.buildActions()
+        self.__buildContextMenu()
+        self.__addContextMenu()
+    
+    def showContextMenu(self, pos):
+        self.__context_menu.exec_(self.ui.tableView_items.mapToGlobal(pos))
     
     
 class ItemsTableModel(QtCore.QAbstractTableModel):

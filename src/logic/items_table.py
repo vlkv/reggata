@@ -92,23 +92,6 @@ class ItemsTable(AbstractTool):
 #        self.__actionHandlers.registerActionHandler(
 #            self.ui.action_fix_file_not_found_delete, FixItemIntegrityErrorActionHandler(self, strategy))
 
-#    def __createItemsTableContextMenu(self):
-#        menu = QtGui.QMenu(self)
-#        menu.addAction(self.ui.action_item_view)
-#        menu.addAction(self.ui.action_item_view_m3u)
-#        menu.addAction(self.ui.action_item_view_image_viewer)
-#        menu.addAction(self.ui.action_item_to_external_filemanager)
-#        menu.addMenu(self.ui.menuExport_items)
-#        menu.addSeparator()
-#        menu.addAction(self.ui.action_item_edit)
-#        menu.addAction(self.ui.action_item_rebuild_thumbnail)        
-#        menu.addSeparator()
-#        menu.addAction(self.ui.action_item_delete)
-#        menu.addSeparator()
-#        menu.addAction(self.ui.action_item_check_integrity)
-#        menu.addMenu(self.ui.menuFix_integrity_errors)
-#        return menu
-
     
     def handlerSignals(self):
         return [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 

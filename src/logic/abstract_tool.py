@@ -30,6 +30,13 @@ class AbstractTool(QtCore.QObject):
     
     def connectActionsWithActionHandlers(self):
         pass
+
+    def buildGuiMainMenu(self):
+        if len(self.gui.actions) == 0:
+            self.gui.buildActions()
+        self.gui.buildMainMenu()
+        self.connectActionsWithActionHandlers()
+        return self.gui.mainMenu
     
     def enable(self):
         pass
