@@ -4,20 +4,18 @@ Created on 20.08.2010
 @author: vlkv
 '''
 import ui_mainwindow
-from consts import *
+from helpers import *
+import logging
+import consts
 from data.repo_mgr import *
 from logic.worker_threads import *
 from logic.integrity_fixer import *
-from helpers import *
 from logic.action_handlers import *
-import logging
-import consts
-import gui.gui_proxy
 from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage
 from logic.main_window_model import MainWindowModel
 from logic.items_table import ItemsTable
-
+import gui.gui_proxy
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -135,26 +133,18 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui.statusbar.addPermanentWidget(self.ui.label_user)
     
 
-#    def __initFileBrowser(self):
-#        self.ui.file_browser = FileBrowser(self)
-#        self.ui.dockWidget_file_browser = QtGui.QDockWidget(self.tr("File browser"), self)
-#        self.ui.dockWidget_file_browser.setObjectName("dockWidget_file_browser")
-#        self.ui.dockWidget_file_browser.setWidget(self.ui.file_browser)
-#        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.ui.dockWidget_file_browser)
-#        self.tabifyDockWidget(self.ui.dockWidget_file_browser, self.ui.itemsTableToolGui)
-#        self.ui.menuTools.addAction(self.ui.dockWidget_file_browser.toggleViewAction())
-
     def closeEvent(self, event):
         self._model.storeCurrentState()
-        
-        #Storing all dock widgets position and size
-        byte_arr = self.saveState()
-        UserConfig().store("main_window.state", str(byte_arr.data()))
-                
-        UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
-        
+        self.__storeGuiState()
         logger.info("Reggata Main Window is closing")
+    
+    def __storeGuiState(self):
+        #Store all dock widgets position and size
+        byte_arr = self.saveState() 
+        UserConfig().store("main_window.state", str(byte_arr.data()))
         
+        UserConfig().storeAll({"main_window.width":self.width(), "main_window.height":self.height()})
+
 
     def __restoreGuiState(self):
         
@@ -321,21 +311,13 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
 
 
-    
-        
-
-    
-        
-        
     def event(self, e):
         return super(MainWindow, self).event(e)
     
     
     def __get_model(self):
         return self._model
-    
     model = property(fget=__get_model)
-        
         
     
     def onCurrentUserChanged(self):
@@ -350,8 +332,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             
         self.__rebuildFavoriteReposMenu()
         
-
-
     
     def onCurrentRepoChanged(self):
         repo = self._model.repo
@@ -382,7 +362,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def selectedRows(self):
         return self._model.toolById(ItemsTable.TOOL_ID).gui.selected_rows()
         
-    
     def itemAtRow(self, row):
         return self._model.toolById(ItemsTable.TOOL_ID).gui.itemsTableModel.items[row]
     
@@ -400,12 +379,13 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         return itemIds
     
     
+    
+    
 class WidgetsUpdateManager():
     def __init__(self):
         self.__signalsWidgets = dict()
         for handlerSignal in HandlerSignals.allPossibleSignals():
             self.__signalsWidgets[handlerSignal] = []
-        
         
     def subscribe(self, widget, widgetUpdateCallable, repoSignals):
         ''' 
