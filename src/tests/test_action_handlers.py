@@ -13,7 +13,8 @@ from helpers import to_db_format
 from logic.abstract_tool import AbstractTool
 from logic.abstract_tool_gui import AbstractToolGui
 from PyQt4 import QtCore
-from tests.tests_context import itemWithTagsAndFields
+from tests.tests_context import itemWithTagsAndFields, itemWithFile,\
+    itemWithoutFile
 
 class TestsToolModel(AbstractTool):
     '''
@@ -167,7 +168,13 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
 class RemoveAllTagsFromItemDialogsFacade(TestsDialogsFacade): 
     def execItemDialog(self, item, gui, repo, dialogMode):
         del item.item_tags[:]
-        return True 
+        return True
+    
+    def execItemsDialog(self, items, gui, repo, dialogMode, sameDstPath):
+        for item in items:
+            del item.item_tags[:]
+        return True
+    
     
 class EditItemsActionHandlerTest(AbstractTestCaseWithRepo):        
     
@@ -193,6 +200,33 @@ class EditItemsActionHandlerTest(AbstractTestCaseWithRepo):
                 "Item should have no tags, because we've just removed them all")    
         finally:
             uow.close()
+            
+    def test_editThreeItems(self):
+        user = User(login="user", password="")
+        
+        tool = TestsToolModel(self.repo, user)
+        selectedItemIds = [itemWithTagsAndFields.id,
+                           itemWithFile.id,
+                           itemWithoutFile.id]
+        tool.gui.setSelectedItemIds(selectedItemIds)
+        dialogs = RemoveAllTagsFromItemDialogsFacade()
+        
+        handler = EditItemActionHandler(tool, dialogs)
+        handler.handle()
+        
+        for itemId in selectedItemIds:
+            try:
+                uow = self.repo.createUnitOfWork()
+                editedItem = uow.executeCommand(GetExpungedItemCommand(itemId))
+                
+                self.assertIsNotNone(editedItem, 
+                    "Item should exist")
+                self.assertTrue(editedItem.alive,
+                    "Item should be alive")
+                self.assertEqual(len(editedItem.item_tags), 0,
+                    "Item should have no tags, because we've just removed them all")    
+            finally:
+                uow.close()
         
     
 

@@ -509,24 +509,18 @@ class EditItemActionHandler(AbstractActionHandler):
             uow.close()
     
     def __editManyItems(self, itemIds):
-        uow = self._gui.model.repo.createUnitOfWork()
+        uow = self._tool.repo.createUnitOfWork()
         try:
             items = []
             for itemId in itemIds:
                 items.append(uow.executeCommand(GetExpungedItemCommand(itemId)))
             
-            dialogs = UserDialogsFacade()
-            if not dialogs.execItemsDialog(
-                items, self._gui, self._gui.model.repo, ItemsDialog.EDIT_MODE, sameDstPath=True):
+            if not self._dialogs.execItemsDialog(
+                items, self._tool.gui, self._tool.repo, ItemsDialog.EDIT_MODE, sameDstPath=True):
                 return
             
-            thread = UpdateGroupOfItemsThread(self._gui, self._gui.model.repo, items)
-                    
-            wd = WaitDialog(self._gui)
-            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-            wd.startWithWorkerThread(thread)     
+            thread = UpdateGroupOfItemsThread(self._tool.gui, self._tool.repo, items)
+            self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
                 
         finally:
             uow.close()
