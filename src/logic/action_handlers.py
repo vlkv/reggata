@@ -1056,7 +1056,7 @@ along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses<
         self.ui.textEdit.setHtml(title + text)
 
 
-
+# TODO: Make it a descendant of AbstractActionHandler, maybe?
 class OpenFavoriteRepoActionHandler(QtCore.QObject):
     def __init__(self, gui):
         super(OpenFavoriteRepoActionHandler, self).__init__()
