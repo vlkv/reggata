@@ -78,7 +78,7 @@ class ItemsTable(AbstractTool):
         
         self._actionHandlers.register(
             self._gui.actions['rebuildItemsThumbnail'], 
-            RebuildItemThumbnailActionHandler(self, self._dialogsFacade))
+            RebuildItemThumbnailActionHandler(self))
         
 #        self.actions['deleteItem']
 #        

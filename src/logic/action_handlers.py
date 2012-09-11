@@ -542,9 +542,8 @@ class EditItemActionHandler(AbstractActionHandler):
             uow.close()
 
 class RebuildItemThumbnailActionHandler(AbstractActionHandler):
-    def __init__(self, tool, dialogs):
+    def __init__(self, tool):
         super(RebuildItemThumbnailActionHandler, self).__init__(tool)
-        self._dialogs = dialogs
     
     def handle(self):
         

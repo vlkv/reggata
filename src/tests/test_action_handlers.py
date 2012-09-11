@@ -5,7 +5,8 @@ Created on 27.08.2012
 import os
 from tests.abstract_test_cases import AbstractTestCaseWithRepo
 from logic.action_handlers import AddSingleItemActionHandler, AddManyItemsActionHandler,\
-    AddManyItemsRecursivelyActionHandler, EditItemActionHandler
+    AddManyItemsRecursivelyActionHandler, EditItemActionHandler,\
+    RebuildItemThumbnailActionHandler
 from data.db_schema import User
 from tests.tests_dialogs_facade import TestsDialogsFacade
 from data.commands import GetExpungedItemCommand
@@ -15,6 +16,7 @@ from logic.abstract_tool_gui import AbstractToolGui
 from PyQt4 import QtCore
 from tests.tests_context import itemWithTagsAndFields, itemWithFile,\
     itemWithoutFile
+from gui.user_dialogs_facade import UserDialogsFacade
 
 class TestsToolModel(AbstractTool):
     '''
@@ -25,6 +27,7 @@ class TestsToolModel(AbstractTool):
         self.repo = repo
         self.user = user
         self._gui = None
+        self.itemsLock = QtCore.QReadWriteLock()
         
     def checkActiveRepoIsNotNone(self):
         pass
@@ -45,16 +48,28 @@ class TestsToolGui(QtCore.QObject, AbstractToolGui):
         super(TestsToolGui, self).__init__()
         self._model = model
         self._selectedItemIds = []
+        self._items = []
     
     def _get_model(self):
         return self._model
     model = property(fget=_get_model)
+    
+    def setItems(self, items):
+        self._items = items
     
     def selectedItemIds(self):
         return self._selectedItemIds
     
     def setSelectedItemIds(self, itemIds):
         self._selectedItemIds = itemIds
+        
+    def selectedRows(self):
+        return [x for x in range(len(self._selectedItemIds))]
+    
+    def itemAtRow(self, row):
+        foundItems = [item for item in self._items if item.id == self._selectedItemIds[row]]
+        assert len(foundItems) == 1 
+        return foundItems[0]
         
 
     
@@ -228,8 +243,34 @@ class EditItemsActionHandlerTest(AbstractTestCaseWithRepo):
             finally:
                 uow.close()
         
+        
+class RebuildThumbnailActionHandlerTest(AbstractTestCaseWithRepo):
     
-
+    def test_rebuildThumbnail(self):
+        user = User(login="user", password="")
+        
+        tool = TestsToolModel(self.repo, user)
+        selectedItemIds = [itemWithTagsAndFields.id,
+                           itemWithFile.id,
+                           itemWithoutFile.id]
+        selectedItems = []
+        for itemId in selectedItemIds:
+            try:
+                uow = self.repo.createUnitOfWork()
+                item = uow.executeCommand(GetExpungedItemCommand(itemId))
+                self.assertIsNotNone(item)
+                selectedItems.append(item)                    
+            finally:
+                uow.close()
+                
+        tool.gui.setItems(selectedItems)
+        tool.gui.setSelectedItemIds(selectedItemIds)
+        
+        handler = RebuildItemThumbnailActionHandler(tool)
+        handler.handle()
+        # Maybe we should add more checks here... but
+        # The main goal for this test is to check that nothing crashes in the action handler itself
+        
         
         
     
