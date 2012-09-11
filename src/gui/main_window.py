@@ -179,77 +179,77 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
 
     def __initMenuActions(self):
         def initRepositoryMenu():
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_repo_create, CreateRepoActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_repo_close, CloseRepoActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_repo_open, OpenRepoActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.actionAdd_current_repository, 
                 AddCurrentRepoToFavoritesActionHandler(self, self.__favoriteReposStorage))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.actionRemove_current_repository, 
                 RemoveCurrentRepoFromFavoritesActionHandler(self, self.__favoriteReposStorage))
         
         def initUserMenu():
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_user_create, CreateUserActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_user_login, LoginUserActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_user_logout, LogoutUserActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
             
         def initItemMenu():
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_item_delete, DeleteItemActionHandler(self))
             # Separator
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_item_view, OpenItemActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_item_view_image_viewer, OpenItemWithInternalImageViewerActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_item_view_m3u, ExportItemsToM3uAndOpenItActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManagerActionHandler(self))
             
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.actionExportItems, ExportItemsActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.actionImportItems, ImportItemsActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_export_selected_items, ExportItemsFilesActionHandler(self))
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_export_items_file_paths, ExportItemsFilePathsActionHandler(self))
             
             # Separator
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_item_check_integrity, CheckItemIntegrityActionHandler(self))
             
             strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_item_fix_hash_error, FixItemIntegrityErrorActionHandler(self, strategy))
             
             strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_item_update_file_hash, FixItemIntegrityErrorActionHandler(self, strategy))
             
             strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_item_fix_history_rec_error, FixItemIntegrityErrorActionHandler(self, strategy))
             
             strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_fix_file_not_found_try_find, FixItemIntegrityErrorActionHandler(self, strategy))
             
             strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_fix_file_not_found_delete, FixItemIntegrityErrorActionHandler(self, strategy))
             
         def initHelpMenu():
-            self.__actionHandlers.registerActionHandler(
+            self.__actionHandlers.register(
                 self.ui.action_help_about, ShowAboutDialogActionHandler(self))
             
         initRepositoryMenu()
@@ -298,11 +298,11 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__dragNDropActionItemAddMany = QtGui.QAction(self)
         self.__dragNDropActionItemAddManyRec = QtGui.QAction(self)
         
-        self.__actionHandlers.registerActionHandler(
+        self.__actionHandlers.register(
             self.__dragNDropActionItemAdd, AddSingleItemActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
-        self.__actionHandlers.registerActionHandler(
+        self.__actionHandlers.register(
             self.__dragNDropActionItemAddMany, AddManyItemsActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
-        self.__actionHandlers.registerActionHandler(
+        self.__actionHandlers.register(
             self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
 
 

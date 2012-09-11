@@ -29,8 +29,7 @@ class ActionHandlerStorage():
         self.__actions = dict()
         self.__widgetsUpdateManager = widgetsUpdateManager
     
-    # TODO: rename to register()
-    def registerActionHandler(self, qAction, actionHandler):
+    def register(self, qAction, actionHandler):
         assert not (qAction in self.__actions), "Given qAction already registered"
         
         QtCore.QObject.connect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
