@@ -46,8 +46,7 @@ class ActionHandlerStorage():
         
         del self.__actions[qAction]
     
-    # TODO rename to unregisterAll()
-    def clear(self):
+    def unregisterAll(self):
         for qAction, actionHandler in self.__actions.items():
             actionHandler.disconnectSignals(self.__widgetsUpdateManager)
             QtCore.QObject.disconnect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
