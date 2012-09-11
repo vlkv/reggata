@@ -37,15 +37,21 @@ class ActionHandlerStorage():
         
         self.__actions[qAction] = actionHandler
     
-    def unregister(self):
-        # TODO add more args and implement
-        pass
+    def unregister(self, qAction):
+        assert qAction in self.__actions, "qAction must be registered before"
+        actionHandler = self.__actions[qAction]
+        
+        actionHandler.disconnectSignals(self.__widgetsUpdateManager)
+        QtCore.QObject.disconnect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
+        
+        del self.__actions[qAction]
     
     # TODO rename to unregisterAll()
     def clear(self):
         for qAction, actionHandler in self.__actions.items():
             actionHandler.disconnectSignals(self.__widgetsUpdateManager)
             QtCore.QObject.disconnect(qAction, QtCore.SIGNAL("triggered()"), actionHandler.handle)
+        
         self.__actions.clear()
 
 
