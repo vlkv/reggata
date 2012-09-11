@@ -553,44 +553,45 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
                 self.tr("Rebuilding thumbnails ({0}%)").format(percent))
             
             #TODO: Have to replace this direct updates with emitting some specific signals..
-            self._gui.resetSingleRow(row)
+            self._tool.gui.resetSingleRow(row)
             QtCore.QCoreApplication.processEvents()
         
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
                     
-            rows = self._gui.selectedRows()
+            rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
             
-            uow = self._gui.model.repo.createUnitOfWork()
+            uow = self._tool.repo.createUnitOfWork()
             try:
                 items = []
-                for row in rows:      
-                    item = self._gui.itemAtRow(row)
+                for row in rows:
+                    item = self._tool.gui.itemAtRow(row)
                     item.table_row = row
                     items.append(item)
                  
                 thread = ThumbnailBuilderThread(
-                    self._gui, self._gui.model.repo, items, self._gui.model.itemsLock, rebuild=True)
+                    self._tool.gui, self._tool.repo, items, self._tool.itemsLock, 
+                    rebuild=True)
+                
                 self.connect(thread, QtCore.SIGNAL("exception"), 
-                             lambda exc_info: show_exc_info(self._gui, exc_info[1], details=format_exc_info(*exc_info)))
+                    lambda exc_info: show_exc_info(
+                        self._tool.gui, exc_info[1], details=format_exc_info(*exc_info)))
                 self.connect(thread, QtCore.SIGNAL("progress"), 
-                             lambda percents, row: refresh(percents, row))
+                    lambda percents, row: refresh(percents, row))
                 self.connect(thread, QtCore.SIGNAL("finished"), 
-                             lambda: self._emitHandlerSignal(
-                                        HandlerSignals.STATUS_BAR_MESSAGE, 
-                                        self.tr("Rebuild thumbnails is done."))
-                             )
+                    lambda: self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
+                        self.tr("Rebuild thumbnails is done.")))
                 thread.start()
                     
             finally:
                 uow.close()
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
             
 class DeleteItemActionHandler(AbstractActionHandler):
     def __init__(self, gui):

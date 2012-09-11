@@ -52,6 +52,11 @@ class ItemsTable(AbstractTool):
     gui = property(fget=__getGui)
     
     
+    def _getItemsLock(self):
+        return self._itemsLock
+    itemsLock = property(fget=_getItemsLock)
+    
+    
     def connectActionsWithActionHandlers(self):
         assert len(self._gui.actions) > 0, "Actions should be already built in ToolGui"
         

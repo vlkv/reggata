@@ -369,7 +369,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         return self._model.toolById(ItemsTable.TOOL_ID).gui.itemsTableModel.rowCount()
     
     def resetSingleRow(self, row):
-        return self._model.toolById(ItemsTable.TOOL_ID).gui.itemsTableModel.reset_single_row(row)
+        return self._model.toolById(ItemsTable.TOOL_ID).gui.itemsTableModel.resetSingleRow(row)
             
     def selectedItemIds(self):
         #Maybe we should use this fun only, and do not use rows outside the GUI code

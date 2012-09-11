@@ -130,10 +130,14 @@ class ItemsTableToolGui(ToolGui):
         for index in self.ui.tableView_items.selectionModel().selectedIndexes():
             item_ids.add(self.__table_model.items[index.row()].id)
         return item_ids
-        
+    
+    def itemAtRow(self, row):
+        return self.__table_model.items[row]
+    
+    def resetSingleRow(self, row):
+        self.__table_model.resetSingleRow(row)
 
     def selected_tags_changed(self, tags, not_tags):
-        #TODO Нужно заключать в кавычки имена тегов, содержащие недопустимые символы
         text = ""
         for tag in tags:
             text = text + tag + " "
@@ -309,7 +313,7 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
         self.order_dir = None
 
 
-    def reset_single_row(self, row):
+    def resetSingleRow(self, row):
         topL = self.createIndex(row, self.ID)
         bottomR = self.createIndex(row, self.RATING)
         self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
@@ -359,7 +363,7 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
     
         
         def reset_row(row):
-            self.reset_single_row(row)
+            self.resetSingleRow(row)
             QtCore.QCoreApplication.processEvents()
         
         uow = self.repo.createUnitOfWork()
