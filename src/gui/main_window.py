@@ -43,6 +43,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         # TODO: favoriteReposStorage should be moved to MainWindowModel
         self.__favoriteReposStorage = FavoriteReposStorage()
+        self.__favoriteReposDynamicQActions = []
         
         self.__initMenuActions()
         self.__initFavoriteReposMenu()
@@ -259,6 +260,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         
     def __initFavoriteReposMenu(self):
+        assert len(self.__favoriteReposDynamicQActions) == 0
+        
         if self._model.user is None:
             return
         
@@ -275,14 +278,14 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             action.handler = OpenFavoriteRepoActionHandler(self)
             self.connect(action, QtCore.SIGNAL("triggered()"), action.handler.handle)
             self.ui.menuFavorite_repositories.insertAction(actionToInsertBefore, action)
+            
+            self.__favoriteReposDynamicQActions.append(action)
         
     
     def __removeDynamicActionsFromFavoriteReposMenu(self):
-        preservedActions = [self.ui.actionAdd_current_repository, 
-                            self.ui.actionRemove_current_repository]
-        self.ui.menuFavorite_repositories.clear()
-        for action in preservedActions:
-            self.ui.menuFavorite_repositories.addAction(action)
+        for action in self.__favoriteReposDynamicQActions:
+            self.ui.menuFavorite_repositories.removeAction(action)
+        self.__favoriteReposDynamicQActions = []
         
     
     def __rebuildFavoriteReposMenu(self):
