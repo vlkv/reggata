@@ -275,8 +275,9 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             action = QtGui.QAction(self)
             action.setText(repoAlias)
             action.repoBasePath = repoBasePath
-            action.handler = OpenFavoriteRepoActionHandler(self)
-            self.connect(action, QtCore.SIGNAL("triggered()"), action.handler.handle)
+            actionHandler = OpenFavoriteRepoActionHandler(self._model)
+            self.__actionHandlers.register(action, actionHandler)
+            
             self.ui.menuFavorite_repositories.insertAction(actionToInsertBefore, action)
             
             self.__favoriteReposDynamicQActions.append(action)
@@ -284,6 +285,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     
     def __removeDynamicActionsFromFavoriteReposMenu(self):
         for action in self.__favoriteReposDynamicQActions:
+            self.__actionHandlers.unregister(action)
             self.ui.menuFavorite_repositories.removeAction(action)
         self.__favoriteReposDynamicQActions = []
         

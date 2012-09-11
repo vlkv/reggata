@@ -32,6 +32,11 @@ class MainWindowModel(AbstractMainWindowModel):
             self.__initTool(tool)
     
     
+    def __getGui(self):
+        return self._mainWindow
+    gui = property(fget=__getGui)
+    
+    
     def _getItemsLock(self):
         return self._itemsLock
 

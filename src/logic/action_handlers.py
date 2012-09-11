@@ -60,7 +60,7 @@ class AbstractActionHandler(QtCore.QObject):
     def __init__(self, tool=None):
         super(AbstractActionHandler, self).__init__()
         self._gui = tool # TODO: remove self._gui as soon as possible from here
-        self._tool = tool
+        self._tool = tool # TODO: rename _tool to _model
         
     def handle(self):
         raise NotImplementedError("This function should be overriden in subclass")
@@ -74,7 +74,7 @@ class AbstractActionHandler(QtCore.QObject):
     def disconnectSignals(self, widgetsUpdateManager):
         self.disconnect(self, QtCore.SIGNAL("handlerSignal"), \
                      widgetsUpdateManager.onHandlerSignal)
-        self.discconnect(self, QtCore.SIGNAL("handlerSignals"), \
+        self.disconnect(self, QtCore.SIGNAL("handlerSignals"), \
                      widgetsUpdateManager.onHandlerSignals)
         
     def _emitHandlerSignal(self, handlerSignalType, *params):
@@ -1061,36 +1061,32 @@ along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses<
         self.ui.textEdit.setHtml(title + text)
 
 
-# TODO: Make it a descendant of AbstractActionHandler, maybe?
-class OpenFavoriteRepoActionHandler(QtCore.QObject):
-    def __init__(self, gui):
-        super(OpenFavoriteRepoActionHandler, self).__init__()
-        self._gui = gui
-
+class OpenFavoriteRepoActionHandler(AbstractActionHandler):
+    def __init__(self, model):
+        super(OpenFavoriteRepoActionHandler, self).__init__(model)
+    
     def handle(self):
         try:
             action = self.sender()
             repoBasePath = action.repoBasePath
             
-            currentUser = self._gui.model.user
+            currentUser = self._tool.user
             assert currentUser is not None
             
-            self._gui.model.repo = RepoMgr(repoBasePath)
+            self._tool.repo = RepoMgr(repoBasePath)
             
             try:
-                self._gui.model.loginUser(currentUser.login, currentUser.password)
-                self._gui.showMessageOnStatusBar(
-                #self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self._tool.loginUser(currentUser.login, currentUser.password)
+                self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                     self.tr("Repository opened. Login succeded."), STATUSBAR_TIMEOUT)
                 
             except LoginError:
-                self._gui.model.user = None
-                self._gui.showMessageOnStatusBar(
-                #self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self._tool.user = None
+                self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                     self.tr("Repository opened. Login failed."), STATUSBAR_TIMEOUT)
         
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
         
         
     
