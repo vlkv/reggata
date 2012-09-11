@@ -170,7 +170,7 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
         
     def sizeHint(self, option, index):
         pixmap = index.data(QtCore.Qt.UserRole)
-        if pixmap:
+        if pixmap is not None and not pixmap.isNull():
             return pixmap.size()
         else:
             return super(ImageThumbDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1            
