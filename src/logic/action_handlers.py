@@ -551,9 +551,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
         def refresh(percent, row):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Rebuilding thumbnails ({0}%)").format(percent))
-            
-            #TODO: Have to replace this direct updates with emitting some specific signals..
-            self._tool.gui.resetSingleRow(row)
+            self._emitHandlerSignal(HandlerSignals.RESET_SINGLE_ROW, row)
             QtCore.QCoreApplication.processEvents()
         
         try:

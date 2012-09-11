@@ -40,12 +40,9 @@ class TagCloud(AbstractTool):
 
 
     def handlerSignals(self):
-        return [HandlerSignals.ITEM_CHANGED, HandlerSignals.ITEM_CREATED, 
-             HandlerSignals.ITEM_DELETED]
-    
-    
-    def update(self):
-        self._gui.refresh()
+        return [([HandlerSignals.ITEM_CHANGED, 
+                  HandlerSignals.ITEM_CREATED, 
+                  HandlerSignals.ITEM_DELETED], self._gui.refresh)]
         
         
     def setRepo(self, repo):

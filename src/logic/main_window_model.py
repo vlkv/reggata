@@ -39,7 +39,6 @@ class MainWindowModel(AbstractMainWindowModel):
     
     def _getItemsLock(self):
         return self._itemsLock
-
     itemsLock = property(fget=_getItemsLock)
     
 

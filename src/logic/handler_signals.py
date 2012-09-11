@@ -3,7 +3,7 @@ Created on 04.09.2012
 @author: vlkv
 '''
 
-# TODO: rename to a better name. Maybe RepoSignals
+
 class HandlerSignals():
     '''Named constants in this class is not the signal names, but the signal types.
     They are arguments of the following signals: handlerSignal, handlerSignals.
@@ -17,6 +17,7 @@ class HandlerSignals():
     ITEM_DELETED = "itemDeleted"
     LIST_OF_FAVORITE_REPOS_CHANGED = "listOfFavoriteReposChanged"
     STATUS_BAR_MESSAGE = "statusBarMessage"
+    RESET_SINGLE_ROW = "resetSingleRow"
 
 
     @staticmethod
@@ -26,4 +27,5 @@ class HandlerSignals():
                 HandlerSignals.ITEM_DELETED,
                 HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED,
                 HandlerSignals.STATUS_BAR_MESSAGE,
+                HandlerSignals.RESET_SINGLE_ROW,
                 ]

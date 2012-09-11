@@ -86,7 +86,8 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
     
     def subscribeToolForUpdates(self, aTool):
-        self.__widgetsUpdateManager.subscribe(aTool, aTool.update, aTool.handlerSignals())
+        for handlerSignals, updateCallable in aTool.handlerSignals():
+            self.__widgetsUpdateManager.subscribe(aTool, updateCallable, handlerSignals)
     
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls:
