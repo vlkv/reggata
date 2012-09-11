@@ -71,6 +71,13 @@ class AbstractActionHandler(QtCore.QObject):
                      widgetsUpdateManager.onHandlerSignal)
         self.discconnect(self, QtCore.SIGNAL("handlerSignals"), \
                      widgetsUpdateManager.onHandlerSignals)
+        
+    def _emitHandlerSignal(self, handlerSignalType, *params):
+        self.emit(QtCore.SIGNAL("handlerSignal"), handlerSignalType, *params)
+    
+    def _emitHandlerSignals(self, handlerSignalTypes):
+        self.emit(QtCore.SIGNAL("handlerSignals"), handlerSignalTypes)
+    
     
 class CreateUserActionHandler(AbstractActionHandler):
     def __init__(self, gui):
@@ -158,7 +165,8 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
 class CreateRepoActionHandler(AbstractActionHandler):
@@ -272,8 +280,9 @@ class AddCurrentRepoToFavoritesActionHandler(AbstractActionHandler):
                                                            repoBasePath, 
                                                            os.path.basename(repoBasePath))
             
-            self._gui.showMessageOnStatusBar(self.tr("Current repository saved in favorites list."), STATUSBAR_TIMEOUT)
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Current repository saved in favorites list."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED)
             
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -294,8 +303,9 @@ class RemoveCurrentRepoFromFavoritesActionHandler(AbstractActionHandler):
             
             self.__favoriteReposStorage.removeRepoFromFavorites(userLogin, repoBasePath)
             
-            self._gui.showMessageOnStatusBar(self.tr("Current repository removed from favorites list."), STATUSBAR_TIMEOUT)
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Current repository removed from favorites list."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED)
             
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -349,13 +359,14 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             finally:
                 uow.close()
                 
-                
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
+            
         else:
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.STATUS_BAR_MESSAGE, 
-                      self.tr("Item added to repository."), consts.STATUSBAR_TIMEOUT)
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
+                self.tr("Item added to repository."), consts.STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
+
 
 class AddManyItemsAbstractActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
@@ -404,15 +415,15 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
             
             self._startWorkerThread(items)
             
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
+            self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
                 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
             
         finally:
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.STATUS_BAR_MESSAGE, 
-                      self.tr("Operation completed. Stored {} files, skipped {} files.")
-                        .format(self._createdObjectsCount, len(self._errorLog)))
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
+                self.tr("Operation completed. Stored {} files, skipped {} files.")
+                    .format(self._createdObjectsCount, len(self._errorLog)))
             
         
         
@@ -453,13 +464,13 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                 return
                 
             self._startWorkerThread(items)
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
+            self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
                 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
             
         finally:
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.STATUS_BAR_MESSAGE, 
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
                 self.tr("Operation completed. Stored {} files, skipped {} files.")
                     .format(self._createdObjectsCount, len(self._errorLog)))
             
@@ -486,12 +497,12 @@ class EditItemActionHandler(AbstractActionHandler):
                 self.__editSingleItem(itemIds.pop())
                             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
             
         else:
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.STATUS_BAR_MESSAGE, 
-                self.tr("Editing done."), STATUSBAR_TIMEOUT)
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CHANGED)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
+                                    self.tr("Editing done."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
             
     
     def __editSingleItem(self, itemId):
@@ -526,13 +537,15 @@ class EditItemActionHandler(AbstractActionHandler):
             uow.close()
 
 class RebuildItemThumbnailActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(RebuildItemThumbnailActionHandler, self).__init__(gui)
+    def __init__(self, tool, dialogs):
+        super(RebuildItemThumbnailActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
     
     def handle(self):
         
         def refresh(percent, row):
-            self._gui.showMessageOnStatusBar(self.tr("Rebuilding thumbnails ({0}%)").format(percent))
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Rebuilding thumbnails ({0}%)").format(percent))
             
             #TODO: Have to replace this direct updates with emitting some specific signals..
             self._gui.resetSingleRow(row)
@@ -562,7 +575,10 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
                 self.connect(thread, QtCore.SIGNAL("progress"), 
                              lambda percents, row: refresh(percents, row))
                 self.connect(thread, QtCore.SIGNAL("finished"), 
-                             lambda: self._gui.showMessageOnStatusBar(self.tr("Rebuild thumbnails is done.")))
+                             lambda: self._emitHandlerSignal(
+                                        HandlerSignals.STATUS_BAR_MESSAGE, 
+                                        self.tr("Rebuild thumbnails is done."))
+                             )
                 thread.start()
                     
             finally:
@@ -609,15 +625,17 @@ class DeleteItemActionHandler(AbstractActionHandler):
                 mb.exec_()
                 
         except CancelOperationError:
-            self._gui.showMessageOnStatusBar(self.tr("Operation cancelled."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation cancelled."), STATUSBAR_TIMEOUT)
             
         except Exception as ex:
             show_exc_info(self._gui, ex)
             
         else:
             #TODO: display information about how many items were deleted
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_DELETED)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.ITEM_DELETED)
             
 
 class OpenItemActionHandler(AbstractActionHandler):
@@ -641,7 +659,8 @@ class OpenItemActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)    
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)    
     
 class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
     def __init__(self, gui):
@@ -672,7 +691,8 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
                              self._gui.model.repo, self._gui.model.user.login,
                              items, startIndex)
             iv.show()
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             
         except Exception as ex:
             show_exc_info(self._gui, ex)
@@ -707,7 +727,8 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
     def __init__(self, gui):
@@ -765,7 +786,8 @@ class ExportItemsActionHandler(AbstractActionHandler):
             show_exc_info(self._gui, ex)
         else:
             #TODO: display information about how many items were exported
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 class ImportItemsActionHandler(AbstractActionHandler):
     ''' Imports previously exported items.
@@ -796,9 +818,10 @@ class ImportItemsActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self.emit(QtCore.SIGNAL("handlerSignal"), HandlerSignals.ITEM_CREATED)
+            self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
             #TODO: display information about how many items were imported
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             
         
 
@@ -834,7 +857,8 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
             show_exc_info(self._gui, ex)
         else:
             #TODO: display information about how many files were copied
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 class ExportItemsFilePathsActionHandler(AbstractActionHandler):
     def __init__(self, gui):
@@ -866,7 +890,8 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 
 class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
@@ -877,7 +902,8 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
     def handle(self):
         
         def refresh(percent, row):
-            self._gui.showMessageOnStatusBar(self.tr("Integrity fix {0}%").format(percent))
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Integrity fix {0}%").format(percent))
             
             #TODO: Have to replace this direct updates with emitting some specific signals..
             self._gui.resetSingleRow(row)
@@ -903,7 +929,10 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
             self.connect(thread, QtCore.SIGNAL("progress"),
                          lambda percents, row: refresh(percents, row))
             self.connect(thread, QtCore.SIGNAL("finished"),
-                         lambda: self._gui.showMessageOnStatusBar(self.tr("Integrity fixing is done.")))
+                         lambda: self._emitHandlerSignal(
+                                    HandlerSignals.STATUS_BAR_MESSAGE,
+                                    self.tr("Integrity fixing is done."))
+                         )
             self.connect(thread, QtCore.SIGNAL("exception"), 
                          lambda exc_info: show_exc_info(self._gui, exc_info[1], details=format_exc_info(*exc_info)))
             
@@ -919,7 +948,8 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
     
     def handle(self):
         def refresh(percent, row):
-            self._gui.showMessageOnStatusBar(self.tr("Integrity check {0}%").format(percent))            
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Integrity check {0}%").format(percent))            
             
             #TODO: Have to replace this direct updates with emitting some specific signals..
             self._gui.resetSingleRow(row)
@@ -944,7 +974,11 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
             self.connect(thread, QtCore.SIGNAL("progress"), 
                          lambda percents, row: refresh(percents, row))
             self.connect(thread, QtCore.SIGNAL("finished"), 
-                         lambda error_count: self._gui.showMessageOnStatusBar(self.tr("Integrity check is done. {0} Items with errors.").format(error_count)))            
+                         lambda error_count: self._emitHandlerSignal(
+                             HandlerSignals.STATUS_BAR_MESSAGE,
+                             self.tr("Integrity check is done. {0} Items with errors.")
+                                 .format(error_count))
+                         )
             thread.start()
             
         except Exception as ex:
@@ -962,7 +996,8 @@ class ShowAboutDialogActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:
-            self._gui.showMessageOnStatusBar(self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
     
@@ -1039,11 +1074,15 @@ class OpenFavoriteRepoActionHandler(QtCore.QObject):
             
             try:
                 self._gui.model.loginUser(currentUser.login, currentUser.password)
-                self._gui.showMessageOnStatusBar(self.tr("Repository opened. Login succeded."), STATUSBAR_TIMEOUT)
+                self._gui.showMessageOnStatusBar(
+                #self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                    self.tr("Repository opened. Login succeded."), STATUSBAR_TIMEOUT)
                 
             except LoginError:
                 self._gui.model.user = None
-                self._gui.showMessageOnStatusBar(self.tr("Repository opened. Login failed."), STATUSBAR_TIMEOUT)
+                self._gui.showMessageOnStatusBar(
+                #self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                    self.tr("Repository opened. Login failed."), STATUSBAR_TIMEOUT)
         
         except Exception as ex:
             show_exc_info(self._gui, ex)

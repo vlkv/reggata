@@ -204,9 +204,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             
         def initItemMenu():
             self.__actionHandlers.registerActionHandler(
-                self.ui.action_item_rebuild_thumbnail, RebuildItemThumbnailActionHandler(self))
-            # Separator
-            self.__actionHandlers.registerActionHandler(
                 self.ui.action_item_delete, DeleteItemActionHandler(self))
             # Separator
             self.__actionHandlers.registerActionHandler(
