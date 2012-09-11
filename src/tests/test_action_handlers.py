@@ -59,9 +59,6 @@ class TestsToolGui(QtCore.QObject, AbstractToolGui):
     
 class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
     
-    def setUp(self):
-        super(AddItemsActionHandlerTest, self).setUp()
-        
     def test_addFileFromOutsideOfRepo(self):
         user = User(login="user", password="")
         srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
@@ -165,7 +162,14 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
             finally:
                 uow.close()
             
-            
+
+
+class RemoveAllTagsFromItemDialogsFacade(TestsDialogsFacade): 
+    def execItemDialog(self, item, gui, repo, dialogMode):
+        del item.item_tags[:]
+        return True 
+    
+class EditItemsActionHandlerTest(AbstractTestCaseWithRepo):        
     
     def test_editSingleItem(self):
         user = User(login="user", password="")
@@ -191,10 +195,7 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
             uow.close()
         
     
-class RemoveAllTagsFromItemDialogsFacade(TestsDialogsFacade): 
-    def execItemDialog(self, item, gui, repo, dialogMode):
-        del item.item_tags[:]
-        return True    
+
         
         
     
