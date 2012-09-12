@@ -6,7 +6,7 @@ import os
 from tests.abstract_test_cases import AbstractTestCaseWithRepo
 from logic.action_handlers import AddSingleItemActionHandler, AddManyItemsActionHandler,\
     AddManyItemsRecursivelyActionHandler, EditItemActionHandler,\
-    RebuildItemThumbnailActionHandler
+    RebuildItemThumbnailActionHandler, DeleteItemActionHandler
 from data.db_schema import User
 from tests.tests_dialogs_facade import TestsDialogsFacade
 from data.commands import GetExpungedItemCommand
@@ -270,7 +270,35 @@ class RebuildThumbnailActionHandlerTest(AbstractTestCaseWithRepo):
         handler.handle()
         # Maybe we should add more checks here... but
         # The main goal for this test is to check that nothing crashes in the action handler itself
+        # TODO: use some image files in this test and check that thumbnails were builded!
+
+class DeleteItemActionHandlerTest(AbstractTestCaseWithRepo):
+    
+    def test_deleteItem(self):
+        user = User(login="user", password="")
         
+        tool = TestsToolModel(self.repo, user)
         
+        itemId = itemWithTagsAndFields.id
+        tool.gui.setSelectedItemIds([itemId])
+        dialogs = TestsDialogsFacade()
         
+        handler = DeleteItemActionHandler(tool, dialogs)
+        handler.handle()
+    
+        try:
+            uow = self.repo.createUnitOfWork()
+            deletedItem = uow.executeCommand(GetExpungedItemCommand(itemId))
+            self.assertFalse(deletedItem.alive, 
+                "Deleted item still exists, but item.alive is False")
+            self.assertIsNone(deletedItem.data_ref, 
+                "Deleted item should have None DataRef object")
+            self.assertFalse(os.path.exists(os.path.join(self.repo.base_path, itemWithTagsAndFields.relFilePath)),
+                "File of deleted Item should be deleted on filesystem")
+        finally:
+            uow.close()
+    
+        
+    
+    
     

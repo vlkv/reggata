@@ -80,8 +80,11 @@ class ItemsTable(AbstractTool):
             self._gui.actions['rebuildItemsThumbnail'], 
             RebuildItemThumbnailActionHandler(self))
         
-#        self.actions['deleteItem']
-#        
+        self._actionHandlers.register(
+            self._gui.actions['deleteItem'], 
+            DeleteItemActionHandler(self, self._dialogsFacade))
+        
+        
 #        self.actions['openItem']
 #        self.actions['openItemWithBuiltinImageViewer']
 #        self.actions['createM3uAndOpenIt']

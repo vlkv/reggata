@@ -76,4 +76,8 @@ class TestsDialogsFacade(AbstractDialogsFacade):
             
         return None
     
+    def execMessageBox(self, parent, text, title=None, buttons=None, detailedText=None):
+        return buttons[0]
+    
+    
     

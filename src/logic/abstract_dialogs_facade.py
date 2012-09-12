@@ -32,3 +32,5 @@ class AbstractDialogsFacade(object):
     def getSaveFileName(self, gui, textMessageForUser):
         raise NotImplementedError()
     
+    def execMessageBox(self, parent, text, title, buttons):
+        raise NotImplementedError()

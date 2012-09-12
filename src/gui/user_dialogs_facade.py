@@ -9,6 +9,8 @@ from gui.item_dialog import ItemDialog
 from gui.items_dialog import ItemsDialog
 from logic.abstract_dialogs_facade import AbstractDialogsFacade
 from PyQt4 import QtCore, QtGui
+from helpers import is_none_or_empty
+import helpers
 
 class UserDialogsFacade(AbstractDialogsFacade):
     '''
@@ -64,4 +66,22 @@ class UserDialogsFacade(AbstractDialogsFacade):
         filename = QtGui.QFileDialog.getSaveFileName(parent=gui, caption=textMessageForUser)
         return filename
     
+    def execMessageBox(self, parent, text, title="Reggata", buttons=[QtGui.QMessageBox.Ok], detailedText=None):
+        '''
+            Shows modal QtGui.QMessageBox and returns code of the clicked button.
+        '''
+        mb = QtGui.QMessageBox(parent)
+        mb.setText(text)
+        mb.setWindowTitle(title)
         
+        buttonsCode = QtGui.QMessageBox.NoButton
+        for button in buttons:
+            buttonsCode = buttonsCode | button
+        mb.setStandardButtons(buttonsCode)
+        
+        if not helpers.is_none_or_empty(detailedText):
+            mb.setDetailedText(detailedText)
+        
+        return mb.exec_()
+    
+    

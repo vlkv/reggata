@@ -591,48 +591,41 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
             show_exc_info(self._tool.gui, ex)
             
 class DeleteItemActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(DeleteItemActionHandler, self).__init__(gui)
+    def __init__(self, tool, dialogs):
+        super(DeleteItemActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
     
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
                         
-            itemIds = self._gui.selectedItemIds()
+            itemIds = self._tool.gui.selectedItemIds()
             if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            # TODO: Have to extract show message box to UserDialogsFacade
-            mb = QtGui.QMessageBox()
-            mb.setText(self.tr("Do you really want to delete {} selected file(s)?").format(len(itemIds)))
-            mb.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if mb.exec_() != QtGui.QMessageBox.Yes:
+            mbResult = self._dialogs.execMessageBox(self._tool.gui,
+                text=self.tr("Do you really want to delete {} selected file(s)?").format(len(itemIds)),
+                buttons=[QtGui.QMessageBox.Yes, QtGui.QMessageBox.No])
+            if mbResult != QtGui.QMessageBox.Yes:
                 raise CancelOperationError()
             
             thread = DeleteGroupOfItemsThread(
-                self._gui, self._gui.model.repo, itemIds, self._gui.model.user.login)
-                                    
-            wd = WaitDialog(self._gui)
-            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-            wd.startWithWorkerThread(thread)
+                self._tool.gui, self._tool.repo, itemIds, self._tool.user.login)
+            
+            self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
                 
             if thread.errors > 0:
-                # TODO: Have to extract show message box to UserDialogsFacade
-                mb = MyMessageBox(self._gui)
-                mb.setWindowTitle(self.tr("Information"))
-                mb.setText(self.tr("There were {0} errors.").format(thread.errors))                    
-                mb.setDetailedText(thread.detailed_message)
-                mb.exec_()
+                self._dialogs.execMessageBox(self._tool.gui,
+                    text=self.tr("There were {0} errors.").format(thread.errors),
+                    detailedText=thread.detailed_message)
                 
         except CancelOperationError:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation cancelled."), STATUSBAR_TIMEOUT)
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
             
         else:
             #TODO: display information about how many items were deleted
