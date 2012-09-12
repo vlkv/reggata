@@ -31,6 +31,8 @@ class ItemsTable(AbstractTool):
         self._mainWindow = mainWindow
         self._dialogsFacade = dialogsFacade
         
+        self._extAppMgr = ExtAppMgr()
+        
         
     def id(self):
         return ItemsTable.TOOL_ID
@@ -84,8 +86,11 @@ class ItemsTable(AbstractTool):
             self._gui.actions['deleteItem'], 
             DeleteItemActionHandler(self, self._dialogsFacade))
         
+        self._actionHandlers.register(
+            self._gui.actions['openItem'], 
+            OpenItemActionHandler(self, self._extAppMgr))
         
-#        self.actions['openItem']
+        
 #        self.actions['openItemWithBuiltinImageViewer']
 #        self.actions['createM3uAndOpenIt']
 #        self.actions['openItemWithExternalFileManager']

@@ -298,7 +298,11 @@ class DeleteItemActionHandlerTest(AbstractTestCaseWithRepo):
         finally:
             uow.close()
     
-        
+    
+class OpenItemActionHandlerTest(AbstractTestCaseWithRepo):
+    #TODO: implement test of OpenItemActionHandler 
+    pass
+    
     
     
     

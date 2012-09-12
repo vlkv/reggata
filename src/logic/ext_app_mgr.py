@@ -36,9 +36,9 @@ logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 class ExtAppMgr(object):
     '''
-    This class invokes preferred external applications to open repository files.
+        This class invokes preferred external applications to open repository files.
     Preferred applications are configured in text file reggata.conf.
-    See also reggata.conf.template file as an example of such config.
+    See also reggata_default_conf.py file as an example.
     '''
 
     def __init__(self):
@@ -52,7 +52,7 @@ class ExtAppMgr(object):
             
         #Key - file extension (in lowercase), Value - name of the files group
         self.extensions = dict()
-        for type, ext_list in self.file_types.items():             
+        for type, ext_list in self.file_types.items():
             for ext in ext_list:
                 ext = ext.lower()
                 if ext in self.extensions.keys():
@@ -63,6 +63,7 @@ class ExtAppMgr(object):
                 self.extensions[ext] = type
                 
         self.ext_file_manager_command = UserConfig().get('ext_file_manager')
+             
              
     def invoke(self, abs_path, file_type=None):
         if not file_type:
@@ -91,6 +92,7 @@ class ExtAppMgr(object):
         #subprocess.call(args) #This call would block the current thread
         pid = subprocess.Popen(args).pid #This call would not block the current thread
         logger.info("Created subprocess with PID = %d", pid)
+
 
     def external_file_manager(self, abs_path):
         if self.ext_file_manager_command is None:

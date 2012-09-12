@@ -8,6 +8,7 @@ from errors import CurrentRepoIsNoneError, CurrentUserIsNoneError
 from logic.items_table import ItemsTable
 from logic.tag_cloud import TagCloud
 from PyQt4 import QtCore
+from logic.ext_app_mgr import ExtAppMgr
 
 class AbstractMainWindowModel(object):
     '''
@@ -30,6 +31,8 @@ class MainWindowModel(AbstractMainWindowModel):
         
         for tool in self.__getAvailableTools():
             self.__initTool(tool)
+            
+        
     
     
     def __getGui(self):

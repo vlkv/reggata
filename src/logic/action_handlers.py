@@ -635,28 +635,30 @@ class DeleteItemActionHandler(AbstractActionHandler):
             
 
 class OpenItemActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(OpenItemActionHandler, self).__init__(gui)
+    def __init__(self, tool, extAppMgr):
+        super(OpenItemActionHandler, self).__init__(tool)
+        self._extAppMgr = extAppMgr
     
     def handle(self):
         try:
-            sel_rows = self._gui.selectedRows()
-            if len(sel_rows) != 1:
+            selRows = self._tool.gui.selectedRows()
+            if len(selRows) != 1:
                 raise MsgException(self.tr("Select one item, please."))
             
-            data_ref = self._gui.itemAtRow(sel_rows.pop()).data_ref
+            dataRef = self._tool.gui.itemAtRow(selRows.pop()).data_ref
             
-            if not data_ref or data_ref.type != DataRef.FILE:
-                raise MsgException(self.tr("Action 'View item' can be applied only to items linked with files."))
+            if dataRef is None or dataRef.type != DataRef.FILE:
+                raise MsgException(self.tr("This action can be applied only to the items linked with files."))
             
-            eam = ExtAppMgr()
-            eam.invoke(os.path.join(self._gui.model.repo.base_path, data_ref.url))
+            self._extAppMgr.invoke(os.path.join(self._tool.repo.base_path, dataRef.url))
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
+            
         else:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
-                self.tr("Operation completed."), STATUSBAR_TIMEOUT)    
+                self.tr("Done."), STATUSBAR_TIMEOUT)
+    
     
 class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
     def __init__(self, gui):
