@@ -48,6 +48,10 @@
     <addaction name="action_repo_close"/>
     <addaction name="separator"/>
     <addaction name="menuFavorite_repositories"/>
+    <addaction name="separator"/>
+    <addaction name="actionImportItems"/>
+    <addaction name="separator"/>
+    <addaction name="actionExitReggata"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -84,36 +88,6 @@
      <addaction name="action_item_fix_history_rec_error"/>
      <addaction name="menuFix_file_not_found_error"/>
     </widget>
-    <widget class="QMenu" name="menuExport_items">
-     <property name="title">
-      <string>Export items</string>
-     </property>
-     <addaction name="actionExportItems"/>
-     <addaction name="action_export_selected_items"/>
-     <addaction name="action_export_items_file_paths"/>
-    </widget>
-    <widget class="QMenu" name="menuImport_Items">
-     <property name="title">
-      <string>Import Items</string>
-     </property>
-     <addaction name="actionImportItems"/>
-    </widget>
-    <addaction name="action_item_add"/>
-    <addaction name="action_item_add_many"/>
-    <addaction name="action_item_add_many_rec"/>
-    <addaction name="separator"/>
-    <addaction name="action_item_edit"/>
-    <addaction name="action_item_rebuild_thumbnail"/>
-    <addaction name="separator"/>
-    <addaction name="action_item_delete"/>
-    <addaction name="separator"/>
-    <addaction name="action_item_view"/>
-    <addaction name="action_item_view_image_viewer"/>
-    <addaction name="action_item_view_m3u"/>
-    <addaction name="action_item_to_external_filemanager"/>
-    <addaction name="menuExport_items"/>
-    <addaction name="menuImport_Items"/>
-    <addaction name="separator"/>
     <addaction name="action_item_check_integrity"/>
     <addaction name="menuFix_integrity_errors"/>
    </widget>
@@ -275,7 +249,7 @@
   </action>
   <action name="actionImportItems">
    <property name="text">
-    <string>Import items (files with metadata)</string>
+    <string>Import items</string>
    </property>
   </action>
   <action name="actionAdd_current_repository">
@@ -286,6 +260,11 @@
   <action name="actionRemove_current_repository">
    <property name="text">
     <string>Remove current repository</string>
+   </property>
+  </action>
+  <action name="actionExitReggata">
+   <property name="text">
+    <string>Exit</string>
    </property>
   </action>
  </widget>

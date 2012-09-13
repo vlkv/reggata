@@ -790,38 +790,36 @@ class ExportItemsActionHandler(AbstractActionHandler):
                 self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
 class ImportItemsActionHandler(AbstractActionHandler):
-    ''' Imports previously exported items.
     '''
-    def __init__(self, gui):
-        super(ImportItemsActionHandler, self).__init__(gui)
+        Imports previously exported items.
+    '''
+    def __init__(self, model, dialogs):
+        super(ImportItemsActionHandler, self).__init__(model)
+        self._dialogs = dialogs
     
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._model.checkActiveRepoIsNotNone()
+            self._model.checkActiveUserIsNotNone()
             
-            dialogs = UserDialogsFacade()
-            
-            importFromFilename = dialogs.getOpenFileName(self._gui, self.tr('Open reggata export file..'))
+            importFromFilename = self._dialogs.getOpenFileName(self._model.gui, 
+                self.tr('Open reggata export file..'))
             if not importFromFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
-            thread = ImportItemsThread(self._gui, self._gui.model.repo, importFromFilename, 
-                                       self._gui.model.user.login)
-                                    
-            wd = WaitDialog(self._gui)
-            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-            wd.startWithWorkerThread(thread)
-
-        except Exception as ex:
-            show_exc_info(self._gui, ex)
-        else:
+            thread = ImportItemsThread(self, self._model.repo, importFromFilename, 
+                                       self._model.user.login)
+            
+            self._dialogs.startThreadWithWaitDialog(thread, self._model.gui, indeterminate=False)
+            
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
+            
             #TODO: display information about how many items were imported
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)                        
+            
+        except Exception as ex:
+            show_exc_info(self._model.gui, ex)
             
         
 
@@ -981,6 +979,17 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
         except Exception as ex:
             show_exc_info(self._gui, ex)
 
+
+class ExitReggataActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(ExitReggataActionHandler, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            self._gui.close()
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+    
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
     def __init__(self, gui):

@@ -193,6 +193,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self.__actionHandlers.register(
                 self.ui.actionRemove_current_repository, 
                 RemoveCurrentRepoFromFavoritesActionHandler(self, self.__favoriteReposStorage))
+            
+            self.__actionHandlers.register(
+                self.ui.actionImportItems, ImportItemsActionHandler(self._model, self.__dialogs))
+            
+            self.__actionHandlers.register(
+                self.ui.actionExitReggata, ExitReggataActionHandler(self))
         
         def initUserMenu():
             self.__actionHandlers.register(
@@ -206,8 +212,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             
         def initItemMenu():
             
-            self.__actionHandlers.register(
-                self.ui.actionImportItems, ImportItemsActionHandler(self))
+            
             
             # Separator
             self.__actionHandlers.register(

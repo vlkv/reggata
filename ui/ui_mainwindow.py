@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Sep  1 22:22:25 2012
+# Created: Thu Sep 13 21:42:02 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,10 +44,6 @@ class Ui_MainWindow(object):
         self.menuFix_hash_mismatch_error.setObjectName(_fromUtf8("menuFix_hash_mismatch_error"))
         self.menuFix_file_not_found_error = QtGui.QMenu(self.menuFix_integrity_errors)
         self.menuFix_file_not_found_error.setObjectName(_fromUtf8("menuFix_file_not_found_error"))
-        self.menuExport_items = QtGui.QMenu(self.menuItem)
-        self.menuExport_items.setObjectName(_fromUtf8("menuExport_items"))
-        self.menuImport_Items = QtGui.QMenu(self.menuItem)
-        self.menuImport_Items.setObjectName(_fromUtf8("menuImport_Items"))
         self.menuTools = QtGui.QMenu(self.menubar)
         self.menuTools.setObjectName(_fromUtf8("menuTools"))
         self.menuHelp = QtGui.QMenu(self.menubar)
@@ -116,6 +112,8 @@ class Ui_MainWindow(object):
         self.actionAdd_current_repository.setObjectName(_fromUtf8("actionAdd_current_repository"))
         self.actionRemove_current_repository = QtGui.QAction(MainWindow)
         self.actionRemove_current_repository.setObjectName(_fromUtf8("actionRemove_current_repository"))
+        self.actionExitReggata = QtGui.QAction(MainWindow)
+        self.actionExitReggata.setObjectName(_fromUtf8("actionExitReggata"))
         self.menuFavorite_repositories.addAction(self.actionAdd_current_repository)
         self.menuFavorite_repositories.addAction(self.actionRemove_current_repository)
         self.menu_repo.addAction(self.action_repo_create)
@@ -123,6 +121,10 @@ class Ui_MainWindow(object):
         self.menu_repo.addAction(self.action_repo_close)
         self.menu_repo.addSeparator()
         self.menu_repo.addAction(self.menuFavorite_repositories.menuAction())
+        self.menu_repo.addSeparator()
+        self.menu_repo.addAction(self.actionImportItems)
+        self.menu_repo.addSeparator()
+        self.menu_repo.addAction(self.actionExitReggata)
         self.menu.addAction(self.action_user_create)
         self.menu.addAction(self.action_user_login)
         self.menu.addAction(self.action_user_logout)
@@ -134,26 +136,6 @@ class Ui_MainWindow(object):
         self.menuFix_integrity_errors.addAction(self.menuFix_hash_mismatch_error.menuAction())
         self.menuFix_integrity_errors.addAction(self.action_item_fix_history_rec_error)
         self.menuFix_integrity_errors.addAction(self.menuFix_file_not_found_error.menuAction())
-        self.menuExport_items.addAction(self.actionExportItems)
-        self.menuExport_items.addAction(self.action_export_selected_items)
-        self.menuExport_items.addAction(self.action_export_items_file_paths)
-        self.menuImport_Items.addAction(self.actionImportItems)
-        self.menuItem.addAction(self.action_item_add)
-        self.menuItem.addAction(self.action_item_add_many)
-        self.menuItem.addAction(self.action_item_add_many_rec)
-        self.menuItem.addSeparator()
-        self.menuItem.addAction(self.action_item_edit)
-        self.menuItem.addAction(self.action_item_rebuild_thumbnail)
-        self.menuItem.addSeparator()
-        self.menuItem.addAction(self.action_item_delete)
-        self.menuItem.addSeparator()
-        self.menuItem.addAction(self.action_item_view)
-        self.menuItem.addAction(self.action_item_view_image_viewer)
-        self.menuItem.addAction(self.action_item_view_m3u)
-        self.menuItem.addAction(self.action_item_to_external_filemanager)
-        self.menuItem.addAction(self.menuExport_items.menuAction())
-        self.menuItem.addAction(self.menuImport_Items.menuAction())
-        self.menuItem.addSeparator()
         self.menuItem.addAction(self.action_item_check_integrity)
         self.menuItem.addAction(self.menuFix_integrity_errors.menuAction())
         self.menuHelp.addAction(self.action_help_about)
@@ -175,8 +157,6 @@ class Ui_MainWindow(object):
         self.menuFix_integrity_errors.setTitle(QtGui.QApplication.translate("MainWindow", "Fix integrity errors", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFix_hash_mismatch_error.setTitle(QtGui.QApplication.translate("MainWindow", "Fix file changed error", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFix_file_not_found_error.setTitle(QtGui.QApplication.translate("MainWindow", "Fix file not found error", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuExport_items.setTitle(QtGui.QApplication.translate("MainWindow", "Export items", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuImport_Items.setTitle(QtGui.QApplication.translate("MainWindow", "Import Items", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.action_repo_create.setText(QtGui.QApplication.translate("MainWindow", "&New", None, QtGui.QApplication.UnicodeUTF8))
@@ -207,8 +187,9 @@ class Ui_MainWindow(object):
         self.action_export_items_file_paths.setText(QtGui.QApplication.translate("MainWindow", "Export file paths as txt file", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExportItems.setText(QtGui.QApplication.translate("MainWindow", "Export items (files with metadata)", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExportItems.setToolTip(QtGui.QApplication.translate("MainWindow", "Export items with files and metadata", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionImportItems.setText(QtGui.QApplication.translate("MainWindow", "Import items (files with metadata)", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionImportItems.setText(QtGui.QApplication.translate("MainWindow", "Import items", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAdd_current_repository.setText(QtGui.QApplication.translate("MainWindow", "Add current repository", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRemove_current_repository.setText(QtGui.QApplication.translate("MainWindow", "Remove current repository", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExitReggata.setText(QtGui.QApplication.translate("MainWindow", "Exit", None, QtGui.QApplication.UnicodeUTF8))
 
 import resources_rc

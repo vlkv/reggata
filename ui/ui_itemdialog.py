@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'itemdialog.ui'
 #
-# Created: Fri Jul 20 20:32:31 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Thu Sep 13 21:42:01 2012
+#      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -38,8 +38,8 @@ class Ui_ItemDialog(object):
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         self.lineEdit_id = QtGui.QLabel(ItemDialog)
         font = QtGui.QFont()
-        font.setWeight(75)
         font.setBold(True)
+        font.setWeight(75)
         self.lineEdit_id.setFont(font)
         self.lineEdit_id.setObjectName(_fromUtf8("lineEdit_id"))
         self.gridLayout.addWidget(self.lineEdit_id, 0, 1, 1, 1)
@@ -52,8 +52,8 @@ class Ui_ItemDialog(object):
         self.gridLayout.addWidget(self.label_5, 0, 3, 1, 1)
         self.lineEdit_user_login = QtGui.QLabel(ItemDialog)
         font = QtGui.QFont()
-        font.setWeight(75)
         font.setBold(True)
+        font.setWeight(75)
         self.lineEdit_user_login.setFont(font)
         self.lineEdit_user_login.setObjectName(_fromUtf8("lineEdit_user_login"))
         self.gridLayout.addWidget(self.lineEdit_user_login, 0, 4, 1, 1)
