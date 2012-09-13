@@ -106,12 +106,18 @@ class ItemsTable(AbstractTool):
             self._gui.actions['openItemWithExternalFileManager'],
             OpenItemWithExternalFileManagerActionHandler(self, self._extAppMgr))
         
-#        self.actions['openItemWithExternalFileManager']
-#        
-#        self.actions['exportItems']
-#        self.actions['exportItemsFiles']
-#        self.actions['exportItemsFilePaths']
+        self._actionHandlers.register(
+            self._gui.actions['exportItems'],
+            ExportItemsActionHandler(self, self._dialogsFacade))
         
+        self._actionHandlers.register(
+            self._gui.actions['exportItemsFiles'],
+            ExportItemsFilesActionHandler(self, self._dialogsFacade))
+        
+        self._actionHandlers.register(
+            self._gui.actions['exportItemsFilePaths'],
+            ExportItemsFilePathsActionHandler(self, self._dialogsFacade))
+                
     
 #        # Separator
 #        self.__actionHandlers.registerActionHandler(

@@ -756,37 +756,34 @@ class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
 
 
 class ExportItemsActionHandler(AbstractActionHandler):
-    ''' Exports selected items with all their metadata (tags, fiedls) and
-    all the referenced files. Items are packed in zip archive and later 
+    '''
+        Exports selected items with all their metadata (tags, fields) and
+    all the referenced files. Items are packed in tar archive and later 
     they can be imported to another repository.
     '''
-    def __init__(self, gui):
-        super(ExportItemsActionHandler, self).__init__(gui)
+    def __init__(self, tool, dialogs):
+        super(ExportItemsActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
+            self._tool.checkActiveRepoIsNotNone()
             
-            itemIds = self._gui.selectedItemIds()
+            itemIds = self._tool.gui.selectedItemIds()
             if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            dialogs = UserDialogsFacade()
-            exportFilename = dialogs.getSaveFileName(self._gui, self.tr('Save data as..')) 
+            exportFilename = self._dialogs.getSaveFileName(self._tool.gui, self.tr('Save data as..')) 
             if not exportFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             
-            thread = ExportItemsThread(self._gui, self._gui.model.repo, itemIds, exportFilename)
-                                    
-            wd = WaitDialog(self._gui)
-            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-            wd.startWithWorkerThread(thread)
+            thread = ExportItemsThread(self, self._tool.repo, itemIds, exportFilename)
             
-
+            self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)                        
+            
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
+            
         else:
             #TODO: display information about how many items were exported
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
@@ -829,69 +826,66 @@ class ImportItemsActionHandler(AbstractActionHandler):
         
 
 class ExportItemsFilesActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(ExportItemsFilesActionHandler, self).__init__(gui)
+    def __init__(self, tool, dialogs):
+        super(ExportItemsFilesActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
+            self._tool.checkActiveRepoIsNotNone()
             
-            item_ids = self._gui.selectedItemIds()
-            if len(item_ids) == 0:
+            itemIds = self._tool.gui.selectedItemIds()
+            if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            dialogs = UserDialogsFacade()
-            export_dir_path = dialogs.getExistingDirectory(
-                self._gui, self.tr("Choose a directory path to export files into."))
+            dstDirPath = self._dialogs.getExistingDirectory(
+                self._tool.gui, self.tr("Choose a directory path to export files into."))
             
-            if not export_dir_path:
+            if not dstDirPath:
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
-            thread = ExportItemsFilesThread(self._gui, self._gui.model.repo, item_ids, export_dir_path)
+            thread = ExportItemsFilesThread(self, self._tool.repo, itemIds, dstDirPath)
+            self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
                                     
-            wd = WaitDialog(self._gui)
-            self.connect(thread, QtCore.SIGNAL("progress"), wd.set_progress)
-            self.connect(thread, QtCore.SIGNAL("finished"), wd.reject)
-            self.connect(thread, QtCore.SIGNAL("exception"), wd.exception)
-            wd.startWithWorkerThread(thread)
-            
-
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
+            
         else:
             #TODO: display information about how many files were copied
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
+
 class ExportItemsFilePathsActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(ExportItemsFilePathsActionHandler, self).__init__(gui)
+    def __init__(self, tool, dialogs):
+        super(ExportItemsFilePathsActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
+            self._tool.checkActiveRepoIsNotNone()
             
-            rows = self._gui.selectedRows()
+            rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            dialogs = UserDialogsFacade()
-            exportFilename = dialogs.getSaveFileName(self._gui, self.tr('Save results in a file.'))
+            exportFilename = self._dialogs.getSaveFileName(self._tool.gui, 
+                self.tr('Save results in a file.'))
             if not exportFilename:
                 raise MsgException(self.tr("Operation canceled."))
             
-            file = open(exportFilename, "w", newline='')
-            for row in rows:
-                item = self._gui.itemAtRow(row)
-                if item.is_data_ref_null():
-                    continue
-                textline = self._gui.model.repo.base_path + \
-                    os.sep + self._gui.itemAtRow(row).data_ref.url + os.linesep
-                file.write(textline)
-            file.close()
+            with open(exportFilename, "w", newline='') as exportFile:
+                for row in rows:
+                    item = self._tool.gui.itemAtRow(row)
+                    if item.is_data_ref_null():
+                        continue
+                    textline = self._tool.repo.base_path + \
+                        os.sep + self._tool.gui.itemAtRow(row).data_ref.url + os.linesep
+                    exportFile.write(textline)
 
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
+            
         else:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation completed."), STATUSBAR_TIMEOUT)

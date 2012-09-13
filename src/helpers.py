@@ -28,6 +28,7 @@ logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 #    return s
 
 
+# TODO: move this function to DialogsFacade
 def show_exc_info(parent, ex, tracebk=True, details=None, title=None):
     '''
     Если traceback задать равным False, то окно не содержит раздел DetailedText

@@ -207,13 +207,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         def initItemMenu():
             
             self.__actionHandlers.register(
-                self.ui.actionExportItems, ExportItemsActionHandler(self))
-            self.__actionHandlers.register(
                 self.ui.actionImportItems, ImportItemsActionHandler(self))
-            self.__actionHandlers.register(
-                self.ui.action_export_selected_items, ExportItemsFilesActionHandler(self))
-            self.__actionHandlers.register(
-                self.ui.action_export_items_file_paths, ExportItemsFilePathsActionHandler(self))
             
             # Separator
             self.__actionHandlers.register(
