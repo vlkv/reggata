@@ -731,26 +731,29 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
             
 
 class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(OpenItemWithExternalFileManagerActionHandler, self).__init__(gui)
+    def __init__(self, tool, extAppMgr):
+        super(OpenItemWithExternalFileManagerActionHandler, self).__init__(tool)
+        self._extAppMgr = extAppMgr
         
     def handle(self):
         try:
-            sel_rows = self._gui.selectedRows()
-            if len(sel_rows) != 1:
+            selRows = self._tool.gui.selectedRows()
+            if len(selRows) != 1:
                 raise MsgException(self.tr("Select one item, please."))
             
-            data_ref = self._gui.itemAtRow(sel_rows.pop()).data_ref
+            dataRef = self._tool.gui.itemAtRow(selRows.pop()).data_ref
             
-            if data_ref is None or data_ref.type != DataRef.FILE:
+            if dataRef is None or dataRef.type != DataRef.FILE:
                 raise MsgException(
                     self.tr("This action can be applied only to the items linked with files."))
             
-            eam = ExtAppMgr()
-            eam.external_file_manager(os.path.join(self._gui.model.repo.base_path, data_ref.url))
+            
+            self._extAppMgr.external_file_manager(
+                os.path.join(self._tool.repo.base_path, dataRef.url))
                         
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
+
 
 class ExportItemsActionHandler(AbstractActionHandler):
     ''' Exports selected items with all their metadata (tags, fiedls) and

@@ -205,8 +205,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
             
         def initItemMenu():
-            self.__actionHandlers.register(
-                self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManagerActionHandler(self))
             
             self.__actionHandlers.register(
                 self.ui.actionExportItems, ExportItemsActionHandler(self))
