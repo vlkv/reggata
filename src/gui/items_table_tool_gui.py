@@ -129,10 +129,13 @@ class ItemsTableToolGui(ToolGui):
         item_ids = set()
         for index in self.ui.tableView_items.selectionModel().selectedIndexes():
             item_ids.add(self.__table_model.items[index.row()].id)
-        return item_ids
+        return item_ids    
     
     def itemAtRow(self, row):
         return self.__table_model.items[row]
+    
+    def rowCount(self):
+        return self.__table_model.rowCount()
     
     def resetSingleRow(self, row):
         self.__table_model.resetSingleRow(row)

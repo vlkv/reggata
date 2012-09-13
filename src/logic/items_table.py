@@ -59,6 +59,10 @@ class ItemsTable(AbstractTool):
     itemsLock = property(fget=_getItemsLock)
     
     
+    def _getWidgetsUpdateManager(self):
+        return self._widgetsUpdateManager
+    widgetsUpdateManager = property(fget=_getWidgetsUpdateManager)
+    
     def connectActionsWithActionHandlers(self):
         assert len(self._gui.actions) > 0, "Actions should be already built in ToolGui"
         
@@ -90,6 +94,9 @@ class ItemsTable(AbstractTool):
             self._gui.actions['openItem'], 
             OpenItemActionHandler(self, self._extAppMgr))
         
+        self._actionHandlers.register(
+            self._gui.actions['openItemWithBuiltinImageViewer'],
+            OpenItemWithInternalImageViewerActionHandler(self))
         
 #        self.actions['openItemWithBuiltinImageViewer']
 #        self.actions['createM3uAndOpenIt']

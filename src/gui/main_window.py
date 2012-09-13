@@ -206,8 +206,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             
         def initItemMenu():
             self.__actionHandlers.register(
-                self.ui.action_item_view_image_viewer, OpenItemWithInternalImageViewerActionHandler(self))
-            self.__actionHandlers.register(
                 self.ui.action_item_view_m3u, ExportItemsToM3uAndOpenItActionHandler(self))
             self.__actionHandlers.register(
                 self.ui.action_item_to_external_filemanager, OpenItemWithExternalFileManagerActionHandler(self))

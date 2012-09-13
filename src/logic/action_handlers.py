@@ -661,15 +661,15 @@ class OpenItemActionHandler(AbstractActionHandler):
     
     
 class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(OpenItemWithInternalImageViewerActionHandler, self).__init__(gui)
+    def __init__(self, tool):
+        super(OpenItemWithInternalImageViewerActionHandler, self).__init__(tool)
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()            
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
             
-            rows = self._gui.selectedRows()
+            rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
@@ -677,23 +677,23 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
             items = []
             if len(rows) == 1:
                 #If there is only one selected item, pass to viewer all items in this table model
-                for row in range(self._gui.rowCount()):
-                    items.append(self._gui.itemAtRow(row))
+                for row in range(self._tool.gui.rowCount()):
+                    items.append(self._tool.gui.itemAtRow(row))
                 startIndex = rows.pop()
                 
             else:
                 for row in rows:
-                    items.append(self._gui.itemAtRow(row))
+                    items.append(self._tool.gui.itemAtRow(row))
             
-            iv = ImageViewer(self._gui, self._gui.widgetsUpdateManager(),
-                             self._gui.model.repo, self._gui.model.user.login,
+            iv = ImageViewer(self._tool.gui, self._tool.widgetsUpdateManager,
+                             self._tool.repo, self._tool.user.login,
                              items, startIndex)
             iv.show()
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+                self.tr("Done."), STATUSBAR_TIMEOUT)
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
     
     
 class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
