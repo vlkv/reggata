@@ -98,7 +98,10 @@ class ItemsTable(AbstractTool):
             self._gui.actions['openItemWithBuiltinImageViewer'],
             OpenItemWithInternalImageViewerActionHandler(self))
         
-#        self.actions['openItemWithBuiltinImageViewer']
+        self._actionHandlers.register(
+            self._gui.actions['createM3uAndOpenIt'],
+            ExportItemsToM3uAndOpenItActionHandler(self, self._extAppMgr))
+        
 #        self.actions['createM3uAndOpenIt']
 #        self.actions['openItemWithExternalFileManager']
 #        

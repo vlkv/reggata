@@ -697,36 +697,38 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
     
     
 class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(ExportItemsToM3uAndOpenItActionHandler, self).__init__(gui)
+    def __init__(self, tool, extAppMgr):
+        super(ExportItemsToM3uAndOpenItActionHandler, self).__init__(tool)
+        self._extAppMgr = extAppMgr
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
             
-            rows = self._gui.selectedRows()
+            rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            tmp_dir = UserConfig().get("tmp_dir", consts.DEFAULT_TMP_DIR)
-            if not os.path.exists(tmp_dir):
-                os.makedirs(tmp_dir)
-            m3u_filename = str(os.getpid()) + self._gui.model.user.login + str(time.time()) + ".m3u"
-            m3u_file = open(os.path.join(tmp_dir, m3u_filename), "wt")
-            for row in rows:
-                m3u_file.write(os.path.join(self._gui.model.repo.base_path, 
-                                            self._gui.itemAtRow(row).data_ref.url) + os.linesep)                                            
-            m3u_file.close()
+            tmpDir = UserConfig().get("tmp_dir", consts.DEFAULT_TMP_DIR)
+            if not os.path.exists(tmpDir):
+                os.makedirs(tmpDir)
+                
+            m3uFilename = str(os.getpid()) + self._tool.user.login + str(time.time()) + ".m3u"
+            with open(os.path.join(tmpDir, m3uFilename), "wt") as m3uFile:
+                for row in rows:
+                    m3uFile.write(
+                        os.path.join(self._tool.repo.base_path, 
+                                     self._tool.gui.itemAtRow(row).data_ref.url) + os.linesep)                                            
+                    
+            self._extAppMgr.invoke(os.path.join(tmpDir, m3uFilename))
             
-            eam = ExtAppMgr()
-            eam.invoke(os.path.join(tmp_dir, m3u_filename))
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Done."), STATUSBAR_TIMEOUT)
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
-        else:
-            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+            show_exc_info(self._tool.gui, ex)
+            
 
 class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
     def __init__(self, gui):
