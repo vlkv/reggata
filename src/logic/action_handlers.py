@@ -1062,23 +1062,23 @@ class OpenFavoriteRepoActionHandler(AbstractActionHandler):
             action = self.sender()
             repoBasePath = action.repoBasePath
             
-            currentUser = self._tool.user
+            currentUser = self._model.user
             assert currentUser is not None
             
-            self._tool.repo = RepoMgr(repoBasePath)
+            self._model.repo = RepoMgr(repoBasePath)
             
             try:
-                self._tool.loginUser(currentUser.login, currentUser.password)
+                self._model.loginUser(currentUser.login, currentUser.password)
                 self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                     self.tr("Repository opened. Login succeded."), STATUSBAR_TIMEOUT)
                 
             except LoginError:
-                self._tool.user = None
+                self._model.user = None
                 self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                     self.tr("Repository opened. Login failed."), STATUSBAR_TIMEOUT)
         
         except Exception as ex:
-            show_exc_info(self._tool.gui, ex)
+            show_exc_info(self._model.gui, ex)
         
         
     
