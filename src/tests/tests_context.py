@@ -15,7 +15,6 @@ class ItemReliableFacts(object):
 nonExistingItem = ItemReliableFacts()
 nonExistingItem.id = 1000000000
 
-
 itemWithFile = ItemReliableFacts()
 itemWithFile.id = 2
 itemWithFile.title = "Don't Forget Me outro jam Montreal 2006"
@@ -43,6 +42,28 @@ itemWithoutFile.tags = ["Tag"]
 itemWithoutFile.fields = {"Field": "test",
                           "Rating": 1,
                           "Notes": "This item has tags and fields, but it doesn't refereneces to any file"}
+
+itemWithErrorFileNotFound = ItemReliableFacts()
+itemWithErrorFileNotFound.id = 7
+itemWithErrorFileNotFound.title = "Item with error: file not found"
+itemWithErrorFileNotFound.ownerUserLogin = "user"
+itemWithErrorFileNotFound.relFilePath = "consts.py"
+itemWithErrorFileNotFound.tags = ["Tag", "Py"]
+itemWithErrorFileNotFound.fields = dict()
+
+
+itemWithErrorFileHashMismatch = ItemReliableFacts()
+itemWithErrorFileHashMismatch.id = 8
+itemWithErrorFileHashMismatch.title = "Item with error: file hash mismatch"
+itemWithErrorFileHashMismatch.ownerUserLogin = "user"
+itemWithErrorFileHashMismatch.relFilePath = "history/led_zeppelin_from_wikipedia.txt"
+itemWithErrorFileHashMismatch.tags = ["Led_Zeppelin", "History"]
+itemWithErrorFileHashMismatch.fields = {"Source": "http://en.wikipedia.org/wiki/Led_Zeppelin",
+                                        "Rating": 2}
+
+
+
+
 
 
 
