@@ -1101,4 +1101,41 @@ class UpdateExistingItemCommand(AbstractCommand):
         _prepare_data_ref_url(data_ref)
     
 
+class CheckItemIntegrityCommand(AbstractCommand):
+    def __init__(self, item, repoBasePath):
+        super(CheckItemIntegrityCommand, self).__init__()
+        self.__item = item
+        self.__repoBasePath = repoBasePath
+    
+    def _execute(self, uow):
+        errorSet = set()
+    
+        self.__checkHistoryRec(uow.session, errorSet)
+        
+        if self.__item.data_ref is not None and self.__item.data_ref.type == DataRef.FILE:
+            self.__checkFileDataRef(uow.session, errorSet)
+        
+        return errorSet
+    
+    def __checkHistoryRec(self, session, errorSet):
+        hr = UnitOfWork._find_item_latest_history_rec(session, self.__item)
+        if hr is None:
+            errorSet.add(Item.ERROR_HISTORY_REC_NOT_FOUND)
+    
+    def __checkFileDataRef(self, session, errorSet):
+        fileAbsPath = os.path.join(self.__repoBasePath, self.__item.data_ref.url)
+        if not os.path.exists(fileAbsPath):
+            errorSet.add(Item.ERROR_FILE_NOT_FOUND)
+        else:
+            size = os.path.getsize(fileAbsPath)
+            if self.__item.data_ref.size != size:
+                errorSet.add(Item.ERROR_FILE_HASH_MISMATCH)
+                return  
+                # If sizes are different, then there is no need to compute hash: 
+                # hashes will be different too
+            
+            fileHash = helpers.compute_hash(fileAbsPath)
+            if self.__item.data_ref.hash != fileHash:
+                errorSet.add(Item.ERROR_FILE_HASH_MISMATCH)
+    
 

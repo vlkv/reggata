@@ -352,7 +352,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
     #TODO: This functions should be removed from MainWindow to Tools
     def selectedRows(self):
-        return self._model.toolById(ItemsTable.TOOL_ID).gui.selected_rows()
+        return self._model.toolById(ItemsTable.TOOL_ID).gui.selectedRows()
         
     def itemAtRow(self, row):
         return self._model.toolById(ItemsTable.TOOL_ID).gui.itemsTableModel.items[row]

@@ -966,6 +966,7 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
              
             thread = ItemIntegrityCheckerThread(
                 self._gui, self._gui.model.repo, items, self._gui.model.itemsLock)
+            
             self.connect(thread, QtCore.SIGNAL("progress"), 
                          lambda percents, row: refresh(percents, row))
             self.connect(thread, QtCore.SIGNAL("finished"), 

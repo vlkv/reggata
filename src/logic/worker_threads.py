@@ -124,7 +124,7 @@ class ExportItemsThread(QtCore.QThread):
         result = False;
         uow = self.repo.createUnitOfWork()
         try:
-            error_set = uow._check_item_integrity(uow.session, item, self.repo.base_path) 
+            error_set = uow.executeCommand(CheckItemIntegrityCommand(item, self.repo.base_path))
             result = (len(error_set) == 0)
         finally:
             uow.close()
@@ -249,12 +249,10 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                 
                 logger.debug("fixing item " + str(item.id))
                 
-                #Сначала смотрим, проверялся ли item на целостность данных?
                 if item.error is None:
                     try:
                         self.lock.lockForWrite()
-                        #Если нет, то проверяем                    
-                        item.error = UnitOfWork._check_item_integrity(uow.session, item, self.repo.base_path)
+                        item.error = uow.executeCommand(CheckItemIntegrityCommand(item, self.repo.base_path))
                     finally:
                         self.lock.unlock()
                                 
@@ -291,13 +289,7 @@ class ItemIntegrityFixerThread(QtCore.QThread):
 
        
 class ItemIntegrityCheckerThread(QtCore.QThread):
-    '''
-    Поток, выполняющий в фоне проверку целостности группы элементов (обычно 
-    результатов поискового запроса). 
-    
-    Нужно сделать функцию, чтобы запускать данный поток для выделенной группы элементов. 
-    Для всех элементов хранилища тоже надо бы (но это потом может быть сделаю). 
-    '''
+
     def __init__(self, parent, repo, items, lock):
         super(ItemIntegrityCheckerThread, self).__init__(parent)
         self.repo = repo
@@ -314,8 +306,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
             for i in range(len(self.items)):
                 item = self.items[i]
                 
-                error_set = UnitOfWork._check_item_integrity(uow.session, item, self.repo._base_path)
-                
+                error_set = uow.executeCommand(CheckItemIntegrityCommand(item, self.repo._base_path))
                 try:
                     self.lock.lockForWrite()
                     

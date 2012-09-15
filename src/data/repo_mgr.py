@@ -107,33 +107,6 @@ class UnitOfWork(object):
     def executeCommand(self, command):
         return command._execute(self)
         
-        
-    #TODO: extract this fun to separate command class..
-    @staticmethod
-    def _check_item_integrity(session, item, repo_base_path):
-        '''
-            Returns a set of integer error codes. Error codes are declared in 
-        Item class.
-            Returns empty set, if there are no errors.
-        '''
-        
-        error_set = set()
-        
-        hr = UnitOfWork._find_item_latest_history_rec(session, item)
-        if hr is None:
-            error_set.add(Item.ERROR_HISTORY_REC_NOT_FOUND)
-        
-        if item.data_ref is not None and item.data_ref.type == DataRef.FILE:
-            abs_path = os.path.join(repo_base_path, item.data_ref.url)
-            if not os.path.exists(abs_path):
-                error_set.add(Item.ERROR_FILE_NOT_FOUND)
-            else:
-                fileHash = helpers.compute_hash(abs_path)
-                size = os.path.getsize(abs_path)
-                if item.data_ref.hash != fileHash or item.data_ref.size != size:
-                    error_set.add(Item.ERROR_FILE_HASH_MISMATCH)                
-        
-        return error_set
 
     #TODO: extract this fun to separate command class..
     @staticmethod
