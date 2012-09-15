@@ -183,13 +183,17 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         def initRepositoryMenu():
             self.__actionHandlers.register(
                 self.ui.action_repo_create, CreateRepoActionHandler(self))
+            
             self.__actionHandlers.register(
                 self.ui.action_repo_close, CloseRepoActionHandler(self))
+            
             self.__actionHandlers.register(
                 self.ui.action_repo_open, OpenRepoActionHandler(self))
+            
             self.__actionHandlers.register(
                 self.ui.actionAdd_current_repository, 
                 AddCurrentRepoToFavoritesActionHandler(self, self.__favoriteReposStorage))
+            
             self.__actionHandlers.register(
                 self.ui.actionRemove_current_repository, 
                 RemoveCurrentRepoFromFavoritesActionHandler(self, self.__favoriteReposStorage))
@@ -203,18 +207,17 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         def initUserMenu():
             self.__actionHandlers.register(
                 self.ui.action_user_create, CreateUserActionHandler(self))
+            
             self.__actionHandlers.register(
                 self.ui.action_user_login, LoginUserActionHandler(self))
+            
             self.__actionHandlers.register(
                 self.ui.action_user_logout, LogoutUserActionHandler(self))
+            
             self.__actionHandlers.register(
                 self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
             
         def initItemMenu():
-            
-            
-            
-            # Separator
             self.__actionHandlers.register(
                 self.ui.action_item_check_integrity, CheckItemIntegrityActionHandler(self))
             
