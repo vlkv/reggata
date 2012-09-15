@@ -2,10 +2,11 @@ import unittest
 from tests.abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests.tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonExistingItem,\
-    itemWithTagsAndFields, itemWithoutFile
+    itemWithTagsAndFields, itemWithoutFile, itemWithErrorFileNotFound, itemWithErrorFileHashMismatch
 from data.repo_mgr import *
 from data.commands import *
 from errors import *
+from data import db_schema
 
 
 
@@ -622,7 +623,40 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
     
     
     
-
-if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
+class CheckItemIntegrityTest(AbstractTestCaseWithRepo):
+    
+    def test_checkItemWithoutErrors(self):        
+        item = self.getExistingItem(itemWithFile.id)
+        uow = self.repo.createUnitOfWork()
+        try:
+            cmd = CheckItemIntegrityCommand(item, self.repo.base_path)
+            errors = uow.executeCommand(cmd)
+            self.assertTrue(len(errors) == 0)
+        finally:
+            uow.close()
+    
+    
+    def test_checkItemWithErrorFileNotFound(self):
+        item = self.getExistingItem(itemWithErrorFileNotFound.id)
+        uow = self.repo.createUnitOfWork()
+        try:
+            cmd = CheckItemIntegrityCommand(item, self.repo.base_path)
+            errors = uow.executeCommand(cmd)
+            self.assertTrue(len(errors) == 1)
+            self.assertTrue(db_schema.Item.ERROR_FILE_NOT_FOUND in errors)
+        finally:
+            uow.close()
+            
+    def test_checkItemWithErrorFileHashMismatch(self):
+        item = self.getExistingItem(itemWithErrorFileHashMismatch.id)
+        uow = self.repo.createUnitOfWork()
+        try:
+            cmd = CheckItemIntegrityCommand(item, self.repo.base_path)
+            errors = uow.executeCommand(cmd)
+            self.assertTrue(len(errors) == 1)
+            self.assertTrue(db_schema.Item.ERROR_FILE_HASH_MISMATCH in errors)
+        finally:
+            uow.close()
+            
+            
+            
