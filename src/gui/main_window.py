@@ -82,7 +82,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
     def addToolMainMenu(self, toolMainMenu):
         assert toolMainMenu is not None
-        self.ui.menubar.addAction(toolMainMenu.menuAction())
+        self.ui.menubar.insertMenu(self.ui.menuHelp.menuAction(), toolMainMenu)
         
     
     def subscribeToolForUpdates(self, aTool):
