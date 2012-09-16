@@ -79,13 +79,9 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         '''
             This method deletes item.data_ref object, which links to the lost file.
         '''
-        #updating existing DataRef object
-        existing_dr = self.uow.session.query(DataRef).get(item.data_ref.id)
-        self.uow.session.delete(existing_dr)
+        existingDataRef = self.uow.session.query(DataRef).get(item.data_ref.id)
+        self.uow.session.delete(existingDataRef)
         self.uow.session.flush()
-        
-        if existing_dr in self.uow.session:
-            self.uow.session.expunge(existing_dr)            
         
         try:
             self.lock.lockForWrite()
