@@ -62,7 +62,13 @@ itemWithErrorFileHashMismatch.fields = {"Source": "http://en.wikipedia.org/wiki/
                                         "Rating": 2}
 
 
-
+itemWithErrorFileNotFoundNo2 = ItemReliableFacts()
+itemWithErrorFileNotFoundNo2.id = 9
+itemWithErrorFileNotFoundNo2.title = "Item #2 with error: file not found"
+itemWithErrorFileNotFoundNo2.ownerUserLogin = "user"
+itemWithErrorFileNotFoundNo2.relFilePath = "this/is/lost/Dont_Forget_me_Chorzow_outro.tab"
+itemWithErrorFileNotFoundNo2.tags = ["RHCP", "Tabs", "Error"]
+itemWithErrorFileNotFoundNo2.fields = {"Notes": "This item references to a file which is lost. But in this repo there is a file with exactly the same contents (and the same hash)."}
 
 
 

@@ -2,7 +2,8 @@ import unittest
 from tests.abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests.tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonExistingItem,\
-    itemWithTagsAndFields, itemWithoutFile, itemWithErrorFileNotFound, itemWithErrorFileHashMismatch
+    itemWithTagsAndFields, itemWithoutFile, itemWithErrorFileNotFound, itemWithErrorFileHashMismatch,\
+    itemWithErrorFileNotFoundNo2
 from data.repo_mgr import *
 from data.commands import *
 from errors import *
@@ -571,6 +572,10 @@ class CheckItemIntegrityTest(AbstractTestCaseWithRepo):
 class FixItemIntegrityTest(AbstractTestCaseWithRepo):
     
     def test_fixItemWithErrorFileNotFound_TryFind(self):
+        '''
+            Fixer should find file in the repo in a different location. And a new 
+        DataRef object will be created for it.
+        '''
         item = self.getExistingItem(itemWithErrorFileNotFound.id)
         uow = self.repo.createUnitOfWork()
         try:
@@ -579,7 +584,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
                                               FileNotFoundFixer.TRY_FIND, 
                                               uow, self.repo.base_path, itemsLock)
             result = fixer.fix_error(item, itemWithErrorFileNotFound.ownerUserLogin)
-            uow.session.commit() # I guess, commit should be inside fix_error()!
+            uow.session.commit()
             
             self.assertTrue(result)
             
@@ -587,6 +592,31 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             uow.close()
             
         fixedItem = self.getExistingItem(itemWithErrorFileNotFound.id)
+        fileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
+        self.assertTrue(os.path.exists(fileAbsPath))
+        
+        
+    def test_fixItemWithErrorFileNotFound_TryFind_No2(self):
+        '''
+            This test is a little different from test_fixItemWithErrorFileNotFound_TryFind.
+        Fixer should find in repo existing DataRef object with the same matching hash.
+        '''
+        item = self.getExistingItem(itemWithErrorFileNotFoundNo2.id)
+        uow = self.repo.createUnitOfWork()
+        try:
+            itemsLock = QtCore.QReadWriteLock()
+            fixer = IntegrityFixerFactory.createFixer(Item.ERROR_FILE_NOT_FOUND, 
+                                              FileNotFoundFixer.TRY_FIND, 
+                                              uow, self.repo.base_path, itemsLock)
+            result = fixer.fix_error(item, itemWithErrorFileNotFoundNo2.ownerUserLogin)
+            uow.session.commit()
+            
+            self.assertTrue(result)
+            
+        finally:
+            uow.close()
+            
+        fixedItem = self.getExistingItem(itemWithErrorFileNotFoundNo2.id)
         fileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
         self.assertTrue(os.path.exists(fileAbsPath))
         
