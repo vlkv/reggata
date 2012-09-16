@@ -1110,7 +1110,8 @@ class CheckItemIntegrityCommand(AbstractCommand):
     def _execute(self, uow):
         errorSet = set()
     
-        self.__checkHistoryRec(uow.session, errorSet)
+        # Do not check history rec errors... until all HistoryRec related code will be more or less bugfree
+        #self.__checkHistoryRec(uow.session, errorSet)
         
         if self.__item.data_ref is not None and self.__item.data_ref.type == DataRef.FILE:
             self.__checkFileDataRef(uow.session, errorSet)
