@@ -148,35 +148,42 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         return newDataRef
         
     def _processItemsDataRef(self, item, matchedDataRef):
+        self._tryToDeleteOriginalDataRef(item.data_ref)
+        self._linkItemWithMatchedDataRef(item, matchedDataRef)
+        return True
+        
+        
+    def _tryToDeleteOriginalDataRef(self, originalDataRef):
+        # TODO: we should not delete DataRef if there are existing other Items that reference to it!
         rows = self.uow.session.query(DataRef) \
-            .filter(DataRef.id==item.data_ref.id) \
+            .filter(DataRef.id==originalDataRef.id) \
             .delete(synchronize_session=False)
         if rows == 0:
             raise Exception("Cannot delete data_ref object.")
         elif rows > 1:
             raise Exception("The query deleted {} data_ref objects (but it should delete only one).")
-    
+
+
+    def _linkItemWithMatchedDataRef(self, item, matchedDataRef):
         assert matchedDataRef is not None
         item_0 = self.uow.session.query(Item).filter(Item.id==item.id).one()
         item_0.data_ref_id = matchedDataRef.id
         item_0.data_ref = matchedDataRef
         self.uow.session.flush()
         self.uow.session.expunge(item_0)
-
+    
+    
         
     def _try_find(self, item, user_login):
-        error_fixed = False
         
         existingDataRefFound, dataRef = self._searchExistingMatchedDataRef(item.data_ref)
         if existingDataRefFound:
             assert dataRef is not None
             self._processItemsDataRef(item, dataRef)
-            error_fixed = True
         else:
             dataRef = self._searchUntrackedMatchedFile(item.data_ref)
             if dataRef is not None:
                 self._processItemsDataRef(item, dataRef)
-                error_fixed = True
                 
         if dataRef is not None:
             if dataRef in self.uow.session:
@@ -188,7 +195,7 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
             finally:
                 self.lock.unlock()
         
-        return error_fixed
+        return dataRef is not None
         
         
 
