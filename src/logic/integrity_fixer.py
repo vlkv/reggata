@@ -1,46 +1,17 @@
 # -*- coding: utf-8 -*-
 '''
-Copyright 2010 Vitaly Volkov
-
-This file is part of Reggata.
-
-Reggata is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Reggata is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
-
-Created on 20.12.2010
-
-Модуль содержит классы для исправления целостности элементов хранилища.
+Created on 20.12.2010 by  Vitaly Volkov
 '''
 from data.db_schema import Item, DataRef
-from errors import NotFoundError, WrongValueError
 from data import repo_mgr
-import data.repo_mgr
 from helpers import compute_hash
 import os
 import datetime
 
-
-#TODO: There is a lot of copypasted code in this module! The code should be cleaned up..
-
-
-class IntegrityFixer(object):
-    '''Базовый класс для классов, исправляющих целостность элементов.'''
+class IntegrityFixerFactory(object):
     
     @staticmethod
-    def create_fixer(code, strategy, uow, repo_base_path, items_lock):
-        '''
-            Фабричный метод для конструирования подклассов. 
-        '''
+    def createFixer(code, strategy, uow, repo_base_path, items_lock):
         if code == Item.ERROR_FILE_NOT_FOUND:
             return FileNotFoundFixer(strategy, uow, repo_base_path, items_lock)
         
@@ -50,17 +21,8 @@ class IntegrityFixer(object):
         else:
             assert False, "There is no fixer class for item integrity error code {0}.".format(code)
 
-    def code(self):
-        '''Returns code of error (as defined in db_schema.Item class) 
-        which can be fixed by this XXXFixer class.'''
-        raise NotImplementedError("This is an abstract class.")
     
-    def fix_error(self, item, user_login):
-        '''Method should return True, if error was successfully fixed, 
-        else returns False.'''
-        raise NotImplementedError("This is an abstract class.")
-    
-class FileNotFoundFixer(IntegrityFixer):
+class FileNotFoundFixer(object):
     TRY_FIND = 0 #Искать оригинальный файл
     TRY_FIND_ELSE_DELETE = 1 #Искать оригинальный файл, если не найден, то удалить DataRef объект
     DELETE = 2 #Удалить DataRef объект
@@ -189,7 +151,7 @@ class FileNotFoundFixer(IntegrityFixer):
         
         
 
-class FileHashMismatchFixer(IntegrityFixer):
+class FileHashMismatchFixer(object):
     TRY_FIND_FILE = 0 #Искать оригинальный файл
     UPDATE_HASH = 1 #Записать новое значение хеша в объект DataRef
     

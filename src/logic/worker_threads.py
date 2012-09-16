@@ -10,7 +10,7 @@ import zipfile
 import consts
 import logging
 from PyQt4 import QtCore, QtGui
-from logic.integrity_fixer import IntegrityFixer
+from logic.integrity_fixer import IntegrityFixerFactory
 from data.repo_mgr import *
 from data.db_schema import Thumbnail
 from errors import *
@@ -239,7 +239,7 @@ class ItemIntegrityFixerThread(QtCore.QThread):
         
         fixers = dict()
         for error_code, strategy in self.strategy.items():
-            fixers[error_code] = IntegrityFixer.create_fixer(error_code, strategy, uow, self.repo.base_path, self.lock)
+            fixers[error_code] = IntegrityFixerFactory.createFixer(error_code, strategy, uow, self.repo.base_path, self.lock)
         
         try:
             #Список self.items должен содержать только что извлеченные из БД элементы
