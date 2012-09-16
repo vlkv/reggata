@@ -473,7 +473,7 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
             elif column == self.STATE:
                 try:
                     self.lock.lockForRead()
-                    return Item.format_error_set_short(item.error)
+                    return self.__formatErrorSetShort(item.error)
                 finally:
                     self.lock.unlock()
             elif column == self.RATING:
@@ -503,7 +503,7 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
             elif column == self.STATE:
                 try:
                     self.lock.lockForRead()
-                    return Item.format_error_set(item.error)
+                    return self.__formatErrorSet(item.error)
                 finally:
                     self.lock.unlock()
             
@@ -532,6 +532,41 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
         
         #Во всех остальных случаях возвращаем None
         return None
+    
+    
+    def __formatErrorSet(self, error_set):
+        
+        if error_set is not None:
+            if len(error_set) == 0:
+                s = "No errors"
+            else:
+                s = ""
+                for error in error_set:
+                    if error == Item.ERROR_FILE_HASH_MISMATCH:
+                        s += "err_{0}: file has changed (hash/size mismatch)".format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
+                    elif error == Item.ERROR_FILE_NOT_FOUND:
+                        s += "err_{0}: file not found".format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
+                if s.endswith(os.linesep):
+                    s = s[:-1]
+        else:
+            s = "Item integrity isn't checked yet"
+            
+        return s
+    
+    def __formatErrorSetShort(self, error_set):
+
+        if error_set is None:
+            #Целостность не проверялась
+            return ""
+        if len(error_set) <= 0:
+            #Ошибок нет, целостность в порядке
+            return 'OK'
+        elif len(error_set) > 0:
+            #Есть ошибки
+            return helpers.to_commalist(error_set, lambda x: "err_{0}".format(x))
+            
+        
+    
     
     def flags(self, index):
         default_flags = super(ItemsTableModel, self).flags(index)

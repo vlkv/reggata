@@ -253,40 +253,7 @@ class Item(Base, memento.Serializable):
         return item
     
     
-    @staticmethod
-    def format_error_set(error_set):
-        
-        if error_set is not None:
-            if len(error_set) == 0:
-                s = "No errors"
-            else:
-                s = ""
-                for error in error_set:
-                    if error == Item.ERROR_FILE_HASH_MISMATCH:
-                        s += "err_{0}: file has changed (hash/size mismatch)".format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
-                    elif error == Item.ERROR_FILE_NOT_FOUND:
-                        s += "err_{0}: file not found".format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
-                if s.endswith(os.linesep):
-                    s = s[:-1]
-        else:
-            s = "Item integrity isn't checked yet"
-            
-        return s
     
-    @staticmethod
-    def format_error_set_short(error_set):
-
-        if error_set is None:
-            #Целостность не проверялась
-            return ""
-        if len(error_set) <= 0:
-            #Ошибок нет, целостность в порядке
-            return 'OK'
-        elif len(error_set) > 0:
-            #Есть ошибки
-            return helpers.to_commalist(error_set, lambda x: "err_{0}".format(x))
-            
-        
         
 
 
