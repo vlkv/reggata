@@ -44,6 +44,17 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
             uow.close()
         return dataRef
     
+    def getDataRefById(self, id):
+        '''
+            Returns a DataRef object with given id or None, if DataRef object not found.
+        '''
+        try:
+            uow = self.repo.createUnitOfWork()
+            dataRef = uow._session.query(DataRef).filter(DataRef.id==id).first()
+        finally:
+            uow.close()
+        return dataRef
+    
     def updateExistingItem(self, detachedItem, user_login):
         item = None
         try:

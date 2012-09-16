@@ -577,6 +577,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         DataRef object will be created for it.
         '''
         item = self.getExistingItem(itemWithErrorFileNotFound.id)
+        originalDataRefId = item.data_ref.id
         uow = self.repo.createUnitOfWork()
         try:
             itemsLock = QtCore.QReadWriteLock()
@@ -595,6 +596,8 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         fileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
         self.assertTrue(os.path.exists(fileAbsPath))
         
+        self.assertEquals(originalDataRefId, fixedItem.data_ref.id, "DataRef object should be still the same")
+        
         
     def test_fixItemWithErrorFileNotFound_TryFind_No2(self):
         '''
@@ -602,6 +605,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         Fixer should find in repo existing DataRef object with the same matching hash.
         '''
         item = self.getExistingItem(itemWithErrorFileNotFoundNo2.id)
+        originalDataRefId = item.data_ref.id
         uow = self.repo.createUnitOfWork()
         try:
             itemsLock = QtCore.QReadWriteLock()
@@ -619,6 +623,9 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         fixedItem = self.getExistingItem(itemWithErrorFileNotFoundNo2.id)
         fileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
         self.assertTrue(os.path.exists(fileAbsPath))
+        
+        originalDataRef = self.getDataRefById(originalDataRefId)
+        self.assertIsNone(originalDataRef, "Original DataRef object should be deleted from database")
         
             
 
