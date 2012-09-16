@@ -2,13 +2,13 @@ import unittest
 from tests.abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests.tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonExistingItem,\
-    itemWithTagsAndFields, itemWithoutFile, itemWithErrorFileNotFound, itemWithErrorFileHashMismatch,\
+    itemWithTagsAndFields, itemWithoutFile, itemWithErrorFileNotFound, itemWithErrorHashMismatch,\
     itemWithErrorFileNotFoundNo2, itemId_1
 from data.repo_mgr import *
 from data.commands import *
 from errors import *
 from data import db_schema
-from data.integrity_fixer import IntegrityFixerFactory, FileNotFoundFixer
+from data.integrity_fixer import IntegrityFixerFactory, FileNotFoundFixer, FileHashMismatchFixer
 
 
 
@@ -558,7 +558,7 @@ class CheckItemIntegrityTest(AbstractTestCaseWithRepo):
             uow.close()
             
     def test_checkItemWithErrorFileHashMismatch(self):
-        item = self.getExistingItem(itemWithErrorFileHashMismatch.id)
+        item = self.getExistingItem(itemWithErrorHashMismatch.id)
         uow = self.repo.createUnitOfWork()
         try:
             cmd = CheckItemIntegrityCommand(item, self.repo.base_path)
@@ -658,6 +658,31 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         originalDataRef = self.getDataRefById(originalDataRefId)
         self.assertIsNone(originalDataRef, "Original DataRef object should be deleted from database")
             
-
             
+    def test_fixItemWithErrorHashMismatch_UpdateHash(self):
+        item = self.getExistingItem(itemWithErrorHashMismatch.id)
+        originalFileHash = item.data_ref.hash
+        uow = self.repo.createUnitOfWork()
+        try:
+            itemsLock = QtCore.QReadWriteLock()
+            fixer = IntegrityFixerFactory.createFixer(Item.ERROR_FILE_HASH_MISMATCH, 
+                                              FileHashMismatchFixer.UPDATE_HASH, 
+                                              uow, self.repo.base_path, itemsLock)
+            result = fixer.fix_error(item, itemWithErrorHashMismatch.ownerUserLogin)
+            uow.session.commit()
+            
+            self.assertTrue(result)
+            
+        finally:
+            uow.close()
+        
+        fixedItem = self.getExistingItem(itemWithErrorHashMismatch.id)
+        self.assertNotEquals(originalFileHash, fixedItem.data_ref.hash, "File hash should be different now")
+            
+            
+    def test_fixItemWithErrorHashMismatch_Delete(self):
+        pass
+        # TODO: implement test
+        
+        
             

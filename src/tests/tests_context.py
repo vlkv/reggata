@@ -60,13 +60,13 @@ itemWithErrorFileNotFound.tags = ["Tag", "Py"]
 itemWithErrorFileNotFound.fields = dict()
 
 
-itemWithErrorFileHashMismatch = ItemReliableFacts()
-itemWithErrorFileHashMismatch.id = 8
-itemWithErrorFileHashMismatch.title = "Item with error: file hash mismatch"
-itemWithErrorFileHashMismatch.ownerUserLogin = "user"
-itemWithErrorFileHashMismatch.relFilePath = "history/led_zeppelin_from_wikipedia.txt"
-itemWithErrorFileHashMismatch.tags = ["Led_Zeppelin", "History"]
-itemWithErrorFileHashMismatch.fields = {"Source": "http://en.wikipedia.org/wiki/Led_Zeppelin",
+itemWithErrorHashMismatch = ItemReliableFacts()
+itemWithErrorHashMismatch.id = 8
+itemWithErrorHashMismatch.title = "Item with error: file hash mismatch"
+itemWithErrorHashMismatch.ownerUserLogin = "user"
+itemWithErrorHashMismatch.relFilePath = "history/led_zeppelin_from_wikipedia.txt"
+itemWithErrorHashMismatch.tags = ["Led_Zeppelin", "History"]
+itemWithErrorHashMismatch.fields = {"Source": "http://en.wikipedia.org/wiki/Led_Zeppelin",
                                         "Rating": 2}
 
 
