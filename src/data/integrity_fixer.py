@@ -21,8 +21,16 @@ class IntegrityFixerFactory(object):
         else:
             assert False, "There is no fixer class for item integrity error code {0}.".format(code)
 
+
+class AbstractIntegrityFixer(object):
+    def code(self):
+        raise NotImplementedError("Should be implemented in a subclass")
     
-class FileNotFoundFixer(object):
+    def fix_error(self, item, user_login):
+        raise NotImplementedError("Should be implemented in a subclass")
+        
+    
+class FileNotFoundFixer(AbstractIntegrityFixer):
     TRY_FIND = 0 #Искать оригинальный файл
     TRY_FIND_ELSE_DELETE = 1 #Искать оригинальный файл, если не найден, то удалить DataRef объект
     DELETE = 2 #Удалить DataRef объект
@@ -151,7 +159,7 @@ class FileNotFoundFixer(object):
         
         
 
-class FileHashMismatchFixer(object):
+class FileHashMismatchFixer(AbstractIntegrityFixer):
     TRY_FIND_FILE = 0 #Искать оригинальный файл
     UPDATE_HASH = 1 #Записать новое значение хеша в объект DataRef
     
