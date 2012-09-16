@@ -153,15 +153,16 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         delete_old_dr = False
         bind_new_dr_to_item = False
         
-        found, new_dr = self._searchExistingMatchedDataRef(item.data_ref)
+        existingDataRefFound, dataRef = self._searchExistingMatchedDataRef(item.data_ref)
         
-        if found:
+        if existingDataRefFound:
+            assert dataRef is not None
             error_fixed = True
             delete_old_dr = True
             bind_new_dr_to_item = True
         else:
-            new_dr = self._searchUntrackedMatchedFile(item.data_ref)
-            if new_dr is not None:
+            dataRef = self._searchUntrackedMatchedFile(item.data_ref)
+            if dataRef is not None:
                 error_fixed = True
                 delete_old_dr = True
                 bind_new_dr_to_item = True
@@ -175,20 +176,20 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
             elif rows > 1:
                 raise Exception("The query deleted {} data_ref objects (but it should delete only one).")
         
-        if bind_new_dr_to_item and new_dr is not None:
+        if bind_new_dr_to_item and dataRef is not None:
             item_0 = self.uow.session.query(Item).filter(Item.id==item.id).one()
-            item_0.data_ref_id = new_dr.id
-            item_0.data_ref = new_dr
+            item_0.data_ref_id = dataRef.id
+            item_0.data_ref = dataRef
             self.uow.session.flush()
             self.uow.session.expunge(item_0)
                 
-        if new_dr is not None:
-            if new_dr in self.uow.session:
-                self.uow.session.expunge(new_dr)            
+        if dataRef is not None:
+            if dataRef in self.uow.session:
+                self.uow.session.expunge(dataRef)            
             
             try:
                 self.lock.lockForWrite()
-                item.data_ref = new_dr
+                item.data_ref = dataRef
             finally:
                 self.lock.unlock()
         
