@@ -2,11 +2,11 @@
 '''
 Created on 20.12.2010 by  Vitaly Volkov
 '''
-from data.db_schema import Item, DataRef
-from data import repo_mgr
-from helpers import compute_hash
 import os
 import datetime
+from data.db_schema import Item, DataRef
+from helpers import compute_hash
+
 
 class IntegrityFixerFactory(object):
     
@@ -23,6 +23,9 @@ class IntegrityFixerFactory(object):
 
 
 class AbstractIntegrityFixer(object):
+    def __init__(self):
+        super(AbstractIntegrityFixer, self).__init__()
+        
     def code(self):
         raise NotImplementedError("Should be implemented in a subclass")
     
@@ -46,6 +49,7 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
     DELETE = 1
     
     def __init__(self, strategy, uow, repo_base_path, items_lock):
+        super(FileNotFoundFixer, self).__init__()
         if strategy not in [self.TRY_FIND, self.DELETE]:
             raise Exception("Wrong strategy value {0}".format(strategy))
         
@@ -195,6 +199,7 @@ class FileHashMismatchFixer(AbstractIntegrityFixer):
     UPDATE_HASH = 1
     
     def __init__(self, strategy, uow, repo_base_path, items_lock):
+        super(FileHashMismatchFixer, self).__init__()
         if strategy not in [self.UPDATE_HASH, self.TRY_FIND_FILE]:
             raise Exception("Wrong strategy value {0}".format(strategy))
         
