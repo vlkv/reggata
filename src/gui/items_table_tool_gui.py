@@ -543,9 +543,9 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
                 s = ""
                 for error in error_set:
                     if error == Item.ERROR_FILE_HASH_MISMATCH:
-                        s += "err_{0}: file has changed (hash/size mismatch)".format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
+                        s += "File contents has changed (hash mismatch)".format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep 
                     elif error == Item.ERROR_FILE_NOT_FOUND:
-                        s += "err_{0}: file not found".format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
+                        s += "File not found (maybe it was deleted, moved or renamed?)".format(Item.ERROR_FILE_NOT_FOUND) + os.linesep 
                 if s.endswith(os.linesep):
                     s = s[:-1]
         else:
@@ -554,17 +554,20 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
         return s
     
     def __formatErrorSetShort(self, error_set):
-
         if error_set is None:
-            #Целостность не проверялась
             return ""
         if len(error_set) <= 0:
-            #Ошибок нет, целостность в порядке
-            return 'OK'
+            return self.tr("OK")
         elif len(error_set) > 0:
-            #Есть ошибки
-            return helpers.to_commalist(error_set, lambda x: "err_{0}".format(x))
-            
+            return helpers.to_commalist(error_set, lambda x: self.__formatErrorShort(x))
+        
+    def __formatErrorShort(self, itemErrorCode):
+        if itemErrorCode == Item.ERROR_FILE_NOT_FOUND:
+            return self.tr("File not found")
+        elif itemErrorCode == Item.ERROR_FILE_HASH_MISMATCH:
+            return self.tr("Hash mismatch")
+        else:
+            assert False, "Unknown error code"
         
     
     
