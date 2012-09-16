@@ -3,7 +3,7 @@ from tests.abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests.tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonExistingItem,\
     itemWithTagsAndFields, itemWithoutFile, itemWithErrorFileNotFound, itemWithErrorHashMismatch,\
-    itemWithErrorFileNotFoundNo2, itemId_1
+    itemWithErrorFileNotFoundNo2, itemId_1, itemWithErrorHashMismatchNo2, itemId_4
 from data.repo_mgr import *
 from data.commands import *
 from errors import *
@@ -571,13 +571,14 @@ class CheckItemIntegrityTest(AbstractTestCaseWithRepo):
 
 class FixItemIntegrityTest(AbstractTestCaseWithRepo):
     
-    def test_fixItemWithErrorFileNotFound_TryFind(self):
+    def test_fixItemWithErrorFileNotFound_TryFind_UntrackedFile(self):
         '''
-            Fixer should find file in the repo in a different location. And a new 
-        DataRef object will be created for it.
+            Fixer should find an untracked file in the repo in a different location. And a new 
+        DataRef object will be created for it. Original DataRef object will be deleted.
         '''
         item = self.getExistingItem(itemWithErrorFileNotFound.id)
         originalDataRefId = item.data_ref.id
+        
         uow = self.repo.createUnitOfWork()
         try:
             itemsLock = QtCore.QReadWriteLock()
@@ -586,26 +587,39 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
                                               uow, self.repo.base_path, itemsLock)
             result = fixer.fix_error(item, itemWithErrorFileNotFound.ownerUserLogin)
             uow.session.commit()
-            
             self.assertTrue(result)
-            
         finally:
             uow.close()
             
         fixedItem = self.getExistingItem(itemWithErrorFileNotFound.id)
-        fileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
-        self.assertTrue(os.path.exists(fileAbsPath))
         
-        self.assertEquals(originalDataRefId, fixedItem.data_ref.id, "DataRef object should be still the same")
+        self.assertNotEquals(originalDataRefId, fixedItem.data_ref.id, 
+            "A new DataRef object should be created")
+        
+        originalDataRef = self.getDataRefById(originalDataRefId)
+        self.assertIsNone(originalDataRef, 
+            "Original DataRef should be deleted, because there are no references to it anymore")
+        
+        foundFileAbsPath = os.path.join(self.repo.base_path, "this", "is", "lost", "consts.py")
+        fixedItemFileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
+        
+        self.assertEquals(fixedItemFileAbsPath, foundFileAbsPath, 
+            "Item should reference to this file now {}".format(foundFileAbsPath))
+        
+        self.assertTrue(os.path.exists(fixedItemFileAbsPath),
+            "Found file should exist on filesystem")
         
         
-    def test_fixItemWithErrorFileNotFound_TryFind_No2(self):
+        
+        
+    def test_fixItemWithErrorFileNotFound_TryFind_StoredFile(self):
         '''
-            This test is a little different from test_fixItemWithErrorFileNotFound_TryFind.
-        Fixer should find in the repo an existing DataRef object with the same matching hash.
+            Fixer should find in the repo an existing DataRef object with the same matching hash.
+        Original DataRef object should be deleted.
         '''
         item = self.getExistingItem(itemWithErrorFileNotFoundNo2.id)
         originalDataRefId = item.data_ref.id
+        
         uow = self.repo.createUnitOfWork()
         try:
             itemsLock = QtCore.QReadWriteLock()
@@ -613,27 +627,33 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
                                               FileNotFoundFixer.TRY_FIND, 
                                               uow, self.repo.base_path, itemsLock)
             result = fixer.fix_error(item, itemWithErrorFileNotFoundNo2.ownerUserLogin)
-            uow.session.commit()
-            
+            uow.session.commit()    
             self.assertTrue(result)
-            
         finally:
             uow.close()
             
         fixedItem = self.getExistingItem(itemWithErrorFileNotFoundNo2.id)
-        fileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
-        self.assertTrue(os.path.exists(fileAbsPath))
+        self.assertEquals(fixedItem.data_ref.url_raw, itemId_1.relFilePath,
+            "Fixed should find this stored file")
+        
+        fixedItemFileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
+        self.assertTrue(os.path.exists(fixedItemFileAbsPath),
+            "Found file should exist on filesystem")
         
         originalDataRef = self.getDataRefById(originalDataRefId)
-        self.assertIsNone(originalDataRef, "Original DataRef object should be deleted from database")
+        self.assertIsNone(originalDataRef, 
+            "Original DataRef object should be deleted from database: no more references to it")
         
         anotherItem = self.getExistingItem(itemId_1.id)
         self.assertEquals(fixedItem.data_ref.id, anotherItem.data_ref.id, 
             "Now two different items reference to the same DataRef object")
         
+        
+        
+        
     def test_fixItemWithErrorFileNotFound_Delete(self):
         '''
-            Fixer should just delete Item's reference to the missed file and delete corresponding 
+            Fixer should just delete Item's reference to the lost file and delete original 
         DataRef object from database.
         '''
         item = self.getExistingItem(itemWithErrorFileNotFound.id)
@@ -653,13 +673,21 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             uow.close()
             
         fixedItem = self.getExistingItem(itemWithErrorFileNotFound.id)
-        self.assertIsNone(fixedItem.data_ref, "Item has no references to files now")
+        self.assertIsNone(fixedItem.data_ref, 
+            "Item has no references to files now")
         
         originalDataRef = self.getDataRefById(originalDataRefId)
-        self.assertIsNone(originalDataRef, "Original DataRef object should be deleted from database")
+        self.assertIsNone(originalDataRef, 
+            "Original DataRef object should be deleted from database: no more references to it")
             
             
     def test_fixItemWithErrorHashMismatch_UpdateHash(self):
+        '''
+            Fixer should create a new DataRef object with the same file url, 
+        but recalculated file hash. Original DataRef object will be deleted.
+        
+        This is impossible, url must be unique!
+        '''
         item = self.getExistingItem(itemWithErrorHashMismatch.id)
         originalDataRefId = item.data_ref.id
         originalFileHash = item.data_ref.hash
@@ -679,17 +707,24 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             uow.close()
         
         fixedItem = self.getExistingItem(itemWithErrorHashMismatch.id)
-        self.assertNotEquals(originalFileHash, fixedItem.data_ref.hash, 
-            "File hash should be different now")
+        self.assertNotEqual(fixedItem.data_ref.id, originalDataRefId, 
+            "A new DataRef object should have been created")
         
-        self.assertEquals(originalDataRefId, fixedItem.data_ref.id, 
-            "DataRef object should be still the same")
+        originalDataRef = self.getDataRefById(originalDataRefId)
+        self.assertIsNone(originalDataRef,
+            "Original DataRef object should be deleted")
         
-        self.assertEquals(originalFilePath, fixedItem.data_ref.url_raw, 
-            "File path should be still the same")
+        
+        
+
             
             
-    def test_fixItemWithErrorHashMismatch_TryFind(self):
+    def test_fixItemWithErrorHashMismatch_TryFind_UntrackedFile(self):
+        '''
+            Fixer should find an untracked file with matching hash. A new DataRef object 
+        should be created for it. Original DataRef object will be deleted, because there are
+        no more references to it.
+        '''
         item = self.getExistingItem(itemWithErrorHashMismatch.id)
         originalDataRefId = item.data_ref.id
         originalDataRefUrl = item.data_ref.url_raw
@@ -709,17 +744,51 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             uow.close()
         
         fixedItem = self.getExistingItem(itemWithErrorHashMismatch.id)
-        fileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
-        self.assertTrue(os.path.exists(fileAbsPath))
+        #TODO: write correct checks
+        
+    def test_fixItemWithErrorHashMismatch_TryFind_StoredFile(self):
+        '''
+            Fixer should find an existing DataRef object with matching file hash.
+        Original DataRef object will be deleted.
+        '''
+        item = self.getExistingItem(itemWithErrorHashMismatchNo2.id)
+        originalDataRefId = item.data_ref.id
+        originalDataRefUrl = item.data_ref.url_raw
+        originalFileHash = item.data_ref.hash
+        uow = self.repo.createUnitOfWork()
+        try:
+            itemsLock = QtCore.QReadWriteLock()
+            fixer = IntegrityFixerFactory.createFixer(Item.ERROR_FILE_HASH_MISMATCH, 
+                                              FileHashMismatchFixer.TRY_FIND_FILE, 
+                                              uow, self.repo.base_path, itemsLock)
+            result = fixer.fix_error(item, itemWithErrorHashMismatchNo2.ownerUserLogin)
+            uow.session.commit()
+            
+            self.assertTrue(result)
+            
+        finally:
+            uow.close()
+        
+        fixedItem = self.getExistingItem(itemWithErrorHashMismatchNo2.id)
+        
+        fixedItemFileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
+        self.assertTrue(os.path.exists(fixedItemFileAbsPath),
+            "Found file should exist on filesystem")
         
         originalDataRef = self.getDataRefById(originalDataRefId)
         self.assertIsNone(originalDataRef, 
             "Original DataRef object should be deleted")
         
-        self.assertNotEquals(originalDataRefUrl, fixedItem.data_ref.url_raw, 
-            "Item should reference to a different file now")
+        self.assertEquals(fixedItem.data_ref.url_raw, itemId_4.relFilePath, 
+            "Fixer should have been found this file")
         
         self.assertEquals(originalFileHash, fixedItem.data_ref.hash,
             "File hash should be still the same")
+        
+        anotherItem = self.getExistingItem(itemId_4.id)
+        self.assertEquals(fixedItem.data_ref.id, anotherItem.data_ref.id,
+            "Now two items reference to the same DataRef object")
+        
+        
         
             

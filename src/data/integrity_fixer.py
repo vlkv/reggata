@@ -31,6 +31,17 @@ class AbstractIntegrityFixer(object):
         
     
 class FileNotFoundFixer(AbstractIntegrityFixer):
+    '''
+        TRY_FIND - Fixer tries to find a file with matching hash. There are two cases here:
+        a) Fixer finds an untracked file in the repo. A new DataRef object is created and it is 
+    liked with the Item.
+        b) Fixer finds a stored file so there is an existing DataRef object for the found file.
+    Fixer links the Item with this found DataRef object.
+        In both cases the original DataRef object will be deleted if there are no more references 
+    to it from other Items.
+        DELETE - Fixer just removes a reference from Item to the DataRef object. The original DataRef 
+    object will be deleted if there are no more references to it from other Items. 
+    '''
     TRY_FIND = 0
     DELETE = 1
     
@@ -162,6 +173,17 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         
 
 class FileHashMismatchFixer(AbstractIntegrityFixer):
+    '''
+        TRY_FIND_FILE - Fixer tries to find a file with matching hash. There are two cases here:
+        a) Fixer finds an untracked file in the repo. A new DataRef object is created and it is 
+    liked with the Item.
+        b) Fixer finds a stored file so there is an existing DataRef object for the found file.
+    Fixer links the Item with this found DataRef object.
+        In both cases the original DataRef object will be deleted if there are no more references 
+    to it from other Items.
+        UPDATE_HASH - Fixer calculates new hash for the file and stores it's value 
+    in existing DataRef object of the Item.    
+    '''
     TRY_FIND_FILE = 0
     UPDATE_HASH = 1
     

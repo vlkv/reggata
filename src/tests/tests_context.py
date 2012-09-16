@@ -30,6 +30,15 @@ itemWithFile.ownerUserLogin = "user"
 itemWithFile.relFilePath = "Dont_Forget_Me_Outro_Jam_Montreal 2006.txt"
 
 
+itemId_4 = ItemReliableFacts()
+itemId_4.id = 4
+itemId_4.title = '"Stairway To Heaven" lyrics'
+itemId_4.relFilePath = "lyrics/led_zeppelin/stairway_to_heaven.txt"
+itemId_4.ownerUserLogin = "user"
+itemId_4.tags = ["Lyrics", "Led_Zeppelin"]
+itemId_4.fields = dict()
+
+
 itemWithTagsAndFields = ItemReliableFacts()
 itemWithTagsAndFields.id = 5
 itemWithTagsAndFields.title = "I Could Have Lied.txt"
@@ -79,6 +88,13 @@ itemWithErrorFileNotFoundNo2.tags = ["RHCP", "Tabs", "Error"]
 itemWithErrorFileNotFoundNo2.fields = {"Notes": "This item references to a file which is lost. But in this repo there is a file with exactly the same contents (and the same hash)."}
 
 
+itemWithErrorHashMismatchNo2 = ItemReliableFacts()
+itemWithErrorHashMismatchNo2.id = 10
+itemWithErrorHashMismatchNo2.title = "Item #2 with error: file hash mismatch"
+itemWithErrorHashMismatchNo2.ownerUserLogin = "user"
+itemWithErrorHashMismatchNo2.relFilePath = "led_zeppelin/stairway_to_heaven.txt"
+itemWithErrorHashMismatchNo2.tags = ["Lyrics", "Led_Zeppelin", "Error"]
+itemWithErrorHashMismatchNo2.fields = {"Notes": "This item references to a file, which hash is the same as in Item with id=4"}
 
 
 
