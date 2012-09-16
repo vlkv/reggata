@@ -938,47 +938,44 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
             show_exc_info(self._gui, ex)
 
 class CheckItemIntegrityActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(CheckItemIntegrityActionHandler, self).__init__(gui)
+    def __init__(self, tool):
+        super(CheckItemIntegrityActionHandler, self).__init__(tool)
     
     def handle(self):
         def refresh(percent, row):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Integrity check {0}%").format(percent))            
-            
-            #TODO: Have to replace this direct updates with emitting some specific signals..
-            self._gui.resetSingleRow(row)
+                self.tr("Integrity check {0}%").format(percent))
+            self._emitHandlerSignal(HandlerSignals.RESET_SINGLE_ROW, row)
             QtCore.QCoreApplication.processEvents()
         
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()            
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()            
             
-            rows = self._gui.selectedRows()
+            rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
             items = []
             for row in rows:
-                item = self._gui.itemAtRow(row)
+                item = self._tool.gui.itemAtRow(row)
                 item.table_row = row
                 items.append(item)
              
             thread = ItemIntegrityCheckerThread(
-                self._gui, self._gui.model.repo, items, self._gui.model.itemsLock)
+                self._tool.gui, self._tool.repo, items, self._tool.itemsLock)
             
             self.connect(thread, QtCore.SIGNAL("progress"), 
                          lambda percents, row: refresh(percents, row))
             self.connect(thread, QtCore.SIGNAL("finished"), 
                          lambda error_count: self._emitHandlerSignal(
-                             HandlerSignals.STATUS_BAR_MESSAGE,
-                             self.tr("Integrity check is done. {0} Items with errors.")
-                                 .format(error_count))
-                         )
+                                HandlerSignals.STATUS_BAR_MESSAGE,
+                                self.tr("Integrity check is done. {0} Items with errors.")
+                                    .format(error_count)))
             thread.start()
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
 
 
 class ExitReggataActionHandler(AbstractActionHandler):

@@ -117,6 +117,20 @@ class ItemsTable(AbstractTool):
         self._actionHandlers.register(
             self._gui.actions['exportItemsFilePaths'],
             ExportItemsFilePathsActionHandler(self, self._dialogsFacade))
+        
+        self._actionHandlers.register(
+            self._gui.actions['checkItemsIntegrity'],
+            CheckItemIntegrityActionHandler(self))
+    
+    
+#subMenuCheck = self._createAndAddSubMenu(self.tr("Integrity"), self, menu)
+#subMenuCheck.addAction(self.actions['checkItemsIntegrity'])
+#subMenuFixFileNotFoundError = self._createAndAddSubMenu(self.tr("Fix File Not Found Error"), self, subMenuCheck)
+#subMenuFixFileNotFoundError.addAction(self.actions['fixFileNotFoundTryFind'])
+#subMenuFixFileNotFoundError.addAction(self.actions['fixFileNotFoundRemoveDataRef'])
+#subMenuFixHashMismatchError = self._createAndAddSubMenu(self.tr("Fix File Hash Mismatch Error"), self, subMenuCheck)
+#subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchTryFind'])
+#subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchUpdateHash'])
                 
     
 #        # Separator

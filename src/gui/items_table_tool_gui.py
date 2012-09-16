@@ -215,6 +215,12 @@ class ItemsTableToolGui(ToolGui):
         self.actions['exportItemsFiles'] = self._createAction(self.tr("Export items' files"))
         self.actions['exportItemsFilePaths'] = self._createAction(self.tr("Export items' file paths"))
         
+        self.actions['checkItemsIntegrity'] = self._createAction(self.tr("Check Item integrity"))
+        self.actions['fixFileNotFoundTryFind'] = self._createAction(self.tr("Try find file"))
+        self.actions['fixFileNotFoundRemoveDataRef'] = self._createAction(self.tr("Remove Item's reference to file"))
+        self.actions['fixHashMismatchTryFind'] = self._createAction(self.tr("Try find file"))
+        self.actions['fixHashMismatchUpdateHash'] = self._createAction(self.tr("Update file hash"))
+        
     
     def buildMainMenu(self):
         assert len(self.actions) > 0, "Actions should be already built"
@@ -243,6 +249,14 @@ class ItemsTableToolGui(ToolGui):
         subMenuExport.addAction(self.actions['exportItems'])
         subMenuExport.addAction(self.actions['exportItemsFiles'])
         subMenuExport.addAction(self.actions['exportItemsFilePaths'])
+        menu.addSeparator()
+        menu.addAction(self.actions['checkItemsIntegrity'])
+        subMenuFixFileNotFoundError = self._createAndAddSubMenu(self.tr("Fix File Not Found Error"), self, menu)
+        subMenuFixFileNotFoundError.addAction(self.actions['fixFileNotFoundTryFind'])
+        subMenuFixFileNotFoundError.addAction(self.actions['fixFileNotFoundRemoveDataRef'])
+        subMenuFixHashMismatchError = self._createAndAddSubMenu(self.tr("Fix File Hash Mismatch Error"), self, menu)
+        subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchTryFind'])
+        subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchUpdateHash'])
     
     
     def __buildContextMenu(self):
@@ -267,6 +281,14 @@ class ItemsTableToolGui(ToolGui):
         subMenuExport.addAction(self.actions['exportItems'])
         subMenuExport.addAction(self.actions['exportItemsFiles'])
         subMenuExport.addAction(self.actions['exportItemsFilePaths'])
+        menu.addSeparator()
+        menu.addAction(self.actions['checkItemsIntegrity'])
+        subMenuFixFileNotFoundError = self._createAndAddSubMenu(self.tr("Fix File Not Found Error"), self, menu)
+        subMenuFixFileNotFoundError.addAction(self.actions['fixFileNotFoundTryFind'])
+        subMenuFixFileNotFoundError.addAction(self.actions['fixFileNotFoundRemoveDataRef'])
+        subMenuFixHashMismatchError = self._createAndAddSubMenu(self.tr("Fix File Hash Mismatch Error"), self, menu)
+        subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchTryFind'])
+        subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchUpdateHash'])
         
     
     def __addContextMenu(self):
