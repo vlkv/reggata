@@ -602,7 +602,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
     def test_fixItemWithErrorFileNotFound_TryFind_No2(self):
         '''
             This test is a little different from test_fixItemWithErrorFileNotFound_TryFind.
-        Fixer should find in repo existing DataRef object with the same matching hash.
+        Fixer should find in the repo an existing DataRef object with the same matching hash.
         '''
         item = self.getExistingItem(itemWithErrorFileNotFoundNo2.id)
         originalDataRefId = item.data_ref.id
@@ -631,7 +631,32 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         self.assertEquals(fixedItem.data_ref.id, anotherItem.data_ref.id, 
             "Now two different items reference to the same DataRef object")
         
+    def test_fixItemWithErrorFileNotFound_Delete(self):
+        '''
+            Fixer should just delete Item's reference to the missed file and delete corresponding 
+        DataRef object from database.
+        '''
+        item = self.getExistingItem(itemWithErrorFileNotFound.id)
+        originalDataRefId = item.data_ref.id
+        uow = self.repo.createUnitOfWork()
+        try:
+            itemsLock = QtCore.QReadWriteLock()
+            fixer = IntegrityFixerFactory.createFixer(Item.ERROR_FILE_NOT_FOUND, 
+                                              FileNotFoundFixer.DELETE, 
+                                              uow, self.repo.base_path, itemsLock)
+            result = fixer.fix_error(item, itemWithErrorFileNotFound.ownerUserLogin)
+            uow.session.commit()
+            
+            self.assertTrue(result)
+            
+        finally:
+            uow.close()
+            
+        fixedItem = self.getExistingItem(itemWithErrorFileNotFound.id)
+        self.assertIsNone(fixedItem.data_ref, "Item has no references to files now")
         
+        originalDataRef = self.getDataRefById(originalDataRefId)
+        self.assertIsNone(originalDataRef, "Original DataRef object should be deleted from database")
             
 
             
