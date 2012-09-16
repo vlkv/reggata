@@ -117,6 +117,36 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
             
         return (found, matchedDataRef)
         
+    def _searchUntrackedMatchedFile(self, originalDataRef):
+        #TODO We should first search in the same directory (maybe this file was just renamed)
+        newDataRef = None 
+        needBreak = False
+        for root, dirs, files in os.walk(self.repo_base_path):
+            for file in files:
+                #Skip files which size is different from originalDataRef.size
+                size = os.path.getsize(os.path.join(root, file))
+                if size != originalDataRef.size:
+                    continue
+                
+                calculatedHash = compute_hash(os.path.join(root, file))
+                if calculatedHash != originalDataRef.hash:
+                    continue
+                
+                fileRelPath = os.path.relpath(os.path.join(root, file), self.repo_base_path)
+                newDataRef = DataRef(type=DataRef.FILE, url=fileRelPath, date_created=datetime.datetime.today())
+                newDataRef.hash = calculatedHash
+                newDataRef.size = os.path.getsize(os.path.join(root, file))
+                self.uow.session.add(newDataRef)
+                self.uow.session.flush()
+                
+                needBreak = True
+                break
+            
+            if needBreak:
+                break
+            
+        return newDataRef
+        
         
     def _try_find(self, item, user_login):
         error_fixed = False
@@ -129,35 +159,13 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
             error_fixed = True
             delete_old_dr = True
             bind_new_dr_to_item = True
-            
         else:
-            #TODO We should first search in the same directory (maybe this file was just renamed) 
-            need_break = False
-            for root, dirs, files in os.walk(self.repo_base_path):
-                for file in files:
-                    
-                    #Skip files which size is different from item.data_ref.size
-                    size = os.path.getsize(os.path.join(root, file))
-                    if size != item.data_ref.size:
-                        continue
-                    
-                    hash = compute_hash(os.path.join(root, file))
-                    if hash == item.data_ref.hash:
-                        new_url = os.path.relpath(os.path.join(root, file), self.repo_base_path)
-                        new_dr = DataRef(type=DataRef.FILE, url=new_url, date_created=datetime.datetime.today())
-                        new_dr.hash = hash
-                        new_dr.size = os.path.getsize(os.path.join(root, file))
-                        self.uow.session.add(new_dr)
-                        self.uow.session.flush()
-                        
-                        delete_old_dr = True
-                        bind_new_dr_to_item = True             
-                        error_fixed = True
-                        
-                        need_break = True
-                        break
-                if need_break:
-                    break
+            new_dr = self._searchUntrackedMatchedFile(item.data_ref)
+            if new_dr is not None:
+                error_fixed = True
+                delete_old_dr = True
+                bind_new_dr_to_item = True
+                
                 
         if delete_old_dr:
             rows = self.uow.session.query(DataRef).filter(DataRef.id==item.data_ref.id)\
