@@ -92,7 +92,7 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         
         return True
         
-    def _searchInStoredFiles(self, originalDataRef):
+    def _searchExistingMatchedDataRef(self, originalDataRef):
         '''
             Returns (isFound, matchedDataRef) tuple.
         '''
@@ -123,7 +123,7 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         delete_old_dr = False
         bind_new_dr_to_item = False
         
-        found, new_dr = self._searchInStoredFiles(item.data_ref)
+        found, new_dr = self._searchExistingMatchedDataRef(item.data_ref)
         
         if found:
             error_fixed = True
