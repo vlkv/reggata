@@ -170,6 +170,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         originalDataRefId = item.data_ref.id
         originalFileHash = item.data_ref.hash
         originalFilePath = item.data_ref.url_raw
+        
         uow = self.repo.createUnitOfWork()
         try:
             itemsLock = QtCore.QReadWriteLock()
@@ -178,19 +179,21 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
                                               uow, self.repo.base_path, itemsLock)
             result = fixer.fix_error(item, itemWithErrorHashMismatch.ownerUserLogin)
             uow.session.commit()
-            
             self.assertTrue(result)
-            
         finally:
             uow.close()
         
         fixedItem = self.getExistingItem(itemWithErrorHashMismatch.id)
-        self.assertNotEqual(fixedItem.data_ref.id, originalDataRefId, 
-            "A new DataRef object should have been created")
         
-        originalDataRef = self.getDataRefById(originalDataRefId)
-        self.assertIsNone(originalDataRef,
-            "Original DataRef object should be deleted")
+        self.assertEqual(fixedItem.data_ref.id, originalDataRefId, 
+            "An Existing DataRef object should have been modified")
+        
+        self.assertNotEquals(fixedItem.data_ref.hash, originalFileHash,
+            "File hash should be different")
+        
+        self.assertEquals(fixedItem.data_ref.url_raw, originalFilePath,
+            "File path should not be changed")
+        
         
         
         
@@ -205,8 +208,8 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         '''
         item = self.getExistingItem(itemWithErrorHashMismatch.id)
         originalDataRefId = item.data_ref.id
-        originalDataRefUrl = item.data_ref.url_raw
         originalFileHash = item.data_ref.hash
+        
         uow = self.repo.createUnitOfWork()
         try:
             itemsLock = QtCore.QReadWriteLock()
@@ -214,15 +217,33 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
                                               FileHashMismatchFixer.TRY_FIND_FILE, 
                                               uow, self.repo.base_path, itemsLock)
             result = fixer.fix_error(item, itemWithErrorHashMismatch.ownerUserLogin)
-            uow.session.commit()
-            
+            uow.session.commit()    
             self.assertTrue(result)
-            
         finally:
             uow.close()
         
         fixedItem = self.getExistingItem(itemWithErrorHashMismatch.id)
-        #TODO: write correct checks
+        
+        self.assertNotEquals(originalDataRefId, fixedItem.data_ref.id, 
+            "A new DataRef object should be created")
+        
+        originalDataRef = self.getDataRefById(originalDataRefId)
+        self.assertIsNone(originalDataRef, 
+            "Original DataRef should be deleted, because there are no references to it anymore")
+        
+        foundFileAbsPath = os.path.join(self.repo.base_path, "this", "is", "untracked", "led_zeppelin_from_wikipedia.txt.original")
+        fixedItemFileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
+        
+        self.assertEquals(fixedItemFileAbsPath, foundFileAbsPath, 
+            "Item should reference to this file now {}".format(foundFileAbsPath))
+        
+        self.assertTrue(os.path.exists(fixedItemFileAbsPath),
+            "Found file should exist on filesystem")
+        
+        self.assertEquals(fixedItem.data_ref.hash, originalFileHash,
+            "File hash should be still the same")
+        
+
         
     def test_fixItemWithErrorHashMismatch_TryFind_StoredFile(self):
         '''
@@ -231,8 +252,8 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         '''
         item = self.getExistingItem(itemWithErrorHashMismatchNo2.id)
         originalDataRefId = item.data_ref.id
-        originalDataRefUrl = item.data_ref.url_raw
         originalFileHash = item.data_ref.hash
+        
         uow = self.repo.createUnitOfWork()
         try:
             itemsLock = QtCore.QReadWriteLock()
@@ -241,9 +262,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
                                               uow, self.repo.base_path, itemsLock)
             result = fixer.fix_error(item, itemWithErrorHashMismatchNo2.ownerUserLogin)
             uow.session.commit()
-            
-            self.assertTrue(result)
-            
+            self.assertTrue(result)    
         finally:
             uow.close()
         
