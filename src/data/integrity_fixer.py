@@ -31,9 +31,8 @@ class AbstractIntegrityFixer(object):
         
     
 class FileNotFoundFixer(AbstractIntegrityFixer):
-    TRY_FIND = 0 #Искать оригинальный файл
-    TRY_FIND_ELSE_DELETE = 1 #Искать оригинальный файл, если не найден, то удалить DataRef объект
-    DELETE = 2 #Удалить DataRef объект
+    TRY_FIND = 0
+    DELETE = 1
     
     def __init__(self, strategy, uow, repo_base_path, items_lock):
         if strategy not in [self.TRY_FIND, self.TRY_FIND_ELSE_DELETE, self.DELETE]:
@@ -44,23 +43,28 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         self.repo_base_path = repo_base_path
         self.lock = items_lock
     
+    
     def code(self):
         return Item.ERROR_FILE_NOT_FOUND
     
+    
     def fix_error(self, item, user_login):
-        
         if item.data_ref is None:
-            raise Exception("This item has no related files.")
+            raise Exception("Given item has no referenced files. There is nothing to fix.")
         
         if self.strategy == self.TRY_FIND:
             return self._try_find(item, user_login)
+        
         elif self.strategy == self.DELETE:
             return self._delete(item, user_login)
+        
         else:
             raise Exception("Not supported strategy = {0}.".format(self.strategy))
 
+
     def _delete(self, item, user_login):
-        '''This method deletes item.data_ref object, which links to the lost file.
+        '''
+            This method deletes item.data_ref object, which links to the lost file.
         '''
         #updating existing DataRef object
         existing_dr = self.uow.session.query(DataRef).get(item.data_ref.id)
@@ -84,7 +88,6 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         error_fixed = False
         delete_old_dr = False
         bind_new_dr_to_item = False
-        update_history_recs = False
         new_dr = None        
         
         found = None
@@ -145,7 +148,6 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
             self.uow.session.expunge(item_0)
                 
         if new_dr is not None:
-
             if new_dr in self.uow.session:
                 self.uow.session.expunge(new_dr)            
             
@@ -160,8 +162,8 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         
 
 class FileHashMismatchFixer(AbstractIntegrityFixer):
-    TRY_FIND_FILE = 0 #Искать оригинальный файл
-    UPDATE_HASH = 1 #Записать новое значение хеша в объект DataRef
+    TRY_FIND_FILE = 0
+    UPDATE_HASH = 1
     
     def __init__(self, strategy, uow, repo_base_path, items_lock):
         if strategy not in [self.UPDATE_HASH, self.TRY_FIND_FILE]:
@@ -173,8 +175,53 @@ class FileHashMismatchFixer(AbstractIntegrityFixer):
         self.lock = items_lock
         self.seen_files = dict()
         
+    
     def code(self):
         return Item.ERROR_FILE_HASH_MISMATCH
+    
+    
+    def fix_error(self, item, user_login):
+        if item.data_ref is None:
+            raise Exception("Given item has no referenced files. There is nothing to fix.")
+        
+        if self.strategy == self.UPDATE_HASH:
+            return self._update_hash(item, user_login)
+        
+        elif self.strategy == self.TRY_FIND_FILE:
+            return self._try_find_file(item, user_login)
+        
+        else:
+            raise Exception("Not supported strategy = {0}.".format(self.strategy))
+    
+    
+    def _update_hash(self, item, user_login):
+        #Вычисляем новый хеш и размер файла
+        filename = os.path.join(self.repo_base_path, item.data_ref.url)
+        new_hash = compute_hash(filename)
+        new_size = os.path.getsize(filename)
+        new_date_hashed = datetime.datetime.today()
+        
+        #Извлекаем копию data_ref из БД, данный объект будет принадлежать текущей сессии
+        data_ref = self.uow.session.query(DataRef).get(item.data_ref.id)
+        if data_ref.hash == new_hash and data_ref.size == new_size:
+            raise Exception("This item.data_ref already has correct hash and size values.")
+        
+        #Меняем только эти три поля!
+        data_ref.hash = new_hash
+        data_ref.size = new_size
+        data_ref.date_hashed = new_date_hashed 
+        self.uow.session.flush()
+        
+        try:
+            self.lock.lockForWrite()
+            item.data_ref.hash = new_hash
+            item.data_ref.size = new_size
+            item.data_ref.date_hashed = new_date_hashed
+        finally:
+            self.lock.unlock()   
+            
+        return True
+    
     
     def _try_find_file(self, item, user_login):
         #Пытаемся найти внутри хранилища файл, хеш которого совпадает с item.data_ref.hash
@@ -264,45 +311,8 @@ class FileHashMismatchFixer(AbstractIntegrityFixer):
         return error_fixed
              
     
-    def _update_hash(self, item, user_login):
-        #Вычисляем новый хеш и размер файла
-        filename = os.path.join(self.repo_base_path, item.data_ref.url)
-        new_hash = compute_hash(filename)
-        new_size = os.path.getsize(filename)
-        new_date_hashed = datetime.datetime.today()
-        
-        #Извлекаем копию data_ref из БД, данный объект будет принадлежать текущей сессии
-        data_ref = self.uow.session.query(DataRef).get(item.data_ref.id)
-        if data_ref.hash == new_hash and data_ref.size == new_size:
-            raise Exception("This item.data_ref already has correct hash and size values.")
-        
-        #Меняем только эти три поля!
-        data_ref.hash = new_hash
-        data_ref.size = new_size
-        data_ref.date_hashed = new_date_hashed 
-        self.uow.session.flush()
-        
-        try:
-            self.lock.lockForWrite()
-            item.data_ref.hash = new_hash
-            item.data_ref.size = new_size
-            item.data_ref.date_hashed = new_date_hashed
-        finally:
-            self.lock.unlock()   
-            
-        return True
     
-    def fix_error(self, item, user_login):
-        
-        if item.data_ref is None:
-            raise Exception("This item has no related files.")
-        
-        if self.strategy == self.UPDATE_HASH:
-            return self._update_hash(item, user_login)
-        elif self.strategy == self.TRY_FIND_FILE:
-            return self._try_find_file(item, user_login)
-        else:
-            raise Exception("Not supported strategy = {0}.".format(self.strategy))
-
+    
+    
 
 
