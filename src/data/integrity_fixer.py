@@ -77,7 +77,7 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
 
     def _delete(self, item, user_login):
         '''
-            This method deletes item.data_ref object, which links to the lost file.
+            Deletes item.data_ref object, which links to the lost file.
         '''
         existingDataRef = self.uow.session.query(DataRef).get(item.data_ref.id)
         self.uow.session.delete(existingDataRef)
@@ -92,32 +92,45 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         
         return True
         
+    def _searchInStoredFiles(self, originalDataRef):
+        '''
+            Returns (isFound, matchedDataRef) tuple.
+        '''
+        found = False
+        matchedDataRef = None
+        try:
+            matchedDataRef = self.uow.session.query(DataRef) \
+                .filter(DataRef.hash == originalDataRef.hash) \
+                .filter(DataRef.url_raw != originalDataRef.url_raw) \
+                .first()
+            if matchedDataRef is not None:
+                # We must recalculate hash of found DataRef object, to be absolutely sure that it is correct
+                recalculatedHash = compute_hash(os.path.join(self.repo_base_path, matchedDataRef.url))
+                if recalculatedHash == matchedDataRef.hash:
+                    found = True
+                else:
+                    found = False
+                    matchedDataRef = None
+        except:
+            found = False
+            matchedDataRef = None
+            
+        return (found, matchedDataRef)
+        
         
     def _try_find(self, item, user_login):
         error_fixed = False
         delete_old_dr = False
         bind_new_dr_to_item = False
-        new_dr = None        
         
-        found = None
+        found, new_dr = self._searchInStoredFiles(item.data_ref)
         
-        try:
-            #Сначала нужно поискать среди существующих DataRef-ов в базе
-            new_dr = self.uow.session.query(DataRef).filter(DataRef.hash==item.data_ref.hash)\
-                .filter(DataRef.url_raw != item.data_ref.url).first()
-            if new_dr is not None:
-                hash = compute_hash(os.path.join(self.repo_base_path, new_dr.url))
-                if hash == item.data_ref.hash and hash == new_dr.hash:
-                    delete_old_dr = True
-                    bind_new_dr_to_item = True
-                    found = True
-                    error_fixed = True
-                else:
-                    new_dr = None
-        except:
-            found = False
-        
-        if not found:
+        if found:
+            error_fixed = True
+            delete_old_dr = True
+            bind_new_dr_to_item = True
+            
+        else:
             #TODO We should first search in the same directory (maybe this file was just renamed) 
             need_break = False
             for root, dirs, files in os.walk(self.repo_base_path):
@@ -171,7 +184,7 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
             finally:
                 self.lock.unlock()
         
-        return error_fixed 
+        return error_fixed
         
         
 
