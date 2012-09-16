@@ -182,7 +182,9 @@ class FileHashMismatchFixer(AbstractIntegrityFixer):
         In both cases the original DataRef object will be deleted if there are no more references 
     to it from other Items.
         UPDATE_HASH - Fixer calculates new hash for the file and stores it's value 
-    in existing DataRef object of the Item.    
+    in existing DataRef object of the Item. NOTE: We cannot create new DataRef object, 
+    without deleting the original one (because url must be unique). 
+    But we cannot delete original DataRef object if there are some items that reference to it.    
     '''
     TRY_FIND_FILE = 0
     UPDATE_HASH = 1

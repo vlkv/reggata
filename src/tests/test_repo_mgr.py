@@ -574,7 +574,8 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
     def test_fixItemWithErrorFileNotFound_TryFind_UntrackedFile(self):
         '''
             Fixer should find an untracked file in the repo in a different location. And a new 
-        DataRef object will be created for it. Original DataRef object will be deleted.
+        DataRef object will be created for it. Original DataRef object will be deleted 
+         (if no other items reference to it).
         '''
         item = self.getExistingItem(itemWithErrorFileNotFound.id)
         originalDataRefId = item.data_ref.id
@@ -615,7 +616,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
     def test_fixItemWithErrorFileNotFound_TryFind_StoredFile(self):
         '''
             Fixer should find in the repo an existing DataRef object with the same matching hash.
-        Original DataRef object should be deleted.
+        Original DataRef object should be deleted (if no other items reference to it).
         '''
         item = self.getExistingItem(itemWithErrorFileNotFoundNo2.id)
         originalDataRefId = item.data_ref.id
@@ -654,7 +655,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
     def test_fixItemWithErrorFileNotFound_Delete(self):
         '''
             Fixer should just delete Item's reference to the lost file and delete original 
-        DataRef object from database.
+        DataRef object from database (if no other items reference to it).
         '''
         item = self.getExistingItem(itemWithErrorFileNotFound.id)
         originalDataRefId = item.data_ref.id
@@ -683,10 +684,10 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             
     def test_fixItemWithErrorHashMismatch_UpdateHash(self):
         '''
-            Fixer should create a new DataRef object with the same file url, 
-        but recalculated file hash. Original DataRef object will be deleted.
-        
-        This is impossible, url must be unique!
+            Fixer should update file hash of an existing DataRef object.
+        NOTE: We cannot create new DataRef object, without deleting the original one 
+        (because url must be unique). But we cannot delete original DataRef object 
+        if there are some items that reference to it.
         '''
         item = self.getExistingItem(itemWithErrorHashMismatch.id)
         originalDataRefId = item.data_ref.id
@@ -722,8 +723,8 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
     def test_fixItemWithErrorHashMismatch_TryFind_UntrackedFile(self):
         '''
             Fixer should find an untracked file with matching hash. A new DataRef object 
-        should be created for it. Original DataRef object will be deleted, because there are
-        no more references to it.
+        should be created for it. Original DataRef object will be deleted, 
+        because other items do not reference to it
         '''
         item = self.getExistingItem(itemWithErrorHashMismatch.id)
         originalDataRefId = item.data_ref.id
@@ -749,7 +750,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
     def test_fixItemWithErrorHashMismatch_TryFind_StoredFile(self):
         '''
             Fixer should find an existing DataRef object with matching file hash.
-        Original DataRef object will be deleted.
+        Original DataRef object will be deleted, because other items do not reference to it.
         '''
         item = self.getExistingItem(itemWithErrorHashMismatchNo2.id)
         originalDataRefId = item.data_ref.id
