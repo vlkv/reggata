@@ -50,8 +50,6 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
     
     def __init__(self, strategy, uow, repo_base_path, items_lock):
         super(FileNotFoundFixer, self).__init__()
-        if strategy not in [self.TRY_FIND, self.DELETE]:
-            raise Exception("Wrong strategy value {0}".format(strategy))
         
         self.strategy = strategy
         self.uow = uow
@@ -74,7 +72,7 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
             return self._delete(item, user_login)
         
         else:
-            raise Exception("Not supported strategy = {0}.".format(self.strategy))
+            raise ValueError("Not supported strategy = {0}.".format(self.strategy))
 
 
     def _delete(self, item, user_login):
@@ -200,8 +198,6 @@ class FileHashMismatchFixer(AbstractIntegrityFixer):
     
     def __init__(self, strategy, uow, repo_base_path, items_lock):
         super(FileHashMismatchFixer, self).__init__()
-        if strategy not in [self.UPDATE_HASH, self.TRY_FIND_FILE]:
-            raise Exception("Wrong strategy value {0}".format(strategy))
         
         self.strategy = strategy
         self.uow = uow
@@ -225,7 +221,7 @@ class FileHashMismatchFixer(AbstractIntegrityFixer):
             return self._try_find_file(item, user_login)
         
         else:
-            raise Exception("Not supported strategy = {0}.".format(self.strategy))
+            raise ValueError("Not supported strategy = {0}.".format(self.strategy))
     
     
     def _update_hash(self, item, user_login):
