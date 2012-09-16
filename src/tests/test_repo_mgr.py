@@ -661,7 +661,9 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             
     def test_fixItemWithErrorHashMismatch_UpdateHash(self):
         item = self.getExistingItem(itemWithErrorHashMismatch.id)
+        originalDataRefId = item.data_ref.id
         originalFileHash = item.data_ref.hash
+        originalFilePath = item.data_ref.url_raw
         uow = self.repo.createUnitOfWork()
         try:
             itemsLock = QtCore.QReadWriteLock()
@@ -677,12 +679,47 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             uow.close()
         
         fixedItem = self.getExistingItem(itemWithErrorHashMismatch.id)
-        self.assertNotEquals(originalFileHash, fixedItem.data_ref.hash, "File hash should be different now")
-            
-            
-    def test_fixItemWithErrorHashMismatch_Delete(self):
-        pass
-        # TODO: implement test
+        self.assertNotEquals(originalFileHash, fixedItem.data_ref.hash, 
+            "File hash should be different now")
         
+        self.assertEquals(originalDataRefId, fixedItem.data_ref.id, 
+            "DataRef object should be still the same")
+        
+        self.assertEquals(originalFilePath, fixedItem.data_ref.url_raw, 
+            "File path should be still the same")
+            
+            
+    def test_fixItemWithErrorHashMismatch_TryFind(self):
+        item = self.getExistingItem(itemWithErrorHashMismatch.id)
+        originalDataRefId = item.data_ref.id
+        originalDataRefUrl = item.data_ref.url_raw
+        originalFileHash = item.data_ref.hash
+        uow = self.repo.createUnitOfWork()
+        try:
+            itemsLock = QtCore.QReadWriteLock()
+            fixer = IntegrityFixerFactory.createFixer(Item.ERROR_FILE_HASH_MISMATCH, 
+                                              FileHashMismatchFixer.TRY_FIND_FILE, 
+                                              uow, self.repo.base_path, itemsLock)
+            result = fixer.fix_error(item, itemWithErrorHashMismatch.ownerUserLogin)
+            uow.session.commit()
+            
+            self.assertTrue(result)
+            
+        finally:
+            uow.close()
+        
+        fixedItem = self.getExistingItem(itemWithErrorHashMismatch.id)
+        fileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
+        self.assertTrue(os.path.exists(fileAbsPath))
+        
+        originalDataRef = self.getDataRefById(originalDataRefId)
+        self.assertIsNone(originalDataRef, 
+            "Original DataRef object should be deleted")
+        
+        self.assertNotEquals(originalDataRefUrl, fixedItem.data_ref.url_raw, 
+            "Item should reference to a different file now")
+        
+        self.assertEquals(originalFileHash, fixedItem.data_ref.hash,
+            "File hash should be still the same")
         
             
