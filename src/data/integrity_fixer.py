@@ -147,15 +147,14 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
             
         return newDataRef
         
-    def _bindMatchedAndDeleteOriginalDataRef(self, originalDataRef, matchedDataRef, item):
+    def _processItemsDataRef(self, item, matchedDataRef):
         rows = self.uow.session.query(DataRef) \
-            .filter(DataRef.id==originalDataRef.id) \
+            .filter(DataRef.id==item.data_ref.id) \
             .delete(synchronize_session=False)
         if rows == 0:
             raise Exception("Cannot delete data_ref object.")
         elif rows > 1:
             raise Exception("The query deleted {} data_ref objects (but it should delete only one).")
-        
     
         assert matchedDataRef is not None
         item_0 = self.uow.session.query(Item).filter(Item.id==item.id).one()
@@ -171,17 +170,17 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
         existingDataRefFound, dataRef = self._searchExistingMatchedDataRef(item.data_ref)
         if existingDataRefFound:
             assert dataRef is not None
-            self._bindMatchedAndDeleteOriginalDataRef(item.data_ref, dataRef, item)
+            self._processItemsDataRef(item, dataRef)
             error_fixed = True
         else:
             dataRef = self._searchUntrackedMatchedFile(item.data_ref)
             if dataRef is not None:
-                self._bindMatchedAndDeleteOriginalDataRef(item.data_ref, dataRef, item)
+                self._processItemsDataRef(item, dataRef)
                 error_fixed = True
                 
         if dataRef is not None:
             if dataRef in self.uow.session:
-                self.uow.session.expunge(dataRef)            
+                self.uow.session.expunge(dataRef)
             
             try:
                 self.lock.lockForWrite()
