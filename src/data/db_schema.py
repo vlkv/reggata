@@ -266,8 +266,6 @@ class Item(Base, memento.Serializable):
                         s += "err_{0}: file has changed (hash/size mismatch)".format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
                     elif error == Item.ERROR_FILE_NOT_FOUND:
                         s += "err_{0}: file not found".format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
-                    elif error == Item.ERROR_HISTORY_REC_NOT_FOUND:
-                        s += "err_{0}: item's history record not found".format(Item.ERROR_HISTORY_REC_NOT_FOUND) + os.linesep
                 if s.endswith(os.linesep):
                     s = s[:-1]
         else:
