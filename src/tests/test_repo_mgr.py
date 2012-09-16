@@ -7,6 +7,7 @@ from data.repo_mgr import *
 from data.commands import *
 from errors import *
 from data import db_schema
+from data.integrity_fixer import IntegrityFixerFactory, FileNotFoundFixer
 
 
 
@@ -565,6 +566,29 @@ class CheckItemIntegrityTest(AbstractTestCaseWithRepo):
             self.assertTrue(db_schema.Item.ERROR_FILE_HASH_MISMATCH in errors)
         finally:
             uow.close()
+
+
+class FixItemIntegrityTest(AbstractTestCaseWithRepo):
+    
+    def test_fixItemWithErrorFileNotFound_TryFind(self):
+        item = self.getExistingItem(itemWithErrorFileNotFound.id)
+        uow = self.repo.createUnitOfWork()
+        try:
+            itemsLock = QtCore.QReadWriteLock()
+            fixer = IntegrityFixerFactory.createFixer(Item.ERROR_FILE_NOT_FOUND, 
+                                              FileNotFoundFixer.TRY_FIND, 
+                                              uow, self.repo.base_path, itemsLock)
+            result = fixer.fix_error(item, itemWithErrorFileNotFound.ownerUserLogin)
+            self.assertTrue(result)
             
+        finally:
+            uow.close()
+            
+        fixedItem = self.getExistingItem(itemWithErrorFileNotFound.id)
+        fileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
+        self.assertTrue(os.path.exists(fileAbsPath))
+        
+            
+
             
             
