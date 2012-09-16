@@ -626,14 +626,7 @@ class DeleteItemCommand(AbstractCommand):
             raise AccessError("Cannot delete item id={0} because another user attached a field to it."
                               .format(item_id))
         
-        parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, item)            
-        if parent_hr is None:
-            raise Exception("Cannot find corresponding history record for item id={0}."
-                            .format(item.id))
-        
         data_ref = item.data_ref
-
-        UnitOfWork._save_history_rec(self._session, item, user_login, HistoryRec.DELETE, parent_hr.id)
         
         item.data_ref = None
         item.data_ref_id = None
@@ -805,11 +798,6 @@ class SaveNewItemCommand(AbstractCommand):
         else:
             item.data_ref = None
         
-        #Saving HistoryRec object about this CREATE new item operation
-        UnitOfWork._save_history_rec(self._session, item, operation=HistoryRec.CREATE, \
-                                     user_login=user_login)
-        self._session.flush()
-        
         #Now it's time to COPY physical file to the repository
         if isDataRefRequired and srcAbsPath != dstAbsPath:
             try:
@@ -865,11 +853,6 @@ class UpdateExistingItemCommand(AbstractCommand):
             srcAbsPathForFileOperation = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
         elif item.data_ref is not None:
             srcAbsPathForFileOperation = item.data_ref.url
-            
-        parent_hr = UnitOfWork._find_item_latest_history_rec(self._session, persistentItem)
-        if parent_hr is None:
-            raise Exception("HistoryRec for Item object id={0} not found.".format(persistentItem.id))
-            #TODO We should give user more detailed info about how to recover from this case
         
         self.__updatePlainDataMembers(item, persistentItem)
         self.__updateTags(item, persistentItem, user_login)
@@ -878,7 +861,6 @@ class UpdateExistingItemCommand(AbstractCommand):
         
         self._session.refresh(persistentItem)
         
-        self.__updateHistoryRecords(persistentItem, user_login, parent_hr)
         self.__updateFilesystem(persistentItem, fileOperation, srcAbsPathForFileOperation)
         
         self._session.commit()
@@ -1015,19 +997,6 @@ class UpdateExistingItemCommand(AbstractCommand):
             self._session.flush()
             return need_file_operation
 
-    def __updateHistoryRecords(self, persistentItem, user_login, parent_hr):
-        # TODO: we shouldn't touch History Records if the item hasn't changed
-        hr = HistoryRec(item_id = persistentItem.id, item_hash=persistentItem.hash(), \
-                        operation=HistoryRec.UPDATE, \
-                        user_login=user_login, \
-                        parent1_id=parent_hr.id)
-        if persistentItem.data_ref is not None:
-            hr.data_ref_hash = persistentItem.data_ref.hash
-            hr.data_ref_url = persistentItem.data_ref.url    
-        if parent_hr != hr:
-            self._session.add(hr)
-        self._session.flush()
-
     def __updateFilesystem(self, persistentItem, fileOperation, srcAbsPathForFileOperation):
         # Performs operations with the file in OS filesystem
         
@@ -1110,18 +1079,10 @@ class CheckItemIntegrityCommand(AbstractCommand):
     def _execute(self, uow):
         errorSet = set()
     
-        # Do not check history rec errors... until all HistoryRec related code will be more or less bugfree
-        #self.__checkHistoryRec(uow.session, errorSet)
-        
         if self.__item.data_ref is not None and self.__item.data_ref.type == DataRef.FILE:
             self.__checkFileDataRef(uow.session, errorSet)
         
-        return errorSet
-    
-    def __checkHistoryRec(self, session, errorSet):
-        hr = UnitOfWork._find_item_latest_history_rec(session, self.__item)
-        if hr is None:
-            errorSet.add(Item.ERROR_HISTORY_REC_NOT_FOUND)
+        return errorSet        
     
     def __checkFileDataRef(self, session, errorSet):
         fileAbsPath = os.path.join(self.__repoBasePath, self.__item.data_ref.url)

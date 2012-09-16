@@ -23,16 +23,6 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
     def tearDown(self):
         self.repo = None
         shutil.rmtree(self.copyOfRepoBasePath)
-        
-    def getItemsMostRecentHistoryRec(self, item):
-        historyRec = None
-        try:
-            uow = self.repo.createUnitOfWork()
-            historyRec = UnitOfWork._find_item_latest_history_rec(uow.session, item)
-            self.assertIsNotNone(historyRec)
-        finally:
-            uow.close()
-        return historyRec
     
     def getExistingItem(self, id):
         try:

@@ -40,13 +40,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             uow = self.repo.createUnitOfWork()
             savedItem = uow.executeCommand(GetExpungedItemCommand(self.savedItemId))
             self.assertEqual(savedItem.title, item.title)
-            
-            histRec = UnitOfWork._find_item_latest_history_rec(uow.session, savedItem)
-            self.assertIsNotNone(histRec)
-            self.assertEqual(histRec.operation, HistoryRec.CREATE)
-            self.assertEqual(histRec.user_login, savedItem.user_login)
-            self.assertIsNone(histRec.parent1_id)
-            self.assertIsNone(histRec.parent2_id)
+
         finally:
             uow.close()
             
@@ -84,7 +78,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
     
     def test_saveNewItemWithFileOutsideRepo(self):
         '''
-        User wants to add an external file into the repo. File is copied to the repo.
+            User wants to add an external file into the repo. File is copied to the repo.
         '''
         item = Item("user", "Item's title")
         self.srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
@@ -105,13 +99,6 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             self.assertEqual(savedItem.data_ref.url_raw, to_db_format(self.dstRelPath))
             self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, savedItem.data_ref.url)))
             
-            histRec = UnitOfWork._find_item_latest_history_rec(uow.session, savedItem)
-            self.assertIsNotNone(histRec)
-            self.assertEqual(histRec.operation, HistoryRec.CREATE)
-            self.assertEqual(histRec.user_login, savedItem.user_login)
-            self.assertIsNone(histRec.parent1_id)
-            self.assertIsNone(histRec.parent2_id)
-            
             self.assertTrue(os.path.exists(self.srcAbsPath))
         finally:
             uow.close()
@@ -119,7 +106,7 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
     
     def test_saveNewItemWithFileInsideRepo(self):
         '''
-        There is an untracked file inside the repo tree. User wants to add such file 
+            There is an untracked file inside the repo tree. User wants to add such file 
         into the repo to make it a stored file. File is not copied, because it is alredy in 
         the repo tree. It's essential that srcAbsPath and dstRelPath point to the same file.
         '''
@@ -143,19 +130,12 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             self.assertEqual(savedItem.data_ref.url_raw, to_db_format(self.dstRelPath))
             self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, 
                                                         savedItem.data_ref.url)))
-            
-            histRec = UnitOfWork._find_item_latest_history_rec(uow.session, savedItem)
-            self.assertIsNotNone(histRec)
-            self.assertEqual(histRec.operation, HistoryRec.CREATE)
-            self.assertEqual(histRec.user_login, savedItem.user_login)
-            self.assertIsNone(histRec.parent1_id)
-            self.assertIsNone(histRec.parent2_id)
         finally:
             uow.close()
             
     def test_saveNewItemWithACopyOfAStoredFileInRepo(self):
         '''
-        User wants to add a copy of a stored file from the repo into the same repo 
+            User wants to add a copy of a stored file from the repo into the same repo 
         but to the another location. The copy of the original file will be attached 
         to the new Item object.
         '''
@@ -179,14 +159,6 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
             self.assertEqual(savedItem.data_ref.url_raw, to_db_format(self.dstRelPath))
             self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, 
                                                         savedItem.data_ref.url)))
-            
-            histRec = UnitOfWork._find_item_latest_history_rec(uow.session, savedItem)
-            self.assertIsNotNone(histRec)
-            self.assertEqual(histRec.operation, HistoryRec.CREATE)
-            self.assertEqual(histRec.user_login, savedItem.user_login)
-            self.assertIsNone(histRec.parent1_id)
-            self.assertIsNone(histRec.parent2_id)
-            
             self.assertTrue(os.path.exists(self.srcAbsPath))
         finally:
             uow.close()
@@ -214,12 +186,6 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         self.assertTrue(savedItem.has_tag(tagNameNew))
         self.assertEqual(len(savedItem.item_tags), 2)
         
-        histRec = self.getItemsMostRecentHistoryRec(savedItem)
-        self.assertIsNotNone(histRec)
-        self.assertEqual(histRec.operation, HistoryRec.CREATE)
-        self.assertEqual(histRec.user_login, savedItem.user_login)
-        self.assertIsNone(histRec.parent1_id)
-        self.assertIsNone(histRec.parent2_id)
         
     def test_saveNewItemWithFields(self):
         userLogin = "user"
@@ -244,15 +210,6 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         self.assertTrue(savedItem.has_field(fieldTwo[0], fieldTwo[1]))
         self.assertEqual(len(savedItem.item_fields), 2)
         
-        histRec = self.getItemsMostRecentHistoryRec(savedItem)
-        self.assertIsNotNone(histRec)
-        self.assertEqual(histRec.operation, HistoryRec.CREATE)
-        self.assertEqual(histRec.user_login, savedItem.user_login)
-        self.assertIsNone(histRec.parent1_id)
-        self.assertIsNone(histRec.parent2_id)
-        
-        
-    
 
 class DeleteItemTest(AbstractTestCaseWithRepo):
     def test_deleteExistingItemWithExistingPhysicalFileByOwner(self):
@@ -276,15 +233,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
             #NOTE that tags/fields collections are not cleared, as you might expect
             self.assertTrue(len(deletedItem.item_tags) >= 0)
             self.assertTrue(len(deletedItem.item_fields) >= 0)
-            
-            histRec = UnitOfWork._find_item_latest_history_rec(uow.session, itemBeforeDelete)
-            self.assertIsNotNone(histRec)
-            self.assertEqual(histRec.operation, HistoryRec.DELETE)
-            self.assertEqual(histRec.user_login, userThatDeletesItem)
-            self.assertIsNotNone(histRec.parent1_id)
-            self.assertIsNone(histRec.parent2_id)
-            #Should we test any other conditions?
-            
+
         finally:
             uow.close()
         self.assertFalse(os.path.exists(os.path.join(COPY_OF_TEST_REPO_BASE_PATH, itemWithFile.relFilePath)))
@@ -300,8 +249,6 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         item = self.getExistingItem(itemWithFile.id)
         self.assertEqual(item.title, itemWithFile.title)
             
-        historyRecBefore = self.getItemsMostRecentHistoryRec(item)
-            
         #Change item's title
         newItemTitle = "ABCDEF"
         self.assertNotEqual(item.title, newItemTitle, 
@@ -314,18 +261,6 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         item = self.getExistingItem(itemWithFile.id)
         self.assertEqual(item.title, newItemTitle)
         
-        historyRecAfter = self.getItemsMostRecentHistoryRec(item)
-        self.assertNotEqual(historyRecBefore.item_hash, historyRecAfter.item_hash)
-        self.assertEqual(historyRecBefore.item_id, historyRecAfter.item_id)
-        self.assertEqual(historyRecBefore.item_id, item.id)
-        self.assertEqual(historyRecBefore.data_ref_hash, historyRecAfter.data_ref_hash)
-        self.assertEqual(historyRecBefore.data_ref_url, historyRecAfter.data_ref_url)
-        self.assertEqual(historyRecAfter.parent1_id, historyRecBefore.id)
-        self.assertGreater(historyRecAfter.id, historyRecBefore.id)
-        self.assertIsNone(historyRecAfter.parent2_id)
-        self.assertEqual(historyRecAfter.operation, "UPDATE")
-        self.assertEqual(historyRecAfter.user_login, "user")
-        
         
 
     def test_updateItemTagsByOwner(self):
@@ -334,8 +269,6 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertEqual(item.title, itemWithTagsAndFields.title)
         self.assertEqual(len(item.item_tags), len(itemWithTagsAndFields.tags))
         self.assertEqual(len(itemWithTagsAndFields.tags), 2)
-        
-        historyRecBefore = self.getItemsMostRecentHistoryRec(item)
         
         #Remove one existing tag
         tagNameToRemove = "RHCP"
@@ -356,18 +289,6 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertTrue(item.has_tag("Lyrics"))
         self.assertEqual(len(item.item_tags), 2)
                
-        historyRecAfter = self.getItemsMostRecentHistoryRec(item)
-        self.assertNotEqual(historyRecBefore.item_hash, historyRecAfter.item_hash)
-        self.assertEqual(historyRecBefore.item_id, historyRecAfter.item_id)
-        self.assertEqual(historyRecBefore.item_id, item.id)
-        self.assertEqual(historyRecBefore.data_ref_hash, historyRecAfter.data_ref_hash)
-        self.assertEqual(historyRecBefore.data_ref_url, historyRecAfter.data_ref_url)
-        self.assertEqual(historyRecAfter.parent1_id, historyRecBefore.id)
-        self.assertGreater(historyRecAfter.id, historyRecBefore.id)
-        self.assertIsNone(historyRecAfter.parent2_id)
-        self.assertEqual(historyRecAfter.operation, "UPDATE")
-        self.assertEqual(historyRecAfter.user_login, "user")
-        
         
     def test_updateItemFieldsByOwner(self):
         userLogin = itemWithTagsAndFields.ownerUserLogin
@@ -376,8 +297,6 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertEqual(item.title, itemWithTagsAndFields.title)
         self.assertEqual(len(item.item_fields), len(itemWithTagsAndFields.fields))
         self.assertEqual(len(itemWithTagsAndFields.fields), 4)
-        
-        historyRecBefore = self.getItemsMostRecentHistoryRec(item)
         
         #Remove one existing field
         fieldNameToRemove = "Year"
@@ -404,18 +323,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertTrue(item.has_field("Rating", 5))
         self.assertTrue(item.has_field("Albom", "Blood Sugar Sex Magik"))
         self.assertEqual(len(item.item_fields), 4)
-               
-        historyRecAfter = self.getItemsMostRecentHistoryRec(item)
-        self.assertNotEqual(historyRecBefore.item_hash, historyRecAfter.item_hash)
-        self.assertEqual(historyRecBefore.item_id, historyRecAfter.item_id)
-        self.assertEqual(historyRecBefore.item_id, item.id)
-        self.assertEqual(historyRecBefore.data_ref_hash, historyRecAfter.data_ref_hash)
-        self.assertEqual(historyRecBefore.data_ref_url, historyRecAfter.data_ref_url)
-        self.assertEqual(historyRecAfter.parent1_id, historyRecBefore.id)
-        self.assertGreater(historyRecAfter.id, historyRecBefore.id)
-        self.assertIsNone(historyRecAfter.parent2_id)
-        self.assertEqual(historyRecAfter.operation, "UPDATE")
-        self.assertEqual(historyRecAfter.user_login, "user")
+        
 
     def test_addFileToItemWithoutFile(self):
         #TODO: Add HistoryRec checking

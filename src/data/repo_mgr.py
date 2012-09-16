@@ -108,7 +108,7 @@ class UnitOfWork(object):
         return command._execute(self)
         
 
-    #TODO: extract this fun to separate command class..
+    # This fun is obsolete and deprecated
     @staticmethod
     def _find_item_latest_history_rec(session, item_0):
         '''
@@ -127,7 +127,7 @@ class UnitOfWork(object):
                 .order_by(HistoryRec.id.desc()).first()
         return parent_hr
     
-    #TODO: extract this fun to separate command class..
+    # This fun is obsolete and deprecated
     @staticmethod
     def _save_history_rec(session, item_0, user_login, operation, parent1_id=None, parent2_id=None):
         

@@ -167,8 +167,7 @@ class Item(Base, memento.Serializable):
     __tablename__ = "items"
         
     ERROR_FILE_NOT_FOUND = 1
-    ERROR_FILE_HASH_MISMATCH = 2    
-    ERROR_HISTORY_REC_NOT_FOUND = 4
+    ERROR_FILE_HASH_MISMATCH = 2
     
     
     id = sqa.Column(sqa.Integer, primary_key=True)
