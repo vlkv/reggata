@@ -3,7 +3,7 @@ from tests.abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW,\
     AbstractTestCaseWithRepo
 from tests.tests_context import COPY_OF_TEST_REPO_BASE_PATH, itemWithFile, nonExistingItem,\
     itemWithTagsAndFields, itemWithoutFile, itemWithErrorFileNotFound, itemWithErrorFileHashMismatch,\
-    itemWithErrorFileNotFoundNo2
+    itemWithErrorFileNotFoundNo2, itemId_1
 from data.repo_mgr import *
 from data.commands import *
 from errors import *
@@ -626,6 +626,11 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         
         originalDataRef = self.getDataRefById(originalDataRefId)
         self.assertIsNone(originalDataRef, "Original DataRef object should be deleted from database")
+        
+        anotherItem = self.getExistingItem(itemId_1.id)
+        self.assertEquals(fixedItem.data_ref.id, anotherItem.data_ref.id, 
+            "Now two different items reference to the same DataRef object")
+        
         
             
 

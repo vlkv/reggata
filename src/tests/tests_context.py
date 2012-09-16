@@ -15,6 +15,14 @@ class ItemReliableFacts(object):
 nonExistingItem = ItemReliableFacts()
 nonExistingItem.id = 1000000000
 
+itemId_1 = ItemReliableFacts()
+itemId_1.id = 1
+itemId_1.title = "Dont Forget me Chorzow outro"
+itemId_1.ownerUserLogin = "user"
+itemId_1.relFilePath = "Dont Forget me Chorzow outro.txt"
+itemId_1.tags = ["RHCP", "Tabs"]
+itemId_1.fields = dict()
+
 itemWithFile = ItemReliableFacts()
 itemWithFile.id = 2
 itemWithFile.title = "Don't Forget Me outro jam Montreal 2006"
