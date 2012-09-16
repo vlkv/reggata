@@ -232,7 +232,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         if self._model.user is None:
             return
         
-        actionToInsertBefore =  self.ui.menuFavorite_repositories.insertSeparator(self.ui.actionAdd_current_repository)
+        actionToInsertBefore =  self.ui.menuFavoriteRepos.insertSeparator(self.ui.actionAdd_current_repository)
 
         login = self._model.user.login
         favoriteReposInfo = self.__favoriteReposStorage.favoriteRepos(login)
@@ -245,7 +245,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             actionHandler = OpenFavoriteRepoActionHandler(self._model)
             self.__actionHandlers.register(action, actionHandler)
             
-            self.ui.menuFavorite_repositories.insertAction(actionToInsertBefore, action)
+            self.ui.menuFavoriteRepos.insertAction(actionToInsertBefore, action)
             
             self.__favoriteReposDynamicQActions.append(action)
         
@@ -253,7 +253,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     def __removeDynamicActionsFromFavoriteReposMenu(self):
         for action in self.__favoriteReposDynamicQActions:
             self.__actionHandlers.unregister(action)
-            self.ui.menuFavorite_repositories.removeAction(action)
+            self.ui.menuFavoriteRepos.removeAction(action)
         self.__favoriteReposDynamicQActions = []
         
     
