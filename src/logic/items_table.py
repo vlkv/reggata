@@ -12,6 +12,7 @@ from logic.action_handlers import *
 from gui.common_widgets import Completer
 from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
 from parsers import query_parser
+from logic.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
 
 
 class ItemsTable(AbstractTool):
@@ -121,42 +122,27 @@ class ItemsTable(AbstractTool):
         self._actionHandlers.register(
             self._gui.actions['checkItemsIntegrity'],
             CheckItemIntegrityActionHandler(self))
+        
+        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
+        self._actionHandlers.register(
+            self._gui.actions['fixFileNotFoundTryFind'],
+            FixItemIntegrityErrorActionHandler(self, strategy))
+        
+        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
+        self._actionHandlers.register(
+            self._gui.actions['fixFileNotFoundRemoveDataRef'],
+            FixItemIntegrityErrorActionHandler(self, strategy))
+        
+        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
+        self._actionHandlers.register(
+            self._gui.actions['fixHashMismatchTryFind'],
+            FixItemIntegrityErrorActionHandler(self, strategy))
+        
+        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
+        self._actionHandlers.register(
+            self._gui.actions['fixHashMismatchUpdateHash'],
+            FixItemIntegrityErrorActionHandler(self, strategy))
     
-    
-#subMenuCheck = self._createAndAddSubMenu(self.tr("Integrity"), self, menu)
-#subMenuCheck.addAction(self.actions['checkItemsIntegrity'])
-#subMenuFixFileNotFoundError = self._createAndAddSubMenu(self.tr("Fix File Not Found Error"), self, subMenuCheck)
-#subMenuFixFileNotFoundError.addAction(self.actions['fixFileNotFoundTryFind'])
-#subMenuFixFileNotFoundError.addAction(self.actions['fixFileNotFoundRemoveDataRef'])
-#subMenuFixHashMismatchError = self._createAndAddSubMenu(self.tr("Fix File Hash Mismatch Error"), self, subMenuCheck)
-#subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchTryFind'])
-#subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchUpdateHash'])
-                
-    
-#        # Separator
-#        self.__actionHandlers.registerActionHandler(
-#            self.ui.action_item_check_integrity, CheckItemIntegrityActionHandler(self))
-#        
-#        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
-#        self.__actionHandlers.registerActionHandler(
-#            self.ui.action_item_fix_hash_error, FixItemIntegrityErrorActionHandler(self, strategy))
-#        
-#        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
-#        self.__actionHandlers.registerActionHandler(
-#            self.ui.action_item_update_file_hash, FixItemIntegrityErrorActionHandler(self, strategy))
-#        
-#        strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
-#        self.__actionHandlers.registerActionHandler(
-#            self.ui.action_item_fix_history_rec_error, FixItemIntegrityErrorActionHandler(self, strategy))
-#        
-#        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
-#        self.__actionHandlers.registerActionHandler(
-#            self.ui.action_fix_file_not_found_try_find, FixItemIntegrityErrorActionHandler(self, strategy))
-#        
-#        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
-#        self.__actionHandlers.registerActionHandler(
-#            self.ui.action_fix_file_not_found_delete, FixItemIntegrityErrorActionHandler(self, strategy))
-
     
     def handlerSignals(self):
         return [([HandlerSignals.ITEM_CHANGED, 

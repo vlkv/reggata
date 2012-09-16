@@ -59,7 +59,7 @@ class AbstractActionHandler(QtCore.QObject):
     def __init__(self, model=None):
         super(AbstractActionHandler, self).__init__()
         self._gui = model # TODO: remove self._gui as soon as possible from here
-        self._tool = model # TODO: remove self._tool also..
+        self._tool = model
         self._model = model
         
     def handle(self):
@@ -890,8 +890,8 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
 
 
 class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
-    def __init__(self, gui, strategy):
-        super(FixItemIntegrityErrorActionHandler, self).__init__(gui)
+    def __init__(self, tool, strategy):
+        super(FixItemIntegrityErrorActionHandler, self).__init__(tool)
         self.__strategy = strategy
     
     def handle(self):
@@ -899,43 +899,39 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
         def refresh(percent, row):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Integrity fix {0}%").format(percent))
-            
-            #TODO: Have to replace this direct updates with emitting some specific signals..
-            self._gui.resetSingleRow(row)
+            self._emitHandlerSignal(HandlerSignals.RESET_SINGLE_ROW, row)
             QtCore.QCoreApplication.processEvents()
         
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
             
-            rows = self._gui.selectedRows()
+            rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
             items = []
             for row in rows:
-                item = self._gui.itemAtRow(row) 
+                item = self._tool.gui.itemAtRow(row)
                 item.table_row = row
                 items.append(item)
                         
             thread = ItemIntegrityFixerThread(
-                self._gui, self._gui.model.repo, items, self._gui.model.itemsLock, self.__strategy, self._gui.model.user.login)
+                self._tool.gui, self._tool.repo, items, self._tool.itemsLock, self.__strategy, self._tool.user.login)
             
             self.connect(thread, QtCore.SIGNAL("progress"),
                          lambda percents, row: refresh(percents, row))
             self.connect(thread, QtCore.SIGNAL("finished"),
-                         lambda: self._emitHandlerSignal(
-                                    HandlerSignals.STATUS_BAR_MESSAGE,
-                                    self.tr("Integrity fixing is done."))
-                         )
-            self.connect(thread, QtCore.SIGNAL("exception"), 
-                         lambda exc_info: show_exc_info(self._gui, exc_info[1], details=format_exc_info(*exc_info)))
-            
-            
+                         lambda: self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                                                         self.tr("Integrity fixing is done.")))
+            self.connect(thread, QtCore.SIGNAL("exception"),
+                         lambda exc_info: show_exc_info(self._tool.gui, exc_info[1], 
+                                                        details=format_exc_info(*exc_info)))
             thread.start()
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
+            
 
 class CheckItemIntegrityActionHandler(AbstractActionHandler):
     def __init__(self, tool):
