@@ -132,15 +132,20 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
                     
                     hash = compute_hash(os.path.join(root, file))
                     if hash == item.data_ref.hash:
-                        #updating existing DataRef object
-                        new_dr = self.uow.session.query(DataRef).get(item.data_ref.id)
-                        new_dr.url = os.path.relpath(os.path.join(root, file), self.repo_base_path)
+                        new_url = os.path.relpath(os.path.join(root, file), self.repo_base_path)
+                        new_dr = DataRef(type=DataRef.FILE, url=new_url, date_created=datetime.datetime.today())
+                        new_dr.hash = hash
+                        new_dr.size = os.path.getsize(os.path.join(root, file))
+                        self.uow.session.add(new_dr)
                         self.uow.session.flush()
+                        
+                        delete_old_dr = True
+                        bind_new_dr_to_item = True             
                         error_fixed = True
                         
                         need_break = True
                         break
-                if need_break:        
+                if need_break:
                     break
                 
         if delete_old_dr:
@@ -274,6 +279,7 @@ class FileHashMismatchFixer(AbstractIntegrityFixer):
                     bind_new_dr_to_item = True
                     new_dr = other_dr
                     error_fixed = True
+                    found = True
         except:
             found = False
         
@@ -295,8 +301,7 @@ class FileHashMismatchFixer(AbstractIntegrityFixer):
                         new_dr.size = os.path.getsize(os.path.join(root, file))
                         self.uow.session.add(new_dr)
                         self.uow.session.flush()
-                        #Удалить item.data_ref
-                        #Привязать новый data_ref к item
+                        
                         delete_old_dr = True
                         bind_new_dr_to_item = True
                         error_fixed = True
