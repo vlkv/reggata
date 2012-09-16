@@ -147,41 +147,37 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
             
         return newDataRef
         
+    def _bindMatchedAndDeleteOriginalDataRef(self, originalDataRef, matchedDataRef, item):
+        rows = self.uow.session.query(DataRef) \
+            .filter(DataRef.id==originalDataRef.id) \
+            .delete(synchronize_session=False)
+        if rows == 0:
+            raise Exception("Cannot delete data_ref object.")
+        elif rows > 1:
+            raise Exception("The query deleted {} data_ref objects (but it should delete only one).")
+        
+    
+        assert matchedDataRef is not None
+        item_0 = self.uow.session.query(Item).filter(Item.id==item.id).one()
+        item_0.data_ref_id = matchedDataRef.id
+        item_0.data_ref = matchedDataRef
+        self.uow.session.flush()
+        self.uow.session.expunge(item_0)
+
         
     def _try_find(self, item, user_login):
         error_fixed = False
-        delete_old_dr = False
-        bind_new_dr_to_item = False
         
         existingDataRefFound, dataRef = self._searchExistingMatchedDataRef(item.data_ref)
-        
         if existingDataRefFound:
             assert dataRef is not None
+            self._bindMatchedAndDeleteOriginalDataRef(item.data_ref, dataRef, item)
             error_fixed = True
-            delete_old_dr = True
-            bind_new_dr_to_item = True
         else:
             dataRef = self._searchUntrackedMatchedFile(item.data_ref)
             if dataRef is not None:
+                self._bindMatchedAndDeleteOriginalDataRef(item.data_ref, dataRef, item)
                 error_fixed = True
-                delete_old_dr = True
-                bind_new_dr_to_item = True
-                
-                
-        if delete_old_dr:
-            rows = self.uow.session.query(DataRef).filter(DataRef.id==item.data_ref.id)\
-                .delete(synchronize_session=False)
-            if rows == 0:
-                raise Exception("Cannot delete data_ref object.")
-            elif rows > 1:
-                raise Exception("The query deleted {} data_ref objects (but it should delete only one).")
-        
-        if bind_new_dr_to_item and dataRef is not None:
-            item_0 = self.uow.session.query(Item).filter(Item.id==item.id).one()
-            item_0.data_ref_id = dataRef.id
-            item_0.data_ref = dataRef
-            self.uow.session.flush()
-            self.uow.session.expunge(item_0)
                 
         if dataRef is not None:
             if dataRef in self.uow.session:
