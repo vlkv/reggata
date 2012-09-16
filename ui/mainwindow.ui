@@ -32,11 +32,11 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_repo">
+   <widget class="QMenu" name="menuRepo">
     <property name="title">
      <string>&amp;Repository</string>
     </property>
-    <widget class="QMenu" name="menuFavorite_repositories">
+    <widget class="QMenu" name="menuFavoriteRepos">
      <property name="title">
       <string>Favorite repositories...</string>
      </property>
@@ -47,13 +47,13 @@
     <addaction name="action_repo_open"/>
     <addaction name="action_repo_close"/>
     <addaction name="separator"/>
-    <addaction name="menuFavorite_repositories"/>
+    <addaction name="menuFavoriteRepos"/>
     <addaction name="separator"/>
     <addaction name="actionImportItems"/>
     <addaction name="separator"/>
     <addaction name="actionExitReggata"/>
    </widget>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="menuUser">
     <property name="title">
      <string>&amp;User</string>
     </property>
@@ -61,35 +61,6 @@
     <addaction name="action_user_login"/>
     <addaction name="action_user_logout"/>
     <addaction name="action_user_change_pass"/>
-   </widget>
-   <widget class="QMenu" name="menuItem">
-    <property name="title">
-     <string>&amp;Item</string>
-    </property>
-    <widget class="QMenu" name="menuFix_integrity_errors">
-     <property name="title">
-      <string>Fix integrity errors</string>
-     </property>
-     <widget class="QMenu" name="menuFix_hash_mismatch_error">
-      <property name="title">
-       <string>Fix file changed error</string>
-      </property>
-      <addaction name="action_item_fix_hash_error"/>
-      <addaction name="action_item_update_file_hash"/>
-     </widget>
-     <widget class="QMenu" name="menuFix_file_not_found_error">
-      <property name="title">
-       <string>Fix file not found error</string>
-      </property>
-      <addaction name="action_fix_file_not_found_try_find"/>
-      <addaction name="action_fix_file_not_found_delete"/>
-     </widget>
-     <addaction name="menuFix_hash_mismatch_error"/>
-     <addaction name="action_item_fix_history_rec_error"/>
-     <addaction name="menuFix_file_not_found_error"/>
-    </widget>
-    <addaction name="action_item_check_integrity"/>
-    <addaction name="menuFix_integrity_errors"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -102,9 +73,8 @@
     </property>
     <addaction name="action_help_about"/>
    </widget>
-   <addaction name="menu_repo"/>
-   <addaction name="menu"/>
-   <addaction name="menuItem"/>
+   <addaction name="menuRepo"/>
+   <addaction name="menuUser"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>

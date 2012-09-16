@@ -217,38 +217,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self.__actionHandlers.register(
                 self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
             
-        def initItemMenu():
-            pass
-#            self.__actionHandlers.register(
-#                self.ui.action_item_check_integrity, CheckItemIntegrityActionHandler(self))
-#            
-#            strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
-#            self.__actionHandlers.register(
-#                self.ui.action_item_fix_hash_error, FixItemIntegrityErrorActionHandler(self, strategy))
-#            
-#            strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
-#            self.__actionHandlers.register(
-#                self.ui.action_item_update_file_hash, FixItemIntegrityErrorActionHandler(self, strategy))
-#            
-#            strategy = {Item.ERROR_HISTORY_REC_NOT_FOUND: HistoryRecNotFoundFixer.TRY_PROCEED_ELSE_RENEW}
-#            self.__actionHandlers.register(
-#                self.ui.action_item_fix_history_rec_error, FixItemIntegrityErrorActionHandler(self, strategy))
-#            
-#            strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
-#            self.__actionHandlers.register(
-#                self.ui.action_fix_file_not_found_try_find, FixItemIntegrityErrorActionHandler(self, strategy))
-#            
-#            strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
-#            self.__actionHandlers.register(
-#                self.ui.action_fix_file_not_found_delete, FixItemIntegrityErrorActionHandler(self, strategy))
-            
         def initHelpMenu():
             self.__actionHandlers.register(
                 self.ui.action_help_about, ShowAboutDialogActionHandler(self))
             
         initRepositoryMenu()
         initUserMenu()
-        initItemMenu()
         initHelpMenu()
         
         
