@@ -579,6 +579,8 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
                                               FileNotFoundFixer.TRY_FIND, 
                                               uow, self.repo.base_path, itemsLock)
             result = fixer.fix_error(item, itemWithErrorFileNotFound.ownerUserLogin)
+            uow.session.commit() # I guess, commit should be inside fix_error()!
+            
             self.assertTrue(result)
             
         finally:
