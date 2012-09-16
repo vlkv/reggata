@@ -9,7 +9,6 @@ import logging
 import consts
 from data.repo_mgr import *
 from logic.worker_threads import *
-from logic.integrity_fixer import *
 from logic.action_handlers import *
 from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage

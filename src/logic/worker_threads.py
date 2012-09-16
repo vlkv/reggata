@@ -10,7 +10,7 @@ import zipfile
 import consts
 import logging
 from PyQt4 import QtCore, QtGui
-from logic.integrity_fixer import IntegrityFixerFactory
+from data.integrity_fixer import IntegrityFixerFactory
 from data.repo_mgr import *
 from data.db_schema import Thumbnail
 from errors import *

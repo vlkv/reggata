@@ -12,7 +12,7 @@ from logic.action_handlers import *
 from gui.common_widgets import Completer
 from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
 from parsers import query_parser
-from logic.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
+from data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
 
 
 class ItemsTable(AbstractTool):
