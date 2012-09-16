@@ -35,7 +35,7 @@ class FileNotFoundFixer(AbstractIntegrityFixer):
     DELETE = 1
     
     def __init__(self, strategy, uow, repo_base_path, items_lock):
-        if strategy not in [self.TRY_FIND, self.TRY_FIND_ELSE_DELETE, self.DELETE]:
+        if strategy not in [self.TRY_FIND, self.DELETE]:
             raise Exception("Wrong strategy value {0}".format(strategy))
         
         self.strategy = strategy
