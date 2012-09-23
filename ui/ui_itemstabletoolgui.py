@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemstabletoolgui.ui'
 #
-# Created: Fri Sep  7 21:47:40 2012
+# Created: Sun Sep 23 20:51:10 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -18,6 +18,7 @@ class Ui_ItemsTableToolGui(object):
     def setupUi(self, ItemsTableToolGui):
         ItemsTableToolGui.setObjectName(_fromUtf8("ItemsTableToolGui"))
         ItemsTableToolGui.resize(499, 300)
+        ItemsTableToolGui.setAcceptDrops(True)
         self.verticalLayout = QtGui.QVBoxLayout(ItemsTableToolGui)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.horizontalLayout = QtGui.QHBoxLayout()
@@ -52,6 +53,8 @@ class Ui_ItemsTableToolGui(object):
         self.horizontalLayout.addWidget(self.spinBox_page)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.tableView_items = QtGui.QTableView(ItemsTableToolGui)
+        self.tableView_items.setDragDropMode(QtGui.QAbstractItemView.NoDragDrop)
+        self.tableView_items.setDefaultDropAction(QtCore.Qt.IgnoreAction)
         self.tableView_items.setObjectName(_fromUtf8("tableView_items"))
         self.verticalLayout.addWidget(self.tableView_items)
 

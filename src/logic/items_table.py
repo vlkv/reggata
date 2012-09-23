@@ -13,6 +13,7 @@ from gui.common_widgets import Completer
 from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
 from parsers import query_parser
 from data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
+from gui.drop_files_dialogs_facade import DropFilesDialogsFacade
 
 
 class ItemsTable(AbstractTool):
@@ -31,8 +32,10 @@ class ItemsTable(AbstractTool):
         self._itemsLock = itemsLock
         self._mainWindow = mainWindow
         self._dialogsFacade = dialogsFacade
+        self.__dropFilesDialogs = DropFilesDialogsFacade(dialogsFacade)
         
         self._extAppMgr = ExtAppMgr()
+        
         
         
     def id(self):
@@ -44,8 +47,10 @@ class ItemsTable(AbstractTool):
 
         
     def createGui(self, guiParent):
-        self._gui = ItemsTableToolGui(guiParent)
+        self._gui = ItemsTableToolGui(guiParent, self)
         self._actionHandlers = ActionHandlerStorage(self._widgetsUpdateManager)
+        
+        self.__initDragNDropHandlers()
          
         return self._gui
     
@@ -217,4 +222,34 @@ class ItemsTable(AbstractTool):
         tagCloud._connectItemsTableTool(self)
         
         
+    
+    
+    def acceptDropOfOneDir(self, dirPath):
+        self.__dropFilesDialogs.setSelectedFiles([dirPath])
+        self.__dragNDropActionItemAddManyRec.trigger()
+    
+    
+    def acceptDropOfOneFile(self, file):
+        self.__dropFilesDialogs.setSelectedFiles([file])
+        self.__dragNDropActionItemAdd.trigger()
+
+
+    def acceptDropOfManyFiles(self, files):
+        self.__dropFilesDialogs.setSelectedFiles(files)
+        self.__dragNDropActionItemAddMany.trigger()
+
+    
+    def __initDragNDropHandlers(self):
+        
+        self.__dragNDropActionItemAdd = QtGui.QAction(self)
+        self.__dragNDropActionItemAddMany = QtGui.QAction(self)
+        self.__dragNDropActionItemAddManyRec = QtGui.QAction(self)
+        
+        self._actionHandlers.register(
+            self.__dragNDropActionItemAdd, AddSingleItemActionHandler(self, self.__dropFilesDialogs))
+        self._actionHandlers.register(
+            self.__dragNDropActionItemAddMany, AddManyItemsActionHandler(self, self.__dropFilesDialogs))
+        self._actionHandlers.register(
+            self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self, self.__dropFilesDialogs))
+
     

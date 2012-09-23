@@ -10,6 +10,9 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -80,7 +83,14 @@
     </layout>
    </item>
    <item>
-    <widget class="QTableView" name="tableView_items"/>
+    <widget class="QTableView" name="tableView_items">
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::NoDragDrop</enum>
+     </property>
+     <property name="defaultDropAction">
+      <enum>Qt::IgnoreAction</enum>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

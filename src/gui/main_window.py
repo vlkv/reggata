@@ -14,7 +14,6 @@ from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage
 from logic.main_window_model import MainWindowModel
 from logic.items_table import ItemsTable
-import gui.gui_proxy
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -28,7 +27,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.ui = ui_mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
         self.setCentralWidget(None)
-        self.setAcceptDrops(True)
         
         # TODO: updateManager should be moved to MainWindowModel
         self.__widgetsUpdateManager = WidgetsUpdateManager()
@@ -46,7 +44,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         self.__initMenuActions()
         self.__initFavoriteReposMenu()
-        self.__initDragNDropHandlers()
         
         self.__initStatusBar()
         
@@ -88,42 +85,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         for handlerSignals, updateCallable in aTool.handlerSignals():
             self.__widgetsUpdateManager.subscribe(aTool, updateCallable, handlerSignals)
     
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls:
-            event.accept()
-        else:
-            event.ignore()
-            
-    def dropEvent(self, event):
-        if event.mimeData().hasUrls:
-            event.accept()
-            
-            files = []
-            for url in event.mimeData().urls():
-                files.append(url.toLocalFile())
-                
-            if len(files) == 1:
-                if os.path.isdir(files[0]):
-                    self.__acceptDropOfOneDir(files[0])
-                elif os.path.isfile(files[0]):
-                    self.__acceptDropOfOneFile(files[0])
-            else:
-                self.__acceptDropOfManyFiles(files)
-        else:
-            event.ignore()
     
-    def __acceptDropOfOneDir(self, dirPath):
-        self.__dragNDropGuiProxy.setSelectedFiles([dirPath])
-        self.__dragNDropActionItemAddManyRec.trigger()
-    
-    def __acceptDropOfOneFile(self, file):
-        self.__dragNDropGuiProxy.setSelectedFiles([file])
-        self.__dragNDropActionItemAdd.trigger()
-
-    def __acceptDropOfManyFiles(self, files):
-        self.__dragNDropGuiProxy.setSelectedFiles(files)
-        self.__dragNDropActionItemAddMany.trigger()
-
     
     def __initStatusBar(self):
         self.ui.label_repo = QtGui.QLabel()
@@ -262,20 +224,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
             
     
-    def __initDragNDropHandlers(self):
-        self.__dragNDropGuiProxy = gui.gui_proxy.GuiProxy(self, [])
-        
-        self.__dragNDropActionItemAdd = QtGui.QAction(self)
-        self.__dragNDropActionItemAddMany = QtGui.QAction(self)
-        self.__dragNDropActionItemAddManyRec = QtGui.QAction(self)
-        
-        self.__actionHandlers.register(
-            self.__dragNDropActionItemAdd, AddSingleItemActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
-        self.__actionHandlers.register(
-            self.__dragNDropActionItemAddMany, AddManyItemsActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
-        self.__actionHandlers.register(
-            self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self.__dragNDropGuiProxy, self.__dialogs))
-
 
     def event(self, e):
         return super(MainWindow, self).event(e)

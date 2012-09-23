@@ -23,10 +23,12 @@ logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 class ItemsTableToolGui(ToolGui):
     
-    def __init__(self, parent):
+    def __init__(self, parent, itemsTableTool):
         super(ItemsTableToolGui, self).__init__(parent)
         self.ui = Ui_ItemsTableToolGui()
         self.ui.setupUi(self)
+        
+        self.__itemsTableTool = itemsTableTool
         
         #Widgets for text queries
         self.ui.lineEdit_query = TextEdit(self, one_line=True)
@@ -305,6 +307,34 @@ class ItemsTableToolGui(ToolGui):
         self.__context_menu.exec_(self.ui.tableView_items.mapToGlobal(pos))
     
     
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.accept()
+        else:
+            event.ignore()
+      
+      
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.accept()
+            
+            files = []
+            for url in event.mimeData().urls():
+                files.append(url.toLocalFile())
+                
+            if len(files) == 1:
+                if os.path.isdir(files[0]):
+                    self.__itemsTableTool.acceptDropOfOneDir(files[0])
+                elif os.path.isfile(files[0]):
+                    self.__itemsTableTool.acceptDropOfOneFile(files[0])
+            else:
+                self.__itemsTableTool.acceptDropOfManyFiles(files)
+        else:
+            event.ignore()
+    
+    
+    
+    
 class ItemsTableModel(QtCore.QAbstractTableModel):
     '''
         This class is a model of a table (QTableView) with repository Items.
@@ -336,7 +366,7 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
         
         self.order_by_column = None
         self.order_dir = None
-
+        
 
     def resetSingleRow(self, row):
         topL = self.createIndex(row, self.ID)
@@ -606,3 +636,6 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
                 uow.close()
         
         return False
+
+
+    
