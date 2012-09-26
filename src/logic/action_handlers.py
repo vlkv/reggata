@@ -717,9 +717,12 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
             m3uFilename = str(os.getpid()) + self._tool.user.login + str(time.time()) + ".m3u"
             with open(os.path.join(tmpDir, m3uFilename), "wt") as m3uFile:
                 for row in rows:
+                    item = self._tool.gui.itemAtRow(row)
+                    if item.data_ref is None:
+                        continue
                     m3uFile.write(
                         os.path.join(self._tool.repo.base_path, 
-                                     self._tool.gui.itemAtRow(row).data_ref.url) + os.linesep)                                            
+                                     item.data_ref.url) + os.linesep)                                            
                     
             self._extAppMgr.invoke(os.path.join(tmpDir, m3uFilename))
             
