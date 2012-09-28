@@ -15,6 +15,13 @@ import sys
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
+class ExtAppDescription(object):
+    def __init__(self, filesCategory, appExecutable, fileExtentions):
+        self.filesCategory = filesCategory
+        self.appExecutable = appExecutable
+        self.fileExtentions = fileExtentions
+        
+        
 
 class ExtAppMgr(object):
     '''
@@ -46,6 +53,20 @@ class ExtAppMgr(object):
                 
         self.ext_file_manager_command = UserConfig().get('ext_file_manager')
              
+    @staticmethod
+    def currentConfig():
+        filesCategories = eval(UserConfig().get('ext_app_mgr_file_types', "[]"))
+        
+        result = []
+        for filesCategory in filesCategories:
+            extentions = eval(UserConfig().get('ext_app_mgr.{}.extensions'
+                                                      .format(filesCategory)))
+            appCmd = UserConfig().get("ext_app_mgr.{}.command"
+                                       .format(filesCategory))
+            result.append(ExtAppDescription(filesCategory, appCmd, extentions))
+        return result
+    
+        
              
     def invoke(self, abs_path, file_type=None):
         if not file_type:
