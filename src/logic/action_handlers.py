@@ -22,6 +22,7 @@ from gui.my_message_box import MyMessageBox
 from gui.user_dialogs_facade import UserDialogsFacade
 from gui.user_dialog import UserDialog
 from logic.handler_signals import HandlerSignals
+from gui.external_apps_dialog import ExternalAppsDialog
 
 
 class ActionHandlerStorage():
@@ -986,6 +987,21 @@ class ExitReggataActionHandler(AbstractActionHandler):
             self._gui.close()
         except Exception as ex:
             show_exc_info(self._gui, ex)
+
+
+class ManageExternalAppsActionHandler(AbstractActionHandler):
+    def __init__(self, gui):
+        super(ManageExternalAppsActionHandler, self).__init__(gui)
+        
+    def handle(self):
+        try:
+            dialog = ExternalAppsDialog(self._gui)
+            dialog.exec_()
+        except Exception as ex:
+            show_exc_info(self._gui, ex)
+        else:
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
