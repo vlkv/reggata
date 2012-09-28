@@ -29,7 +29,7 @@
      <x>0</x>
      <y>0</y>
      <width>659</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuRepo">
@@ -46,8 +46,9 @@
     <addaction name="action_repo_create"/>
     <addaction name="action_repo_open"/>
     <addaction name="action_repo_close"/>
-    <addaction name="separator"/>
     <addaction name="menuFavoriteRepos"/>
+    <addaction name="separator"/>
+    <addaction name="actionManageExtApps"/>
     <addaction name="separator"/>
     <addaction name="actionImportItems"/>
     <addaction name="separator"/>
@@ -235,6 +236,11 @@
   <action name="actionExitReggata">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionManageExtApps">
+   <property name="text">
+    <string>Manage External Applications</string>
    </property>
   </action>
  </widget>

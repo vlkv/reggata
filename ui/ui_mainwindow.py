@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sun Sep 16 12:03:39 2012
-#      by: PyQt4 UI code generator 4.9.4
+# Created: Fri Sep 28 19:07:10 2012
+#      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuRepo = QtGui.QMenu(self.menubar)
         self.menuRepo.setObjectName(_fromUtf8("menuRepo"))
@@ -106,13 +106,16 @@ class Ui_MainWindow(object):
         self.actionRemove_current_repository.setObjectName(_fromUtf8("actionRemove_current_repository"))
         self.actionExitReggata = QtGui.QAction(MainWindow)
         self.actionExitReggata.setObjectName(_fromUtf8("actionExitReggata"))
+        self.actionManageExtApps = QtGui.QAction(MainWindow)
+        self.actionManageExtApps.setObjectName(_fromUtf8("actionManageExtApps"))
         self.menuFavoriteRepos.addAction(self.actionAdd_current_repository)
         self.menuFavoriteRepos.addAction(self.actionRemove_current_repository)
         self.menuRepo.addAction(self.action_repo_create)
         self.menuRepo.addAction(self.action_repo_open)
         self.menuRepo.addAction(self.action_repo_close)
-        self.menuRepo.addSeparator()
         self.menuRepo.addAction(self.menuFavoriteRepos.menuAction())
+        self.menuRepo.addSeparator()
+        self.menuRepo.addAction(self.actionManageExtApps)
         self.menuRepo.addSeparator()
         self.menuRepo.addAction(self.actionImportItems)
         self.menuRepo.addSeparator()
@@ -169,5 +172,6 @@ class Ui_MainWindow(object):
         self.actionAdd_current_repository.setText(QtGui.QApplication.translate("MainWindow", "Add current repository", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRemove_current_repository.setText(QtGui.QApplication.translate("MainWindow", "Remove current repository", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExitReggata.setText(QtGui.QApplication.translate("MainWindow", "Exit", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionManageExtApps.setText(QtGui.QApplication.translate("MainWindow", "Manage External Applications", None, QtGui.QApplication.UnicodeUTF8))
 
 import resources_rc
