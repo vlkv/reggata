@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'externalappsdialog.ui'
 #
-# Created: Sun Sep 30 20:16:20 2012
+# Created: Sun Sep 30 21:09:17 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -90,8 +90,6 @@ class Ui_ExternalAppsDialog(object):
         self.verticalLayout.addWidget(self.buttonBox)
 
         self.retranslateUi(ExternalAppsDialog)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), ExternalAppsDialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), ExternalAppsDialog.reject)
         QtCore.QMetaObject.connectSlotsByName(ExternalAppsDialog)
 
     def retranslateUi(self, ExternalAppsDialog):

@@ -33,6 +33,9 @@ class ExternalAppsDialog(QtGui.QDialog):
         self.__dialogs = dialogs
         self.__read()
         
+        self.connect(self.ui.buttonBox, QtCore.SIGNAL("accepted()"), self.__buttonOkClicked)
+        self.connect(self.ui.buttonBox, QtCore.SIGNAL("rejected()"), self.__buttonCancelClicked)
+        
         self.connect(self.ui.comboBoxCategory, QtCore.SIGNAL("currentIndexChanged(int)"), 
                      self.__updateCategoryDependentWidgets)
         
@@ -172,7 +175,21 @@ class ExternalAppsDialog(QtGui.QDialog):
         del self.__extAppMgrState.appDescriptions[index]
         self.ui.comboBoxCategory.removeItem(index)
         
-    
         
+    def __checkCategoriesValid(self):
+        self.__extAppMgrState.raiseErrorIfNotValid()
+        
+    
+    def __buttonOkClicked(self):
+        try:
+            self.__checkCategoriesValid()
+            return self.accept()
+        
+        except Exception as ex:
+            helpers.show_exc_info(self, ex)
+    
+    
+    def __buttonCancelClicked(self):
+        return self.reject()
         
         

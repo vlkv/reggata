@@ -15,6 +15,11 @@ import sys
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
+
+class FileExtentionMultiplyRegisteredError(Exception):
+    def __init__(self, msg=None):
+        super(FileExtentionMultiplyRegisteredError, self).__init__(msg)
+
 class ExtAppDescription(object):
     def __init__(self, filesCategory, appCommandPattern, fileExtentions):
         self.filesCategory = filesCategory
@@ -25,6 +30,22 @@ class ExtAppMgrState(object):
     def __init__(self, appDescriptions=[], extFileMgrCommandPattern=None):
         self.appDescriptions = appDescriptions         
         self.extFileMgrCommandPattern = extFileMgrCommandPattern
+        
+    def raiseErrorIfNotValid(self):
+        # Check that every extention doesn't included in more than one category
+        for appDescription in self.appDescriptions:
+            for fileExt in appDescription.fileExtentions:
+                for appDescription2 in self.appDescriptions:
+                    if appDescription2.filesCategory == appDescription.filesCategory:
+                        continue 
+                    if fileExt in appDescription2.fileExtentions:
+                        raise FileExtentionMultiplyRegisteredError(
+                            "File extention '{0}' is registered in two categories: '{1}' and '{2}'. " 
+                            "But it should be registered in only one category."
+                            .format(fileExt, appDescription.filesCategory, appDescription2.filesCategory))
+                    
+                
+        
 
 
 class ExtAppMgr(object):
