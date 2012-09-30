@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'externalappsdialog.ui'
 #
-# Created: Fri Sep 28 19:01:32 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Sun Sep 30 20:16:20 2012
+#      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_ExternalAppsDialog(object):
     def setupUi(self, ExternalAppsDialog):
         ExternalAppsDialog.setObjectName(_fromUtf8("ExternalAppsDialog"))
-        ExternalAppsDialog.resize(548, 139)
+        ExternalAppsDialog.resize(548, 151)
         self.verticalLayout = QtGui.QVBoxLayout(ExternalAppsDialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.gridLayout = QtGui.QGridLayout()
@@ -32,25 +32,25 @@ class Ui_ExternalAppsDialog(object):
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.gridLayout.addItem(spacerItem, 3, 0, 1, 1)
-        self.comboBoxGroups = QtGui.QComboBox(ExternalAppsDialog)
-        self.comboBoxGroups.setObjectName(_fromUtf8("comboBoxGroups"))
-        self.gridLayout.addWidget(self.comboBoxGroups, 0, 1, 1, 1)
-        self.buttonNewGroup = QtGui.QPushButton(ExternalAppsDialog)
+        self.comboBoxCategory = QtGui.QComboBox(ExternalAppsDialog)
+        self.comboBoxCategory.setObjectName(_fromUtf8("comboBoxCategory"))
+        self.gridLayout.addWidget(self.comboBoxCategory, 0, 1, 1, 1)
+        self.buttonNewCategory = QtGui.QPushButton(ExternalAppsDialog)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.buttonNewGroup.sizePolicy().hasHeightForWidth())
-        self.buttonNewGroup.setSizePolicy(sizePolicy)
-        self.buttonNewGroup.setObjectName(_fromUtf8("buttonNewGroup"))
-        self.gridLayout.addWidget(self.buttonNewGroup, 0, 2, 1, 1)
-        self.buttonDeleteGroup = QtGui.QPushButton(ExternalAppsDialog)
+        sizePolicy.setHeightForWidth(self.buttonNewCategory.sizePolicy().hasHeightForWidth())
+        self.buttonNewCategory.setSizePolicy(sizePolicy)
+        self.buttonNewCategory.setObjectName(_fromUtf8("buttonNewCategory"))
+        self.gridLayout.addWidget(self.buttonNewCategory, 0, 2, 1, 1)
+        self.buttonDeleteCategory = QtGui.QPushButton(ExternalAppsDialog)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.buttonDeleteGroup.sizePolicy().hasHeightForWidth())
-        self.buttonDeleteGroup.setSizePolicy(sizePolicy)
-        self.buttonDeleteGroup.setObjectName(_fromUtf8("buttonDeleteGroup"))
-        self.gridLayout.addWidget(self.buttonDeleteGroup, 0, 3, 1, 1)
+        sizePolicy.setHeightForWidth(self.buttonDeleteCategory.sizePolicy().hasHeightForWidth())
+        self.buttonDeleteCategory.setSizePolicy(sizePolicy)
+        self.buttonDeleteCategory.setObjectName(_fromUtf8("buttonDeleteCategory"))
+        self.gridLayout.addWidget(self.buttonDeleteCategory, 0, 3, 1, 1)
         self.label_2 = QtGui.QLabel(ExternalAppsDialog)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -59,10 +59,10 @@ class Ui_ExternalAppsDialog(object):
         self.label_2.setSizePolicy(sizePolicy)
         self.label_2.setObjectName(_fromUtf8("label_2"))
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
-        self.lineEditApplicationPath = QtGui.QLineEdit(ExternalAppsDialog)
-        self.lineEditApplicationPath.setReadOnly(True)
-        self.lineEditApplicationPath.setObjectName(_fromUtf8("lineEditApplicationPath"))
-        self.gridLayout.addWidget(self.lineEditApplicationPath, 1, 1, 1, 2)
+        self.lineEditAppCmdPattern = QtGui.QLineEdit(ExternalAppsDialog)
+        self.lineEditAppCmdPattern.setReadOnly(False)
+        self.lineEditAppCmdPattern.setObjectName(_fromUtf8("lineEditAppCmdPattern"))
+        self.gridLayout.addWidget(self.lineEditAppCmdPattern, 1, 1, 1, 2)
         self.buttonSelectApp = QtGui.QPushButton(ExternalAppsDialog)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -96,9 +96,9 @@ class Ui_ExternalAppsDialog(object):
 
     def retranslateUi(self, ExternalAppsDialog):
         ExternalAppsDialog.setWindowTitle(QtGui.QApplication.translate("ExternalAppsDialog", "Preferred External Applications", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Group:", None, QtGui.QApplication.UnicodeUTF8))
-        self.buttonNewGroup.setText(QtGui.QApplication.translate("ExternalAppsDialog", "New", None, QtGui.QApplication.UnicodeUTF8))
-        self.buttonDeleteGroup.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Delete", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Category of files:", None, QtGui.QApplication.UnicodeUTF8))
+        self.buttonNewCategory.setText(QtGui.QApplication.translate("ExternalAppsDialog", "New", None, QtGui.QApplication.UnicodeUTF8))
+        self.buttonDeleteCategory.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Delete", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Executable:", None, QtGui.QApplication.UnicodeUTF8))
         self.buttonSelectApp.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("ExternalAppsDialog", "File extensions:", None, QtGui.QApplication.UnicodeUTF8))

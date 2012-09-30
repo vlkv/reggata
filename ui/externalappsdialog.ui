@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>548</width>
-    <height>139</height>
+    <height>151</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,7 +25,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Group:</string>
+        <string>Category of files:</string>
        </property>
       </widget>
      </item>
@@ -43,10 +43,10 @@
       </spacer>
      </item>
      <item row="0" column="1">
-      <widget class="QComboBox" name="comboBoxGroups"/>
+      <widget class="QComboBox" name="comboBoxCategory"/>
      </item>
      <item row="0" column="2">
-      <widget class="QPushButton" name="buttonNewGroup">
+      <widget class="QPushButton" name="buttonNewCategory">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -59,7 +59,7 @@
       </widget>
      </item>
      <item row="0" column="3">
-      <widget class="QPushButton" name="buttonDeleteGroup">
+      <widget class="QPushButton" name="buttonDeleteCategory">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -85,9 +85,9 @@
       </widget>
      </item>
      <item row="1" column="1" colspan="2">
-      <widget class="QLineEdit" name="lineEditApplicationPath">
+      <widget class="QLineEdit" name="lineEditAppCmdPattern">
        <property name="readOnly">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
