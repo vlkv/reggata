@@ -990,13 +990,14 @@ class ExitReggataActionHandler(AbstractActionHandler):
 
 
 class ManageExternalAppsActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
+    def __init__(self, gui, dialogs):
         super(ManageExternalAppsActionHandler, self).__init__(gui)
+        self._dialogs = dialogs
         
     def handle(self):
         try:
             extAppMgrState = ExtAppMgr.readCurrentState()
-            dialog = ExternalAppsDialog(self._gui, extAppMgrState)
+            dialog = ExternalAppsDialog(self._gui, extAppMgrState, self._dialogs)
             dialog.exec_()
         except Exception as ex:
             show_exc_info(self._gui, ex)

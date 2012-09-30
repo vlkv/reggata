@@ -85,3 +85,10 @@ class UserDialogsFacade(AbstractDialogsFacade):
         return mb.exec_()
     
     
+    def execGetTextDialog(self, gui, dialogTitle, textMessageForUser, defaultText=""):
+        text, isOk = QtGui.QInputDialog.getText(
+            gui, dialogTitle, textMessageForUser, text=defaultText)
+        return (text, isOk)
+         
+    
+    

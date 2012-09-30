@@ -163,7 +163,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.actionImportItems, ImportItemsActionHandler(self._model, self.__dialogs))
             
             self.__actionHandlers.register(
-                self.ui.actionManageExtApps, ManageExternalAppsActionHandler(self))
+                self.ui.actionManageExtApps, ManageExternalAppsActionHandler(self, self.__dialogs))
             
             self.__actionHandlers.register(
                 self.ui.actionExitReggata, ExitReggataActionHandler(self))
