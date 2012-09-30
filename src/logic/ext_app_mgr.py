@@ -31,7 +31,6 @@ class ExtAppMgr(object):
     '''
         This class invokes preferred external applications to open repository files.
     Preferred applications are configured in text file reggata.conf.
-    See also reggata_default_conf.py file as an example.
     '''
 
     def __init__(self):
@@ -73,7 +72,10 @@ class ExtAppMgr(object):
         return state
     
     
-        
+    @staticmethod
+    def setCurrentState():
+        pass
+        # TODO: implement
     
         
              

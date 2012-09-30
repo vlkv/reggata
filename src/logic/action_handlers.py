@@ -995,7 +995,8 @@ class ManageExternalAppsActionHandler(AbstractActionHandler):
         
     def handle(self):
         try:
-            dialog = ExternalAppsDialog(self._gui)
+            extAppMgrState = ExtAppMgr.readCurrentState()
+            dialog = ExternalAppsDialog(self._gui, extAppMgrState)
             dialog.exec_()
         except Exception as ex:
             show_exc_info(self._gui, ex)
