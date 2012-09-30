@@ -20,8 +20,12 @@ class ExtAppDescription(object):
         self.filesCategory = filesCategory
         self.appCommandPattern = appCommandPattern
         self.fileExtentions = fileExtentions
-        
-        
+
+class ExtAppMgrState(object):
+    def __init__(self, appDescriptions=[], extFileMgrCommandPattern=None):
+        self.appDescriptions = appDescriptions         
+        self.extFileMgrCommandPattern = extFileMgrCommandPattern
+
 
 class ExtAppMgr(object):
     '''
@@ -32,43 +36,51 @@ class ExtAppMgr(object):
 
     def __init__(self):
 
-        self.appDescriptions = ExtAppMgr.currentConfig()
+        self.__state = ExtAppMgr.readCurrentState()
             
         # Key - file extension (in lowercase), Value - external app executable
-        self.extensions = dict()
-        for appDescription in self.appDescriptions:
+        extentionsDict = dict()
+        for appDescription in self.__state.appDescriptions:
             for ext in appDescription.fileExtentions:
                 ext = ext.lower()
                 
-                if ext in self.extensions.keys():
+                if ext in extentionsDict.keys():
                     msg = QCoreApplication.translate("ext_app_mgr",
                         "File extension {} cannot be in more than one file_type group.", 
                         None, QCoreApplication.UnicodeUTF8)
                     raise ValueError(msg.format(ext))
                 
-                self.extensions[ext] = appDescription.appCommandPattern
-                
-        self.extFileManagerCommandPattern = UserConfig().get('ext_file_manager')
+                extentionsDict[ext] = appDescription.appCommandPattern
+        self.__extensions = extentionsDict
+             
              
     @staticmethod
-    def currentConfig():
+    def readCurrentState():
         filesCategories = eval(UserConfig().get('ext_app_mgr_file_types', "[]"))
         
-        result = []
+        appDescriptions = []
         for filesCategory in filesCategories:
             extentions = eval(UserConfig().get('ext_app_mgr.{}.extensions'
                                                       .format(filesCategory)))
             appCmd = UserConfig().get("ext_app_mgr.{}.command"
                                        .format(filesCategory))
-            result.append(ExtAppDescription(filesCategory, appCmd, extentions))
-        return result
+            appDescriptions.append(ExtAppDescription(filesCategory, appCmd, extentions))
+        
+        extFileManagerCommandPattern = UserConfig().get('ext_file_manager')
+        
+        state = ExtAppMgrState(appDescriptions, 
+                               extFileManagerCommandPattern)
+        return state
+    
+    
+        
     
         
              
     def openFileWithExtApp(self, abs_path):
     
         _, ext = os.path.splitext(abs_path)
-        appCommandPattern = self.extensions.get(ext.lower(), None)
+        appCommandPattern = self.__extensions.get(ext.lower(), None)
         
         if appCommandPattern is None:
             msg = QCoreApplication.translate("ext_app_mgr", 
@@ -83,13 +95,13 @@ class ExtAppMgr(object):
 
 
     def openContainingDirWithExtAppManager(self, abs_path):
-        if self.extFileManagerCommandPattern is None:
+        if self.__state.extFileMgrCommandPattern is None:
             msg = QCoreApplication.translate("ext_app_mgr", 
                         "No external file manager command is set. Please edit your {} file.", 
                         None, QCoreApplication.UnicodeUTF8)
             raise MsgException(msg.format(consts.USER_CONFIG_FILE))
         
-        appCommand = self.__replaceCommandPatternKeys(self.extFileManagerCommandPattern, 
+        appCommand = self.__replaceCommandPatternKeys(self.__state.extFileMgrCommandPattern, 
                                                       filePath=abs_path, 
                                                       dirPath=os.path.dirname(abs_path))
         self.__createSubprocess(appCommand)
