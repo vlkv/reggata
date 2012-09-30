@@ -998,7 +998,11 @@ class ManageExternalAppsActionHandler(AbstractActionHandler):
         try:
             extAppMgrState = ExtAppMgr.readCurrentState()
             dialog = ExternalAppsDialog(self._gui, extAppMgrState, self._dialogs)
-            dialog.exec_()
+            if dialog.exec_() != QtGui.QDialog.Accepted:
+                return
+            
+            ExtAppMgr.setCurrentState(dialog.extAppMgrState())
+            
         except Exception as ex:
             show_exc_info(self._gui, ex)
         else:

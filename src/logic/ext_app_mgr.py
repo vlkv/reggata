@@ -94,7 +94,7 @@ class ExtAppMgr(object):
     
     
     @staticmethod
-    def setCurrentState():
+    def setCurrentState(extAppMgrState):
         pass
         # TODO: implement
     

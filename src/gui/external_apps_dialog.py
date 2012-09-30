@@ -57,6 +57,10 @@ class ExternalAppsDialog(QtGui.QDialog):
                      self.__onButtonDeleteCategoryClicked)
         
         
+    def extAppMgrState(self):
+        return self.__extAppMgrState
+        
+        
     def __read(self):
         for appDescription in self.__extAppMgrState.appDescriptions:
             self.ui.comboBoxCategory.addItem(appDescription.filesCategory)
