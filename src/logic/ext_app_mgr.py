@@ -85,13 +85,7 @@ class ExtAppMgr(object):
 
         appExecutable = appExecutable.replace('%d', '"' + os.path.dirname(abs_path) + '"')
         appExecutable = appExecutable.replace('%f', '"' + abs_path + '"')
-        args = shlex.split(appExecutable)
-        args = self.__modifyArgsIfOnWindowsAndPathIsNetwork(args)
-        logger.debug("subprocess.Popen(args), args=%s", args)
-        
-        #subprocess.call(args) #This call would block the current thread
-        pid = subprocess.Popen(args).pid #This call would not block the current thread
-        logger.info("Created subprocess with PID = %d", pid)
+        self.__createSubprocess(appExecutable)
 
 
     def external_file_manager(self, abs_path):
@@ -104,11 +98,16 @@ class ExtAppMgr(object):
         command = self.ext_file_manager_command
         command = command.replace('%d', '"' + os.path.dirname(abs_path) + '"')
         command = command.replace('%f', '"' + abs_path + '"')
-        args = shlex.split(command)
+        self.__createSubprocess(command)
+        
+        
+    def __createSubprocess(self, commandWithArgs):
+        args = shlex.split(commandWithArgs)
         args = self.__modifyArgsIfOnWindowsAndPathIsNetwork(args)
         logger.debug("subprocess.Popen(args), args=%s", args)
         
-        pid = subprocess.Popen(args).pid 
+        #subprocess.call(args) #This call would block the current thread
+        pid = subprocess.Popen(args).pid #This call would not block the current thread
         logger.info("Created subprocess with PID = %d", pid)
         
         
