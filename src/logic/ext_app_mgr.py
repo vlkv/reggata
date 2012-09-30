@@ -16,9 +16,9 @@ import sys
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 class ExtAppDescription(object):
-    def __init__(self, filesCategory, appExecutable, fileExtentions):
+    def __init__(self, filesCategory, appCommandPattern, fileExtentions):
         self.filesCategory = filesCategory
-        self.appExecutable = appExecutable
+        self.appCommandPattern = appCommandPattern
         self.fileExtentions = fileExtentions
         
         
@@ -46,9 +46,9 @@ class ExtAppMgr(object):
                         None, QCoreApplication.UnicodeUTF8)
                     raise ValueError(msg.format(ext))
                 
-                self.extensions[ext] = appDescription.appExecutable
+                self.extensions[ext] = appDescription.appCommandPattern
                 
-        self.ext_file_manager_command = UserConfig().get('ext_file_manager')
+        self.extFileManagerCommandPattern = UserConfig().get('ext_file_manager')
              
     @staticmethod
     def currentConfig():
@@ -68,37 +68,37 @@ class ExtAppMgr(object):
     def invoke(self, abs_path):
     
         _, ext = os.path.splitext(abs_path)
-        appExecutable = self.extensions.get(ext.lower(), None)
+        appCommandPattern = self.extensions.get(ext.lower(), None)
         
-        if appExecutable is None:
+        if appCommandPattern is None:
             msg = QCoreApplication.translate("ext_app_mgr", 
                         "File type is not defined for {0} file extension. Edit your {1} file.", 
                         None, QCoreApplication.UnicodeUTF8)
             raise Exception(msg.format(ext, consts.USER_CONFIG_FILE))
-        
-#        if not os.path.exists(appExecutable):
-#            msg = QCoreApplication.translate("ext_app_mgr", 
-#                        "File not found {0}.", 
-#                        None, QCoreApplication.UnicodeUTF8)
-#            raise Exception(msg.format(appExecutable))
-            
 
-        appExecutable = appExecutable.replace('%d', '"' + os.path.dirname(abs_path) + '"')
-        appExecutable = appExecutable.replace('%f', '"' + abs_path + '"')
-        self.__createSubprocess(appExecutable)
+        appCommand = self.__replaceCommandPatternKeys(appCommandPattern, 
+                                                      filePath=abs_path, 
+                                                      dirPath=os.path.dirname(abs_path))
+        self.__createSubprocess(appCommand)
 
 
     def external_file_manager(self, abs_path):
-        if self.ext_file_manager_command is None:
+        if self.extFileManagerCommandPattern is None:
             msg = QCoreApplication.translate("ext_app_mgr", 
                         "No external file manager command is set. Please edit your {} file.", 
                         None, QCoreApplication.UnicodeUTF8)
             raise MsgException(msg.format(consts.USER_CONFIG_FILE))
         
-        command = self.ext_file_manager_command
-        command = command.replace('%d', '"' + os.path.dirname(abs_path) + '"')
-        command = command.replace('%f', '"' + abs_path + '"')
-        self.__createSubprocess(command)
+        appCommand = self.__replaceCommandPatternKeys(self.extFileManagerCommandPattern, 
+                                                      filePath=abs_path, 
+                                                      dirPath=os.path.dirname(abs_path))
+        self.__createSubprocess(appCommand)
+        
+        
+    def __replaceCommandPatternKeys(self, commandPattern, filePath, dirPath):
+        result = commandPattern.replace('%f', '"' + filePath + '"')
+        result = result.replace('%d', '"' + dirPath + '"')
+        return result
         
         
     def __createSubprocess(self, commandWithArgs):
@@ -109,6 +109,8 @@ class ExtAppMgr(object):
         #subprocess.call(args) #This call would block the current thread
         pid = subprocess.Popen(args).pid #This call would not block the current thread
         logger.info("Created subprocess with PID = %d", pid)
+        
+        # TODO: raise an exception if application executable file not found
         
         
     def __modifyArgsIfOnWindowsAndPathIsNetwork(self, args):
