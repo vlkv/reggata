@@ -95,8 +95,13 @@ class ExtAppMgr(object):
     
     @staticmethod
     def setCurrentState(extAppMgrState):
-        pass
-        # TODO: implement
+        extAppMgrState.raiseErrorIfNotValid()
+        
+        for appDescription in ExtAppMgrState.appDescriptions:
+            pass
+            #Store app description
+        
+        #Store extFileMgr command
     
         
              
