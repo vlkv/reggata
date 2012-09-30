@@ -651,7 +651,7 @@ class OpenItemActionHandler(AbstractActionHandler):
             if dataRef is None or dataRef.type != DataRef.FILE:
                 raise MsgException(self.tr("This action can be applied only to the items linked with files."))
             
-            self._extAppMgr.invoke(os.path.join(self._tool.repo.base_path, dataRef.url))
+            self._extAppMgr.openFileWithExtApp(os.path.join(self._tool.repo.base_path, dataRef.url))
             
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -725,7 +725,7 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
                         os.path.join(self._tool.repo.base_path, 
                                      item.data_ref.url) + os.linesep)                                            
                     
-            self._extAppMgr.invoke(os.path.join(tmpDir, m3uFilename))
+            self._extAppMgr.openFileWithExtApp(os.path.join(tmpDir, m3uFilename))
             
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Done."), STATUSBAR_TIMEOUT)
@@ -752,7 +752,7 @@ class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
                     self.tr("This action can be applied only to the items linked with files."))
             
             
-            self._extAppMgr.external_file_manager(
+            self._extAppMgr.openContainingDirWithExtAppManager(
                 os.path.join(self._tool.repo.base_path, dataRef.url))
                         
         except Exception as ex:

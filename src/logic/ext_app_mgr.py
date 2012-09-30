@@ -65,7 +65,7 @@ class ExtAppMgr(object):
     
         
              
-    def invoke(self, abs_path):
+    def openFileWithExtApp(self, abs_path):
     
         _, ext = os.path.splitext(abs_path)
         appCommandPattern = self.extensions.get(ext.lower(), None)
@@ -82,7 +82,7 @@ class ExtAppMgr(object):
         self.__createSubprocess(appCommand)
 
 
-    def external_file_manager(self, abs_path):
+    def openContainingDirWithExtAppManager(self, abs_path):
         if self.extFileManagerCommandPattern is None:
             msg = QCoreApplication.translate("ext_app_mgr", 
                         "No external file manager command is set. Please edit your {} file.", 
