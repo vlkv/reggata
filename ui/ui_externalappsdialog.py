@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'externalappsdialog.ui'
 #
-# Created: Sun Sep 30 21:09:17 2012
-#      by: PyQt4 UI code generator 4.9.4
+# Created: Mon Oct 01 11:16:29 2012
+#      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_ExternalAppsDialog(object):
     def setupUi(self, ExternalAppsDialog):
         ExternalAppsDialog.setObjectName(_fromUtf8("ExternalAppsDialog"))
-        ExternalAppsDialog.resize(548, 151)
+        ExternalAppsDialog.resize(595, 151)
         self.verticalLayout = QtGui.QVBoxLayout(ExternalAppsDialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.gridLayout = QtGui.QGridLayout()
@@ -98,6 +98,16 @@ class Ui_ExternalAppsDialog(object):
         self.buttonNewCategory.setText(QtGui.QApplication.translate("ExternalAppsDialog", "New", None, QtGui.QApplication.UnicodeUTF8))
         self.buttonDeleteCategory.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Delete", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Executable:", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEditAppCmdPattern.setToolTip(QtGui.QApplication.translate("ExternalAppsDialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Syntax: </p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">    &lt;path to executable&gt; &lt;replacement fields&gt;</p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Replacement fields could be:</p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">%f - will be replaced with file name;</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">%d - will be replaced with containing directory of the file.</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.buttonSelectApp.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("ExternalAppsDialog", "File extensions:", None, QtGui.QApplication.UnicodeUTF8))
+        self.lineEditFileExtensions.setToolTip(QtGui.QApplication.translate("ExternalAppsDialog", "File extentions, separated with spaces, e.g. \".txt .doc .csv\"", None, QtGui.QApplication.UnicodeUTF8))
 
