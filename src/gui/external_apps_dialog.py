@@ -126,6 +126,9 @@ class ExternalAppsDialog(QtGui.QDialog):
         if not executableFile:
             return
         
+        executableFile = executableFile.strip()
+        if " " in executableFile:
+            executableFile = '"' + executableFile + '"'
         self.ui.lineEditAppCmdPattern.setText(executableFile + " %f")
     
         
