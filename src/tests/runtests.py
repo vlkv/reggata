@@ -1,7 +1,7 @@
 import unittest
 import os
 from tests import test_memento, test_helpers, test_repo_mgr, test_worker_threads,\
-    test_action_handlers
+    test_action_handlers, test_items_integrity
 
 class TestsDiscoverIsNotAvailableError(Exception):
     pass
@@ -13,10 +13,17 @@ class TestRunner():
         self.addAllTestCases()
     
     def addAllTestCases(self):
+        self.addTestCase(test_action_handlers.AddItemsActionHandlerTest)
+        self.addTestCase(test_action_handlers.EditItemsActionHandlerTest)
+        self.addTestCase(test_action_handlers.RebuildThumbnailActionHandlerTest)
+        self.addTestCase(test_action_handlers.DeleteItemActionHandlerTest)
+        self.addTestCase(test_action_handlers.OpenItemActionHandlerTest)
+        
+        self.addTestCase(test_items_integrity.CheckItemIntegrityTest)
+        self.addTestCase(test_items_integrity.FixItemIntegrityTest)
+        
         self.addTestCase(test_memento.ItemSerializationSimpleTest)
         self.addTestCase(test_memento.ItemSerializationTest)
-        
-        self.addTestCase(test_helpers.IsNoneOrEmptyTest)
         
         self.addTestCase(test_repo_mgr.GetItemTest)
         self.addTestCase(test_repo_mgr.DeleteItemTest)
@@ -25,7 +32,14 @@ class TestRunner():
         
         self.addTestCase(test_worker_threads.DeleteGroupOfItemsThreadTest)
         
-        self.addTestCase(test_action_handlers.AddItemsActionHandlerTest)
+        self.addTestCase(test_helpers.IsNoneOrEmptyTest)
+        
+        
+        
+        
+        
+        
+        
         
 
     def addTestCase(self, testCaseCls):
