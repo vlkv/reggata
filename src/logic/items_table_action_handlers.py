@@ -3,21 +3,18 @@ Created on 01.10.2012
 @author: vlkv
 '''
 import os
-import time
-from PyQt4 import QtCore, QtGui
+import helpers
 import consts
-from helpers import show_exc_info, is_none_or_empty, format_exc_info
-from consts import STATUSBAR_TIMEOUT
-from user_config import UserConfig
-from errors import MsgException, CancelOperationError
-from data.db_schema import Item, DataRef
-from data.commands import GetExpungedItemCommand, SaveNewItemCommand, UpdateExistingItemCommand
+import data.db_schema
+from data.commands import *
 from logic.action_handlers import AbstractActionHandler
 from logic.handler_signals import HandlerSignals
 from logic.worker_threads import *
 from gui.item_dialog import ItemDialog
 from gui.image_viewer import ImageViewer
 from gui.items_dialog import ItemsDialog
+from helpers import show_exc_info
+
 
 
 class AddSingleItemActionHandler(AbstractActionHandler):
@@ -38,7 +35,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             file = self.__dialogs.getOpenFileName(
                 self._tool.gui, self.tr("Select a file to link with new Item."))
             
-            if not is_none_or_empty(file):
+            if not helpers.is_none_or_empty(file):
                 file = os.path.normpath(file)
                 item.title = os.path.basename(file)
                 item.data_ref = DataRef(type=DataRef.FILE, url=file)
@@ -208,7 +205,7 @@ class EditItemActionHandler(AbstractActionHandler):
             
         else:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
-                                    self.tr("Editing done."), STATUSBAR_TIMEOUT)
+                                    self.tr("Editing done."), consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
             
     
@@ -324,7 +321,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
                 
         except CancelOperationError:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation cancelled."), STATUSBAR_TIMEOUT)
+                self.tr("Operation cancelled."), consts.STATUSBAR_TIMEOUT)
             
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -332,7 +329,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
         else:
             #TODO: display information about how many items were deleted
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+                self.tr("Operation completed."), consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_DELETED)
             
 
@@ -359,7 +356,7 @@ class OpenItemActionHandler(AbstractActionHandler):
             
         else:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
-                self.tr("Done."), STATUSBAR_TIMEOUT)
+                self.tr("Done."), consts.STATUSBAR_TIMEOUT)
     
     
 class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
@@ -392,7 +389,7 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
                              items, startIndex)
             iv.show()
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Done."), STATUSBAR_TIMEOUT)
+                self.tr("Done."), consts.STATUSBAR_TIMEOUT)
             
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -429,7 +426,7 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
             self._extAppMgr.openFileWithExtApp(os.path.join(tmpDir, m3uFilename))
             
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Done."), STATUSBAR_TIMEOUT)
+                self.tr("Done."), consts.STATUSBAR_TIMEOUT)
             
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -492,7 +489,7 @@ class ExportItemsActionHandler(AbstractActionHandler):
         else:
             #TODO: display information about how many items were exported
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+                self.tr("Operation completed."), consts.STATUSBAR_TIMEOUT)
 
 
 
@@ -525,7 +522,7 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
         else:
             #TODO: display information about how many files were copied
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+                self.tr("Operation completed."), consts.STATUSBAR_TIMEOUT)
 
 
 class ExportItemsFilePathsActionHandler(AbstractActionHandler):
@@ -560,7 +557,7 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
             
         else:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+                self.tr("Operation completed."), consts.STATUSBAR_TIMEOUT)
 
 
 class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
