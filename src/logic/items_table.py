@@ -6,14 +6,18 @@ Created on 21.01.2012
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 from logic.abstract_tool import AbstractTool
-from logic.handler_signals import HandlerSignals
 from logic.tag_cloud import TagCloud
 from logic.action_handlers import *
+from logic.items_table_action_handlers import *
+from logic.ext_app_mgr import ExtAppMgr
 from gui.common_widgets import Completer
 from gui.items_table_tool_gui import ItemsTableToolGui, ItemsTableModel
 from parsers import query_parser
 from data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
 from gui.drop_files_dialogs_facade import DropFilesDialogsFacade
+
+
+from errors import CurrentRepoIsNoneError, CurrentUserIsNoneError
 
 
 class ItemsTable(AbstractTool):

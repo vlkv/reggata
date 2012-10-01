@@ -4,16 +4,18 @@ Created on 20.08.2010
 @author: vlkv
 '''
 import ui_mainwindow
-from helpers import *
 import logging
 import consts
+from helpers import *
 from data.repo_mgr import *
 from logic.worker_threads import *
 from logic.action_handlers import *
+from logic.main_window_action_handlers import *
 from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage
 from logic.main_window_model import MainWindowModel
 from logic.items_table import ItemsTable
+
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

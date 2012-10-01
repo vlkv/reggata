@@ -4,9 +4,8 @@ Created on 27.08.2012
 '''
 import os
 from tests.abstract_test_cases import AbstractTestCaseWithRepo
-from logic.action_handlers import AddSingleItemActionHandler, AddManyItemsActionHandler,\
-    AddManyItemsRecursivelyActionHandler, EditItemActionHandler,\
-    RebuildItemThumbnailActionHandler, DeleteItemActionHandler
+from logic.action_handlers import *
+from logic.items_table_action_handlers import *
 from data.db_schema import User
 from tests.tests_dialogs_facade import TestsDialogsFacade
 from data.commands import GetExpungedItemCommand
