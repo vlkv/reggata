@@ -138,7 +138,7 @@ class ExternalAppsDialog(QtGui.QDialog):
             
             text, isOk = self.__dialogs.execGetTextDialog(self, 
                 self.tr("Input Dialog"), self.tr("Enter the name for new category of files."), 
-                defaultText="Category {}".format(categoriesCountBefore))
+                defaultText="Category_{}".format(categoriesCountBefore))
             if not isOk:
                 return
             
@@ -174,7 +174,7 @@ class ExternalAppsDialog(QtGui.QDialog):
         categoryName = self.__extAppMgrState.appDescriptions[index].filesCategory
         
         mbResult = self.__dialogs.execMessageBox(self,
-            text=self.tr("Do you really want to delete category {}?".format(categoryName)),
+            text=self.tr("Do you really want to delete category '{}'?".format(categoryName)),
             buttons=[QtGui.QMessageBox.Yes, QtGui.QMessageBox.No])
         if mbResult != QtGui.QMessageBox.Yes:
             return

@@ -12,6 +12,7 @@ from errors import MsgException
 import logging
 from PyQt4.QtCore import QCoreApplication 
 import sys
+import string
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -19,6 +20,11 @@ logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 class FileExtentionMultiplyRegisteredError(Exception):
     def __init__(self, msg=None):
         super(FileExtentionMultiplyRegisteredError, self).__init__(msg)
+
+class NameContainsWhitespacesError(Exception):
+    def __init__(self, msg=None):
+        super(NameContainsWhitespacesError, self).__init__(msg)
+
 
 class ExtAppDescription(object):
     def __init__(self, filesCategory, appCommandPattern, fileExtentions):
@@ -37,13 +43,20 @@ class ExtAppMgrState(object):
             for fileExt in appDescription.fileExtentions:
                 for appDescription2 in self.appDescriptions:
                     if appDescription2.filesCategory == appDescription.filesCategory:
-                        continue 
+                        continue
                     if fileExt in appDescription2.fileExtentions:
                         raise FileExtentionMultiplyRegisteredError(
                             "File extention '{0}' is registered in two categories: '{1}' and '{2}'. " 
                             "But it should be registered in only one category."
                             .format(fileExt, appDescription.filesCategory, appDescription2.filesCategory))
-                    
+        
+        #Category names should not contain whitespaces
+        for appDescription in self.appDescriptions:
+            for symbol in string.whitespace:
+                if symbol in appDescription.filesCategory:
+                    raise NameContainsWhitespacesError("Category name '{}' should not contain whitespaces."
+                                                       .format(appDescription.filesCategory))
+            
                 
         
 
@@ -97,11 +110,18 @@ class ExtAppMgr(object):
     def setCurrentState(extAppMgrState):
         extAppMgrState.raiseErrorIfNotValid()
         
-        for appDescription in ExtAppMgrState.appDescriptions:
-            pass
-            #Store app description
+        stateDict = dict()
+        categories = []
+        for appDescription in extAppMgrState.appDescriptions:
+            category = appDescription.filesCategory
+            categories.append(category)
+            stateDict["ext_app_mgr.{}.command".format(category)] = appDescription.appCommandPattern
+            stateDict["ext_app_mgr.{}.extensions".format(category)] = appDescription.fileExtentions
         
-        #Store extFileMgr command
+        stateDict["ext_app_mgr_file_types"] = categories
+        stateDict["ext_file_manager"] = extAppMgrState.extFileMgrCommandPattern
+        
+        UserConfig().storeAll(stateDict)
     
         
              
