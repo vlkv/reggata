@@ -13,6 +13,7 @@ import logging
 from PyQt4.QtCore import QCoreApplication 
 import sys
 import string
+from PyQt4 import QtCore
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -61,14 +62,19 @@ class ExtAppMgrState(object):
         
 
 
-class ExtAppMgr(object):
+class ExtAppMgr(QtCore.QObject):
     '''
         This class invokes preferred external applications to open repository files.
     Preferred applications are configured in text file reggata.conf.
     '''
 
-    def __init__(self):
+    def __init__(self, parent=None):
+        super(ExtAppMgr, self).__init__(parent)
+        
+        self.updateState()
+             
 
+    def updateState(self):
         self.__state = ExtAppMgr.readCurrentState()
             
         # Key - file extension (in lowercase), Value - external app executable
@@ -132,9 +138,11 @@ class ExtAppMgr(object):
         
         if appCommandPattern is None:
             msg = QCoreApplication.translate("ext_app_mgr", 
-                        "File type is not defined for {0} file extension. Edit your {1} file.", 
+                        "External application for {0} file extension is not set. "
+                        "Please, go to 'Main Menu -> Repository -> Manage External Applications' "
+                        "and configure it", 
                         None, QCoreApplication.UnicodeUTF8)
-            raise Exception(msg.format(ext, consts.USER_CONFIG_FILE))
+            raise Exception(msg.format(ext))
 
         appCommand = self.__replaceCommandPatternKeys(appCommandPattern, 
                                                       filePath=abs_path, 

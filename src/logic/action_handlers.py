@@ -1002,12 +1002,14 @@ class ManageExternalAppsActionHandler(AbstractActionHandler):
                 return
             
             ExtAppMgr.setCurrentState(dialog.extAppMgrState())
+            self._emitHandlerSignal(HandlerSignals.REGGATA_CONF_CHANGED)
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             
         except Exception as ex:
             show_exc_info(self._gui, ex)
-        else:
-            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed."), STATUSBAR_TIMEOUT)
+        
+        
     
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):

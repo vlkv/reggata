@@ -36,6 +36,11 @@ class ItemsTable(AbstractTool):
         
         self._extAppMgr = ExtAppMgr()
         
+        self._widgetsUpdateManager.subscribe(
+            self._extAppMgr, self._extAppMgr.updateState, 
+            [HandlerSignals.REGGATA_CONF_CHANGED])
+        
+        
         
         
     def id(self):

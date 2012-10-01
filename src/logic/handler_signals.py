@@ -18,6 +18,7 @@ class HandlerSignals():
     LIST_OF_FAVORITE_REPOS_CHANGED = "listOfFavoriteReposChanged"
     STATUS_BAR_MESSAGE = "statusBarMessage"
     RESET_SINGLE_ROW = "resetSingleRow"
+    REGGATA_CONF_CHANGED = "reggata.conf file has changed"
 
 
     @staticmethod
@@ -28,4 +29,5 @@ class HandlerSignals():
                 HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED,
                 HandlerSignals.STATUS_BAR_MESSAGE,
                 HandlerSignals.RESET_SINGLE_ROW,
+                HandlerSignals.REGGATA_CONF_CHANGED,
                 ]
