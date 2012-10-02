@@ -29,17 +29,21 @@ logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
 # TODO: move this function to DialogsFacade
+# TODO: split this function to several functions with less arguments...
 def show_exc_info(parent, ex, tracebk=True, details=None, title=None):
     '''
-    Если traceback задать равным False, то окно не содержит раздел DetailedText
-    с информацией о stack trace (как это по русски сказать?).
-    
-    Если задать details, то данный текст выводится в разделе DetailedText, причем
-    неважно чему при этом равен tracebk (он игнорируется).
-    
-    Параметр title позволяет задать другой заголовок окна.
+        Shows a MyMessageBox dialog with information about given exception.
+        parent --- Qt parent of the dialog to be shown.
+        ex --- an exception to be described in the dialog.
+        tracebk --- when tracebk is True the dialog would contain a DetailedText
+    button. When user presses that button --- an info with stack trace is shown in 
+    the dialog. 
+        details --- when details is not None, then it is displayed in the DetailedText
+    area of the dialog (instead of stack trace). In this case value of tracebk is 
+    ignored. 
+        title --- set different title to the dialog. When title is None, the dialog
+    has a default title. 
     '''
-    
     mb = MyMessageBox(parent)
     defaultTitle = QCoreApplication.translate("helpers", "Information", 
                                               None, QCoreApplication.UnicodeUTF8)
@@ -52,29 +56,32 @@ def show_exc_info(parent, ex, tracebk=True, details=None, title=None):
     
     mb.exec_()
     
-def format_exc_info(type, value, tb):    
-    return ''.join(traceback.format_exception(type, value, tb))
+    
+def format_exc_info(excType, value, tb):    
+    return ''.join(traceback.format_exception(excType, value, tb))
+
 
 def to_db_format(path):
-    '''Преобразует путь path из формата данной ОС в формат UNIX (в котором хранятся
-    пути в БД.'''
+    '''
+        Converts slashes of the given path from current OS format to UNIX format. 
+    Note: all paths in reggata database are stored in UNIX format.
+    '''
     if platform.system() == "Windows":
         return path.replace(os.sep, "/")
     else:
-        #В случае Linux или Mac OS преобразовывать не нужно
+        # Linux and MacOS use UNIX format
         return path
+
     
 def from_db_format(path):
-    '''Преобразует путь path из формата UNIX (в данном формате все пути хранятся в БД) 
-    в формат, принятый на конкретной ОС. path должен быть относительным путем. 
-    Вобщем-то заменяются только слеши: / на \
+    '''
+        Converts slashes of the given path from UNIX format (this format is used
+    in reggata database) to the format of the current OS. Path should be a relative path. 
     '''
     if platform.system() == "Windows":
-        #TODO Перед сохранением файла, необходимо запрещать, чтобы файл содержал 
-        #в своем ИМЕНИ символ обратного слеша. Иначе будут проблемы под Windows.
         return path.replace("/", os.sep)
     else:
-        #В случае Linux или Mac OS преобразовывать не нужно
+        # Linux and MacOS use UNIX format
         return path
 
 def to_os_format(path):
@@ -83,11 +90,9 @@ def to_os_format(path):
     
 def to_commalist(seq, apply_each=repr, sep=", "):
     '''
-    Для последовательности seq (например, списка list) возвращает строку, содержащую
-    элементы через запятую. При этому к каждому элементу применяется функция apply_each()
-    для возможно необходимых преобразований формата элементов.
-    
-    В качестве seq можно также передавать множество set.
+        For any sequence (e.g. list) this function returns a string, containing
+    all elements, separated with commas (by default). When constructing the result
+    string, all sequence elements are converted with apply_each function call.
     '''
     s = ""
     i = 0
@@ -99,21 +104,22 @@ def to_commalist(seq, apply_each=repr, sep=", "):
     return s
         
 
-        
 def index_of(seq, match=None):
-    '''Возвращает индекс первого найденного элемента из последовательности 
-    seq. Для каждого элемента применяется функция match(seq[i]), 
-    если match() возвращает True, то элемент найден.    
-    Если элемент не найден, то возвращается None.    
+    '''
+        Returns an index of the first matching element in sequence. Matching is performed
+    with a match callable which should return boolean. Returns None, if there are no 
+    matching elements in the sequence.    
     '''
     for i in range(len(seq)):
         if match(seq[i]):    
             return i
     return None
         
+        
 def is_none_or_empty(s):
-    '''Возвращает True, если строка s является None или "".
-    Если передать объект класса, отличного от str, генерируется исключение TypeError.
+    '''
+        Returns True, if given string s is None or "" (empty string).
+    If s is and instance of class different from str, function raises TypeError.
     '''
     if s is None:
         return True
@@ -122,10 +128,12 @@ def is_none_or_empty(s):
             raise TypeError("is_none_or_empty() can be applied only to str objects.")    
         return True if s == "" else False
 
+
 #TODO: Rename into isInternalPath() or isSubDirectoryOf() or isSubPathOf()
 def is_internal(url, base_path):
-        '''Returns True if url is a path to subdirectory inside base_path directory, else False.
-        Method doesn't check existence of tested paths.
+        '''
+            Returns True if url is a path to subdirectory inside base_path directory, 
+        else False. Method doesn't check existence of tested paths.
         '''
         if is_none_or_empty(base_path):
             raise ValueError("base_path cannot be empty.")
@@ -138,14 +146,18 @@ def is_internal(url, base_path):
         else:
             return False
 
+
 def removeTrailingOsSeps(path):
     while path.endswith(os.sep):
         path = path[0:len(path)-1]
     return path
+
         
 def compute_hash(filename, chunksize=131072, algorithm="sha1"):
-    '''Возвращает хэш от содержимого файла filename.'''
-    #Можно использовать md5, он вычисляется существенно быстрее, чем sha1.    
+    '''
+        The function calculates hash of a contents of a given file.
+    You can use sha1 or md5 as a hash algorithm. 
+    '''    
     start = time.time()
     f = open(filename, 'rb')
     filehash = hashlib.new(algorithm)
@@ -154,18 +166,20 @@ def compute_hash(filename, chunksize=131072, algorithm="sha1"):
         if not data:
             break
         filehash.update(data)
-    hash = filehash.hexdigest()
+    hashStr = filehash.hexdigest()
     logger.debug("Hash {} computed in time of {} sec".format(algorithm, time.time() - start))
-    return hash
+    return hashStr
+    
     
 def computePasswordHash(strPassword):
-    bytes = strPassword.encode("utf-8")
-    return hashlib.sha1(bytes).hexdigest()
+    byteData = strPassword.encode("utf-8")
+    return hashlib.sha1(byteData).hexdigest()
     
         
 class ImageThumbDelegate(QtGui.QStyledItemDelegate):
-    '''Делегат, для отображения миниатюры графического файла в таблице элементов
-    хранилища.'''
+    '''
+        This is an ItemDelegate for rendering an image thumbnail in Items Table Tool.
+    '''
     def __init__(self, parent=None):
         super(ImageThumbDelegate, self).__init__(parent)
         
@@ -174,23 +188,21 @@ class ImageThumbDelegate(QtGui.QStyledItemDelegate):
         if pixmap is not None and not pixmap.isNull():
             return pixmap.size()
         else:
-            return super(ImageThumbDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1            
+            return super(ImageThumbDelegate, self).sizeHint(option, index)
             
-
     def paint(self, painter, option, index):
-        
         pixmap = index.data(QtCore.Qt.UserRole)
         if pixmap is not None and not pixmap.isNull():
             painter.drawPixmap(option.rect.topLeft(), pixmap)
-            #painter.drawPixmap(option.rect, pixmap)
         else:
-            super(ImageThumbDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
-            #QtGui.QStyledItemDelegate.paint(self, painter, option, index) #Для PyQt 4.7.3 надо так
+            super(ImageThumbDelegate, self).paint(painter, option, index)
+
 
 class RatingDelegate(QtGui.QStyledItemDelegate):
-    '''An ItemDelegate for displaying Rating of items. Rating value is stored 
-    in a regular field with name consts.RATING_FIELD.'''
-    
+    '''
+        An ItemDelegate for displaying Rating of items. Rating value is stored 
+    in a regular field with name consts.RATING_FIELD.
+    '''
     def __init__(self, parent=None, r=10):
         super(RatingDelegate, self).__init__(parent)
         
@@ -200,15 +212,16 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         self.star = QtGui.QPixmap(2*r, 2*r)
         self.star.fill(QtGui.QColor(255, 255, 255, 0)) #This is an absolutely transparent color
         painter = QtGui.QPainter(self.star)
-        path = QtGui.QPainterPath()
-        
+        path = QtGui.QPainterPath()    
         
         for i in range(0, 10):
             radius = r if i % 2 == 0 else r*0.4
             if i == 0:
-                path.moveTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), radius*math.sin(i*2*math.pi/10)))
+                path.moveTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), 
+                                           radius*math.sin(i*2*math.pi/10)))
             else:
-                path.lineTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), radius*math.sin(i*2*math.pi/10)))        
+                path.lineTo(QtCore.QPointF(radius*math.cos(i*2*math.pi/10), 
+                                           radius*math.sin(i*2*math.pi/10)))        
         painter.save()
         painter.translate(r, r)
         painter.setPen(palette.text().color())
@@ -216,17 +229,10 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         painter.drawPath(path)
         painter.restore()
         
-        
-        
-    
     def sizeHint(self, option, index):
         return QtCore.QSize(option.rect.width(), self.r)
-        #TODO should return some size?..
-        #return super(RatingDelegate, self).sizeHint(option, index)
-            
-
-    def paint(self, painter, option, index):
         
+    def paint(self, painter, option, index):
         palette = QtGui.QApplication.palette()
         
         bg_color = palette.highlight().color() \
@@ -235,7 +241,6 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         
         rating = int(index.data(QtCore.Qt.DisplayRole))
         
-        #TODO Maybe max rating should be 10?
         if rating < 0:
             rating = 0
         elif rating > 5:
@@ -249,16 +254,13 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
             painter.translate(self.star.width() + 1, 0.0)
         painter.restore()
         
-    
     def createEditor(self, parent, option, index):
-        
         editor = QtGui.QSpinBox(parent)
         editor.setMinimum(0)
         editor.setMaximum(5)
         return editor
     
     def setEditorData(self, editor, index):
-        
         try:
             rating = int(index.data(QtCore.Qt.DisplayRole))
         except:
@@ -266,21 +268,21 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         editor.setValue(rating)
     
     def setModelData(self, editor, model, index):
-        
         model.setData(index, editor.value())
     
     def updateEditorGeometry(self, editor, option, index):
-        
         editor.setGeometry(option.rect)
 
+
 class HTMLDelegate(QtGui.QStyledItemDelegate):
-    '''Делегат, для отображения HTML текста в таблице.'''
+    '''
+        An ItemDelegate for rendering HTML text in Items Table Tool.
+    '''
     def __init__(self, parent=None):
         super(HTMLDelegate, self).__init__(parent)
         self.text_edit = QtGui.QTextEdit()
         
     def sizeHint(self, option, index):
-        
         raw_text = index.data(Qt.DisplayRole)
         if raw_text is not None:
             doc = QtGui.QTextDocument()
@@ -289,11 +291,9 @@ class HTMLDelegate(QtGui.QStyledItemDelegate):
             doc.setHtml(raw_text)            
             return QtCore.QSize(doc.size().width(), doc.size().height())
         else:
-            return super(HTMLDelegate, self).sizeHint(option, index) #Работает в PyQt начиная с 4.8.1
+            return super(HTMLDelegate, self).sizeHint(option, index)
             
-
     def paint(self, painter, option, index):
-        
         palette = QtGui.QApplication.palette()
         
         bg_color = palette.highlight().color() \
@@ -325,7 +325,7 @@ class HTMLDelegate(QtGui.QStyledItemDelegate):
             painter.restore()
     
         else:
-            super(HTMLDelegate, self).paint(painter, option, index) #Работает в PyQt начиная с 4.8.1
+            super(HTMLDelegate, self).paint(painter, option, index)
             
 
         
