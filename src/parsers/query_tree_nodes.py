@@ -1,36 +1,18 @@
 # -*- coding: utf-8 -*-
 '''
 Copyright 2010 Vitaly Volkov
-
-This file is part of Reggata.
-
-Reggata is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Reggata is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
-
 Created on 27.11.2010
 
 Module consists of classes, which represent nodes of syntax tree of 
 reggata query language.
 '''
-import consts
 import helpers
-from user_config import UserConfig
 from data import db_schema
 
 
 class QueryExpression(object):
     '''
-    This is a base class for all nodes of syntax tree.
+        This is a base class for all nodes of syntax tree.
     '''
     def interpret(self):
         raise NotImplementedError("This is an abstract method.")
@@ -38,7 +20,8 @@ class QueryExpression(object):
 
 class CompoundQuery(QueryExpression):
     '''
-    Node, representing a compound expression of a query (consisting of several SQL queries).
+        Node, representing a compound expression of a query 
+    (that consists of several SQL queries).
     '''
     def __init__(self, elem=None):
         if elem:
@@ -63,7 +46,6 @@ class CompoundQuery(QueryExpression):
             if isinstance(elem, SimpleQuery):
                 elem.add_extra_clause(ext)
 
-    
         
     def interpret(self):
         s = ""
@@ -78,7 +60,7 @@ class CompoundQuery(QueryExpression):
 
 class FieldOpVal(QueryExpression):
     '''
-    This node represents a triple (FieldName, Operation, Value).
+        This node represents a triple (FieldName, Operation, Value).
     '''
     def __init__(self, name, op, value):
         self.name = name
@@ -111,7 +93,8 @@ class FieldOpVal(QueryExpression):
 
 class SimpleQuery(QueryExpression):
     '''
-    This is a base class for all simple expressions (those represented by a single SQL query).
+        This is a base class for all simple expressions 
+    (those represented by a single SQL query).
     '''
     def __init__(self):
         self.extra_paths = []
@@ -171,7 +154,7 @@ class SingleExtraClause(SimpleQuery):
     
 class FieldsConjunction(SimpleQuery):
     '''
-    This is a conjunction of FieldOpVal. For example:
+        This is a conjunction of FieldOpVal. For example:
     Field1=Value1 AND Field2=Value2 AND Field3=Value3
     
     select 
@@ -187,27 +170,25 @@ class FieldsConjunction(SimpleQuery):
         inner join items_fields if3 on if3.item_id = i.id and if2.field_id <> if3.field_id
         inner join fields f3 on f3.id = if3.field_id    
     where 
-            f2.name = 'Автор' and if2.field_value LIKE 'Васькин'
-        and f1.name = 'Рейтинг' and CAST(if1.field_value as REAL) < 5
-        and f3.name = 'Год' and if3.field_value = '2010'
-        --Вот такому запросу неважно, в каком порядке следуют запрашиваемые поля.
-        --Однако, мне кажется он будет выполняться медленно!
+            f2.name = 'Author' and if2.field_value LIKE 'Dostoevsky'
+        and f1.name = 'Rating' and CAST(if1.field_value as REAL) < 5
+        and f3.name = 'Year' and if3.field_value = '2010'
     '''
-    #TODO Может быть тут поставить в join-ах еще доп. условие вида
+    # Maybe we should add here a condition like: 
     # ... and if1.field_id <> if2.field_id
     # ... and if2.field_id <> if3.field_id and if1.field_id <> if3.field_id
-    # ... и т.д.? 
+    # ... and so on?.. 
     
     def __init__(self):
         super(FieldsConjunction, self).__init__()
-        
         self.field_op_vals = []
     
     
     def interpret(self):
         #extra_users_str
         if len(self.extra_users) > 0:
-            users_comma_list = helpers.to_commalist(self.extra_users, lambda x: "'" + x.interpret() + "'", ", ") 
+            users_comma_list = helpers.to_commalist(self.extra_users, 
+                                                    lambda x: "'" + x.interpret() + "'", ", ") 
         else:
             users_comma_list = None
         
@@ -223,7 +204,8 @@ class FieldsConjunction(SimpleQuery):
         i = 1
         for field_op_val in self.field_op_vals:
             
-            extra_users_str = "and if{0}.user_login IN ({1})".format(i, users_comma_list) if users_comma_list else ""
+            extra_users_str = "and if{0}.user_login IN ({1})".format(i, users_comma_list) \
+                if users_comma_list else ""
             
             from_part = '''
             inner join items_fields if{0} on if{0}.item_id = i.id
@@ -232,7 +214,9 @@ class FieldsConjunction(SimpleQuery):
                 from_part = from_part + ''' and if{0}.field_id <> if{1}.field_id '''.format(i-1, i)
             from_parts.append(from_part)
             
-            where_part = '''f{0}.name = '{1}' and {2} {3}'''.format(i, field_op_val.name, field_op_val.interpret(i), extra_users_str)
+            where_part = '''f{0}.name = '{1}' and {2} {3}'''.format(i, field_op_val.name, 
+                                                                    field_op_val.interpret(i), 
+                                                                    extra_users_str)
             where_parts.append(where_part)
             i = i + 1
         
@@ -274,7 +258,7 @@ class FieldsConjunction(SimpleQuery):
 
 class Tag(QueryExpression):
     '''
-    A syntax tree node, representing a Tag.
+        A syntax tree node, representing a Tag.
     '''
     def __init__(self, name, is_negative=False):
         self.name = name
@@ -293,7 +277,7 @@ class Tag(QueryExpression):
 
 class TagsConjunction(SimpleQuery):
     '''
-    Conjunction of Tags or their or their negations. For example:
+        Conjunction of Tags or their or their negations. For example:
     "Book AND Programming AND NOT Design"
     
     SQL query for this:
@@ -323,7 +307,8 @@ class TagsConjunction(SimpleQuery):
         #yes_tags_str, group_by_having
         group_by_having = ""
         if len(self.yes_tags) > 0:
-            yes_tags_str = helpers.to_commalist(self.yes_tags, lambda x: "t.name='" + x.interpret() + "'", " or ")
+            yes_tags_str = helpers.to_commalist(self.yes_tags, 
+                                                lambda x: "t.name='" + x.interpret() + "'", " or ")
             
             if len(self.yes_tags) > 1:
                 group_by_having = " group by i.id having count(*)={} ".format(len(self.yes_tags))
@@ -332,7 +317,8 @@ class TagsConjunction(SimpleQuery):
             
         #extra_users_str
         if len(self.extra_users) > 0:
-            comma_list = helpers.to_commalist(self.extra_users, lambda x: "'" + x.interpret() + "'", ", ") 
+            comma_list = helpers.to_commalist(self.extra_users, 
+                                              lambda x: "'" + x.interpret() + "'", ", ") 
             extra_users_str = " it.user_login IN (" + comma_list + ") "
         else:
             extra_users_str = " 1 "
@@ -357,7 +343,8 @@ class TagsConjunction(SimpleQuery):
             no_tags_str = " i.id NOT IN (select i.id from items i " + \
             " left join items_tags it on i.id = it.item_id " + \
             " left join tags t on t.id = it.tag_id " + \
-            " where (" + helpers.to_commalist(self.no_tags, lambda x: "t.name='" + x.interpret() + "'", " or ") + ") " + ") "
+            " where (" + helpers.to_commalist(self.no_tags, 
+                lambda x: "t.name='" + x.interpret() + "'", " or ") + ") " + ") "
         else:
             no_tags_str = " 1 "
         
@@ -391,12 +378,12 @@ class TagsConjunction(SimpleQuery):
         
 class ExtraClause(QueryExpression):
     '''
-    ExtraClause is a part of query, which allow you to restrict items
+        ExtraClause is a part of query, which allow you to restrict items
     by a user, file physical path. For example:
     
     "user:vlkv user:sunshine path:music/favorite/new"
     
-    This will query all items of "vlkv" OR "sunshine" users, and files of those items
+        This will query all items of "vlkv" OR "sunshine" users, and files of those items
     should be located in subdirectory "music/favorite/new". 
     '''
 

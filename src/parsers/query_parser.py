@@ -1,32 +1,15 @@
 # -*- coding: utf-8 -*-
 '''
 Copyright 2010 Vitaly Volkov
-
-This file is part of Reggata.
-
-Reggata is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Reggata is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
-
 Created on 24.10.2010
 
 Module contains productions of reggata query language grammar.
 '''
-
-from parsers.query_tree_nodes import TagsConjunction, Tag, ExtraClause, \
-    FieldOpVal, FieldsConjunction, CompoundQuery, SingleExtraClause
 import ply.yacc as yacc
+from parsers.query_tree_nodes import *
 from parsers.query_tokens import *
 from errors import YaccError
+
 
 def p_query(p):
     '''query : simple_query
@@ -48,6 +31,7 @@ def p_compound_query(p):
     '''
     p[0] = CompoundQuery(p[2])
     
+    
 def p_compound_query_and(p):
     '''compound_query : compound_query AND LPAREN simple_query RPAREN
                       | compound_query LPAREN simple_query RPAREN
@@ -60,11 +44,13 @@ def p_compound_query_and(p):
         raise ValueError("len(p) has incorrect value.")
     p[0] = p[1]
 
+
 def p_compound_query_or(p):
     '''compound_query : compound_query OR LPAREN simple_query RPAREN
     ''' 
     p[1].or_elem(p[4])
     p[0] = p[1]
+
 
 def p_compound_query_and_not(p):
     '''compound_query : compound_query AND NOT LPAREN simple_query RPAREN
@@ -73,7 +59,6 @@ def p_compound_query_and_not(p):
     p[0] = p[1]
     
 
-#Простое выражение, для выполнения которого достаточно одного SQL запроса
 def p_simple_query(p):
     '''simple_query : tags_conjunction
                     | tags_conjunction extra_clause 
@@ -87,6 +72,7 @@ def p_simple_query(p):
             p[1].add_extra_clause(e)
         p[0] = p[1]
         
+        
 def p_simple_query_single_extra_clause(p):
     '''simple_query : extra_clause                    
     ''' 
@@ -95,10 +81,7 @@ def p_simple_query_single_extra_clause(p):
         sec.add_extra_clause(e)
         p[0] = sec
     
-#Выражения user:<логин> ограничивают выборку только по объектам ItemTag или ItemField
-#Но никак не сравниваются с владельцами объектов Item или DataRef.
-#Таким образом, если пользователь прикрепил свой тег к чужому Item-у, то он 
-#будет его видеть в своих запросах. 
+    
 def p_extra_clause_user(p):
     '''extra_clause : USER COLON STRING extra_clause
     '''
@@ -114,12 +97,14 @@ def p_extra_clause_path(p):
     p[4].append(e)
     p[0] = p[4]
     
+    
 def p_extra_clause_title(p):
     '''extra_clause : TITLE COLON STRING extra_clause
     '''
     e = ExtraClause('TITLE', p[3])
     p[4].append(e)
     p[0] = p[4]
+    
     
 def p_extra_clause_empty(p):
     '''extra_clause : 
@@ -153,8 +138,10 @@ def p_tag_not_tag(p):
     elif len(p) == 2:
         p[0] = p[1]
 
+
 def p_tag(p):
-    'tag : STRING'
+    '''tag : STRING
+    '''
     p[0] = Tag(p[1])
     
     
@@ -181,10 +168,12 @@ def p_field_op_value(p):
     '''
     p[0] = FieldOpVal(p[1], p[2], p[3])
     
+    
 def p_field_name(p):
     '''field_name : STRING 
     '''
     p[0] = p[1]
+    
     
 def p_field_op(p):
     '''field_op : EQUAL
@@ -195,6 +184,7 @@ def p_field_op(p):
                 | LIKE  
     '''
     p[0] = p[1]
+
 
 def p_field_value(p):
     '''field_value : STRING 
@@ -213,7 +203,7 @@ parser = yacc.yacc(errorlog=consts.yacc_errorlog)
 
 def parse(text):
     '''
-    Returns the root node of syntax tree, constructed from text.
+        Returns the root node of syntax tree, constructed from text.
     '''
     return parser.parse(text, lexer=lexer)
 
