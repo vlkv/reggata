@@ -35,15 +35,9 @@ class TestRunner():
         self.addTestCase(test_helpers.IsNoneOrEmptyTest)
         
         
-        
-        
-        
-        
-        
-        
-
     def addTestCase(self, testCaseCls):
         self.suite.addTests(unittest.TestLoader().loadTestsFromTestCase(testCaseCls))
+        
         
     def runAllTests(self):
         unittest.TextTestRunner(verbosity=2).run(self.suite)

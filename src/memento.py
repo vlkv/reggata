@@ -16,6 +16,7 @@ class Serializable(object):
     def fromJson(objState):
         raise NotImplementedError()
 
+
 class Encoder(json.JSONEncoder):
     def __init__(self, indent=4, sort_keys=True):
         json.JSONEncoder.__init__(self, indent=indent, sort_keys=sort_keys)
@@ -27,9 +28,11 @@ class Encoder(json.JSONEncoder):
             return {"__datetime__": obj.__repr__()}
         else:
             return json.JSONEncoder.default(self, obj)
+
     
 def Decoder():
     return json.JSONDecoder(object_hook=hook)
+
         
 def hook(objState):
     if "__class__" in objState and "__module__" in objState:

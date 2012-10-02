@@ -3,7 +3,7 @@
 Created on 04.10.2010
 @author: vlkv
 
-Module contains various constants.
+Module contains various global constants.
 '''
 import os
 from user_config import UserConfig
@@ -28,7 +28,7 @@ RATING_FIELD = UserConfig().get("reserved_fields.rating", "Rating")
 NOTES_FIELD = UserConfig().get("reserved_fields.notes", "Notes")
 RESERVED_FIELDS = [RATING_FIELD, NOTES_FIELD]
 
-#Some custom logger (from logging module) can be substituted here
+#TODO: Some custom logger (from logging module) should be substituted here
 yacc_errorlog = ply.yacc.NullLogger()
 lex_errorlog = ply.lex.NullLogger()
 

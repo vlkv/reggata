@@ -2,7 +2,7 @@ import unittest
 import tests_context
 import os
 import shutil
-from data.repo_mgr import RepoMgr, UnitOfWork
+from data.repo_mgr import RepoMgr
 from data.db_schema import DataRef
 import helpers
 from data.commands import GetExpungedItemCommand, UpdateExistingItemCommand
