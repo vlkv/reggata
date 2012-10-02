@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Created on 30.09.2010
 @author: vlkv
@@ -25,14 +24,15 @@ class RepoMgr(object):
         try:
             self._base_path = path_to_repo
             if not os.path.exists(self.base_path + os.sep + consts.METADATA_DIR):
-                raise Exception("Directory {} is not a repository base path.".format(self.base_path))
+                raise Exception("Directory {} is not a repository base path."
+                                .format(self.base_path))
             
             engine_echo = bool(UserConfig().get("sqlalchemy.engine_echo") in
                                ["True", "true", "TRUE", "1", "Yes", "yes", "YES"]) 
             
             self.__engine = sqa.create_engine(\
-                "sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE, \
-                echo=engine_echo)
+                "sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + \
+                consts.DB_FILE, echo=engine_echo)
             
             self.Session = sessionmaker(bind=self.__engine)
         except Exception as ex:
@@ -67,11 +67,13 @@ class RepoMgr(object):
             raise Exception("Directory {} doesn't exists.".format(base_path))
         
         if (os.path.exists(base_path + os.sep + consts.METADATA_DIR)):
-            raise Exception("It looks like {} is already a repository base path.".format(base_path))
+            raise Exception("It looks like {} is already a repository base path."
+                            .format(base_path))
         
         os.mkdir(base_path + os.sep + consts.METADATA_DIR)
         
-        engine = sqa.create_engine("sqlite:///" + base_path + os.sep + consts.METADATA_DIR + os.sep + consts.DB_FILE)
+        engine = sqa.create_engine("sqlite:///" + base_path + os.sep + \
+                                   consts.METADATA_DIR + os.sep + consts.DB_FILE)
         Base.metadata.create_all(engine)
         
         return RepoMgr(base_path)

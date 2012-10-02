@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Created on 20.12.2010 by  Vitaly Volkov
 '''
@@ -249,18 +248,15 @@ class FileHashMismatchFixer(AbstractIntegrityFixer):
     
     
     def _update_hash(self, item, user_login):
-        #Вычисляем новый хеш и размер файла
         filename = os.path.join(self.repo_base_path, item.data_ref.url)
         new_hash = compute_hash(filename)
         new_size = os.path.getsize(filename)
         new_date_hashed = datetime.datetime.today()
         
-        #Извлекаем копию data_ref из БД, данный объект будет принадлежать текущей сессии
         data_ref = self.uow.session.query(DataRef).get(item.data_ref.id)
         if data_ref.hash == new_hash and data_ref.size == new_size:
             raise Exception("This item.data_ref already has correct hash and size values.")
         
-        #Меняем только эти три поля!
         data_ref.hash = new_hash
         data_ref.size = new_size
         data_ref.date_hashed = new_date_hashed 
