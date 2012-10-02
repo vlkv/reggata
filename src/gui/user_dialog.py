@@ -1,33 +1,15 @@
 # -*- coding: utf-8 -*-
 '''
-Copyright 2010 Vitaly Volkov
-
-This file is part of Reggata.
-
-Reggata is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Reggata is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
-
 Created on 17.10.2010
-
 @author: vlkv
 '''
-
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 from data.db_schema import User
 import ui_userdialog
 from helpers import show_exc_info, computePasswordHash
 from errors import UnsupportedDialogModeError, MsgException
+
 
 class UserDialog(QtGui.QDialog):
     
@@ -43,7 +25,6 @@ class UserDialog(QtGui.QDialog):
         self.ui.setupUi(self)
         self.mode = None
         
-        #TODO Пока что поле group не используется, поэтому пока что спрячем
         self.ui.label_group.setVisible(False)
         self.ui.comboBox_group.setVisible(False)
         
@@ -68,13 +49,13 @@ class UserDialog(QtGui.QDialog):
             self.ui.label_group.setVisible(False)
             self.ui.comboBox_group.setVisible(False)
         else:
-            raise UnsupportedDialogModeError(self.tr("Mode={} is not supported by this dialog.").format(mode))
+            raise UnsupportedDialogModeError(self.tr("Mode={} is not supported by this dialog.")
+                                             .format(mode))
         
         self.mode = mode
         
         
     def write(self):
-        '''Запись введенной в элементы gui информации в поля объекта.'''
         self.user.login = self.ui.lineEdit_login.text()
         if self.mode == UserDialog.CREATE_MODE \
         and self.ui.lineEdit_password.text() != self.ui.lineEdit_password_repeat.text():

@@ -19,7 +19,7 @@ from gui.common_widgets import TextEdit
 
 class ItemDialog(QtGui.QDialog):
     '''
-    This dialog is for create/edit/view single repository Item.
+        This dialog is for create/edit/view single repository Item.
     '''
     
     CREATE_MODE = "CREATE_MODE"

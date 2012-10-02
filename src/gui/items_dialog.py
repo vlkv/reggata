@@ -16,7 +16,8 @@ from gui.common_widgets import TextEdit
 
 #TODO: Rename this class to some more meaningful name
 class CustomTextEdit(QtGui.QTextEdit):
-    ''' This custom QTextEdit displays with a different style all the text
+    ''' 
+        This custom QTextEdit displays with a different style all the text
     which is typed by user. 
     '''
     def __init__(self, parent=None):
@@ -33,7 +34,7 @@ class CustomTextEdit(QtGui.QTextEdit):
 
 class ItemsDialog(QtGui.QDialog):
     '''
-    This dialog is for create/edit a group of repository Items.
+        This dialog is for create/edit a group of repository Items.
     '''
 
     CREATE_MODE = "CREATE_MODE"

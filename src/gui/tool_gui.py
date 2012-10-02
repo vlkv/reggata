@@ -9,6 +9,7 @@ import consts
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
+
 class ToolGui(QtGui.QWidget, AbstractToolGui):
 
     def __init__(self, parent):
@@ -29,18 +30,20 @@ class ToolGui(QtGui.QWidget, AbstractToolGui):
         return self._mainMenu
     mainMenu = property(fget=__getMainMenu)
     
+    
     def buildActions(self):
         pass
+    
     
     def buildMainMenu(self):
         pass
     
     
-        
     def _createMenu(self, menuTitle, menuParent):
         menu = QtGui.QMenu(menuParent)
         menu.setTitle(menuTitle)
         return menu
+    
     
     def _createAndAddSubMenu(self, subMenuTitle, subMenuParent, parentMenu):
         subMenu = self._createMenu(subMenuTitle, subMenuParent)

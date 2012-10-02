@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Created on 11.07.2012
 
@@ -8,25 +7,17 @@ import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 from PyQt4.QtCore import Qt
 import parsers
-from data.commands import GetNamesOfAllTagsAndFields
 from helpers import is_none_or_empty
 import logging
 import consts
+from data.commands import GetNamesOfAllTagsAndFields
 from gui.my_message_box import MyMessageBox
+
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
-
 class WaitDialog(QtGui.QDialog):    
-    '''Диалог должен уметь:
-    1) Работать в режиме неопределенного окончания работы (параметр indeterminate)
-    2) Работать и отображать сколько процентов завершено (слот set_progress)
-    3) Отображать сообщение (просто статический текст) (параметр message)
-    4) Иметь возможность отмены операции (Этого пока что нет!) 
-    5) Отображать информацию о случившихся ошибках в процессе работы (слот exception)
-    6) Отображать себя после паузы (4 секунды) (Этого нет, но можно сделать снаружи!)
-    '''
     
     def __init__(self, parent=None, indeterminate=False):
         super(WaitDialog, self).__init__(parent)
@@ -65,7 +56,8 @@ class WaitDialog(QtGui.QDialog):
     def indeterminate_timer(self):
         value = self.progress_bar.value()
         value = value + int((self.progress_bar.maximum() - self.progress_bar.minimum())/5.0)
-        self.progress_bar.setValue(value if value <= self.progress_bar.maximum() else self.progress_bar.minimum())
+        self.progress_bar.setValue(value if value <= self.progress_bar.maximum() \
+                                   else self.progress_bar.minimum())
         
     
     def exception(self, exceptionInfo):
@@ -83,8 +75,7 @@ class WaitDialog(QtGui.QDialog):
         self.reject()
         
     def closeEvent(self, close_event):
-        '''Данный метод делает невозможным закрыть окно кнопкой "крестик".'''
-        close_event.ignore()
+        close_event.ignore() # Disable close button (X) of the dialog.
         
     def set_progress(self, percent_completed):
         '''This slot is called to display progress in percents.'''
@@ -120,7 +111,9 @@ class TextEdit(QtGui.QTextEdit):
         self.completer = completer    
     
     def text(self):
-        '''This is for QLineEdit behaviour.'''
+        '''
+            This is for QLineEdit behaviour.
+        '''
         return self.toPlainText()
     
     def show_completer(self):
@@ -135,8 +128,8 @@ class TextEdit(QtGui.QTextEdit):
             self.completer.show()
             self.completer.setFocus(Qt.PopupFocusReason)
       
+      
     def keyPressEvent(self, event):
-        
         cursor = self.textCursor()
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
@@ -178,13 +171,13 @@ class TextEdit(QtGui.QTextEdit):
 
 
 class Completer(QtGui.QListWidget):
-    '''This class is a popup list widget with tag/field names.
+    '''
+        This class is a popup list widget with tag/field names.
     It should help user to enter tags/fields. Completer should be used with TextEdit class.
     '''    
     def __init__(self, repo, parent=None, end_str=" "):
         super(Completer, self).__init__(parent)
         self.setWindowFlags(Qt.Popup)
-        #self.setWindowModality(Qt.NonModal)
         
         self.repo = repo
         self.words = []
@@ -196,6 +189,7 @@ class Completer(QtGui.QListWidget):
     
         self.populate_words()
     
+    
     def set_widget(self, widget):
         if self.widget:
             self.disconnect(self.widget, QtCore.SIGNAL("textChanged()"), self.widget_text_changed)             
@@ -203,12 +197,14 @@ class Completer(QtGui.QListWidget):
         self.widget = widget
         self.connect(self.widget, QtCore.SIGNAL("textChanged()"), self.widget_text_changed)
     
+    
     def event(self, e):
         #This hides the completer (self) when user clicks somewhere outside
         if e.type() == QtCore.QEvent.MouseButtonPress:
             self.hide()
             
         return super(Completer, self).event(e)
+    
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
@@ -244,6 +240,7 @@ class Completer(QtGui.QListWidget):
             cursor = self.widget.textCursor()
             cursor.insertText(text)
             
+            
     def submit_word(self, item):
         if self.widget is not None and item is not None:            
             cursor = self.widget.textCursor()
@@ -253,6 +250,7 @@ class Completer(QtGui.QListWidget):
                 word = parsers.util.quote(word)
             cursor.insertText(word + self.end_str)
         self.hide()
+        
         
     def populate_words(self):
         if self.repo is None:
@@ -264,6 +262,7 @@ class Completer(QtGui.QListWidget):
         finally:
             uow.close()
     
+    
     def widget_text_changed(self):
         if self.widget is not None:
             cursor = self.widget.textCursor()
@@ -274,6 +273,7 @@ class Completer(QtGui.QListWidget):
             self.filter(word)
             if self.count() <= 0:
                 self.hide()
+    
     
     def filter(self, prefix):
         self.clear()
