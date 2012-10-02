@@ -267,8 +267,10 @@ class ImportItemsActionHandler(AbstractActionHandler):
             self._model.checkActiveRepoIsNotNone()
             self._model.checkActiveUserIsNotNone()
             
-            importFromFilename = self._dialogs.getOpenFileName(self._model.gui, 
-                self.tr('Open reggata export file..'))
+            importFromFilename = self._dialogs.getOpenFileName(
+                self._model.gui, 
+                self.tr("Open Reggata Archive File"),
+                self.tr("Reggata Archive File (*.raf)"))
             if not importFromFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             

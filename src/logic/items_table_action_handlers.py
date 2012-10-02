@@ -475,7 +475,10 @@ class ExportItemsActionHandler(AbstractActionHandler):
             if len(itemIds) == 0:
                 raise MsgException(self.tr("There are no selected items."))
             
-            exportFilename = self._dialogs.getSaveFileName(self._tool.gui, self.tr('Save data as..')) 
+            exportFilename = self._dialogs.getSaveFileName(
+                self._tool.gui, 
+                self.tr('Save data as..'),
+                self.tr("Reggata Archive File (*.raf)"))
             if not exportFilename:
                 raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
             

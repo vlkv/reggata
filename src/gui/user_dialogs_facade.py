@@ -52,8 +52,8 @@ class UserDialogsFacade(AbstractDialogsFacade):
         wd.startWithWorkerThread(thread)
         
     
-    def getOpenFileName(self, gui, textMessageForUser):
-        file = QFileDialog.getOpenFileName(gui, textMessageForUser)
+    def getOpenFileName(self, gui, textMessageForUser, fileFilter=""):
+        file = QFileDialog.getOpenFileName(gui, textMessageForUser, filter=fileFilter)
         return file
     
     def getOpenFileNames(self, gui, textMessageForUser):
@@ -64,8 +64,8 @@ class UserDialogsFacade(AbstractDialogsFacade):
         dirPath = QFileDialog.getExistingDirectory(gui, textMessageForUser)
         return dirPath
     
-    def getSaveFileName(self, gui, textMessageForUser):
-        filename = QFileDialog.getSaveFileName(parent=gui, caption=textMessageForUser)
+    def getSaveFileName(self, gui, textMessageForUser, fileFilter=""):
+        filename = QFileDialog.getSaveFileName(parent=gui, caption=textMessageForUser, filter=fileFilter)
         return filename
     
     def execMessageBox(self, parent, text, title="Reggata", buttons=[QMessageBox.Ok], detailedText=None):
