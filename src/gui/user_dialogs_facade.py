@@ -2,15 +2,17 @@
 Created on 27.08.2012
 @author: vvolkov
 '''
+from PyQt4 import QtCore
+from PyQt4.QtGui import QMessageBox, QInputDialog, QFileDialog
 from gui.user_dialog import UserDialog
 from gui.change_user_password_dialog import ChangeUserPasswordDialog
 from gui.common_widgets import Completer, WaitDialog
 from gui.item_dialog import ItemDialog
 from gui.items_dialog import ItemsDialog
 from logic.abstract_dialogs_facade import AbstractDialogsFacade
-from PyQt4 import QtCore, QtGui
 from helpers import is_none_or_empty
 import helpers
+
 
 class UserDialogsFacade(AbstractDialogsFacade):
     '''
@@ -51,30 +53,30 @@ class UserDialogsFacade(AbstractDialogsFacade):
         
     
     def getOpenFileName(self, gui, textMessageForUser):
-        file = QtGui.QFileDialog.getOpenFileName(gui, textMessageForUser)
+        file = QFileDialog.getOpenFileName(gui, textMessageForUser)
         return file
     
     def getOpenFileNames(self, gui, textMessageForUser):
-        files = QtGui.QFileDialog.getOpenFileNames(gui, textMessageForUser)
+        files = QFileDialog.getOpenFileNames(gui, textMessageForUser)
         return files
     
     def getExistingDirectory(self, gui, textMessageForUser):
-        dirPath = QtGui.QFileDialog.getExistingDirectory(gui, textMessageForUser)
+        dirPath = QFileDialog.getExistingDirectory(gui, textMessageForUser)
         return dirPath
     
     def getSaveFileName(self, gui, textMessageForUser):
-        filename = QtGui.QFileDialog.getSaveFileName(parent=gui, caption=textMessageForUser)
+        filename = QFileDialog.getSaveFileName(parent=gui, caption=textMessageForUser)
         return filename
     
-    def execMessageBox(self, parent, text, title="Reggata", buttons=[QtGui.QMessageBox.Ok], detailedText=None):
+    def execMessageBox(self, parent, text, title="Reggata", buttons=[QMessageBox.Ok], detailedText=None):
         '''
             Shows modal QtGui.QMessageBox and returns code of the clicked button.
         '''
-        mb = QtGui.QMessageBox(parent)
+        mb = QMessageBox(parent)
         mb.setText(text)
         mb.setWindowTitle(title)
         
-        buttonsCode = QtGui.QMessageBox.NoButton
+        buttonsCode = QMessageBox.NoButton
         for button in buttons:
             buttonsCode = buttonsCode | button
         mb.setStandardButtons(buttonsCode)
@@ -86,7 +88,7 @@ class UserDialogsFacade(AbstractDialogsFacade):
     
     
     def execGetTextDialog(self, gui, dialogTitle, textMessageForUser, defaultText=""):
-        text, isOk = QtGui.QInputDialog.getText(
+        text, isOk = QInputDialog.getText(
             gui, dialogTitle, textMessageForUser, text=defaultText)
         return (text, isOk)
          
