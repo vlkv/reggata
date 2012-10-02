@@ -1,27 +1,9 @@
-# -*- coding: utf-8 -*-
 '''
 Copyright 2010 Vitaly Volkov
-
-This file is part of Reggata.
-
-Reggata is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Reggata is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Reggata.  If not, see <http://www.gnu.org/licenses/>.
-
 Created on 11.10.2010
 
 Database schema of Reggata repository entities.
 '''
-
 import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -34,14 +16,9 @@ import helpers
 import memento
 
 
-
 Base = declarative_base()
 
-
 class User(Base):
-    '''
-    Пользователь системы reggata.
-    '''
     __tablename__ = "users"
     
     USER = 'USER'
@@ -63,28 +40,12 @@ class User(Base):
             raise ValueError("Attribute User.login shouldn't be empty.")        
         return True
 
-
-
-#Таблица связей Tag и Item
-#tags_items = sqa.Table('tags_items', Base.metadata,
-#    sqa.Column('item_id', sqa.Integer, ForeignKey('items.id'), primary_key=True),
-#    sqa.Column('tag_name', sqa.String, primary_key=True),
-#    sqa.Column('tag_user_login', sqa.String, primary_key=True),
-#    ForeignKeyConstraint(['tag_name', 'tag_user_login'], ['tags.name', 'tags.user_login'])
-#)
-
-
+# TODO: this class is deprecated and is not used in the code now. Will be removed maybe in the future
 class HistoryRec(Base):
     '''
-    Запись об одном элементе в истории изменения хранилища.
-    '''
-    
+        This is a record of Item instance creation/modification/deletion.
+    '''    
     __tablename__ = "history_recs"
-    
-#    __table_args__ = (
-#        UniqueConstraint("item_hash", "data_ref_hash", "data_ref_url"),
-#        {}
-#    )
     
     CREATE = "CREATE"
     UPDATE = "UPDATE"
@@ -101,9 +62,6 @@ class HistoryRec(Base):
     operation = sqa.Column(sqa.Enum(CREATE, UPDATE, DELETE, MERGE))
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
     
-    #TODO Сюда можно сохранять и дату/время, однако, на эти данные нельзя полагаться
-    #на разных машинах может быть разное время (плюс минус погрешность или вообще неверное)
-    
     def __init__(self, item_id=None, item_hash=None, data_ref_hash=None, \
                  data_ref_url=None, operation=None, user_login=None, \
                  parent1_id=None, parent2_id=None):
@@ -118,27 +76,20 @@ class HistoryRec(Base):
 
     def _get_data_ref_url(self):
         if not is_none_or_empty(self.data_ref_hash):
-            #Если хеш непустой, то DataRef связан с физическим файлом
             return helpers.from_db_format(self.data_ref_url_raw)
         else:
             return self.data_ref_url_raw
     
     def _set_data_ref_url(self, value):
         if not is_none_or_empty(self.data_ref_hash):
-            #Если хеш непустой, то DataRef связан с физическим файлом
-            #Сохранять в БД этот url и  DataRef.url нужно всегда в формате Unix (т.е. с прямыми слешами) 
             self.data_ref_url_raw = helpers.to_db_format(value)
         else:
             self.data_ref_url_raw = value
       
     data_ref_url = property(_get_data_ref_url, _set_data_ref_url, 'Свойство data_ref_url.')
 
+
     def __eq__(self, obj):
-        '''Проверка на равенство. Значения HistoryRec.id могут быть разными 
-        (они не учитываются при сравнении. Также не учитываются поля parent1_id и parent2_id.
-        Также не учитывается operation.
-        Однако значения HistoryRec.item_id должны быть одинаковыми.        
-        '''
         if self.item_id != obj.item_id:
             return False
         if self.item_hash != obj.item_hash:
@@ -156,13 +107,16 @@ class HistoryRec(Base):
         return not self.__eq__(obj)
 
     def __str__(self):
-        s = "item_id={}, item_hash={}, data_ref_hash={}, data_ref_url={}, operation={}, user_login={}, parent1_id={}, parent2_id={}"\
-            .format(self.item_id, self.item_hash, self.data_ref_hash, self.data_ref_url, self.operation, self.user_login, self.parent1_id, self.parent2_id)
+        s = "item_id={}, item_hash={}, data_ref_hash={}, data_ref_url={}, operation={}, "
+        "user_login={}, parent1_id={}, parent2_id={}" \
+            .format(self.item_id, self.item_hash, self.data_ref_hash, self.data_ref_url, 
+                    self.operation, self.user_login, self.parent1_id, self.parent2_id)
         return s
 
 class Item(Base, memento.Serializable):
     '''
-    Элемент (запись, объект) хранилища.
+        The Item is an element of repository. Usually it is liked with a file (see DataRef class), 
+    not nescesary.
     '''
     __tablename__ = "items"
         
@@ -180,19 +134,15 @@ class Item(Base, memento.Serializable):
     
     data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"))
     
-    #Удаляемые элементы, не будут удаляться из базы, им просто будет установлено значение alive=False
+    # When Item is deleted, it is just set to be alive==False
     alive = sqa.Column(sqa.Boolean, default=True)    
     
-    #пользователь-владелец данного элемента
     user = relationship(User, cascade="merge, expunge, refresh-expire")
     
-    #связанный файл/ссылка_URL
-    data_ref = relationship("DataRef", cascade="merge, expunge, refresh-expire") #TODO Ведь не нужен тут save-update?
+    data_ref = relationship("DataRef", cascade="merge, expunge, refresh-expire")
     
-    #tags - список связанных тегов
     item_tags = relationship("Item_Tag", cascade="all, delete-orphan")
     
-    #field_vals - список связанных полей
     item_fields = relationship("Item_Field", cascade="all, delete-orphan")
 
     def __init__(self, user_login=None, title=None, date_created=None, alive=True):
@@ -209,7 +159,7 @@ class Item(Base, memento.Serializable):
             
     @orm.reconstructor
     def __init_on_load__(self):
-        self.error = None #Если error равен None, то проверку целостности просто не проводили
+        self.error = None #When error is None, it means that there was no integrity check yet
         
     def __listOfTagsAndTheirOwners(self):
         return list((self.item_tags[i].tag.name, 
@@ -253,15 +203,10 @@ class Item(Base, memento.Serializable):
         return item
     
     
-    
-        
-
-
     def hash(self):
         '''
-        Метод вычисляет и возвращает хеш от данного элемента.
-        '''
-        
+            Calculates and returns a hash of the Item instance state.
+        '''        
         text = ""
         
         if not is_none_or_empty(self.title):
@@ -273,7 +218,6 @@ class Item(Base, memento.Serializable):
         if self.date_created is not None:
             text += str(self.date_created)
         
-        #Связанные теги
         tag_names = []
         for item_tag in self.item_tags:
             tag_names.append(item_tag.tag.name)
@@ -282,7 +226,6 @@ class Item(Base, memento.Serializable):
         for tag_name in tag_names:
             text += tag_name        
         
-        #Связанные поля:значения
         field_vals = []
         for item_field in self.item_fields:
             field_vals.append(item_field.field.name + str(item_field.field_value))
@@ -293,8 +236,12 @@ class Item(Base, memento.Serializable):
         
         return hashlib.sha1(text.encode("utf-8")).hexdigest()
     
+    
     def get_field_value(self, field_name, user_login=None):
-        '''Returns value of field field_name. If no such field exists in this item, returns None.'''
+        '''
+            Returns value of field field_name. If no such field exists in this item, 
+        returns None.
+        '''
         for item_field in self.item_fields:
             if item_field.field.name == field_name:
                 if user_login is None or item_field.user_login == user_login:
@@ -321,7 +268,9 @@ class Item(Base, memento.Serializable):
         self.item_tags.append(item_tag)
         
     def set_field_value(self, name, value, user_login):
-        '''Changes field value if it exists, or creates new field and sets a value to it.'''
+        '''
+            Changes field value if it exists, or creates new field and sets a value to it.
+        '''
         assert user_login is not None
         
         itf = None
@@ -346,7 +295,9 @@ class Item(Base, memento.Serializable):
         return s
         
     def format_tags(self):
-        '''Возвращает строку, содержащую список всех тегов элемента.'''
+        '''
+            Returns a string representation of all Items tags.
+        '''
         s = ""
         for item_tag in self.item_tags:
             s += item_tag.tag.name + " "
@@ -364,7 +315,6 @@ class Item(Base, memento.Serializable):
             i = i + 1
             
         if i < len(self.item_tags):
-            #тег найден - удаляем
             self.item_tags.pop(i)
             return True
         else:
@@ -380,7 +330,6 @@ class Item(Base, memento.Serializable):
             i = i + 1
             
         if i < len(self.item_fields):
-            #тег найден - удаляем
             self.item_fields.pop(i)
             return True
         else:
@@ -388,15 +337,17 @@ class Item(Base, memento.Serializable):
         
     
     def has_tag(self, tag_name):
-        '''Возвращает True, если данный элемент имеет тег с имененем tag_name.'''
         for item_tag in self.item_tags:
             if item_tag.tag.name == tag_name:
                 return True
         return False
     
     def has_field(self, field_name, field_value=None):
-        '''Возвращает True, если данный элемент имеет поле с имененем field_name.
-        Если field_value не None, то проверяется еще и равно ли данное поле этому значению.'''
+        '''
+            Returns True if this Item has a field with given name and a given value 
+        (only if field_value arg is not None).
+        When field_value is None, only field names are checked for match.
+        '''
         for item_field in self.item_fields:
             if item_field.field.name == field_name:
                 if field_value is None or item_field.field_value == str(field_value):
@@ -404,7 +355,6 @@ class Item(Base, memento.Serializable):
         return False
         
     def check_valid(self):
-        '''Проверяет, что состояние объекта допустимое. Связи с другими объектами не учитываются.'''
         if self.title == "" or self.title is None:
             raise Exception("Attribute Item.title shouldn't be empty.")
         return True
@@ -415,45 +365,34 @@ class Item(Base, memento.Serializable):
                 
 class DataRef(Base, memento.Serializable):
     '''
-    Ссылка на файл или URL.
+        This is a reference of Item to a physical file on the filesystem.
     '''
-    
     FILE = "FILE"  
     URL = "URL" #TODO: URL type is deprecated. Do not use it anymore. User can always save an url for an item with a field
+    #TODO Maybe add ZIP, and DIR types...
     
     __tablename__ = "data_refs"
     
     id = sqa.Column(sqa.Integer, primary_key=True)
     
-    #Локатор ресурса. Для объектов типа 'FILE' это путь к файлу внутри хранилища
-    #для объектов 'URL' --- это непосредственно url-ссылка
+    # When type is 'FILE' this is a relative path in UNIX format
     url_raw = sqa.Column(sqa.String, name="url", nullable=False, unique=True)
     
-    #TODO !!! Возможно имеет смысл для объектов типа FILE отдельно хранить путь и базовое имя файла.
-    #Это может пригодиться для поиска файлов по его физическому имени (т.к. так как сейчас
-    #если искать наподобие data_ref.url LIKE '%something%' то поиск будет выдавать совпадения,
-    #если совпадает имя директории на пути к файлу.
-    
-    #Тип объекта DataRef
-    #TODO Добавить тип ZIP (архив), а также можно добавить тип DIR (директория)
     type = sqa.Column(sqa.Enum(FILE, URL), nullable=False)
     
-    #Хеш (md5 или sha1) от содержимого файла. Для объектов DataRef имеющих тип type отличный от 'FILE' равен NULL
+    # sha1 hash of file contents. For DataRef objects with type != FILE this field is NULL
     hash = sqa.Column(sqa.String)
     
-    #Дата/время вычисления хеша hash. Если date_hashed < даты последней модификации физического файла, то хеш нужно пересчитать
     date_hashed = sqa.Column(sqa.DateTime)
     
-    #Размер физического файла на диске (для объектов типа 'FILE', для остальных NULL)
+    # Physical size of referenced file on the disk. For DataRef objects with type != FILE this field is NULL 
     size = sqa.Column(sqa.Integer)
     
-    #Это дата создания объекта DataRef в БД (не имеет ничего общего с датой создания файла на ФС)
+    # Creation date of this DataRef instance
     date_created = sqa.Column(sqa.DateTime)
     
-    #Пользователь-владелец данного объекта (обычно тот, кто его создал)
     #deprecated because it's enough information in field Item.user_login
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"))
-    
     
     user = relationship(User, cascade="save-update, merge, expunge, refresh-expire")
     
@@ -519,12 +458,11 @@ class DataRef(Base, memento.Serializable):
             return self.url_raw
         
     def _set_url(self, value):
-        #Сохранять в БД этот url и  HistoryRec.url нужно всегда в формате Unix (т.е. с прямыми слешами)
         if self.type == DataRef.FILE and value is not None:
             value = helpers.to_db_format(value)
         self.url_raw = value
                 
-    url = property(_get_url, _set_url, doc="Свойство url.")
+    url = property(_get_url, _set_url)
     
     @staticmethod
     def _sql_from():
@@ -542,13 +480,9 @@ class DataRef(Base, memento.Serializable):
                 
         
     def is_image(self):
-        '''Возвращает True, если данный DataRef объект имеет тип FILE и ссылается
-        на растровое графическое изображение, одного из поддерживаемых форматов.
-        Проверка основана на сравнении расширения файла со списком расширений поддерживаемых
-        форматов.'''
-        supported = set([".bmp", ".gif", ".jpg", ".jpeg", ".png", ".pbm", ".pgm", ".ppm", ".xbm", ".xpm"])
+        supported = set([".bmp", ".gif", ".jpg", ".jpeg", ".png", ".pbm", ".pgm", 
+                         ".ppm", ".xbm", ".xpm"])
         if self.type and self.type == "FILE" and not is_none_or_empty(self.url):
-            
             root, ext = os.path.splitext(self.url.lower())
             if ext in supported:
                 return True
@@ -564,27 +498,18 @@ class Thumbnail(Base):
     
     data_ref_id = sqa.Column(sqa.Integer, ForeignKey("data_refs.id"), primary_key=True)
     
-    #Размер в пикселях миниатюры (это величина наибольшей размерности)
+    # Size of thumbnail in pixels
     size = sqa.Column(sqa.Integer, primary_key=True)
     
-    #Двоичные данные изображения миниатюры
     data = sqa.Column(sqa.LargeBinary)
     
-    #Дата создания миниатюры
-    #Если Thumbnail.date_created будет новее, чем DataRef.date_hashed, 
-    #то это повод для обновления миниатюры
     date_created = sqa.Column(sqa.DateTime)
-    
-    #Логическое поле, определяющее, следует ли автоматически обновлять миниатюру
-    #auto_updated = sqa.Column(sqa.Boolean, default=True)
-        
     
     def __init__(self):
         self.data_ref_id = None
         self.size = None        
         self.data = None
         self.date_created = datetime.datetime.today()
-        
     
     @staticmethod
     def _sql_from():
@@ -596,7 +521,7 @@ class Thumbnail(Base):
     
 class Tag(Base):
     '''
-    Тег (ключевое слово), описывающий элементы хранилища.
+        Tag is a short string that can be attached to the Item.
     '''
     __tablename__ = "tags"
     
@@ -616,6 +541,7 @@ class Tag(Base):
         tags.name as tags_name,
         tags.synonym_code as tags_synonym_code '''
         
+        
 class Item_Tag(Base):
     __tablename__ = "items_tags"
         
@@ -623,9 +549,8 @@ class Item_Tag(Base):
     tag_id = sqa.Column(sqa.Integer, ForeignKey("tags.id"), primary_key=True)
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
     
-    #item = relationship(Item)
     tag = relationship(Tag, cascade="save-update, merge, expunge, refresh-expire")
-    #user = relationship(User)
+    
     
     def __init__(self, tag=None, user_login=None):
         self.tag = tag
@@ -642,15 +567,14 @@ class Item_Tag(Base):
     
 class Field(Base):
     '''
-    Поле вида ключ=значение, описывающее элементы хранилища.
+        Key:Value pair, that can be attached to the Item.
     '''
     __tablename__ = "fields"    
     
     id = sqa.Column(sqa.Integer, primary_key=True)
     name = sqa.Column(sqa.String, nullable=False, unique=True)
     synonym_code = sqa.Column(sqa.Integer)
-    #value_type = sqa.Column(sqa.Enum("STRING", "NUMBER"), nullable=False, default="STRING")
-
+    
     def __init__(self, name=None):
         self.id = None
         self.name = name
@@ -665,23 +589,16 @@ class Field(Base):
     
 
 class Item_Field(Base):
-    '''
-    Значение поля, связанное с элементом хранилища.
-    '''
+    
     __tablename__ = "items_fields"
-#    __table_args__ = (ForeignKeyConstraint(["field_name", "field_user_login"], ["fields.name", "fields.user_login"]),
-#        {} #{} обязательно нужны, даже если внутри них - пусто
-#        )
     
     item_id = sqa.Column(sqa.Integer, ForeignKey("items.id"), primary_key=True)
     field_id = sqa.Column(sqa.String, ForeignKey("fields.id"), primary_key=True)
     user_login = sqa.Column(sqa.String, ForeignKey("users.login"), primary_key=True)
     field_value = sqa.Column(sqa.String, nullable=False, default="")
 
-    #item = relationship(Item)
     field = relationship(Field, cascade="save-update, merge, expunge, refresh-expire")
-    #user = relationship(User)
-    
+
     
     def __init__(self, field=None, value=None, user_login=None):
         self.field = field        
@@ -698,7 +615,7 @@ class Item_Field(Base):
         items_fields.user_login as items_fields_user_login, 
         items_fields.field_value as items_fields_field_value '''
         
-#TODO сделать классы для групп полей и тегов
+#TODO implement classes for such entities as GroupOfTags, GroupOfFields
 
 
 
