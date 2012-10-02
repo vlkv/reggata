@@ -44,9 +44,8 @@ class ExternalAppsDialog(QtGui.QDialog):
         self.connect(self.ui.lineEditFileExtensions, QtCore.SIGNAL("editingFinished()"),
                      self.__parseAndWriteFileExtentions)
         
-        self.connect(self.ui.lineEditAppCmdPattern, QtCore.SIGNAL("textChanged(const QString&)"),
-                     self.__writeApplicationCommandPattern)
-                     
+        self.connect(self.ui.lineEditAppCmd, QtCore.SIGNAL("textChanged(const QString&)"),
+                     self.__writeApplicationCommand)             
         self.connect(self.ui.buttonSelectApp, QtCore.SIGNAL("clicked()"), 
                      self.__onButtonSelectAppClicked)
         
@@ -55,6 +54,11 @@ class ExternalAppsDialog(QtGui.QDialog):
         
         self.connect(self.ui.buttonDeleteCategory, QtCore.SIGNAL("clicked()"),
                      self.__onButtonDeleteCategoryClicked)
+        
+        self.connect(self.ui.lineEditExtFileBrowserCmd, QtCore.SIGNAL("textChanged(const QString&)"),
+                     self.__writeFileBrowserCommand)
+        self.connect(self.ui.buttonSelectFileBrowser, QtCore.SIGNAL("clicked()"),
+                     self.__onButtonSelectFileBrowserClicked)
         
         
     def extAppMgrState(self):
@@ -66,6 +70,10 @@ class ExternalAppsDialog(QtGui.QDialog):
             self.ui.comboBoxCategory.addItem(appDescription.filesCategory)
         
         self.__updateCategoryDependentWidgets(self.__currentCategoryIndex())
+        
+        fileBrowserCmd = self.__extAppMgrState.extFileMgrCommandPattern
+        self.ui.lineEditExtFileBrowserCmd.setText(fileBrowserCmd)
+    
     
     def __currentCategoryIndex(self):
         return self.ui.comboBoxCategory.currentIndex()
@@ -75,16 +83,16 @@ class ExternalAppsDialog(QtGui.QDialog):
         if groupIndex >= 0:
             appDescription = self.__extAppMgrState.appDescriptions[groupIndex]
             
-            self.ui.lineEditAppCmdPattern.setText(appDescription.appCommandPattern)
-            self.ui.lineEditAppCmdPattern.setEnabled(True)
+            self.ui.lineEditAppCmd.setText(appDescription.appCommandPattern)
+            self.ui.lineEditAppCmd.setEnabled(True)
             
             self.ui.lineEditFileExtensions.setText(
                 helpers.to_commalist(appDescription.fileExtentions, apply_each=str, sep=" "))
             self.ui.lineEditFileExtensions.setEnabled(True)
             
         else:
-            self.ui.lineEditAppCmdPattern.setText("")
-            self.ui.lineEditAppCmdPattern.setEnabled(False)
+            self.ui.lineEditAppCmd.setText("")
+            self.ui.lineEditAppCmd.setEnabled(False)
             
             self.ui.lineEditFileExtensions.setText("")
             self.ui.lineEditFileExtensions.setEnabled(False)
@@ -103,23 +111,38 @@ class ExternalAppsDialog(QtGui.QDialog):
         
     
             
-    def __writeApplicationCommandPattern(self):
+    def __writeApplicationCommand(self):
         index = self.__currentCategoryIndex()
         if index < 0:
             return
         currentAppCmd = self.__extAppMgrState.appDescriptions[index].appCommandPattern
         
         try:
-            userText = self.ui.lineEditAppCmdPattern.text().strip()
+            userText = self.ui.lineEditAppCmd.text().strip()
             if helpers.is_none_or_empty(userText):
-                raise MsgException(self.tr("Application command pattern should not be empty."))
+                raise MsgException(self.tr("Application command should not be empty."))
             
             self.__extAppMgrState.appDescriptions[index].appCommandPattern = userText
             
         except Exception as ex:
             helpers.show_exc_info(self, ex)
-            self.ui.lineEditAppCmdPattern.setText(currentAppCmd)
+            self.ui.lineEditAppCmd.setText(currentAppCmd)
             
+    
+    def __writeFileBrowserCommand(self):
+        currentCmd = self.__extAppMgrState.extFileMgrCommandPattern
+        try:
+            userText = self.ui.lineEditExtFileBrowserCmd.text().strip()
+            if helpers.is_none_or_empty(userText):
+                raise MsgException(self.tr("File Browser command should not be empty."))
+            
+            self.__extAppMgrState.extFileMgrCommandPattern = userText
+            
+        except Exception as ex:
+            helpers.show_exc_info(self, ex)
+            self.ui.lineEditExtFileBrowserCmd.setText(currentCmd)
+    
+    
         
     def __onButtonSelectAppClicked(self):
         executableFile = self.__dialogs.getOpenFileName(self, self.tr("Select application executable file"))
@@ -129,7 +152,18 @@ class ExternalAppsDialog(QtGui.QDialog):
         executableFile = executableFile.strip()
         if " " in executableFile:
             executableFile = '"' + executableFile + '"'
-        self.ui.lineEditAppCmdPattern.setText(executableFile + " %f")
+        self.ui.lineEditAppCmd.setText(executableFile + " %f")
+    
+    
+    def __onButtonSelectFileBrowserClicked(self):
+        executableFile = self.__dialogs.getOpenFileName(self, self.tr("Select file browser executable file"))
+        if not executableFile:
+            return
+        
+        executableFile = executableFile.strip()
+        if " " in executableFile:
+            executableFile = '"' + executableFile + '"'
+        self.ui.lineEditExtFileBrowserCmd.setText(executableFile + " %d")
     
         
     def __onButtonNewCategoryClicked(self):
