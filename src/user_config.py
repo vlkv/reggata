@@ -3,22 +3,19 @@
 Created on 16.10.2010
 @author: vlkv
 '''
-
-import consts
 import os
 import codecs
+import consts
 from pyjavaproperties import Properties
 import reggata_default_conf
 
 
 class UserConfig(object):
     '''
-    Класс для упрощения доступа к содержимому конфиг-файла в домашней директории пользователя.
-    Этот класс реализован по паттерну одиночка (singleton pattern).
+        This class is an interface for reggata.conf configuration file.
+    It is a singleton class.
     '''
-    
     _instance = None
-    
     _props = None
     
     def __new__(cls, *args, **kwargs):        
@@ -37,25 +34,31 @@ class UserConfig(object):
                     f.close()
             
             cls._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
-            
         return cls._instance
     
-    def __init__(self):        
+    
+    def __init__(self):
         pass
     
+    
     def __getitem__(self, key):
-        '''Операция [], возвращает значение параметра с ключом key. Если ключ key не существует, то выкидывается исключение.'''
+        '''
+            This is an operation []. It returns a value of parameter with given key.
+        If there is no such key, an exception is raised.
+        '''
         return self._props[key]
     
     def get(self, key, default=None):
-        '''Возвращает значение параметра с ключом key. Если ключа key не существует, то
-        возвращает значение аргумента default. Если default не задан, то его значение по 
-        умолчанию равно None.'''
+        '''
+            Returns value of parameter with given key. If there are no such key in
+        configuration, then a default value is returned.
+        '''
         return self._props.get(key, default)
     
     def store(self, key, value):
         self._props[key] = str(value)
         self._props.store(codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8"))
+        
         
     def storeAll(self, d):
         if type(d) != dict:
