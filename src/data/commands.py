@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
 '''
 Created on 23.07.2012
-
 @author: vlkv
 '''
-
-
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker, contains_eager, joinedload_all
 from sqlalchemy.exc import ResourceClosedError
@@ -16,7 +12,6 @@ from errors import *
 from helpers import *
 import consts
 from data.db_schema import *
-from data.repo_mgr import UnitOfWork
 from user_config import UserConfig
 
 
@@ -26,20 +21,19 @@ class AbstractCommand:
     
     
 class GetExpungedItemCommand(AbstractCommand):
-    def __init__(self, id):
-        self.__itemId = id
+    '''
+        Returns expunged (detached) object of Item class from database with given id.
+    '''
+    def __init__(self, itemId):
+        self.__itemId = itemId
     
     def _execute(self, uow):
         self._session = uow.session
-        return self.__getExpungedItem(self.__itemId)
-    
-    def __getExpungedItem(self, id):
-        '''Returns expunged (detached) object of Item class from database with given id.'''
         item = self._session.query(Item)\
             .options(joinedload_all('data_ref'))\
             .options(joinedload_all('item_tags.tag'))\
             .options(joinedload_all('item_fields.field'))\
-            .get(id)
+            .get(self.__itemId)
             
         if item is None:
             raise NotFoundError()
@@ -48,34 +42,33 @@ class GetExpungedItemCommand(AbstractCommand):
         return item
     
     
-    
-    
 class SaveThumbnailCommand(AbstractCommand):
+    
     def __init__(self, data_ref_id, thumbnail):
         self.__dataRefId = data_ref_id
         self.__thumbnail = thumbnail
     
     def _execute(self, uow):
         self._session = uow.session
-        self.__saveThumbnail(self.__dataRefId, self.__thumbnail)
-    
-    def __saveThumbnail(self, data_ref_id, thumbnail):
-        data_ref = self._session.query(DataRef).get(data_ref_id)
-        self._session.refresh(data_ref) #TODO: Research if we can remove this refresh
-        thumbnail.data_ref_id = data_ref.id
-        data_ref.thumbnails.append(thumbnail)
-        self._session.add(thumbnail)
         
+        data_ref = self._session.query(DataRef).get(self.__dataRefId)
+        self._session.refresh(data_ref) #TODO: Research if we can remove this refresh
+        
+        self.__thumbnail.data_ref_id = data_ref.id
+        data_ref.thumbnails.append(self.__thumbnail)
+        
+        self._session.add(self.__thumbnail)
         self._session.commit()
         
-        self._session.refresh(thumbnail)
-        self._session.expunge(thumbnail)
+        self._session.refresh(self.__thumbnail)
+        self._session.expunge(self.__thumbnail)
         self._session.expunge(data_ref)
     
     
-    
 class GetUntaggedItems(AbstractCommand):
-    
+    '''
+        Gets from database all alive elements without tags.
+    '''
     def __init__(self, limit=0, page=1, order_by=""):
         self.__limit = limit
         self.__page = page
@@ -86,10 +79,6 @@ class GetUntaggedItems(AbstractCommand):
         return self.__getUntaggedItems(self.__limit, self.__page, self.__orderBy)
     
     def __getUntaggedItems(self, limit, page, order_by):
-        '''
-        Извлекает из БД все ЖИВЫЕ элементы, с которыми не связано ни одного тега.
-        '''
-        
         order_by_1 = ""
         order_by_2 = ""
         for col, dir in order_by:
@@ -107,7 +96,6 @@ class GetUntaggedItems(AbstractCommand):
         
         thumbnail_default_size = UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)
         
-        
         if page < 1:
             raise ValueError("Page number cannot be negative or zero.")
         
@@ -119,8 +107,7 @@ class GetUntaggedItems(AbstractCommand):
             offset = (page-1)*limit
             limit_offset += "LIMIT {0} OFFSET {1}".format(limit, offset)
         
-        
-        sql = '''--Извлекает все элементы, с которыми не связано ни одного тега
+        sql = '''
         select sub.*, ''' + \
         Item_Tag._sql_from() + ", " + \
         Tag._sql_from() + ", " + \
@@ -134,7 +121,8 @@ class GetUntaggedItems(AbstractCommand):
             from items i
             left join items_tags it on i.id = it.item_id
             left join data_refs on i.data_ref_id = data_refs.id
-            left join thumbnails on data_refs.id = thumbnails.data_ref_id and thumbnails.size = ''' + str(thumbnail_default_size) + ''' 
+            left join thumbnails on data_refs.id = thumbnails.data_ref_id and thumbnails.size = ''' + \
+                str(thumbnail_default_size) + ''' 
             where 
                 it.item_id is null
                 AND i.alive
@@ -168,6 +156,9 @@ class GetUntaggedItems(AbstractCommand):
 
     
 class QueryItemsByParseTree(AbstractCommand):
+    '''
+        Searches for items, according to given syntax parse tree (of query language).
+    '''
     def __init__(self, query_tree, limit=0, page=1, order_by=[]):
         self.__queryTree = query_tree
         self.__limit = limit
@@ -176,12 +167,10 @@ class QueryItemsByParseTree(AbstractCommand):
     
     def _execute(self, uow):
         self._session = uow.session
-        return self.__queryItemsByParseTree(self.__queryTree, self.__limit, self.__page, self.__orderBy)
+        return self.__queryItemsByParseTree(self.__queryTree, self.__limit, self.__page, 
+                                            self.__orderBy)
     
     def __queryItemsByParseTree(self, query_tree, limit, page, order_by):
-        '''
-        Searches for items, according to given syntax parse tree (of query language).
-        '''
         order_by_1 = ""
         order_by_2 = ""
         for col, dir in order_by:
@@ -224,7 +213,8 @@ class QueryItemsByParseTree(AbstractCommand):
         left join items_fields on sub.id = items_fields.item_id
         left join fields on fields.id = items_fields.field_id
         left join thumbnails on thumbnails.data_ref_id = sub.data_refs_id and 
-                  thumbnails.size = ''' + str(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)) + '''
+                  thumbnails.size = ''' + str(UserConfig().get("thumbnail_size", 
+                                                               consts.THUMBNAIL_DEFAULT_SIZE)) + '''
         where sub.alive        
         ''' + order_by_2
         
@@ -248,62 +238,6 @@ class QueryItemsByParseTree(AbstractCommand):
         return items
         
     
-#    def query_items_by_sql(self, sql):
-#        '''
-#        Внимание! sql должен извлекать не только item-ы, но также и связанные (при помощи left join)
-#        элементы data_refs и thumbnails.
-#        '''
-#        
-##Это так для примера: как я задавал alias
-##        data_refs = Base.metadata.tables[DataRef.__tablename__]
-##        thumbnails = Base.metadata.tables[Thumbnail.__tablename__]        
-##        eager_columns = select([
-##                    data_refs.c.id.label('dr_id'),
-##                    data_refs.c.url.label('dr_url'),
-##                    data_refs.c.type.label('dr_type'),
-##                    data_refs.c.hash.label('dr_hash'),
-##                    data_refs.c.date_hashed.label('dr_date_hashed'),
-##                    data_refs.c.size.label('dr_size'),
-##                    data_refs.c.date_created.label('dr_date_created'),
-##                    data_refs.c.user_login.label('dr_user_login'),
-##                    thumbnails.c.data_ref_id.label('th_data_ref_id'),
-##                    thumbnails.c.size.label('th_size'),
-##                    thumbnails.c.dimension.label('th_dimension'),
-##                    thumbnails.c.data.label('th_data'),
-##                    thumbnails.c.date_created.label('th_date_created'),
-##                    ])                    
-##        items = self._session.query(Item).\
-##            options(contains_eager("data_ref", alias=eager_columns), \                    
-##                    contains_eager("data_ref.thumbnails", alias=eager_columns)).\
-##            from_statement(sql).all()
-#
-#        items = self._session.query(Item)\
-#            .options(contains_eager("data_ref"), \
-#                     contains_eager("data_ref.thumbnails"), \
-#                     contains_eager("item_tags"), \
-#                     contains_eager("item_tags.tag"))\
-#            .from_statement(sql).all()
-#            
-#        #Выше использовался joinedload, поэтому по идее следующий цикл
-#        #не должен порождать новые SQL запросы
-##        for item in items:
-##            item.data_ref
-##            for thumbnail in item.data_ref.thumbnails:
-##                thumbnail
-#
-#        for item in items:
-#            self._session.expunge(item)
-#        
-#        return items
-#    
-    
-    
-  
-    
-    
-    
-    
-    
 class FileInfo(object):
     FILE = 0
     DIR = 1
@@ -313,7 +247,6 @@ class FileInfo(object):
     STORED_STATUS = "STORED"
     
     def __init__(self, path, filename=None, status=None):
-        
         if filename is not None:
             self.path = path
             self.filename = filename
@@ -396,7 +329,13 @@ class GetFileInfoCommand(AbstractCommand):
                 finfo.user_fields[item_field.user_login][item_field.field.name] = item_field.field_value 
         return finfo
 
+
 class LoginUserCommand(AbstractCommand):
+    '''
+        Logins a user to a repository database.
+        password --- is a SHA1 hexdigest() hash. When login or password incorrect
+    command raises LoginError.
+    '''
     def __init__(self, login, password):
         self.__login = login
         self.__password = password
@@ -406,10 +345,6 @@ class LoginUserCommand(AbstractCommand):
         return self.__loginUser(self.__login, self.__password) 
     
     def __loginUser(self, login, password):
-        '''
-        password - это SHA1 hexdigest() хеш. В случае неверного логина или пароля, 
-        выкидывается LoginError.
-        '''
         if is_none_or_empty(login):
             raise LoginError("User login cannot be empty.")
         user = self._session.query(User).get(login)
@@ -420,6 +355,7 @@ class LoginUserCommand(AbstractCommand):
         
         self._session.expunge(user)
         return user
+
 
 class ChangeUserPasswordCommand(AbstractCommand):
     def __init__(self, userLogin, newPasswordHash):
@@ -468,8 +404,15 @@ class GetNamesOfAllTagsAndFields(AbstractCommand):
         except ResourceClosedError:
             return []
 
+
 class GetRelatedTagsCommand(AbstractCommand):
-    
+    '''
+        Returns a list of related tags for a list of given (selected) tags tag_names.
+    When tag_names is empty, all tags are returned.
+        
+        Limit affects only if tag_names is empty. In other cases limit is ignored.
+    If limit == 0 it means there is no limit.
+    '''
     #TODO This command should return list of tags, related to arbitrary list of selected items.
     def __init__(self, tag_names=[], user_logins=[], limit=0):
         self.__tag_names = tag_names
@@ -481,17 +424,7 @@ class GetRelatedTagsCommand(AbstractCommand):
         return self.__getRelatedTags(self.__tag_names, self.__user_logins, self.__limit)
 
     def __getRelatedTags(self, tag_names, user_logins, limit):
-        ''' Возвращает список related тегов для тегов из списка tag_names.
-        Если tag_names - пустой список, возращает все теги.
-        Поиск ведется среди тегов пользователей из списка user_logins.
-        Если user_logins пустой, то поиск среди всех тегов в БД.
-        
-        limit affects only if tag_names is empty. In other cases limit is ignored.
-        If limit == 0 it means there is no limit.
-        '''
-        
-        #TODO Пока что не учитывается аргумент user_logins
-        
+        #TODO user_logins is not used yet..
         if len(tag_names) == 0:
             #TODO The more items in the repository, the slower this query is performed.
             #I think, I should store in database some statistics information, such as number of items
@@ -511,7 +444,7 @@ class GetRelatedTagsCommand(AbstractCommand):
                 '''
             else:
                 sql = '''
-                --get_related_tags() запрос, извлекающий все теги и кол-во связанных с каждым тегом ЖИВЫХ элементов
+                --get_related_tags() query
                 select t.name as name, count(*) as c
                    from items i, tags t
                    join items_tags it on it.tag_id = t.id and it.item_id = i.id and i.alive   
@@ -520,17 +453,15 @@ class GetRelatedTagsCommand(AbstractCommand):
                 group by t.name
                 ORDER BY t.name
                 '''
-            
-            #Здесь пришлось вставлять этот try..except, т.к. иначе пустой список (если нет связанных тегов)
-            #не возвращается, а вылетает ResourceClosedError. Не очень удобно, однако. 
+            # ResourceClosedError could be raised when there are no related tags 
+            # for given list of tags. 
             try:
                 return self._session.query("name", "c").from_statement(sql).all()
             except ResourceClosedError as ex:
                 return []
             
-            
         else:
-            #Сначала нужно получить список id-шников для всех имен тегов
+            # First we get a list of item ids
             sql = '''--get_related_tags(): getting list of id for all selected tags
             select * from tags t
             where t.name in (''' + to_commalist(tag_names, lambda x: "'" + x + "'") + ''')
@@ -570,7 +501,7 @@ class GetRelatedTagsCommand(AbstractCommand):
                 where = where + \
                 " AND t.id <> {0} ".format(tag_ids[i])
             
-            sql = '''--get_related_tags() запрос, извлекающий родственные теги для выбранных тегов
+            sql = '''--get_related_tags() query
             select t.name as name, count(*) as c
                 from tags t
                 join items_tags it on it.tag_id = t.id
@@ -582,7 +513,7 @@ class GetRelatedTagsCommand(AbstractCommand):
                     where ''' + sub_where + '''                     
                 ) ''' + where + '''
                 AND i.alive            
-                --Важно, чтобы эти id-шники следовали по возрастанию                
+                -- It is important that these ids followed in the order of raising                
             group by t.name
             ORDER BY t.name'''
             try:            
@@ -660,10 +591,36 @@ class DeleteItemCommand(AbstractCommand):
         self._session.commit()
         
         
-
-
 class SaveNewItemCommand(AbstractCommand):
-
+    '''
+        Command saves in database given item.
+    Returns id of created item, or raises an exception if something wrong.
+    When this function returns, item object is expunged from the current Session.
+        item.user_login - specifies owner of this item (and all tags/fields linked with it).
+        srcAbsPath - absolute path to a file which will be referenced by this item.
+        dstRelPath - relative (to repository root) path where to put the file.
+    File is always copyied from srcAbsPath to <repo_base_path>/dstRelPath, except when 
+    srcAbsPath is the same as <repo_base_path>/dstRelPath.
+    
+    Use cases:
+            0) Both srcAbsPath and dstRelPath are None, so User wants to create an Item 
+        without DataRef object.
+            1) User wants to add an external file into the repo. File is copied to the 
+        repo.
+            2) There is an untracked file inside the repo tree. User wants to add such file 
+        into the repo to make it a stored file. File is not copied, because it is alredy in 
+        the repo tree.
+            3) User wants to add a copy of a stored file from the repo into the same repo 
+        but to the another location. Original file is copyied. The copy of the original file 
+        will be attached to the new Item object.
+            4) ERROR: User wants to attach to a stored file another new Item object.
+        This is FORBIDDEN! Because existing item may be not integral with the file.
+        TODO: We can allow this operation only if integrity check returns OK. May be implemented
+        in the future.
+        
+        NOTE: Use cases 1,2,3 require creation of a new DataRef object.
+        If given item has not null item.data_ref object, it is ignored anyway.
+    '''
     def __init__(self, item, srcAbsPath=None, dstRelPath=None):
         self.__item = item
         self.__srcAbsPath = srcAbsPath
@@ -675,35 +632,6 @@ class SaveNewItemCommand(AbstractCommand):
         return self.__saveNewItem(self.__item, self.__srcAbsPath, self.__dstRelPath)
     
     def __saveNewItem(self, item, srcAbsPath=None, dstRelPath=None):
-        '''Method saves in database given item.
-        Returns id of created item, or raises an exception if something wrong.
-        When this function returns, item object is expunged from the current Session.
-            item.user_login - specifies owner of this item (and all tags/fields linked with it).
-            srcAbsPath - absolute path to a file which will be referenced by this item.
-            dstRelPath - relative (to repository root) path where to put the file.
-        File is always copyied from srcAbsPath to <repo_base_path>/dstRelPath, except when 
-        srcAbsPath is the same as <repo_base_path>/dstRelPath.
-        
-        Use cases:
-                0) Both srcAbsPath and dstRelPath are None, so User wants to create an Item 
-            without DataRef object.
-                1) User wants to add an external file into the repo. File is copied to the 
-            repo.
-                2) There is an untracked file inside the repo tree. User wants to add such file 
-            into the repo to make it a stored file. File is not copied, because it is alredy in 
-            the repo tree.
-                3) User wants to add a copy of a stored file from the repo into the same repo 
-            but to the another location. Original file is copyied. The copy of the original file 
-            will be attached to the new Item object.
-                4) ERROR: User wants to attach to a stored file another new Item object.
-            This is FORBIDDEN! Because existing item may be not integral with the file.
-            TODO: We can allow this operation only if integrity check returns OK. May be implemented
-            in the future.
-            
-            NOTE: Use cases 1,2,3 require creation of a new DataRef object.
-            If given item has not null item.data_ref object, it is ignored anyway.
-        '''
-        
         #We do not need any info, that can be in item.data_ref object at this point.
         #But if it is not None, it may break the creation of tags/fields.
         #Don't worry, item.data_ref will be assigned a new DataRef instance later (if required).
@@ -820,7 +748,19 @@ class SaveNewItemCommand(AbstractCommand):
 
     
 class UpdateExistingItemCommand(AbstractCommand):
+    ''' 
+        item - is a detached object, representing a new state for stored item with id == item.id.
+        user_login - is a login of user, who is doing the modifications of the item.
+        Returns detached updated item or raises an exception, if something goes wrong. 
     
+        If item.data_ref.url is changed --- that means that user wants this item 
+    to reference to another file. 
+        If item.data_ref.dstRelPath is not None --- that means that user wants
+    to move (and maybe rename) original referenced file withing the repository.
+    
+    TODO: Maybe we should use item.data_ref.srcAbsPathForFileOperation instead of item.data_ref.url... ?
+    TODO: We should deny any user to change tags/fields/files of items, owned by another user.   
+    '''
     #TODO: Use srcAbsPath=None, dstRelPath=None arguments in this command
     def __init__(self, item, userLogin):
         self.__item = item
@@ -832,19 +772,6 @@ class UpdateExistingItemCommand(AbstractCommand):
         self.__updateExistingItem(self.__item, self.__userLogin)
     
     def __updateExistingItem(self, item, user_login):
-        ''' item - is a detached object, representing a new state for stored item with id == item.id.
-            user_login - is a login of user, who is doing the modifications of the item.
-            Returns detached updated item or raises an exception, if something goes wrong. 
-        
-            If item.data_ref.url is changed --- that means that user wants this item 
-        to reference to another file. 
-            If item.data_ref.dstRelPath is not None --- that means that user wants
-        to move (and maybe rename) original referenced file withing the repository.
-        
-        TODO: Maybe we should use item.data_ref.srcAbsPathForFileOperation instead of item.data_ref.url... ?
-        TODO: We should deny any user to change tags/fields/files of items, owned by another user.   
-        '''
-        
         persistentItem = self._session.query(Item).get(item.id)
         
         #We must gather some information before any changes have been made
@@ -930,7 +857,6 @@ class UpdateExistingItemCommand(AbstractCommand):
         self._session.flush()
     
     def __updateDataRefObject(self, item, persistentItem, user_login):
-        
         # Processing DataRef object 
         srcAbsPath = None
         dstAbsPath = None
@@ -1033,40 +959,30 @@ class UpdateExistingItemCommand(AbstractCommand):
     def _prepare_data_ref(self, data_ref, user_login):
         
         def _prepare_data_ref_url(dr):                   
-            #Нормализация пути
             dr.url = os.path.normpath(dr.url)
             
-            #Убираем слеш, если есть в конце пути
+            # Remove trailing slash (if it presents)
             if dr.url.endswith(os.sep):
                 dr.url = dr.url[0:len(dr.url)-1]
                 
-            #Определяем, находится ли данный файл уже внутри хранилища
+            # Check if the file is already withing repo tree
             if is_internal(dr.url, os.path.abspath(self._repoBasePath)):
-                #Файл уже внутри
-                #Делаем путь dr.url относительным и всё
-                #Если dr.dstRelPath имеет непустое значение --- оно игнорируется!
-                #TODO Как сделать, чтобы в GUI это было понятно пользователю?
                 dr.url = os.path.relpath(dr.url, self._repoBasePath)
             else:
-                #Файл снаружи                
                 if not is_none_or_empty(dr.dstRelPath) and dr.dstRelPath != ".":
                     dr.url = dr.dstRelPath
                     #TODO insert check to be sure that dr.dstRelPath inside a repository!!!
                 else:
-                    #Если dstRelPath пустая или равна ".", тогда копируем в корень хранилища
+                    # When dstRelPath is empty or ".", then copy file to repo root dir
                     dr.url = os.path.basename(dr.url)
         
-        #Привязываем к пользователю
         data_ref.user_login = user_login
                 
-        #Запоминаем размер файла
         data_ref.size = os.path.getsize(data_ref.url)
         
-        #Вычисляем хеш. Это может занять продолжительное время...
         data_ref.hash = compute_hash(data_ref.url)
         data_ref.date_hashed = datetime.datetime.today()
         
-        #Делаем путь относительным, относительно корня хранилища
         _prepare_data_ref_url(data_ref)
     
 
