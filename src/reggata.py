@@ -23,14 +23,11 @@ Created on 21.01.2012
 '''
 import os.path
 import sys
-import datetime
 import codecs
 import PyQt4.QtCore as QtCore
-import PyQt4.QtGui as QtGui
-from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QApplication
 import consts
 from user_config import UserConfig
-import logging
 import logging.config
 import logging_default_conf
 from gui.main_window import MainWindow
@@ -85,7 +82,7 @@ if __name__ == '__main__':
     
     configureTmpDir()
     
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     
     configureTranslations(app)
     
