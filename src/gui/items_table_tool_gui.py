@@ -37,6 +37,7 @@ class ItemsTableToolGui(ToolGui):
         self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
         self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
         self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
+        self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(const QModelIndex&)"), self.__onTableDoubleClicked)
         
         #TODO limit page function sometimes works not correct!!! It sometimes shows less items, than specified in limit spinbox!
         #Initialization of limit and page spinboxes 
@@ -338,6 +339,10 @@ class ItemsTableToolGui(ToolGui):
             event.ignore()
     
     
+    def __onTableDoubleClicked(self, index):
+        action = self.actions['openItem']
+        action.trigger()
+        
     
     
 class ItemsTableModel(QtCore.QAbstractTableModel):
