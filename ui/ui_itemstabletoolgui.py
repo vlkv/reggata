@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemstabletoolgui.ui'
 #
-# Created: Sun Sep 23 20:51:10 2012
+# Created: Fri Oct  5 21:35:40 2012
 #      by: PyQt4 UI code generator 4.9.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -56,6 +56,7 @@ class Ui_ItemsTableToolGui(object):
         self.tableView_items.setDragDropMode(QtGui.QAbstractItemView.NoDragDrop)
         self.tableView_items.setDefaultDropAction(QtCore.Qt.IgnoreAction)
         self.tableView_items.setObjectName(_fromUtf8("tableView_items"))
+        self.tableView_items.verticalHeader().setVisible(False)
         self.verticalLayout.addWidget(self.tableView_items)
 
         self.retranslateUi(ItemsTableToolGui)

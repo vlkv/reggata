@@ -90,6 +90,9 @@
      <property name="defaultDropAction">
       <enum>Qt::IgnoreAction</enum>
      </property>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
     </widget>
    </item>
   </layout>

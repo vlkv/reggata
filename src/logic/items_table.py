@@ -206,6 +206,10 @@ class ItemsTable(AbstractTool):
             raise CurrentUserIsNoneError("Current user is None")
     
     
+    def storeCurrentState(self):
+        self._gui.save_columns_width()
+        
+    
     def restoreRecentState(self):
         self._gui.restore_columns_width()
 

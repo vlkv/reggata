@@ -166,6 +166,7 @@ class ItemsTableToolGui(ToolGui):
         self.ui.tableView_items.resizeRowsToContents()
 
     def restore_columns_width(self):
+        self.ui.tableView_items.setColumnWidth(ItemsTableModel.ROW_NUMBER, int(UserConfig().get("items_table.ROW_NUMBER.width", 30)))
         self.ui.tableView_items.setColumnWidth(ItemsTableModel.ID, int(UserConfig().get("items_table.ID.width", 55)))
         self.ui.tableView_items.setColumnWidth(ItemsTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 430)))
         self.ui.tableView_items.setColumnWidth(ItemsTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
@@ -174,6 +175,10 @@ class ItemsTableToolGui(ToolGui):
         self.ui.tableView_items.setColumnWidth(ItemsTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 100)))
         
     def save_columns_width(self):
+        widthRowNumber = self.ui.tableView_items.columnWidth(ItemsTableModel.ROW_NUMBER)
+        if widthRowNumber > 0:            
+            UserConfig().store("items_table.ROW_NUMBER.width", str(widthRowNumber))
+        
         width_id = self.ui.tableView_items.columnWidth(ItemsTableModel.ID)
         if width_id > 0:            
             UserConfig().store("items_table.ID.width", str(width_id))
@@ -339,13 +344,13 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
     '''
         This class is a model of a table (QTableView) with repository Items.
     '''
-    
-    ID = 0
-    TITLE = 1
-    IMAGE_THUMB = 2
-    LIST_OF_TAGS = 3
-    STATE = 4 #State of the item (in the means of its integrity)
-    RATING = 5
+    ROW_NUMBER = 0
+    ID = 1
+    TITLE = 2
+    IMAGE_THUMB = 3
+    LIST_OF_TAGS = 4
+    STATE = 5 #State of the item (in the means of its integrity)
+    RATING = 6
     
     def __init__(self, repo, items_lock, user_login):
         super(ItemsTableModel, self).__init__()
@@ -458,12 +463,14 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
         return len(self.items)
     
     def columnCount(self, index=QtCore.QModelIndex()):
-        return 6
+        return 7
     
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal:
             if role == Qt.DisplayRole:
-                if section == self.ID:
+                if section == self.ROW_NUMBER:
+                    return self.tr("")
+                elif section == self.ID:
                     return self.tr("Id")
                 elif section == self.TITLE:
                     return self.tr("Title")
@@ -491,7 +498,10 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
         column = index.column()
         
         if role == QtCore.Qt.DisplayRole:
-            if column == self.ID:
+            if column == self.ROW_NUMBER:
+                return index.row() + 1
+            
+            elif column == self.ID:
                 return item.id
             
             elif column == self.TITLE:
@@ -516,7 +526,10 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
                 return rating
         
         elif role == Qt.ToolTipRole:            
-            if column == self.TITLE:
+            if column == self.ROW_NUMBER:
+                return "Table row number"
+            
+            elif column == self.TITLE:
                 if item.data_ref is not None:
                     s  =  str(item.data_ref.type) + ": " + item.data_ref.url
                     if  item.data_ref.type == DataRef.FILE:
@@ -525,11 +538,11 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
                         s += os.linesep + self.tr("Date hashed: {}").format(item.data_ref.date_hashed)
                     s += os.linesep + self.tr("Created by: {}").format(item.data_ref.user_login)
                     s += os.linesep + self.tr("Date created: {}").format(item.data_ref.date_created)
-                    
-                    
                     return s
+                
             elif column == self.LIST_OF_TAGS:
                 return item.format_field_vals()
+            
             elif column == self.STATE:
                 try:
                     self.lock.lockForRead()
@@ -555,8 +568,12 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
         
 
         elif role == QtCore.Qt.TextAlignmentRole:
+            if column == self.ROW_NUMBER:
+                return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+            
             if column == self.ID:
                 return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+            
             elif column == self.TITLE:
                 return int(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         
