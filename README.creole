@@ -2,7 +2,8 @@
 
 Reggata is a tagging system for managing local files on your computer.
 More detailed description of Reggata features and the principles of how it works can be found on 
-wiki pages [[https://github.com/vlkv/reggata/wiki]].
+wiki pages [[https://github.com/vlkv/reggata/wiki]]. 
+Also, there is a nice review of Reggata features available here [[http://reggata.findmysoft.com]].
 
 This is a very "young" project and I'm very interested about your opinion on it. Your comments and 
 suggestions are very appreciated. Feel free to email me (vitvlkv@gmail.com).
