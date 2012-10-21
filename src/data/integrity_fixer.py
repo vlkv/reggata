@@ -4,7 +4,7 @@ Created on 20.12.2010 by  Vitaly Volkov
 import os
 import datetime
 from data.db_schema import Item, DataRef
-from helpers import compute_hash
+from helpers import computeFileHash
 
 
 class IntegrityFixerFactory(object):
@@ -47,7 +47,7 @@ class AbstractIntegrityFixer(object):
                 .first()
             if matchedDataRef is not None:
                 # We must recalculate hash of found DataRef object, to be absolutely sure that it is correct
-                recalculatedHash = compute_hash(os.path.join(self.repo_base_path, matchedDataRef.url))
+                recalculatedHash = computeFileHash(os.path.join(self.repo_base_path, matchedDataRef.url))
                 if recalculatedHash == matchedDataRef.hash:
                     found = True
                 else:
@@ -70,7 +70,7 @@ class AbstractIntegrityFixer(object):
                 if size != originalDataRef.size:
                     continue
                 
-                calculatedHash = compute_hash(os.path.join(root, file))
+                calculatedHash = computeFileHash(os.path.join(root, file))
                 if calculatedHash != originalDataRef.hash:
                     continue
                 
@@ -249,7 +249,7 @@ class FileHashMismatchFixer(AbstractIntegrityFixer):
     
     def _update_hash(self, item, user_login):
         filename = os.path.join(self.repo_base_path, item.data_ref.url)
-        new_hash = compute_hash(filename)
+        new_hash = computeFileHash(filename)
         new_size = os.path.getsize(filename)
         new_date_hashed = datetime.datetime.today()
         

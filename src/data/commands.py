@@ -716,7 +716,7 @@ class SaveNewItemCommand(AbstractCommand):
             item.data_ref = DataRef(type=DataRef.FILE, url=dstRelPath)
             item.data_ref.user_login = user_login
             item.data_ref.size = os.path.getsize(srcAbsPath)
-            item.data_ref.hash = compute_hash(srcAbsPath)
+            item.data_ref.hash = computeFileHash(srcAbsPath)
             item.data_ref.date_hashed = datetime.datetime.today()
             self._session.add(item.data_ref)
             self._session.flush()
@@ -980,7 +980,7 @@ class UpdateExistingItemCommand(AbstractCommand):
                 
         data_ref.size = os.path.getsize(data_ref.url)
         
-        data_ref.hash = compute_hash(data_ref.url)
+        data_ref.hash = computeFileHash(data_ref.url)
         data_ref.date_hashed = datetime.datetime.today()
         
         _prepare_data_ref_url(data_ref)
@@ -1012,7 +1012,7 @@ class CheckItemIntegrityCommand(AbstractCommand):
                 # If sizes are different, then there is no need to compute hash: 
                 # hashes will be different too
             
-            fileHash = helpers.compute_hash(fileAbsPath)
+            fileHash = helpers.computeFileHash(fileAbsPath)
             if self.__item.data_ref.hash != fileHash:
                 errorSet.add(Item.ERROR_FILE_HASH_MISMATCH)
     

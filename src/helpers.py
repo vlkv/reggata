@@ -153,7 +153,7 @@ def removeTrailingOsSeps(path):
     return path
 
         
-def compute_hash(filename, chunksize=128*1024): # chunksize = 128 Kbytes 
+def computeFileHash(filename, chunksize=128*1024): # chunksize = 128 Kbytes 
     '''
         The function calculates hash of a contents of a given file.
     '''    
