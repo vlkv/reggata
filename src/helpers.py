@@ -153,11 +153,11 @@ def removeTrailingOsSeps(path):
     return path
 
         
-def compute_hash(filename, chunksize=131072, algorithm="sha1"):
+def compute_hash(filename, chunksize=128*1024): # chunksize = 128 Kbytes 
     '''
         The function calculates hash of a contents of a given file.
-    You can use sha1 or md5 as a hash algorithm. 
     '''    
+    algorithm = "sha1"
     start = time.time()
     f = open(filename, 'rb')
     filehash = hashlib.new(algorithm)
