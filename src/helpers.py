@@ -156,9 +156,20 @@ def removeTrailingOsSeps(path):
 def computeFileHash(filename, chunksize=128*1024): # chunksize = 128 Kbytes 
     '''
         The function calculates hash of a contents of a given file.
-    '''    
+    '''
     algorithm = "sha1"
-    start = time.time()
+    
+    if (os.path.getsize(filename) <= consts.MAX_FILE_SIZE_FOR_FULL_HASHING):
+        hashStr = _computeFullFileHash(filename, chunksize, algorithm)
+    else:
+        hashStr = _computePartialFileHash(
+                                          filename, chunksize, algorithm, 
+                                          consts.MAX_BYTES_FOR_PARTIAL_HASHING)
+        hashStr = "0.." + str(consts.MAX_BYTES_FOR_PARTIAL_HASHING) + ": " + hashStr
+    return hashStr
+
+def _computeFullFileHash(filename, chunksize, algorithm):
+    assert chunksize > 0
     f = open(filename, 'rb')
     filehash = hashlib.new(algorithm)
     while True:
@@ -167,7 +178,24 @@ def computeFileHash(filename, chunksize=128*1024): # chunksize = 128 Kbytes
             break
         filehash.update(data)
     hashStr = filehash.hexdigest()
-    logger.debug("Hash {} computed in time of {} sec".format(algorithm, time.time() - start))
+    return hashStr    
+
+def _computePartialFileHash(filename, chunksize, algorithm, maxBytesToHash):
+    assert chunksize > 0
+    assert maxBytesToHash > 0
+    assert maxBytesToHash < os.path.getsize(filename)
+    
+    f = open(filename, 'rb')
+    filehash = hashlib.new(algorithm)
+    
+    while maxBytesToHash > 0:
+        bytesToRead = chunksize if maxBytesToHash >= chunksize else maxBytesToHash
+        maxBytesToHash -= bytesToRead 
+        data = f.read(bytesToRead)
+        if not data:
+            break
+        filehash.update(data)
+    hashStr = filehash.hexdigest()
     return hashStr
     
     
