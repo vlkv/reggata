@@ -663,7 +663,7 @@ class SaveNewItemCommand(AbstractCommand):
                 DataRef.url_raw==to_db_format(dstRelPath)).first()
             if dataRef is not None:
                 raise DataRefAlreadyExistsError("DataRef instance with url='{}' "
-                                                   "already in database. ".format(dstRelPath))
+                                                   "is already in database. ".format(dstRelPath))
         
         user_login = item.user_login
         if is_none_or_empty(user_login):
