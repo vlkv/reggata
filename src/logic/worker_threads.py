@@ -463,13 +463,13 @@ class CreateGroupOfItemsThread(QtCore.QThread):
         super(CreateGroupOfItemsThread, self).__init__(parent)
         self.repo = repo
         self.items = items
-        self.error_log = []
-        self.created_objects_count = 0
+        self.skippedCount = 0
+        self.createdCount = 0
         self.lastSavedItemIds = []
     
     def run(self):        
-        self.error_log = []
-        self.created_objects_count = 0
+        self.skippedCount = 0
+        self.createdCount = 0
         uow = self.repo.createUnitOfWork()
         try:
             i = 0
@@ -483,12 +483,10 @@ class CreateGroupOfItemsThread(QtCore.QThread):
                         dstRelPath = item.data_ref.dstRelPath
                     savedItemId = uow.executeCommand(SaveNewItemCommand(item, srcAbsPath, dstRelPath))
                     self.lastSavedItemIds.append(savedItemId)
-                    self.created_objects_count += 1
+                    self.createdCount += 1
                     
                 except (ValueError, DataRefAlreadyExistsError):
-                    #Skip this item and remember it's data_ref.url)
-                    if item.data_ref:
-                        self.error_log.append(item.data_ref.url)
+                    self.skippedCount += 1
                         
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
@@ -498,7 +496,7 @@ class CreateGroupOfItemsThread(QtCore.QThread):
             
         finally:
             uow.close()
-            self.emit(QtCore.SIGNAL("finished"), len(self.error_log))
+            self.emit(QtCore.SIGNAL("finished"))
             
         
 

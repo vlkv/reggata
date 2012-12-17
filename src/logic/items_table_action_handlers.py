@@ -77,7 +77,7 @@ class AddManyItemsAbstractActionHandler(AbstractActionHandler):
         super(AddManyItemsAbstractActionHandler, self).__init__(tool)
         self._dialogs = dialogs
         self._createdObjectsCount = 0
-        self._errorLog = []
+        self._skippedObjectsCount = 0
         self.lastSavedItemIds = []
     
     def _startWorkerThread(self, items):
@@ -86,8 +86,8 @@ class AddManyItemsAbstractActionHandler(AbstractActionHandler):
         self._dialogs.startThreadWithWaitDialog(
                 thread, self._tool.gui, indeterminate=False)
             
-        self._createdObjectsCount = thread.created_objects_count
-        self._errorLog = thread.error_log
+        self._createdObjectsCount = thread.createdCount
+        self._skippedObjectsCount = thread.skippedCount
         self.lastSavedItemIds = thread.lastSavedItemIds
         
  
@@ -126,8 +126,8 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
             
         finally:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
-                self.tr("Operation completed. Stored {} files, skipped {} files.")
-                    .format(self._createdObjectsCount, len(self._errorLog)))
+                self.tr("Operation completed. Added {}, skipped {} files.")
+                    .format(self._createdObjectsCount, self._skippedObjectsCount))
             
         
         
@@ -175,8 +175,8 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             
         finally:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
-                self.tr("Operation completed. Stored {} files, skipped {} files.")
-                    .format(self._createdObjectsCount, len(self._errorLog)))
+                self.tr("Operation completed. Added {}, skipped {} files.")
+                    .format(self._createdObjectsCount, self._skippedObjectsCount))
             
 
 
