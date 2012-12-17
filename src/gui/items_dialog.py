@@ -298,7 +298,7 @@ class ItemsDialog(QtGui.QDialog):
                                 item.data_ref.srcAbsPathToRecursionRoot)
     
     def __writeTagsAndFields(self):
-        #Processing Tags to add        
+        #Processing Tags to add
         text = self.ui.plainTextEdit_tags_add.toPlainText()
         tags, tmp = parsers.definition_parser.parse(text)
         tags_add = set(tags)
@@ -313,10 +313,11 @@ class ItemsDialog(QtGui.QDialog):
         tmp, fields = parsers.definition_parser.parse(text)
         fieldvals_add = set(fields)
         
-        #Processing Field names to remove
+        # Processing Field names to remove
+        # NOTE: from parsers point of view it is Tags, but we know that it is Field names.
         text = self.ui.plainTextEdit_fields_rm.toPlainText()
-        tmp, fields = parsers.definition_parser.parse(text)
-        fields_rm = set(fields)
+        fieldNames, tmp = parsers.definition_parser.parse(text)  
+        fields_rm = set(fieldNames)
             
             
         #Check that added and removed Tags do not intersect
