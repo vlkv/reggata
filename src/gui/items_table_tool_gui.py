@@ -340,6 +340,8 @@ class ItemsTableToolGui(ToolGui):
     
     
     def __onTableDoubleClicked(self, index):
+        if not self.__table_model.isOpenItemActionAllowed(index):
+            return
         action = self.actions['openItem']
         action.trigger()
         
@@ -493,7 +495,7 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
             return section + 1
         else:
             return None
-
+        
     
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if not index.isValid() or not (0 <= index.row() < len(self.items)):
@@ -585,6 +587,13 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
         #Во всех остальных случаях возвращаем None
         return None
     
+    
+    def isOpenItemActionAllowed(self, index):
+        if index.column() == ItemsTableModel.RATING:
+            return False
+        else:
+            return True
+        
     
     def __formatErrorSet(self, error_set):
         
