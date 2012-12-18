@@ -467,6 +467,8 @@ class ExportItemsActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(ExportItemsActionHandler, self).__init__(tool)
         self._dialogs = dialogs
+        self._exported = 0
+        self._skipped = 0
         
     def handle(self):
         try:
@@ -485,15 +487,18 @@ class ExportItemsActionHandler(AbstractActionHandler):
             
             thread = ExportItemsThread(self, self._tool.repo, itemIds, exportFilename)
             
-            self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)                        
+            self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
+        
+            self._exported = thread.exportedCount
+            self._skipped = thread.skippedCount
             
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
             
         else:
-            #TODO: display information about how many items were exported
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed."), consts.STATUSBAR_TIMEOUT)
+                self.tr("Operation completed. Exported {}, skipped {} items.")
+                .format(self._exported, self._skipped))
 
 
 

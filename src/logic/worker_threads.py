@@ -96,20 +96,27 @@ class ExportItemsThread(QtCore.QThread):
         self.repo = repo
         self.itemIds = list(itemIds)
         self.dstFile = destinationFile
+        self.exportedCount = 0
+        self.skippedCount = 0
         
     def run(self):
+        self.exportedCount = 0
+        self.skippedCount = 0
         dstArchive = tarfile.open(self.dstFile, "w", format=tarfile.PAX_FORMAT)
         try:
             for i in range(len(self.itemIds)):
                 item = self.__getItemById(self.itemIds[i])
                 
                 if not self.__isItemIntegrityOk(item):
-                    #TODO report about this problem to log and to list of errors
-                    # Number of errors should be displayed in status bar at the end
+                    logger.info("Skipping item id={}, title='{}' "
+                                " during export operation: items's integrity check has failed."
+                                .format(item.id, item.title))
+                    self.skippedCount += 1
                     continue
 
                 self.__putItemStateToArchive(item, dstArchive)
                 self.__putItemFileToArchive(item, dstArchive)
+                self.exportedCount += 1
                         
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.itemIds)))
                         
