@@ -37,7 +37,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             
             if not helpers.is_none_or_empty(file):
                 file = os.path.normpath(file)
-                item.title = os.path.basename(file)
+                item.title, _ = os.path.splitext(os.path.basename(file))
                 item.data_ref = DataRef(type=DataRef.FILE, url=file)
 
             if not self.__dialogs.execItemDialog(
@@ -108,7 +108,7 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
             for file in files:
                 file = os.path.normpath(file)
                 item = Item(user_login=self._tool.user.login)
-                item.title = os.path.basename(file)
+                item.title, _ = os.path.splitext(os.path.basename(file))
                 item.data_ref = DataRef(type=DataRef.FILE, url=file) #DataRef.url can be changed in ItemsDialog
                 item.data_ref.srcAbsPath = file
                 items.append(item)
@@ -155,7 +155,8 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                 if os.path.relpath(root, dirPath) == ".reggata":
                     continue
                 for file in files:
-                    item = Item(title=file, user_login=self._tool.user.login)
+                    item = Item(user_login=self._tool.user.login)
+                    item.title, _ = os.path.splitext(file)
                     srcAbsPath = os.path.join(root, file)
                     item.data_ref = DataRef(type=DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
                     item.data_ref.srcAbsPath = srcAbsPath
