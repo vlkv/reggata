@@ -443,12 +443,15 @@ class DeleteGroupOfItemsThread(QtCore.QThread):
                     cmd = DeleteItemCommand(itemId, self.user_login)
                     uow.executeCommand(cmd)
                 except AccessError as ex:
-                    #У пользователя self.user_login нет прав удалять данный элемент
+                    # User self.user_login has no permissions to delete this item
                     self.errors += 1
                     self.detailed_message += str(ex) + os.linesep
                     
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.item_ids)))
+            
+            uow.executeCommand(DeleteHangingTagsCommand())
+            uow.executeCommand(DeleteHangingFieldsCommand())
                         
         except Exception:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())

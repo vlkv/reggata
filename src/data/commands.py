@@ -41,6 +41,46 @@ class GetExpungedItemCommand(AbstractCommand):
         self._session.expunge(item)
         return item
     
+class DeleteHangingTagsCommand(AbstractCommand):
+    '''
+        Deletes from database all hanging Tag objects. A hanging Tag is a Tag that
+    is not referenced by Items.
+        Returns number of deleted tags.
+    '''
+    def _execute(self, uow):
+        self._session = uow.session
+        sql = '''select tags.id, tags.name, tags.synonym_code 
+        from tags left join items_tags on tags.id = items_tags.tag_id 
+        where items_tags.item_id is NULL
+        '''
+        hangingTags = self._session.query(Tag).from_statement(sql).all()
+        count = len(hangingTags)
+        for tag in hangingTags:
+            self._session.delete(tag)
+        if count > 0:
+            self._session.commit()
+        return count
+    
+class DeleteHangingFieldsCommand(AbstractCommand):
+    '''
+        Deletes from database all hanging Field objects. A hanging Field is a Field that
+    is not referenced by Items.
+        Returns number of deleted fields.
+    '''
+    def _execute(self, uow):
+        self._session = uow.session
+        sql = '''select fields.id, fields.name 
+        from fields left join items_fields on fields.id = items_fields.field_id 
+        where items_fields.item_id is NULL
+        '''
+        hangingFields = self._session.query(Field).from_statement(sql).all()
+        count = len(hangingFields)
+        for field in hangingFields:
+            self._session.delete(field)
+        if count > 0:
+            self._session.commit()
+        return count
+    
     
 class SaveThumbnailCommand(AbstractCommand):
     
