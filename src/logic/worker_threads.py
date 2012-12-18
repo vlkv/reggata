@@ -180,10 +180,12 @@ class ExportItemsFilesThread(QtCore.QThread):
         self.repo = repo
         self.item_ids = item_ids
         self.dst_path = destination_path
+        self.filesExportedCount = 0
+        self.filesSkippedCount = 0
         
     def run(self):
-        self.errors = 0
-        self.detailed_message = ""
+        self.filesExportedCount = 0
+        self.filesSkippedCount = 0
         uow = self.repo.createUnitOfWork()
         try:
             i = 0
@@ -193,6 +195,12 @@ class ExportItemsFilesThread(QtCore.QThread):
                     continue
                 
                 src_file_path = os.path.join(self.repo.base_path, item.data_ref.url)
+                if not os.path.exists(src_file_path):
+                    logger.info("Skipping file='{}' during export files operation: file not found."
+                                .format(src_file_path))
+                    self.filesSkippedCount += 1
+                    continue
+                
                 unique_path = dst_file_path = os.path.join(self.dst_path, os.path.basename(src_file_path))
                 filename_suffix = 1
                 #Generate unique file name. I don't want different files with same name to overwrite each other
@@ -202,6 +210,7 @@ class ExportItemsFilesThread(QtCore.QThread):
                     filename_suffix += 1
                     
                 shutil.copy(src_file_path, unique_path)
+                self.filesExportedCount += 1
                 
                 i += 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.item_ids)))

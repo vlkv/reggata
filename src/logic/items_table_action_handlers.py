@@ -507,6 +507,8 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(ExportItemsFilesActionHandler, self).__init__(tool)
         self._dialogs = dialogs
+        self._filesExported = 0
+        self._filesSkipped = 0
         
     def handle(self):
         try:
@@ -523,15 +525,19 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
                 raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
             
             thread = ExportItemsFilesThread(self, self._tool.repo, itemIds, dstDirPath)
+            
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
-                                    
+            
+            self._filesExported = thread.filesExportedCount
+            self._filesSkipped = thread.filesSkippedCount
+                                                
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
             
         else:
-            #TODO: display information about how many files were copied
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed."), consts.STATUSBAR_TIMEOUT)
+                self.tr("Operation completed. Exported {}, skipped {} files."
+                        .format(self._filesExported, self._filesSkipped)))
 
 
 class ExportItemsFilePathsActionHandler(AbstractActionHandler):
