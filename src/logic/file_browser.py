@@ -15,8 +15,10 @@ class FileBrowser(AbstractTool):
 
     def __init__(self):
         super(FileBrowser, self).__init__()
-        self._repo = None
         self._gui = None
+        self._repo = None
+        self._user = None
+        
         
     def id(self):
         return self.TOOL_ID
@@ -31,3 +33,30 @@ class FileBrowser(AbstractTool):
     def __getGui(self):
         return self._gui
     gui = property(fget=__getGui)
+    
+    
+    @property
+    def repo(self):
+        return self._repo
+        
+    def setRepo(self, repo):
+        self._repo = repo
+        if repo is not None:
+            # TODO: recreate File Browser Gui
+            pass
+        else:
+            # TODO: reset File Browser Gui
+            pass
+        
+        
+    @property
+    def user(self):
+        return self._user
+    
+    def setUser(self, user):
+        self._user = user
+        # TODO: update Gui according to the user change
+        
+        
+        
+        
