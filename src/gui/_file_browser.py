@@ -6,6 +6,8 @@ Created on 06.01.2011
 @author: vlkv
 '''
 
+# TODO: This module will be removed soon
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 import os
