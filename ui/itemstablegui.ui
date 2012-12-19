@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ItemsTableToolGui</class>
- <widget class="QWidget" name="ItemsTableToolGui">
+ <class>ItemsTableGui</class>
+ <widget class="QWidget" name="ItemsTableGui">
   <property name="geometry">
    <rect>
     <x>0</x>

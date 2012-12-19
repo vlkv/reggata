@@ -6,7 +6,7 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 
-from ui_itemstabletoolgui import Ui_ItemsTableToolGui
+from ui_itemstablegui import Ui_ItemsTableGui
 from user_config import UserConfig
 from parsers import query_parser
 from gui.common_widgets import TextEdit
@@ -25,7 +25,7 @@ class ItemsTableGui(ToolGui):
     
     def __init__(self, parent, itemsTableTool):
         super(ItemsTableGui, self).__init__(parent)
-        self.ui = Ui_ItemsTableToolGui()
+        self.ui = Ui_ItemsTableGui()
         self.ui.setupUi(self)
         
         self.__itemsTableTool = itemsTableTool
