@@ -4,6 +4,10 @@ Created on 17.10.2010
 @author: vlkv
 '''
 
+class NoneError(Exception):
+    def __init__(self, msg=None):
+        super(NoneError, self).__init__(msg)
+
 class LoginError(Exception):
     def __init__(self, msg=None):
         super(LoginError, self).__init__(msg)
@@ -64,8 +68,13 @@ class NotFoundError(Exception):
     def __init__(self, msg=None, cause=None):
         super(NotFoundError, self).__init__(msg)
         self.cause = cause
+        
+class NotExistError(Exception):
+    def __init__(self, msg=None, cause=None):
+        super(NotExistError, self).__init__(msg)
+        self.cause = cause
 
-class WrongValueError(Exception):
+class WrongValueError(ValueError):
     def __init__(self, msg=None, cause=None):
         super(WrongValueError, self).__init__(msg)
         self.cause = cause
