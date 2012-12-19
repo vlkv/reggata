@@ -25,7 +25,7 @@ class TagCloud(AbstractTool):
 
         
     def title(self):
-        return self.tr("Tag Cloud Tool")
+        return self.tr("Tag Cloud")
 
         
     def createGui(self, guiParent):

@@ -48,7 +48,7 @@ class ItemsTable(AbstractTool):
 
         
     def title(self):
-        return self.tr("Items Table Tool")
+        return self.tr("Items Table")
 
         
     def createGui(self, guiParent):
