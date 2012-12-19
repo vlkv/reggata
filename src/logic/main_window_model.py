@@ -9,6 +9,7 @@ from logic.items_table import ItemsTable
 from logic.tag_cloud import TagCloud
 from PyQt4 import QtCore
 from logic.ext_app_mgr import ExtAppMgr
+from logic.file_browser import FileBrowser
 
 class AbstractMainWindowModel(object):
     '''
@@ -51,7 +52,8 @@ class MainWindowModel(AbstractMainWindowModel):
                            self._itemsLock,
                            self._mainWindow,
                            self._mainWindow.dialogsFacade()),
-                TagCloud()]
+                TagCloud(),
+                FileBrowser()]
     
     
     def __initTool(self, aTool):
