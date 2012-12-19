@@ -10,6 +10,12 @@ class AbstractTool(QtCore.QObject):
     def __init__(self):
         super(AbstractTool, self).__init__()
     
+    def id(self):
+        raise NotImplementedError()
+    
+    def title(self):
+        return "Untitled Tool"
+    
     def relatedToolIds(self):
         return []
     
@@ -31,6 +37,12 @@ class AbstractTool(QtCore.QObject):
     def connectActionsWithActionHandlers(self):
         pass
 
+    def createGui(self, guiParent):
+        pass
+    
+    gui = property(fget=None, fset=None)
+
+
     def buildGuiMainMenu(self):
         self.gui.buildActions()
         self.gui.buildMainMenu()
@@ -50,3 +62,7 @@ class AbstractTool(QtCore.QObject):
             self.disable()
             
             
+    def handlerSignals(self):
+        return []
+    
+    
