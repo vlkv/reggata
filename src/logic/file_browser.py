@@ -4,6 +4,10 @@ Created on 19.12.2012
 '''
 from logic.abstract_tool import AbstractTool
 from gui.file_browser_gui import FileBrowserGui
+import logging
+import consts
+
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 class FileBrowser(AbstractTool):
 

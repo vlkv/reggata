@@ -11,6 +11,9 @@ logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
 class ToolGui(QtGui.QWidget, AbstractToolGui):
+    '''
+        This is a base class for all Gui-s of Tools.
+    '''
 
     def __init__(self, parent):
         logging.debug("ToolGui init")
