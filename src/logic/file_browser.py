@@ -47,9 +47,9 @@ class FileBrowser(AbstractTool):
     def setRepo(self, repo):
         self._repo = repo
         if repo is not None:
-            self.changeDir(repo.base_path())
-            # TODO: recreate File Browser Gui
-            pass
+            self.changeDir(repo.base_path)
+            self.gui.resetTableModel()
+            
         else:
             self._currDir = None
             # TODO: reset Tool state and File Browser Gui
@@ -75,7 +75,7 @@ class FileBrowser(AbstractTool):
     def repoBasePath(self):
         if self._repo is None:
             raise NoneError()
-        return self._repo.base_path()
+        return self._repo.base_path
         
         
     def listFiles(self):
@@ -89,16 +89,29 @@ class FileBrowser(AbstractTool):
             self._rebuildListCache()
         return self._listCache["dirs"]
     
+    def listAll(self):
+        if self._listCache is None:
+            self._rebuildListCache()
+        return self._listCache["dirsFiles"]
+    
+    def filesDirsCount(self):
+        if self._listCache is None:
+            self._rebuildListCache()
+        return len(self._listCache["dirsFiles"])
     
     def _rebuildListCache(self):
         files = []
         dirs = []
-        for fname in os.listdir(self._currDir):
-            if os.path.isfile(fname):
-                files.append(fname)
-            elif os.path.isdir(fname):
-                dirs.append(fname)
-        self._listCache = {"files": files, "dirs": dirs}
+        dirsFiles=[]
+        if self._currDir is not None:
+            for fname in os.listdir(self._currDir):
+                if os.path.isfile(fname):
+                    files.append(fname)
+                    dirsFiles.append(fname)
+                elif os.path.isdir(fname):
+                    dirs.append(fname)
+                    dirsFiles.append(fname)
+        self._listCache = {"files": files, "dirs": dirs, "dirsFiles": dirsFiles}
     
     
     def changeDirUp(self):
