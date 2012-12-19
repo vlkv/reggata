@@ -21,10 +21,10 @@ from gui.tool_gui import ToolGui
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
-class ItemsTableToolGui(ToolGui):
+class ItemsTableGui(ToolGui):
     
     def __init__(self, parent, itemsTableTool):
-        super(ItemsTableToolGui, self).__init__(parent)
+        super(ItemsTableGui, self).__init__(parent)
         self.ui = Ui_ItemsTableToolGui()
         self.ui.setupUi(self)
         
