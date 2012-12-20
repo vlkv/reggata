@@ -20,6 +20,7 @@ class FileBrowserGui(ToolGui):
         self.ui.setupUi(self)
         
         self.__fileBrowserTool = fileBrowserTool
+        self.connect(self.ui.filesTableView, QtCore.SIGNAL("doubleClicked(const QModelIndex&)"), self.__onMouseDoubleClick)
         self.resetTableModel()
         
         
@@ -27,7 +28,11 @@ class FileBrowserGui(ToolGui):
         self.ui.filesTableView.setModel(FileBrowserTableModel(self, self.__fileBrowserTool))
         
         
-        
+    def __onMouseDoubleClick(self, index):
+        filename = self.ui.filesTableView.model().data(index, FileBrowserTableModel.ROLE_FILENAME)
+        self.__fileBrowserTool.changeRelDir(filename)
+
+
 class FileBrowserTableModel(QtCore.QAbstractTableModel):
     '''
         A table model for displaying files (not Items) of repository.
@@ -38,13 +43,15 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
     STATUS = 3
     RATING = 4
     
+    ROLE_FILENAME = Qt.UserRole
+    
     def __init__(self, parent, fileBrowserTool):
         super(FileBrowserTableModel, self).__init__(parent)
         self._fileBrowserTool = fileBrowserTool
         
 
     def rowCount(self, index=QtCore.QModelIndex()):
-        return self._fileBrowserTool.filesDirsCount()
+        return self._fileBrowserTool.filesCount()
     
     def columnCount(self, index=QtCore.QModelIndex()):
         return 5
@@ -76,13 +83,15 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
                 
         column = index.column()
         row = index.row()
-        fname = self._fileBrowserTool.listAll()[row]
+        fname = self._fileBrowserTool.listDir()[row]
         
         if role == QtCore.Qt.DisplayRole:
             if column == self.FILENAME:
                 return fname
             else:
                 return ""
+        if role == FileBrowserTableModel.ROLE_FILENAME:
+            return fname
       
         return None
     
