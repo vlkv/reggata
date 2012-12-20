@@ -71,8 +71,6 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
                     return self.tr("Rating")
             else:
                 return None
-        elif orientation == Qt.Vertical and role == Qt.DisplayRole:
-            return section + 1
         else:
             return None
 
