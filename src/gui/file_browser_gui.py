@@ -20,7 +20,7 @@ class FileBrowserGui(ToolGui):
         self.ui.setupUi(self)
         
         self.__fileBrowserTool = fileBrowserTool
-        self.connect(self.ui.filesTableView, QtCore.SIGNAL("doubleClicked(const QModelIndex&)"), self.__onMouseDoubleClick)
+        self.connect(self.ui.filesTableView, QtCore.SIGNAL("activated(const QModelIndex&)"), self.__onMouseDoubleClick)
         self.resetTableModel()
         
         
@@ -30,7 +30,10 @@ class FileBrowserGui(ToolGui):
         
     def __onMouseDoubleClick(self, index):
         filename = self.ui.filesTableView.model().data(index, FileBrowserTableModel.ROLE_FILENAME)
-        self.__fileBrowserTool.changeRelDir(filename)
+        try:
+            self.__fileBrowserTool.changeRelDir(filename)
+        except Exception as ex:
+            logger.debug("Cannot change current directory: " + str(ex))
 
 
 class FileBrowserTableModel(QtCore.QAbstractTableModel):
