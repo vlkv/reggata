@@ -41,6 +41,7 @@ class MainWindowModel(AbstractMainWindowModel):
     gui = property(fget=__getGui)
     
     
+    # TODO: itemsLock should be owned by ItemsTableTool
     def _getItemsLock(self):
         return self._itemsLock
     itemsLock = property(fget=_getItemsLock)
