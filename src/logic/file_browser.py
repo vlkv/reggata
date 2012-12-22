@@ -96,6 +96,7 @@ class FileBrowser(AbstractTool):
         
         def resetSingleGuiTableRow(row):
             self._gui.resetSingleRow(row)
+            QtCore.QCoreApplication.processEvents()
             
         
         assert self._currDir is not None
@@ -127,10 +128,6 @@ class FileBrowser(AbstractTool):
         self.changeDir(absDir)
     
     def changeDir(self, directory):
-        if self._thread is not None:
-            self._thread.interrupt = True
-            self._thread.wait()
-        
         if directory == ".":
             directory = self._currDir
             
@@ -147,20 +144,22 @@ class FileBrowser(AbstractTool):
             raise ValueError(directory + " is not a directory but a file.")
         
         assert os.path.isabs(directory)
+        self.__setCurrDir(directory)
+        
+        
+    def unsetDir(self):
+        self.__setCurrDir(None)
+        
+        
+    def __setCurrDir(self, directory):
+        if self._thread is not None:
+            self._thread.interrupt = True
+            self._thread.wait()
         self._currDir = directory
         self._listCache = None
         self._mutex = QtCore.QMutex()
         self._gui.resetTableModel(self._mutex)
         
-    def unsetDir(self):
-        if self._thread is not None:
-            self._thread.interrupt = True
-            self._thread.wait()
-        
-        self._currDir = None
-        self._listCache = None
-        self._mutex = None
-        self._gui.resetTableModel(self._mutex)
     
     
 class FileInfoSearcherThread(QtCore.QThread):
@@ -180,6 +179,7 @@ class FileInfoSearcherThread(QtCore.QThread):
             i = 0
             for finfo in self.finfos:
                 if self.interrupt:
+                    logger.debug("FileInfoSearcherThread interrupted.")
                     break
                 if finfo.type != FileInfo.FILE:
                     continue
@@ -197,6 +197,9 @@ class FileInfoSearcherThread(QtCore.QThread):
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.finfos)), i)
                 logger.debug("FileInfoSearcherThread progress: {}%, row={}".format(int(100.0*float(i)/len(self.finfos)), i))
+                
+                # This sleep should be avoided... But without it GUI freezes because of lots of 'progress' signals
+                self.msleep(100)
                 
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())

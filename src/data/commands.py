@@ -340,7 +340,7 @@ class GetFileInfoCommand(AbstractCommand):
             return finfo
         
         except NoResultFound:
-            return FileInfo(self.__relPath, type=FileInfo.UNKNOWN, status=FileInfo.UNTRACKED)
+            return FileInfo(self.__relPath, status=FileInfo.UNTRACKED)
             
     
         
