@@ -9,6 +9,7 @@ import consts
 from errors import NoneError, NotExistError
 import os
 import helpers
+from data.commands import FileInfo
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -89,13 +90,13 @@ class FileBrowser(AbstractTool):
     
     def _rebuildListCache(self):
         assert self._currDir is not None
-        result=[".."]
+        result=[FileInfo("..", FileInfo.DIR)]
         for fname in os.listdir(self._currDir):
             absPath = os.path.join(self._currDir, fname)
             if os.path.isfile(absPath):
-                result.append(fname)
+                result.append(FileInfo(absPath, FileInfo.FILE))
             elif os.path.isdir(absPath):
-                result.append(fname)
+                result.append(FileInfo(absPath, FileInfo.DIR))
         self._listCache = result
     
     

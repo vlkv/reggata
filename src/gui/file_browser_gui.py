@@ -8,6 +8,8 @@ import consts
 import ui_filebrowsergui
 from PyQt4 import QtCore
 from PyQt4.QtCore import Qt
+from data.commands import FileInfo
+from helpers import HTMLDelegate
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -20,7 +22,10 @@ class FileBrowserGui(ToolGui):
         self.ui.setupUi(self)
         
         self.__fileBrowserTool = fileBrowserTool
+        
+        self.ui.filesTableView.setItemDelegate(HTMLDelegate(self))
         self.connect(self.ui.filesTableView, QtCore.SIGNAL("activated(const QModelIndex&)"), self.__onMouseDoubleClick)
+        
         self.resetTableModel()
         
         
@@ -84,15 +89,15 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
                 
         column = index.column()
         row = index.row()
-        fname = self._fileBrowserTool.listDir()[row]
+        finfo = self._fileBrowserTool.listDir()[row]
         
         if role == QtCore.Qt.DisplayRole:
             if column == self.FILENAME:
-                return fname
+                return "<html><b>" + finfo.fileBaseName + "</b>" if finfo.isDir() else finfo.fileBaseName
             else:
                 return ""
         if role == FileBrowserTableModel.ROLE_FILENAME:
-            return fname
+            return finfo.fileBaseName
       
         return None
     
