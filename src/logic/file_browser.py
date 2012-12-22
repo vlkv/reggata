@@ -95,7 +95,7 @@ class FileBrowser(AbstractTool):
     def _rebuildListCache(self):
         
         def resetSingleGuiTableRow(row):
-            self._gui.resetSingleRow(row)
+            self._gui.resetTableRow(row)
             QtCore.QCoreApplication.processEvents()
             
         

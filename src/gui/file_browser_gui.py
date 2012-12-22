@@ -43,8 +43,11 @@ class FileBrowserGui(ToolGui):
         except Exception as ex:
             logger.debug("Cannot change current directory: " + str(ex))
 
-    def resetSingleRow(self, row):
-        self.__tableModel.resetSingleRow(row)
+    def resetTableRow(self, row):
+        self.__tableModel.resetTableRow(row)
+    
+    def resetTableRows(self, topRow, bottomRow):
+        self.__tableModel.resetTableRows(topRow, bottomRow)
 
 
 class FileBrowserTableModel(QtCore.QAbstractTableModel):
@@ -90,10 +93,12 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
             return None
 
 
-    def resetSingleRow(self, row):
-        logger.debug("resetSingleRow is called. Row = {}".format(row))
-        topL = self.createIndex(row, self.FILENAME)
-        bottomR = self.createIndex(row, self.RATING)
+    def resetTableRow(self, row):
+        self.resetTableRows(row, row)
+        
+    def resetTableRows(self, topRow, bottomRow):
+        topL = self.createIndex(topRow, self.FILENAME)
+        bottomR = self.createIndex(bottomRow, self.RATING)
         self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
 
     
