@@ -12,6 +12,7 @@ import helpers
 from data.commands import FileInfo, GetFileInfoCommand
 from PyQt4 import QtCore
 import traceback
+from datetime import datetime
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -94,8 +95,8 @@ class FileBrowser(AbstractTool):
     
     def _rebuildListCache(self):
         
-        def resetSingleGuiTableRow(row):
-            self._gui.resetTableRow(row)
+        def resetGuiTableRows(topRow, bottomRow):
+            self._gui.resetTableRows(topRow, bottomRow)
             QtCore.QCoreApplication.processEvents()
             
         
@@ -112,7 +113,7 @@ class FileBrowser(AbstractTool):
         logger.debug("_rebuildListCache is about to start the FileInfoSearcherThread")
         self._thread = FileInfoSearcherThread(self, self._repo, self._listCache, self._mutex)
         self.connect(self._thread, QtCore.SIGNAL("progress"),
-                         lambda percents, row: resetSingleGuiTableRow(row))
+                         lambda topRow, bottomRow: resetGuiTableRows(topRow, bottomRow))
         self._thread.start()
         #self._thread.run()
     
@@ -176,8 +177,21 @@ class FileInfoSearcherThread(QtCore.QThread):
         
         uow = self.repo.createUnitOfWork()
         try:
-            i = 0
-            for finfo in self.finfos:
+            shouldTakeTime = True
+            dtStart = None
+            shouldSendProgress = False
+            for i in range(len(self.finfos)):
+                
+                if shouldTakeTime:
+                    shouldTakeTime = False
+                    topRow = i
+                    dtStart = datetime.now()
+                if (datetime.now() - dtStart).seconds > 1 or i == len(self.finfos) - 1:
+                    bottomRow = i
+                    shouldSendProgress = True
+                
+                
+                finfo = self.finfos[i]
                 if self.interrupt:
                     logger.debug("FileInfoSearcherThread interrupted.")
                     break
@@ -194,12 +208,11 @@ class FileInfoSearcherThread(QtCore.QThread):
                 finfo.status = newFinfo.status
                 self.mutex.unlock()
                 
-                i = i + 1
-                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.finfos)), i)
-                logger.debug("FileInfoSearcherThread progress: {}%, row={}".format(int(100.0*float(i)/len(self.finfos)), i))
-                
-                # This sleep should be avoided... But without it GUI freezes because of lots of 'progress' signals
-                self.msleep(100)
+                if shouldSendProgress:
+                    shouldSendProgress = False
+                    shouldTakeTime = True
+                    self.emit(QtCore.SIGNAL("progress"), topRow, bottomRow)
+                    logger.debug("FileInfoSearcherThread progress: topRow={} bottomRow={}".format(topRow, bottomRow))
                 
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
