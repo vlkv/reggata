@@ -10,6 +10,7 @@ from PyQt4 import QtCore
 from PyQt4.QtCore import Qt
 from data.commands import FileInfo
 from helpers import HTMLDelegate
+import helpers
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -22,15 +23,17 @@ class FileBrowserGui(ToolGui):
         self.ui.setupUi(self)
         
         self.__fileBrowserTool = fileBrowserTool
+        self.__tableModel = None
         
         self.ui.filesTableView.setItemDelegate(HTMLDelegate(self))
         self.connect(self.ui.filesTableView, QtCore.SIGNAL("activated(const QModelIndex&)"), self.__onMouseDoubleClick)
         
-        self.resetTableModel()
+        self.resetTableModel(None)
         
         
-    def resetTableModel(self):
-        self.ui.filesTableView.setModel(FileBrowserTableModel(self, self.__fileBrowserTool))
+    def resetTableModel(self, mutex):
+        self.__tableModel = FileBrowserTableModel(self, self.__fileBrowserTool, mutex)
+        self.ui.filesTableView.setModel(self.__tableModel)
         
         
     def __onMouseDoubleClick(self, index):
@@ -39,6 +42,9 @@ class FileBrowserGui(ToolGui):
             self.__fileBrowserTool.changeRelDir(filename)
         except Exception as ex:
             logger.debug("Cannot change current directory: " + str(ex))
+
+    def resetSingleRow(self, row):
+        self.__tableModel.resetSingleRow(row)
 
 
 class FileBrowserTableModel(QtCore.QAbstractTableModel):
@@ -53,9 +59,10 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
     
     ROLE_FILENAME = Qt.UserRole
     
-    def __init__(self, parent, fileBrowserTool):
+    def __init__(self, parent, fileBrowserTool, mutex):
         super(FileBrowserTableModel, self).__init__(parent)
         self._fileBrowserTool = fileBrowserTool
+        self._mutex = mutex
         
 
     def rowCount(self, index=QtCore.QModelIndex()):
@@ -82,6 +89,13 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
         else:
             return None
 
+
+    def resetSingleRow(self, row):
+        logger.debug("resetSingleRow is called. Row = {}".format(row))
+        topL = self.createIndex(row, self.FILENAME)
+        bottomR = self.createIndex(row, self.RATING)
+        self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
+
     
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if not index.isValid() or not (0 <= index.row() < self.rowCount()):
@@ -89,17 +103,30 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
                 
         column = index.column()
         row = index.row()
-        finfo = self._fileBrowserTool.listDir()[row]
         
-        if role == QtCore.Qt.DisplayRole:
-            if column == self.FILENAME:
-                return "<html><b>" + finfo.fileBaseName + "</b>" if finfo.isDir() else finfo.fileBaseName
-            else:
-                return ""
-        if role == FileBrowserTableModel.ROLE_FILENAME:
-            return finfo.fileBaseName
-      
-        return None
+        try:
+            if self._mutex is not None:
+                self._mutex.lock()
+        
+            finfo = self._fileBrowserTool.listDir()[row]
+            
+            if role == QtCore.Qt.DisplayRole:
+                if column == self.FILENAME:
+                    return "<html><b>" + finfo.fileBaseName + "</b>" if finfo.isDir() else finfo.fileBaseName
+                elif column == self.TAGS:
+                    return helpers.to_commalist(finfo.tags)
+                elif column == self.STATUS:
+                    return finfo.status
+                else:
+                    return ""
+            if role == FileBrowserTableModel.ROLE_FILENAME:
+                return finfo.fileBaseName
+          
+            return None
+        
+        finally:
+            if self._mutex is not None:
+                self._mutex.unlock()
     
     
     

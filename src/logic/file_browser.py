@@ -9,7 +9,9 @@ import consts
 from errors import NoneError, NotExistError
 import os
 import helpers
-from data.commands import FileInfo
+from data.commands import FileInfo, GetFileInfoCommand
+from PyQt4 import QtCore
+import traceback
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -24,6 +26,8 @@ class FileBrowser(AbstractTool):
         self._user = None
         self._currDir = None
         self._listCache = None
+        self._mutex = None
+        self._thread = None
         
         
     def id(self):
@@ -89,6 +93,11 @@ class FileBrowser(AbstractTool):
         return len(self._listCache)
     
     def _rebuildListCache(self):
+        
+        def resetSingleGuiTableRow(row):
+            self._gui.resetSingleRow(row)
+            
+        
         assert self._currDir is not None
         result=[FileInfo("..", FileInfo.DIR)]
         for fname in os.listdir(self._currDir):
@@ -98,6 +107,15 @@ class FileBrowser(AbstractTool):
             elif os.path.isdir(absPath):
                 result.append(FileInfo(absPath, FileInfo.DIR))
         self._listCache = result
+        
+        logger.debug("_rebuildListCache is about to start the FileInfoSearcherThread")
+        self._thread = FileInfoSearcherThread(self, self._repo, self._listCache, self._mutex)
+        self.connect(self._thread, QtCore.SIGNAL("progress"),
+                         lambda percents, row: resetSingleGuiTableRow(row))
+        self._thread.start()
+        #self._thread.run()
+    
+    
     
     
     def changeDirUp(self):
@@ -109,6 +127,10 @@ class FileBrowser(AbstractTool):
         self.changeDir(absDir)
     
     def changeDir(self, directory):
+        if self._thread is not None:
+            self._thread.interrupt = True
+            self._thread.wait()
+        
         if directory == ".":
             directory = self._currDir
             
@@ -127,12 +149,64 @@ class FileBrowser(AbstractTool):
         assert os.path.isabs(directory)
         self._currDir = directory
         self._listCache = None
-        self._gui.resetTableModel()
+        self._mutex = QtCore.QMutex()
+        self._gui.resetTableModel(self._mutex)
         
     def unsetDir(self):
+        if self._thread is not None:
+            self._thread.interrupt = True
+            self._thread.wait()
+        
         self._currDir = None
         self._listCache = None
-        self._gui.resetTableModel()
+        self._mutex = None
+        self._gui.resetTableModel(self._mutex)
     
+    
+class FileInfoSearcherThread(QtCore.QThread):
+    def __init__(self, parent, repo, finfos, mutex):
+        super(FileInfoSearcherThread, self).__init__(parent)
+        self.repo = repo
+        self.finfos = finfos
+        self.mutex = mutex
+        self.interrupt = False
+
+    def run(self):
+        
+        logger.debug("FileInfoSearcherThread started. There are {} files to process".format(len(self.finfos)))
+        
+        uow = self.repo.createUnitOfWork()
+        try:
+            i = 0
+            for finfo in self.finfos:
+                if self.interrupt:
+                    break
+                if finfo.type != FileInfo.FILE:
+                    continue
+                relPath = os.path.relpath(finfo.path, self.repo.base_path)
+                cmd = GetFileInfoCommand(relPath)
+                newFinfo = uow.executeCommand(cmd)
+                
+                self.mutex.lock()
+                finfo.tags = newFinfo.tags
+                finfo.fields = newFinfo.fields
+                finfo.type = newFinfo.type
+                finfo.status = newFinfo.status
+                self.mutex.unlock()
+                
+                i = i + 1
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.finfos)), i)
+                logger.debug("FileInfoSearcherThread progress: {}%, row={}".format(int(100.0*float(i)/len(self.finfos)), i))
+                
+        except Exception as ex:
+            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
+            logger.debug("FileInfoSearcherThread exception: {}".format(ex))
+        
+        finally:
+            uow.close()
+            self.emit(QtCore.SIGNAL("finished"))
+            logger.debug("FileInfoSearcherThread done.")
+            
+        
     
     

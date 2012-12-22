@@ -13,6 +13,7 @@ from helpers import *
 import consts
 from data.db_schema import *
 from user_config import UserConfig
+from sqlalchemy.orm.exc import NoResultFound
 
 
 class AbstractCommand:
@@ -285,16 +286,17 @@ class FileInfo(object):
     
     FILE = "FILE"
     DIR = "DIRECTORY"
-    OTHER = "OTHER"
+    OTHER = "OTHER"    
     
-    def __init__(self, absPath, type, status=None):
-        assert not helpers.is_none_or_empty(absPath)
+    def __init__(self, path, type=None, status=None):
+        assert not helpers.is_none_or_empty(path)
+        assert type is not None or status is not None
         
         #remove trailing slashes in the path
-        while absPath.endswith(os.sep):
-            absPath = absPath[0:-1]
+        while path.endswith(os.sep):
+            path = path[0:-1]
             
-        self.absPath = absPath
+        self.path = path
         self.status = status
         self.type = type
         self.tags = []
@@ -302,7 +304,7 @@ class FileInfo(object):
     
     @property
     def fileBaseName(self):
-        return os.path.basename(self.absPath)
+        return os.path.basename(self.path)
     
     def __str__(self):
         return self.fileBaseName()
@@ -317,25 +319,31 @@ class GetFileInfoCommand(AbstractCommand):
 
     def _execute(self, uow):
         self._session = uow.session
-        return self.__getFileInfo(self.__relPath) 
+        return self.__getFileInfo(self.__relPath)
         
     def __getFileInfo(self, path):
-        data_ref = self._session.query(DataRef)\
-            .filter(DataRef.url_raw==to_db_format(path))\
-            .options(joinedload_all("items"))\
-            .options(joinedload_all("items.item_tags.tag"))\
-            .options(joinedload_all("items.item_fields.field"))\
-            .one()
-        self._session.expunge(data_ref)
-        finfo = FileInfo(absPath=data_ref.url, type=FileInfo.FILE, status=FileInfo.STORED)
+        try:
+            data_ref = self._session.query(DataRef)\
+                .filter(DataRef.url_raw==to_db_format(path))\
+                .options(joinedload_all("items"))\
+                .options(joinedload_all("items.item_tags.tag"))\
+                .options(joinedload_all("items.item_fields.field"))\
+                .one()
+            self._session.expunge(data_ref)
+            finfo = FileInfo(data_ref.url, type=FileInfo.FILE, status=FileInfo.STORED)
         
-        for item in data_ref.items:            
-            for item_tag in item.item_tags:
-                finfo.tags.append(item_tag.tag.name)
-            for item_field in item.item_fields:
-                finfo.fields.append((item_field.field.name, item_field.field_value))
-                 
-        return finfo
+            for item in data_ref.items:            
+                for item_tag in item.item_tags:
+                    finfo.tags.append(item_tag.tag.name)
+                for item_field in item.item_fields:
+                    finfo.fields.append((item_field.field.name, item_field.field_value))
+            return finfo
+        
+        except NoResultFound:
+            return FileInfo(self.__relPath, type=FileInfo.UNKNOWN, status=FileInfo.UNTRACKED)
+            
+    
+        
 
 
 class LoginUserCommand(AbstractCommand):
