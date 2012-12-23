@@ -54,7 +54,8 @@ class MainWindowModel(AbstractMainWindowModel):
                            self._mainWindow,
                            self._mainWindow.dialogsFacade()),
                 TagCloud(),
-                FileBrowser()]
+                FileBrowser(self._mainWindow.widgetsUpdateManager(),
+                            self._mainWindow.dialogsFacade())]
     
     
     def __initTool(self, aTool):

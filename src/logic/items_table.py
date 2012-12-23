@@ -28,7 +28,9 @@ class ItemsTable(AbstractTool):
         self._gui = None
         self._actionHandlers = None
         
+        #TODO: rename to guiUpdater
         self._widgetsUpdateManager = widgetsUpdateManager
+        
         self._itemsLock = itemsLock
         self._mainWindow = mainWindow
         self._dialogsFacade = dialogsFacade

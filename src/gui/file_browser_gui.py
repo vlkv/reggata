@@ -48,7 +48,38 @@ class FileBrowserGui(ToolGui):
     
     def resetTableRows(self, topRow, bottomRow):
         self.__tableModel.resetTableRows(topRow, bottomRow)
+        
+    def buildActions(self):
+        if len(self.actions) > 0:
+            logger.info("Actions already built")
+            return
+        
+        self.actions['editItem'] = self._createAction(self.tr("Edit item"))
+    
+    def buildMainMenu(self):
+        assert len(self.actions) > 0, "Actions should be already built"
+        if self._mainMenu is not None:
+            logger.info("Main Menu of this Tool already built")
+            return
+        
+        self._mainMenu = self._createMenu(self.tr("File Browser"), self)
+        menu = self._mainMenu
+        menu.addAction(self.actions['editItem'])
 
+    def selectedItemIds(self):
+        #We use set, because selectedIndexes() may return duplicates
+        fileTableRows = set()
+        for index in self.ui.filesTableView.selectionModel().selectedIndexes():
+            fileTableRows.add(index.row())
+        
+        itemIds = []
+        for row in fileTableRows:
+            finfo = self.__fileBrowserTool.listDir()[row]
+            for itemId in finfo.itemIds:
+                itemIds.append(itemId)
+            
+        return itemIds
+    
 
 class FileBrowserTableModel(QtCore.QAbstractTableModel):
     '''
@@ -58,7 +89,8 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
     TAGS = 1
     USERS = 2
     STATUS = 3
-    RATING = 4
+    ITEM_IDS = 4
+    RATING = 5
     
     ROLE_FILENAME = Qt.UserRole
     
@@ -85,6 +117,8 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
                     return self.tr("Users")
                 elif section == self.STATUS:
                     return self.tr("Status")
+                elif section == self.ITEM_IDS:
+                    return self.tr("Items' ids")
                 elif section == self.RATING:
                     return self.tr("Rating")
             else:
@@ -120,6 +154,8 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
                     return "<html><b>" + finfo.fileBaseName + "</b>" if finfo.isDir() else finfo.fileBaseName
                 elif column == self.TAGS:
                     return helpers.to_commalist(finfo.tags)
+                elif column == self.ITEM_IDS:
+                    return helpers.to_commalist(finfo.itemIds)
                 elif column == self.STATUS:
                     return finfo.status
                 else:

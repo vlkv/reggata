@@ -6,13 +6,16 @@ from logic.abstract_tool import AbstractTool
 from gui.file_browser_gui import FileBrowserGui
 import logging
 import consts
-from errors import NoneError, NotExistError
+from errors import NoneError, NotExistError, CurrentRepoIsNoneError, CurrentUserIsNoneError
 import os
 import helpers
 from data.commands import FileInfo, GetFileInfoCommand
 from PyQt4 import QtCore
 import traceback
 from datetime import datetime
+from logic.action_handlers import ActionHandlerStorage
+from logic.items_table_action_handlers import EditItemActionHandler
+from logic.handler_signals import HandlerSignals
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -20,8 +23,11 @@ class FileBrowser(AbstractTool):
 
     TOOL_ID = "FileBrowserTool"
 
-    def __init__(self):
+    def __init__(self, guiUpdater, dialogsFacade):
         super(FileBrowser, self).__init__()
+        self._guiUpdater = guiUpdater
+        self._actionHandlers = None
+        self._dialogsFacade = dialogsFacade
         self._gui = None
         self._repo = None
         self._user = None
@@ -41,6 +47,7 @@ class FileBrowser(AbstractTool):
     
     def createGui(self, guiParent):
         self._gui = FileBrowserGui(guiParent, self)
+        self._actionHandlers = ActionHandlerStorage(self._guiUpdater)
         logger.debug("File Browser GUI created.")
         return self._gui
     
@@ -48,6 +55,19 @@ class FileBrowser(AbstractTool):
         return self._gui
     gui = property(fget=__getGui)
     
+    
+    def connectActionsWithActionHandlers(self):
+        assert len(self._gui.actions) > 0, "Actions should be already built in ToolGui"
+        
+        self._actionHandlers.register(
+            self._gui.actions['editItem'], 
+            EditItemActionHandler(self, self._dialogsFacade))
+
+    def handlerSignals(self):
+        return [([HandlerSignals.ITEM_CHANGED, 
+                  HandlerSignals.ITEM_CREATED, 
+                  HandlerSignals.ITEM_DELETED], self.refreshDir)]
+
     
     @property
     def repo(self):
@@ -62,6 +82,11 @@ class FileBrowser(AbstractTool):
             self.unsetDir()
             logger.debug("File Browser curr dir has been UNSET.")
 
+    def checkActiveRepoIsNotNone(self):
+        if self._repo is None:
+            raise CurrentRepoIsNoneError("Current repository is None")
+        
+    
     @property
     def user(self):
         return self._user
@@ -69,6 +94,10 @@ class FileBrowser(AbstractTool):
     def setUser(self, user):
         self._user = user
         # TODO: update Gui according to the user change
+    
+    def checkActiveUserIsNotNone(self):
+        if self._user is None:
+            raise CurrentUserIsNoneError("Current user is None")
     
     
     def enable(self):
@@ -226,6 +255,7 @@ class FileInfoSearcherThread(QtCore.QThread):
                 finfo.fields = newFinfo.fields
                 finfo.type = newFinfo.type
                 finfo.status = newFinfo.status
+                finfo.itemIds = newFinfo.itemIds
                 self.mutex.unlock()
                 
                 if shouldSendProgress:

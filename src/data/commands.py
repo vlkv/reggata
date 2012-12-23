@@ -301,6 +301,7 @@ class FileInfo(object):
         self.type = type
         self.tags = []
         self.fields = []
+        self.itemIds = []
     
     @property
     def fileBaseName(self):
@@ -332,7 +333,8 @@ class GetFileInfoCommand(AbstractCommand):
             self._session.expunge(data_ref)
             finfo = FileInfo(data_ref.url, type=FileInfo.FILE, status=FileInfo.STORED)
         
-            for item in data_ref.items:            
+            for item in data_ref.items:
+                finfo.itemIds.append(item.id)
                 for item_tag in item.item_tags:
                     finfo.tags.append(item_tag.tag.name)
                 for item_field in item.item_fields:
