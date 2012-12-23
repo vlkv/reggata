@@ -38,12 +38,6 @@ class MainWindowModel(AbstractMainWindowModel):
             self.__initTool(tool)
             
     
-    #TODO: Try to remove this getter
-    def __getFavoriteReposStorage(self):
-        return self.__favoriteReposStorage
-    favoriteReposStorage = property(fget=__getFavoriteReposStorage)
-    
-    
     def __getGui(self):
         return self._mainWindow
     gui = property(fget=__getGui)
@@ -158,9 +152,15 @@ class MainWindowModel(AbstractMainWindowModel):
         for tool in self._tools:
             tool.restoreRecentState()
         
+        
+    def favoriteRepos(self, login):
+        return self.__favoriteReposStorage.favoriteRepos(login)
+        
+        
     def connectOpenFavoriteRepoAction(self, action):
         actionHandler = OpenFavoriteRepoActionHandler(self)
         self.__actionHandlers.register(action, actionHandler)
+        
         
     def disconnectOpenFavoriteRepoAction(self, action):
         self.__actionHandlers.unregister(action)

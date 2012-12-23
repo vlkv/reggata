@@ -11,12 +11,10 @@ from data.repo_mgr import *
 from logic.worker_threads import *
 from logic.action_handlers import *
 from logic.abstract_gui import AbstractGui
-from logic.favorite_repos_storage import FavoriteReposStorage
 from logic.main_window_model import MainWindowModel
 from logic.items_table import ItemsTable
 from gui.user_dialogs_facade import UserDialogsFacade
 from logic.handler_signals import HandlerSignals
-from logic.main_window_action_handlers import OpenFavoriteRepoActionHandler
 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
@@ -150,7 +148,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         actionToInsertBefore =  self.ui.menuFavoriteRepos.insertSeparator(self.ui.actionAdd_current_repository)
 
         login = self._model.user.login
-        favoriteReposInfo = self._model.favoriteReposStorage.favoriteRepos(login)
+        favoriteReposInfo = self._model.favoriteRepos(login)
         for repoBasePath, repoAlias in favoriteReposInfo:
             if helpers.is_none_or_empty(repoBasePath):
                 continue
