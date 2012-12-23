@@ -26,8 +26,6 @@ class MainWindowModel(AbstractMainWindowModel):
         self._user = user
         self._mainWindow = mainWindow
         
-        self._itemsLock = QtCore.QReadWriteLock()
-        
         self._tools = []
         
         for tool in self.__getAvailableTools():
@@ -40,17 +38,10 @@ class MainWindowModel(AbstractMainWindowModel):
         return self._mainWindow
     gui = property(fget=__getGui)
     
-    
-    # TODO: itemsLock should be owned by ItemsTableTool
-    def _getItemsLock(self):
-        return self._itemsLock
-    itemsLock = property(fget=_getItemsLock)
-    
 
     def __getAvailableTools(self):
         # TODO: Discovering of tools should be dynamic, like plugin system
-        return [ItemsTable(self._mainWindow.widgetsUpdateManager(), 
-                           self._itemsLock,
+        return [ItemsTable(self._mainWindow.widgetsUpdateManager(),
                            self._mainWindow,
                            self._mainWindow.dialogsFacade()),
                 TagCloud(),

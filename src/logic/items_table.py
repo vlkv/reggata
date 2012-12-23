@@ -21,7 +21,7 @@ class ItemsTable(AbstractTool):
     
     TOOL_ID = "ItemsTableTool"
     
-    def __init__(self, widgetsUpdateManager, itemsLock, mainWindow, dialogsFacade):
+    def __init__(self, widgetsUpdateManager, mainWindow, dialogsFacade):
         super(ItemsTable, self).__init__()
         
         self._repo = None
@@ -32,7 +32,7 @@ class ItemsTable(AbstractTool):
         #TODO: rename to guiUpdater
         self._widgetsUpdateManager = widgetsUpdateManager
         
-        self._itemsLock = itemsLock
+        self._itemsLock = QtCore.QReadWriteLock()
         self._mainWindow = mainWindow
         self._dialogsFacade = dialogsFacade
         self.__dropFilesDialogs = DropFilesDialogsFacade(dialogsFacade)
