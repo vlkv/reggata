@@ -16,6 +16,7 @@ from PyQt4 import QtCore
 from tests.tests_context import itemWithTagsAndFields, itemWithFile,\
     itemWithoutFile
 from gui.user_dialogs_facade import UserDialogsFacade
+from logic.common_action_handlers import EditItemActionHandler
 
 class TestsToolModel(AbstractTool):
     '''
