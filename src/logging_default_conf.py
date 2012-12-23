@@ -25,7 +25,7 @@ qualname=reggata
 propagate=0
 
 [logger_sqlalchemy_engine]
-level=INFO
+level=WARNING
 handlers=defaultHandler
 qualname=sqlalchemy.engine
 propagate=0
