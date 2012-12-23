@@ -300,7 +300,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     
     
     
-    
+# TODO: Maybe rename to GuiUpdater?
 class WidgetsUpdateManager():
     def __init__(self):
         self.__signalsWidgets = dict()
