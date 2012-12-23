@@ -139,10 +139,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         if state:
             state = eval(state)
             self.restoreState(state)
-
-
-    
-        
+            
         
     def __initFavoriteReposMenu(self):
         assert len(self.__favoriteReposDynamicQActions) == 0
@@ -160,17 +157,14 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             action = QtGui.QAction(self)
             action.setText(repoAlias)
             action.repoBasePath = repoBasePath
-            actionHandler = OpenFavoriteRepoActionHandler(self._model)
-            self._model.actionHandlers.register(action, actionHandler)
-            
+            self._model.connectOpenFavoriteRepoAction(action)
             self.ui.menuFavoriteRepos.insertAction(actionToInsertBefore, action)
-            
             self.__favoriteReposDynamicQActions.append(action)
         
     
     def __removeDynamicActionsFromFavoriteReposMenu(self):
         for action in self.__favoriteReposDynamicQActions:
-            self._model.actionHandlers.unregister(action)
+            self._model.disconnectOpenFavoriteRepoAction(action)
             self.ui.menuFavoriteRepos.removeAction(action)
         self.__favoriteReposDynamicQActions = []
         
@@ -180,8 +174,6 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         self.__initFavoriteReposMenu()
         
             
-    
-
     def event(self, e):
         return super(MainWindow, self).event(e)
     

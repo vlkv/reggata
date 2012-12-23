@@ -37,12 +37,8 @@ class MainWindowModel(AbstractMainWindowModel):
         for tool in self.__getAvailableTools():
             self.__initTool(tool)
             
-    #TODO: Try to remove this getter
-    def __getActionHandlers(self):
-        return self.__actionHandlers
-    actionHandlers = property(fget=__getActionHandlers)
     
-    #TODO: Try to remove this getter    
+    #TODO: Try to remove this getter
     def __getFavoriteReposStorage(self):
         return self.__favoriteReposStorage
     favoriteReposStorage = property(fget=__getFavoriteReposStorage)
@@ -161,6 +157,13 @@ class MainWindowModel(AbstractMainWindowModel):
         #TODO: here we should restore recent user and recent repo. It is done in MainWindow now...
         for tool in self._tools:
             tool.restoreRecentState()
+        
+    def connectOpenFavoriteRepoAction(self, action):
+        actionHandler = OpenFavoriteRepoActionHandler(self)
+        self.__actionHandlers.register(action, actionHandler)
+        
+    def disconnectOpenFavoriteRepoAction(self, action):
+        self.__actionHandlers.unregister(action)
         
         
     def connectMenuActionsWithHandlers(self):
