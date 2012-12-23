@@ -170,6 +170,7 @@ class FileInfoSearcherThread(QtCore.QThread):
         self.finfos = finfos
         self.mutex = mutex
         self.interrupt = False
+        self.signalTimeoutMicroSec = 500000 
 
     def run(self):
         
@@ -186,7 +187,7 @@ class FileInfoSearcherThread(QtCore.QThread):
                     shouldTakeTime = False
                     topRow = i
                     dtStart = datetime.now()
-                if (datetime.now() - dtStart).seconds > 1 or i == len(self.finfos) - 1:
+                if (datetime.now() - dtStart).microseconds > self.signalTimeoutMicroSec or i == len(self.finfos) - 1:
                     bottomRow = i
                     shouldSendProgress = True
                 
@@ -213,6 +214,9 @@ class FileInfoSearcherThread(QtCore.QThread):
                     shouldTakeTime = True
                     self.emit(QtCore.SIGNAL("progress"), topRow, bottomRow)
                     logger.debug("FileInfoSearcherThread progress: topRow={} bottomRow={}".format(topRow, bottomRow))
+                
+                # Without this sleep, GUI is not responsive... Maybe because of GIL
+                self.msleep(10)
                 
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
