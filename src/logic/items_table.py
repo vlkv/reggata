@@ -10,6 +10,7 @@ from logic.abstract_tool import AbstractTool
 from logic.tag_cloud import TagCloud
 from logic.action_handlers import *
 from logic.items_table_action_handlers import *
+from logic.common_action_handlers import *
 from logic.ext_app_mgr import ExtAppMgr
 from gui.common_widgets import Completer
 from gui.items_table_gui import ItemsTableGui, ItemsTableModel

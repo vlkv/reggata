@@ -14,7 +14,7 @@ from PyQt4 import QtCore
 import traceback
 from datetime import datetime
 from logic.action_handlers import ActionHandlerStorage
-from logic.items_table_action_handlers import EditItemActionHandler
+from logic.common_action_handlers import EditItemActionHandler
 from logic.handler_signals import HandlerSignals
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
