@@ -10,11 +10,12 @@ from helpers import *
 from data.repo_mgr import *
 from logic.worker_threads import *
 from logic.action_handlers import *
-from logic.main_window_action_handlers import *
 from logic.abstract_gui import AbstractGui
 from logic.favorite_repos_storage import FavoriteReposStorage
 from logic.main_window_model import MainWindowModel
 from logic.items_table import ItemsTable
+from gui.user_dialogs_facade import UserDialogsFacade
+from logic.handler_signals import HandlerSignals
 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
@@ -37,14 +38,11 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
         
-        # TODO: actionHandlerStorage should be moved to MainWindowModel
-        self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
-        
         # TODO: favoriteReposStorage should be moved to MainWindowModel
         self.__favoriteReposStorage = FavoriteReposStorage()
         self.__favoriteReposDynamicQActions = []
         
-        self.__initMenuActions()
+        self._model.connectMenuActionsWithHandlers()
         self.__initFavoriteReposMenu()
         
         self.__initStatusBar()
@@ -143,54 +141,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self.restoreState(state)
 
 
-    def __initMenuActions(self):
-        def initRepositoryMenu():
-            self.__actionHandlers.register(
-                self.ui.action_repo_create, CreateRepoActionHandler(self))
-            
-            self.__actionHandlers.register(
-                self.ui.action_repo_close, CloseRepoActionHandler(self))
-            
-            self.__actionHandlers.register(
-                self.ui.action_repo_open, OpenRepoActionHandler(self))
-            
-            self.__actionHandlers.register(
-                self.ui.actionAdd_current_repository, 
-                AddCurrentRepoToFavoritesActionHandler(self, self.__favoriteReposStorage))
-            
-            self.__actionHandlers.register(
-                self.ui.actionRemove_current_repository, 
-                RemoveCurrentRepoFromFavoritesActionHandler(self, self.__favoriteReposStorage))
-            
-            self.__actionHandlers.register(
-                self.ui.actionImportItems, ImportItemsActionHandler(self._model, self.__dialogs))
-            
-            self.__actionHandlers.register(
-                self.ui.actionManageExtApps, ManageExternalAppsActionHandler(self, self.__dialogs))
-            
-            self.__actionHandlers.register(
-                self.ui.actionExitReggata, ExitReggataActionHandler(self))
-        
-        def initUserMenu():
-            self.__actionHandlers.register(
-                self.ui.action_user_create, CreateUserActionHandler(self))
-            
-            self.__actionHandlers.register(
-                self.ui.action_user_login, LoginUserActionHandler(self))
-            
-            self.__actionHandlers.register(
-                self.ui.action_user_logout, LogoutUserActionHandler(self))
-            
-            self.__actionHandlers.register(
-                self.ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
-            
-        def initHelpMenu():
-            self.__actionHandlers.register(
-                self.ui.action_help_about, ShowAboutDialogActionHandler(self))
-            
-        initRepositoryMenu()
-        initUserMenu()
-        initHelpMenu()
+    
         
         
     def __initFavoriteReposMenu(self):

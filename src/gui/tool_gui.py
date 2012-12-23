@@ -16,7 +16,7 @@ class ToolGui(QtGui.QWidget, AbstractToolGui):
     '''
 
     def __init__(self, parent):
-        logging.debug("ToolGui init")
+        logging.debug("ToolGui __init__")
         super(ToolGui, self).__init__(parent)
     
         self._actions = dict()

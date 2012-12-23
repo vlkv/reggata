@@ -10,6 +10,8 @@ from logic.tag_cloud import TagCloud
 from PyQt4 import QtCore
 from logic.ext_app_mgr import ExtAppMgr
 from logic.file_browser import FileBrowser
+from logic.action_handlers import ActionHandlerStorage
+from logic.main_window_action_handlers import *
 
 class AbstractMainWindowModel(object):
     '''
@@ -26,8 +28,9 @@ class MainWindowModel(AbstractMainWindowModel):
         self._user = user
         self._mainWindow = mainWindow
         
-        self._tools = []
+        self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
         
+        self._tools = []
         for tool in self.__getAvailableTools():
             self.__initTool(tool)
             
@@ -147,4 +150,57 @@ class MainWindowModel(AbstractMainWindowModel):
         #TODO: here we should restore recent user and recent repo. It is done in MainWindow now...
         for tool in self._tools:
             tool.restoreRecentState()
+        
+        
+    def connectMenuActionsWithHandlers(self):
+        ui = self._mainWindow.ui
+        
+        def initRepositoryMenu():
+            self.__actionHandlers.register(
+                ui.action_repo_create, CreateRepoActionHandler(self))
+            
+            self.__actionHandlers.register(
+                ui.action_repo_close, CloseRepoActionHandler(self))
+            
+            self.__actionHandlers.register(
+                ui.action_repo_open, OpenRepoActionHandler(self))
+            
+            self.__actionHandlers.register(
+                ui.actionAdd_current_repository, 
+                AddCurrentRepoToFavoritesActionHandler(self, self.__favoriteReposStorage))
+            
+            self.__actionHandlers.register(
+                ui.actionRemove_current_repository, 
+                RemoveCurrentRepoFromFavoritesActionHandler(self, self.__favoriteReposStorage))
+            
+            self.__actionHandlers.register(
+                ui.actionImportItems, ImportItemsActionHandler(self, self._mainWindow.dialogsFacade()))
+            
+            self.__actionHandlers.register(
+                ui.actionManageExtApps, ManageExternalAppsActionHandler(self, self._mainWindow.dialogsFacade()))
+            
+            self.__actionHandlers.register(
+                ui.actionExitReggata, ExitReggataActionHandler(self))
+        
+        def initUserMenu():
+            self.__actionHandlers.register(
+                ui.action_user_create, CreateUserActionHandler(self))
+            
+            self.__actionHandlers.register(
+                ui.action_user_login, LoginUserActionHandler(self))
+            
+            self.__actionHandlers.register(
+                ui.action_user_logout, LogoutUserActionHandler(self))
+            
+            self.__actionHandlers.register(
+                ui.action_user_change_pass, ChangeUserPasswordActionHandler(self))
+            
+        def initHelpMenu():
+            self.__actionHandlers.register(
+                ui.action_help_about, ShowAboutDialogActionHandler(self))
+            
+        initRepositoryMenu()
+        initUserMenu()
+        initHelpMenu()
+        
         

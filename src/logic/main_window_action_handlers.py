@@ -23,80 +23,81 @@ from gui.user_dialog import UserDialog
 
     
 class CreateUserActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(CreateUserActionHandler, self).__init__(gui)
+    def __init__(self, model):
+        super(CreateUserActionHandler, self).__init__(model)
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
+            self._model.checkActiveRepoIsNotNone()
             
             user = User()
             
             dialogs = UserDialogsFacade()
             if not dialogs.execUserDialog(
-                user=user, gui=self._gui, dialogMode=UserDialog.CREATE_MODE):
+                user=user, gui=self._model.gui, dialogMode=UserDialog.CREATE_MODE):
                 return
             
-            uow = self._gui.model.repo.createUnitOfWork()
+            uow = self._model.repo.createUnitOfWork()
             try:
                 uow.executeCommand(SaveNewUserCommand(user))
-                self._gui.model.user = user
+                self._model.user = user
             finally:
                 uow.close()
                 
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
+
 
 class LoginUserActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(LoginUserActionHandler, self).__init__(gui)
+    def __init__(self, model):
+        super(LoginUserActionHandler, self).__init__(model)
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
+            self._model.checkActiveRepoIsNotNone()
             
             user = User()
             
             dialogs = UserDialogsFacade()
             if not dialogs.execUserDialog(
-                user=user, gui=self._gui, dialogMode=UserDialog.LOGIN_MODE):
+                user=user, gui=self._model.gui, dialogMode=UserDialog.LOGIN_MODE):
                 return
             
-            self._gui.model.loginUser(user.login, user.password)
+            self._model.loginUser(user.login, user.password)
                 
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
+            
             
 class LogoutUserActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(LogoutUserActionHandler, self).__init__(gui)
+    def __init__(self, model):
+        super(LogoutUserActionHandler, self).__init__(model)
         
     def handle(self):
         try:
-            self._gui.model.user = None
+            self._model.user = None
         except Exception as ex:
-            show_exc_info(self._gui, ex)
-
+            show_exc_info(self._model.gui, ex)
 
 
 class ChangeUserPasswordActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(ChangeUserPasswordActionHandler, self).__init__(gui)
+    def __init__(self, model):
+        super(ChangeUserPasswordActionHandler, self).__init__(model)
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._model.checkActiveRepoIsNotNone()
+            self._model.checkActiveUserIsNotNone()
             
-            user = self._gui.model.user
+            user = self._model.user
             
             dialogs = UserDialogsFacade()
             dialogExecOk, newPasswordHash = \
-                dialogs.execChangeUserPasswordDialog(user=user, gui=self._gui)
+                dialogs.execChangeUserPasswordDialog(user=user, gui=self._model.gui)
             if not dialogExecOk:
                 return
             
-            uow = self._gui.model.repo.createUnitOfWork()
+            uow = self._model.repo.createUnitOfWork()
             try:
                 command = ChangeUserPasswordCommand(user.login, newPasswordHash)
                 uow.executeCommand(command)
@@ -106,21 +107,21 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
             user.password = newPasswordHash
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
         else:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation completed."), STATUSBAR_TIMEOUT)
     
     
 class CreateRepoActionHandler(AbstractActionHandler):
-    def  __init__(self, gui):
-        super(CreateRepoActionHandler, self).__init__(gui)
+    def  __init__(self, model):
+        super(CreateRepoActionHandler, self).__init__(model)
         
     def handle(self):
         try:
             dialogs = UserDialogsFacade()
             basePath = dialogs.getExistingDirectory(
-                self._gui, self.tr("Choose a base path for new repository"))
+                self._model.gui, self.tr("Choose a base path for new repository"))
             
             if not basePath:
                 raise MsgException(
@@ -129,21 +130,21 @@ class CreateRepoActionHandler(AbstractActionHandler):
             # QFileDialog returns forward slashes in windows! Because of this 
             # the path should be normalized
             basePath = os.path.normpath(basePath)
-            self._gui.model.repo = RepoMgr.createNewRepo(basePath)
-            self._gui.model.user = self.__createDefaultUser()
+            self._model.repo = RepoMgr.createNewRepo(basePath)
+            self._model.user = self.__createDefaultUser()
         
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
         
         
     def __createDefaultUser(self):
-        self._gui.model.checkActiveRepoIsNotNone()
+        self._model.checkActiveRepoIsNotNone()
         
         defaultLogin = consts.DEFAULT_USER_LOGIN
         defaultPassword = helpers.computePasswordHash(consts.DEFAULT_USER_PASSWORD)
         user = User(login=defaultLogin, password=defaultPassword)
         
-        uow = self._gui.model.repo.createUnitOfWork()
+        uow = self._model.repo.createUnitOfWork()
         try:
             uow.executeCommand(SaveNewUserCommand(user))
         finally:
@@ -152,28 +153,28 @@ class CreateRepoActionHandler(AbstractActionHandler):
 
 
 class CloseRepoActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(CloseRepoActionHandler, self).__init__(gui)
+    def __init__(self, model):
+        super(CloseRepoActionHandler, self).__init__(model)
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.repo = None
-            self._gui.model.user = None
+            self._model.checkActiveRepoIsNotNone()
+            self._model.repo = None
+            self._model.user = None
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
                    
                    
 class OpenRepoActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(OpenRepoActionHandler, self).__init__(gui)
+    def __init__(self, model):
+        super(OpenRepoActionHandler, self).__init__(model)
         
     def handle(self):
         try:
             dialogs = UserDialogsFacade()
             basePath = dialogs.getExistingDirectory(
-                self._gui, self.tr("Choose a repository base path"))
+                self._model.gui, self.tr("Choose a repository base path"))
             
             if not basePath:
                 raise Exception(
@@ -181,42 +182,42 @@ class OpenRepoActionHandler(AbstractActionHandler):
 
             #QFileDialog returns forward slashes in windows! Because of this path should be normalized
             basePath = os.path.normpath(basePath)
-            self._gui.model.repo = RepoMgr(basePath)
-            self._gui.model.user = None
-            self._gui.model.loginRecentUser()
+            self._model.repo = RepoMgr(basePath)
+            self._model.user = None
+            self._model.loginRecentUser()
             
         except LoginError:
             self.__letUserLoginByHimself()
                             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
 
 
     def __letUserLoginByHimself(self):
         user = User()
         dialogs = UserDialogsFacade()
         if not dialogs.execUserDialog(
-            user=user, gui=self._gui, dialogMode=UserDialog.LOGIN_MODE):
+            user=user, gui=self._model.gui, dialogMode=UserDialog.LOGIN_MODE):
             return
         try:
-            self._gui.model.loginUser(user.login, user.password)
+            self._model.loginUser(user.login, user.password)
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
         
         
 class AddCurrentRepoToFavoritesActionHandler(AbstractActionHandler):
     
-    def __init__(self, gui, favoriteReposStorage):
-        super(AddCurrentRepoToFavoritesActionHandler, self).__init__(gui)
+    def __init__(self, model, favoriteReposStorage):
+        super(AddCurrentRepoToFavoritesActionHandler, self).__init__(model)
         self.__favoriteReposStorage = favoriteReposStorage
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._model.checkActiveRepoIsNotNone()
+            self._model.checkActiveUserIsNotNone()
             
-            repoBasePath = self._gui.model.repo.base_path
-            userLogin = self._gui.model.user.login
+            repoBasePath = self._model.repo.base_path
+            userLogin = self._model.user.login
             
             #TODO: Maybe ask user for a repoAlias...
             self.__favoriteReposStorage.addRepoToFavorites(userLogin, 
@@ -228,21 +229,21 @@ class AddCurrentRepoToFavoritesActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED)
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
+
 
 class RemoveCurrentRepoFromFavoritesActionHandler(AbstractActionHandler):
-    
-    def __init__(self, gui, favoriteReposStorage):
-        super(RemoveCurrentRepoFromFavoritesActionHandler, self).__init__(gui)
+    def __init__(self, model, favoriteReposStorage):
+        super(RemoveCurrentRepoFromFavoritesActionHandler, self).__init__(model)
         self.__favoriteReposStorage = favoriteReposStorage
         
     def handle(self):
         try:
-            self._gui.model.checkActiveRepoIsNotNone()
-            self._gui.model.checkActiveUserIsNotNone()
+            self._model.checkActiveRepoIsNotNone()
+            self._model.checkActiveUserIsNotNone()
             
-            repoBasePath = self._gui.model.repo.base_path
-            userLogin = self._gui.model.user.login
+            repoBasePath = self._model.repo.base_path
+            userLogin = self._model.user.login
             
             self.__favoriteReposStorage.removeRepoFromFavorites(userLogin, repoBasePath)
             
@@ -251,7 +252,7 @@ class RemoveCurrentRepoFromFavoritesActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED)
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
 
 
 class ImportItemsActionHandler(AbstractActionHandler):
@@ -302,14 +303,14 @@ class ExitReggataActionHandler(AbstractActionHandler):
 
 
 class ManageExternalAppsActionHandler(AbstractActionHandler):
-    def __init__(self, gui, dialogs):
-        super(ManageExternalAppsActionHandler, self).__init__(gui)
+    def __init__(self, model, dialogs):
+        super(ManageExternalAppsActionHandler, self).__init__(model)
         self._dialogs = dialogs
         
     def handle(self):
         try:
             extAppMgrState = ExtAppMgr.readCurrentState()
-            dialog = ExternalAppsDialog(self._gui, extAppMgrState, self._dialogs)
+            dialog = ExternalAppsDialog(self._model.gui, extAppMgrState, self._dialogs)
             if dialog.exec_() != QtGui.QDialog.Accepted:
                 return
             
@@ -319,21 +320,21 @@ class ManageExternalAppsActionHandler(AbstractActionHandler):
                 self.tr("Operation completed."), STATUSBAR_TIMEOUT)
             
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
         
         
     
     
 class ShowAboutDialogActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(ShowAboutDialogActionHandler, self).__init__(gui)
+    def __init__(self, model):
+        super(ShowAboutDialogActionHandler, self).__init__(model)
         
     def handle(self):
         try:
-            ad = AboutDialog(self._gui)
+            ad = AboutDialog(self._model.gui)
             ad.exec_()
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._model.gui, ex)
         else:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation completed."), STATUSBAR_TIMEOUT)
