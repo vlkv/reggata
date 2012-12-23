@@ -12,6 +12,7 @@ from logic.ext_app_mgr import ExtAppMgr
 from logic.file_browser import FileBrowser
 from logic.action_handlers import ActionHandlerStorage
 from logic.main_window_action_handlers import *
+from logic.favorite_repos_storage import FavoriteReposStorage
 
 class AbstractMainWindowModel(object):
     '''
@@ -23,18 +24,28 @@ class AbstractMainWindowModel(object):
 
 class MainWindowModel(AbstractMainWindowModel):
     
-    def __init__(self, mainWindow, repo, user):
+    def __init__(self, mainWindow, repo, user, guiUpdater):
         self._repo = repo
         self._user = user
         self._mainWindow = mainWindow
         
-        self.__actionHandlers = ActionHandlerStorage(self.__widgetsUpdateManager)
+        self.__actionHandlers = ActionHandlerStorage(guiUpdater)
+
+        self.__favoriteReposStorage = FavoriteReposStorage()
         
         self._tools = []
         for tool in self.__getAvailableTools():
             self.__initTool(tool)
             
-        
+    #TODO: Try to remove this getter
+    def __getActionHandlers(self):
+        return self.__actionHandlers
+    actionHandlers = property(fget=__getActionHandlers)
+    
+    #TODO: Try to remove this getter    
+    def __getFavoriteReposStorage(self):
+        return self.__favoriteReposStorage
+    favoriteReposStorage = property(fget=__getFavoriteReposStorage)
     
     
     def __getGui(self):

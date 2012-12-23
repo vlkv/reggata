@@ -16,6 +16,7 @@ from logic.main_window_model import MainWindowModel
 from logic.items_table import ItemsTable
 from gui.user_dialogs_facade import UserDialogsFacade
 from logic.handler_signals import HandlerSignals
+from logic.main_window_action_handlers import OpenFavoriteRepoActionHandler
 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
@@ -36,10 +37,9 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         
         self.__dialogs = UserDialogsFacade()
         
-        self._model = MainWindowModel(mainWindow=self, repo=None, user=None)
+        self._model = MainWindowModel(mainWindow=self, repo=None, user=None, 
+                                      guiUpdater=self.__widgetsUpdateManager)
         
-        # TODO: favoriteReposStorage should be moved to MainWindowModel
-        self.__favoriteReposStorage = FavoriteReposStorage()
         self.__favoriteReposDynamicQActions = []
         
         self._model.connectMenuActionsWithHandlers()
@@ -121,13 +121,13 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             self._model.repo = RepoMgr(tmp)
             self._model.loginRecentUser()
         except CannotOpenRepoError:
-            self.ui.statusbar.showMessage(self.tr("Cannot open recent repository."), STATUSBAR_TIMEOUT)
+            self.ui.statusbar.showMessage(self.tr("Cannot open recent repository."), consts.STATUSBAR_TIMEOUT)
             self._model.repo = None
         except LoginError:
-            self.ui.statusbar.showMessage(self.tr("Cannot login recent repository."), STATUSBAR_TIMEOUT)
+            self.ui.statusbar.showMessage(self.tr("Cannot login recent repository."), consts.STATUSBAR_TIMEOUT)
             self._model.user = None
         except Exception:
-            self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), STATUSBAR_TIMEOUT)
+            self.ui.statusbar.showMessage(self.tr("Cannot open/login recent repository."), consts.STATUSBAR_TIMEOUT)
                 
         #Restoring main window size
         width = int(UserConfig().get("main_window.width", 640))
@@ -153,7 +153,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         actionToInsertBefore =  self.ui.menuFavoriteRepos.insertSeparator(self.ui.actionAdd_current_repository)
 
         login = self._model.user.login
-        favoriteReposInfo = self.__favoriteReposStorage.favoriteRepos(login)
+        favoriteReposInfo = self._model.favoriteReposStorage.favoriteRepos(login)
         for repoBasePath, repoAlias in favoriteReposInfo:
             if helpers.is_none_or_empty(repoBasePath):
                 continue
@@ -161,7 +161,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
             action.setText(repoAlias)
             action.repoBasePath = repoBasePath
             actionHandler = OpenFavoriteRepoActionHandler(self._model)
-            self.__actionHandlers.register(action, actionHandler)
+            self._model.actionHandlers.register(action, actionHandler)
             
             self.ui.menuFavoriteRepos.insertAction(actionToInsertBefore, action)
             
@@ -170,7 +170,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     
     def __removeDynamicActionsFromFavoriteReposMenu(self):
         for action in self.__favoriteReposDynamicQActions:
-            self.__actionHandlers.unregister(action)
+            self._model.actionHandlers.unregister(action)
             self.ui.menuFavoriteRepos.removeAction(action)
         self.__favoriteReposDynamicQActions = []
         
@@ -214,7 +214,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.label_repo.setToolTip(repo.base_path)
                 
                 self.ui.statusbar.showMessage(self.tr("Opened repository from {}.")
-                                              .format(repo.base_path), STATUSBAR_TIMEOUT)
+                                              .format(repo.base_path), consts.STATUSBAR_TIMEOUT)
             else:                
                 self.ui.label_repo.setText("")
                 self.ui.label_repo.setToolTip("")
