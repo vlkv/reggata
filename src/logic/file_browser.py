@@ -16,8 +16,12 @@ from datetime import datetime
 from logic.action_handlers import ActionHandlerStorage
 from logic.common_action_handlers import EditItemActionHandler
 from logic.handler_signals import HandlerSignals
+from logic.items_table_action_handlers import AddSingleItemActionHandler
+from gui.drop_files_dialogs_facade import DropFilesDialogsFacade
+from logic.file_browser_action_handlers import AddFileToRepoActionHandler
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+
 
 class FileBrowser(AbstractTool):
 
@@ -28,6 +32,7 @@ class FileBrowser(AbstractTool):
         self._guiUpdater = guiUpdater
         self._actionHandlers = None
         self._dialogsFacade = dialogsFacade
+        self.__dropFilesDialogs = DropFilesDialogsFacade(dialogsFacade)
         self._gui = None
         self._repo = None
         self._user = None
@@ -60,8 +65,14 @@ class FileBrowser(AbstractTool):
         assert len(self._gui.actions) > 0, "Actions should be already built in ToolGui"
         
         self._actionHandlers.register(
-            self._gui.actions['editItem'], 
+            self._gui.actions['editItems'], 
             EditItemActionHandler(self, self._dialogsFacade))
+        
+        
+        self._actionHandlers.register(
+            self._gui.actions['addSingleFile'], 
+            AddFileToRepoActionHandler(self, self._dialogsFacade))
+        
 
     def handlerSignals(self):
         return [([HandlerSignals.ITEM_CHANGED, 

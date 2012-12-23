@@ -54,7 +54,9 @@ class FileBrowserGui(ToolGui):
             logger.info("Actions already built")
             return
         
-        self.actions['editItem'] = self._createAction(self.tr("Edit item"))
+        self.actions['editItems'] = self._createAction(self.tr("Edit items"))
+        self.actions['addSingleFile'] = self._createAction(self.tr("Add single file"))
+        
     
     def buildMainMenu(self):
         assert len(self.actions) > 0, "Actions should be already built"
@@ -64,7 +66,10 @@ class FileBrowserGui(ToolGui):
         
         self._mainMenu = self._createMenu(self.tr("File Browser"), self)
         menu = self._mainMenu
-        menu.addAction(self.actions['editItem'])
+        menu.addAction(self.actions['editItems'])
+        menu.addAction(self.actions['addSingleFile'])
+
+
 
     def selectedItemIds(self):
         #We use set, because selectedIndexes() may return duplicates
@@ -77,8 +82,20 @@ class FileBrowserGui(ToolGui):
             finfo = self.__fileBrowserTool.listDir()[row]
             for itemId in finfo.itemIds:
                 itemIds.append(itemId)
-            
         return itemIds
+    
+    
+    def selectedFiles(self):
+        '''
+            Returns a list of selected files (abs paths?..).
+        '''
+        #We use set, because selectedIndexes() may return duplicates
+        result = []
+        for index in self.ui.filesTableView.selectionModel().selectedIndexes():
+            row = index.row()
+            finfo = self.__fileBrowserTool.listDir()[row]
+            result.append(finfo.path)
+        return result
     
 
 class FileBrowserTableModel(QtCore.QAbstractTableModel):

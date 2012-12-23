@@ -8,6 +8,7 @@ from gui.common_widgets import WaitDialog
 from logic.abstract_dialogs_facade import AbstractDialogsFacade
 
 
+# TODO: Class should be renamed in something like... PreselectedFilesDialogsFacade
 class DropFilesDialogsFacade(AbstractDialogsFacade):
     
     def __init__(self, userDialogs):
