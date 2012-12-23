@@ -67,6 +67,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         return self.__dialogs
         
     def initDockWidgetForTool(self, aTool):
+        logger.debug("initDockWidgetForTool() started for tool = {}".format(aTool.id()))
         toolGui = aTool.createGui(self)
         toolDockWidget = QtGui.QDockWidget(aTool.title(), self)
         toolDockWidget.setObjectName(aTool.id() + "DockWidget")

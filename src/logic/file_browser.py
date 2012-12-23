@@ -29,6 +29,8 @@ class FileBrowser(AbstractTool):
         self._listCache = None
         self._mutex = None
         self._thread = None
+        self._enabled = False
+        logger.debug("File Browser __init__ finished.")
         
         
     def id(self):
@@ -39,6 +41,7 @@ class FileBrowser(AbstractTool):
     
     def createGui(self, guiParent):
         self._gui = FileBrowserGui(guiParent, self)
+        logger.debug("File Browser GUI created.")
         return self._gui
     
     def __getGui(self):
@@ -54,8 +57,10 @@ class FileBrowser(AbstractTool):
         self._repo = repo
         if repo is not None:
             self.changeDir(repo.base_path)
+            logger.debug("File Browser curr dir has been SET.")
         else:
             self.unsetDir()
+            logger.debug("File Browser curr dir has been UNSET.")
 
     @property
     def user(self):
@@ -64,6 +69,17 @@ class FileBrowser(AbstractTool):
     def setUser(self, user):
         self._user = user
         # TODO: update Gui according to the user change
+    
+    
+    def enable(self):
+        self._enabled = True
+        self.refreshDir()
+        logger.debug("File Browser enabled.")
+    
+    
+    def disable(self):
+        self._enabled = False
+        logger.debug("File Browser disabled.")
         
     
     @property
@@ -94,11 +110,13 @@ class FileBrowser(AbstractTool):
         return len(self._listCache)
     
     def _rebuildListCache(self):
+        if not self._enabled:
+            self._listCache = []
+            return
         
         def resetGuiTableRows(topRow, bottomRow):
             self._gui.resetTableRows(topRow, bottomRow)
             QtCore.QCoreApplication.processEvents()
-            
         
         assert self._currDir is not None
         result=[FileInfo("..", FileInfo.DIR)]
@@ -118,8 +136,6 @@ class FileBrowser(AbstractTool):
         #self._thread.run()
     
     
-    
-    
     def changeDirUp(self):
         self.changeDir("..")
     
@@ -127,6 +143,9 @@ class FileBrowser(AbstractTool):
         absDir = os.path.join(self._currDir, relativeDir)
         absDir = os.path.normpath(absDir)
         self.changeDir(absDir)
+    
+    def refreshDir(self):
+        self.changeDir(self._currDir)
     
     def changeDir(self, directory):
         if directory == ".":
