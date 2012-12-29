@@ -566,10 +566,10 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
         super(CheckItemIntegrityActionHandler, self).__init__(tool)
     
     def handle(self):
-        def refresh(percent, row):
+        def refresh(percent, topRow, bottomRow):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Integrity check {0}%").format(percent))
-            self._emitHandlerSignal(HandlerSignals.RESET_SINGLE_ROW, row)
+            self._emitHandlerSignal(HandlerSignals.RESET_ROW_RANGE, topRow, bottomRow)
             QtCore.QCoreApplication.processEvents()
         
         try:
@@ -590,7 +590,7 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
                 self._tool.gui, self._tool.repo, items, self._tool.itemsLock)
             
             self.connect(thread, QtCore.SIGNAL("progress"), 
-                         lambda percents, row: refresh(percents, row))
+                         lambda percents, topRow, bottomRow: refresh(percents, topRow, bottomRow))
             self.connect(thread, QtCore.SIGNAL("finished"), 
                          lambda error_count: self._emitHandlerSignal(
                                 HandlerSignals.STATUS_BAR_MESSAGE,

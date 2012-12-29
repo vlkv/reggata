@@ -3,22 +3,23 @@
 Created on 21.01.2012
 @author: vlkv
 '''
-import os
-import sys
-import traceback
-import zipfile
-import consts
-import logging
 from PyQt4 import QtCore, QtGui
+from _pyio import open
+from data.commands import *
+from data.db_schema import Thumbnail
 from data.integrity_fixer import IntegrityFixerFactory
 from data.repo_mgr import *
-from data.db_schema import Thumbnail
 from errors import *
-from data.commands import *
-import tarfile
 from tarfile import TarInfo, TarFile
-from _pyio import open
+import consts
 import io
+import logging
+import os
+import sys
+import tarfile
+import traceback
+import zipfile
+import datetime
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -312,34 +313,37 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
         self.items = items
         self.lock = lock
         self.interrupt = False
+#        self.timeoutMicroSec = 500000
     
     def run(self):
         error_count = 0
         uow = self.repo.createUnitOfWork()
         try:
-            #Список self.items должен содержать только что извлеченные из БД элементы
-            #(вместе с data_ref объектами).
+#            startTime = datetime.datetime.now()
+#            startRow = 0
             for i in range(len(self.items)):
                 item = self.items[i]
-                
                 error_set = uow.executeCommand(CheckItemIntegrityCommand(item, self.repo._base_path))
+                self.msleep(500)
                 try:
                     self.lock.lockForWrite()
-                    
-                    #Сохраняем результат
                     item.error = error_set
-                    
-                    if len(error_set) > 0:                        
-                        error_count += 1  
-                    
-                    self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.items)), item.table_row)
-                    
                 finally:
                     self.lock.unlock()
-                    
+                
+                if len(error_set) > 0:
+                    error_count += 1
+                
+#                currTime = datetime.datetime.now()
+#                if (currTime - startTime).microseconds > self.timeoutMicroSec:
+                if i % 100 == 0:
+                    percents = int(100.0*float(i) / len(self.items))
+                    topRow = ?
+                    bottomRow = ?
+                    self.emit(QtCore.SIGNAL("progress"), percents, topRow, bottomRow)
+
         except:
             logger.error(traceback.format_exc())
-            #TODO: Maybe should use logger.exception() here?..
         finally:
             uow.close()
             self.emit(QtCore.SIGNAL("finished"), error_count)

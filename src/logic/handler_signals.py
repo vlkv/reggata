@@ -17,7 +17,8 @@ class HandlerSignals():
     ITEM_DELETED = "itemDeleted"
     LIST_OF_FAVORITE_REPOS_CHANGED = "listOfFavoriteReposChanged"
     STATUS_BAR_MESSAGE = "statusBarMessage"
-    RESET_SINGLE_ROW = "resetSingleRow"
+    RESET_SINGLE_ROW = "resetSingleRow"     # TODO: This signal type should be hidden in ItemsTableTool, because it's not global
+    RESET_ROW_RANGE = "resetRowRange"       # TODO: This signal type should be hidden in ItemsTableTool too
     REGGATA_CONF_CHANGED = "reggata.conf file has changed"
 
 
