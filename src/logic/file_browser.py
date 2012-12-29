@@ -237,8 +237,8 @@ class FileInfoSearcherThread(QtCore.QThread):
         
         uow = self.repo.createUnitOfWork()
         try:
-            shouldTakeTime = True
             dtStart = None
+            shouldTakeTime = True
             shouldSendProgress = False
             for i in range(len(self.finfos)):
                 
