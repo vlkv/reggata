@@ -313,18 +313,18 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
         self.items = items
         self.lock = lock
         self.interrupt = False
-#        self.timeoutMicroSec = 500000
+        self.timeoutMicroSec = 500000
     
     def run(self):
         error_count = 0
         uow = self.repo.createUnitOfWork()
         try:
-#            startTime = datetime.datetime.now()
-#            startRow = 0
+            startTime = datetime.datetime.now()
+            startIndex = 0
             for i in range(len(self.items)):
                 item = self.items[i]
                 error_set = uow.executeCommand(CheckItemIntegrityCommand(item, self.repo._base_path))
-                self.msleep(500)
+                
                 try:
                     self.lock.lockForWrite()
                     item.error = error_set
@@ -334,14 +334,19 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                 if len(error_set) > 0:
                     error_count += 1
                 
-#                currTime = datetime.datetime.now()
-#                if (currTime - startTime).microseconds > self.timeoutMicroSec:
-                if i % 100 == 0:
+                currTime = datetime.datetime.now()
+                if (currTime - startTime).microseconds > self.timeoutMicroSec:
+                    try:
+                        self.lock.lockForRead()
+                        topRow = self.items[startIndex].table_row
+                    finally:
+                        self.lock.unlock()
+                    bottomRow = item.table_row
                     percents = int(100.0*float(i) / len(self.items))
-                    topRow = ?
-                    bottomRow = ?
                     self.emit(QtCore.SIGNAL("progress"), percents, topRow, bottomRow)
-
+                    self.msleep(1)
+                    startTime = currTime
+                    startIndex = i
         except:
             logger.error(traceback.format_exc())
         finally:

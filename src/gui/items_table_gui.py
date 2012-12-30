@@ -134,14 +134,21 @@ class ItemsTableGui(ToolGui):
             item_ids.add(self.__table_model.items[index.row()].id)
         return item_ids    
     
+    
     def itemAtRow(self, row):
         return self.__table_model.items[row]
+    
     
     def rowCount(self):
         return self.__table_model.rowCount()
     
+
     def resetSingleRow(self, row):
-        self.__table_model.resetSingleRow(row)
+        self.__table_model.resetRowRange(row, row)
+
+    def resetRowRange(self, topRow, bottomRow):
+        self.__table_model.resetRowRange(topRow, bottomRow)
+
 
     def selected_tags_changed(self, tags, not_tags):
         text = ""
@@ -152,8 +159,6 @@ class ItemsTableGui(ToolGui):
         text = self.ui.lineEdit_query.setText(text)
         self.query_exec()
     
-    
-        
         
     def _resize_row_to_contents(self, top_left, bottom_right):
         if top_left.row() == bottom_right.row():
@@ -165,6 +170,7 @@ class ItemsTableGui(ToolGui):
                 
     def resize_rows_to_contents(self):
         self.ui.tableView_items.resizeRowsToContents()
+
 
     def restore_columns_width(self):
         self.ui.tableView_items.setColumnWidth(ItemsTableModel.ROW_NUMBER, int(UserConfig().get("items_table.ROW_NUMBER.width", 30)))
@@ -381,9 +387,13 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
         
 
     def resetSingleRow(self, row):
-        topL = self.createIndex(row, self.ID)
-        bottomR = self.createIndex(row, self.RATING)
+        self.resetRowRange(row, row)
+        
+    def resetRowRange(self, topRow, bottomRow):
+        topL = self.createIndex(topRow, self.ID)
+        bottomR = self.createIndex(bottomRow, self.RATING)
         self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
+        
 
     def _set_user_login(self, user_login):
         self._user_login = user_login

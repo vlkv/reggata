@@ -30,5 +30,6 @@ class HandlerSignals():
                 HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED,
                 HandlerSignals.STATUS_BAR_MESSAGE,
                 HandlerSignals.RESET_SINGLE_ROW,
+                HandlerSignals.RESET_ROW_RANGE,
                 HandlerSignals.REGGATA_CONF_CHANGED,
                 ]
