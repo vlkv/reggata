@@ -319,7 +319,8 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                     error_count += 1
                 
                 currTime = datetime.datetime.now()
-                if (currTime - startTime).microseconds > self.timeoutMicroSec:
+                isLastIteration = (i == len(self.items) - 1)
+                if (currTime - startTime).microseconds > self.timeoutMicroSec or isLastIteration:
                     try:
                         self.lock.lockForRead()
                         topRow = self.items[startIndex].table_row
