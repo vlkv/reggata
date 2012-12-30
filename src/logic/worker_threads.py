@@ -156,7 +156,7 @@ class ExportItemsThread(QtCore.QThread):
             f.write(itemState)
         archive.add(tmpFileName, arcname=os.path.join(".reggata/items", itemStateFilename))
 
-# TODO: Avoid creation of temporary file on filesystem.. 
+# TODO: Avoid creation of temporary file on filesystem..
 #        fileObj = io.StringIO(itemState)
 #        tarInfo = tarfile.TarInfo(name=os.path.join(".reggata/items", itemStateFilename))
 #        tarInfo.size = len(fileObj.getvalue())
@@ -226,11 +226,11 @@ class ExportItemsFilesThread(QtCore.QThread):
             
 class ItemIntegrityFixerThread(QtCore.QThread):
     '''
-    Поток, выполняющий исправление целостности выбранной группы элементов (обычно из 
-    результатов поискового запроса). 
+    Поток, выполняющий исправление целостности выбранной группы элементов (обычно из
+    результатов поискового запроса).
     
-    Нужно сделать функцию, чтобы запускать данный поток для выделенной группы элементов. 
-    Для всех элементов хранилища тоже надо бы (но это потом может быть сделаю). 
+    Нужно сделать функцию, чтобы запускать данный поток для выделенной группы элементов.
+    Для всех элементов хранилища тоже надо бы (но это потом может быть сделаю).
     '''
     def __init__(self, parent, repo, items, lock, strategy, user_login):
         super(ItemIntegrityFixerThread, self).__init__(parent)
@@ -276,7 +276,7 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                 #Смотрим, есть ли у item-а ошибки
                 for error_code in list(item.error):
                     #Для каждой ошибки item-а нужно
-                    #глянуть, есть ли стратегия исправления в поле self.strategy для данной ошибки?                
+                    #глянуть, есть ли стратегия исправления в поле self.strategy для данной ошибки?
                     #если нет, то пропускаем, ничего не делаем
                     #если есть, то выполняем исправление ошибки
                     #сообщаем, что элемент нужно обновить
@@ -353,7 +353,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
     '''
     Поток, выполняющий построение миниатюр изображений и сохранение их в БД.
     
-    Данный поток автоматически запускается после выполнение любого запроса элементов 
+    Данный поток автоматически запускается после выполнение любого запроса элементов
     (т.к. в результате любого запроса могут оказаться изображения.
     '''
     def __init__(self, parent, repo, items, lock, rebuild=False):
@@ -385,7 +385,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
                 elif self.rebuild:
                     #Delete ALL existing thumbnails linked with current item.data_ref from database
                     uow.session.query(Thumbnail).filter(Thumbnail.data_ref_id==item.data_ref.id)\
-                        .delete(synchronize_session=False)                        
+                        .delete(synchronize_session=False)
                     uow.session.flush()
                     
                     #Clear item.data_ref.thumbnails collection
@@ -432,7 +432,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
                         raise
                     else:
                         #Continue generating thumbnails in this case
-                        logger.error(traceback.format_exc())                
+                        logger.error(traceback.format_exc())
                                     
         except:
             self.emit(QtCore.SIGNAL("exception"), sys.exc_info())
@@ -490,7 +490,7 @@ class CreateGroupOfItemsThread(QtCore.QThread):
         self.createdCount = 0
         self.lastSavedItemIds = []
     
-    def run(self):        
+    def run(self):
         self.skippedCount = 0
         self.createdCount = 0
         uow = self.repo.createUnitOfWork()
