@@ -225,27 +225,18 @@ class ExportItemsFilesThread(QtCore.QThread):
             
             
 class ItemIntegrityFixerThread(QtCore.QThread):
-    '''
-    Поток, выполняющий исправление целостности выбранной группы элементов (обычно из
-    результатов поискового запроса).
     
-    Нужно сделать функцию, чтобы запускать данный поток для выделенной группы элементов.
-    Для всех элементов хранилища тоже надо бы (но это потом может быть сделаю).
-    '''
     def __init__(self, parent, repo, items, lock, strategy, user_login):
         super(ItemIntegrityFixerThread, self).__init__(parent)
         self.repo = repo
         self.items = items
         
-        #Замок, для того, чтобы поток смог изменять передаваемые ему объекты, содержащиеся в списке items
         self.lock = lock
         
         self.interrupt = False
         
-        #Это словарь, в котором ключи - это коды ошибок, а значения - способ исправления данной ошибки
+        # This is a dict with key - error code and a value - error fixing strategy
         self.strategy = strategy
-        #Задавать стратегию исправления ошибок хотелось бы несложным образом:
-        #strategy = {ERROR_FILE_NOT_FOUND: STRATEGY_1, ERROR_FILE_SIZE_MISMATCH: STRATEGY_2} и т.п.
         
         self.user_login = user_login
         
@@ -256,11 +247,10 @@ class ItemIntegrityFixerThread(QtCore.QThread):
         
         fixers = dict()
         for error_code, strategy in self.strategy.items():
-            fixers[error_code] = IntegrityFixerFactory.createFixer(error_code, strategy, uow, self.repo.base_path, self.lock)
+            fixers[error_code] = IntegrityFixerFactory.createFixer(
+                                    error_code, strategy, uow, self.repo.base_path, self.lock)
         
         try:
-            #Список self.items должен содержать только что извлеченные из БД элементы
-            #(вместе с data_ref объектами).
             for i in range(len(self.items)):
                 item = self.items[i]
                 
@@ -269,17 +259,12 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                 if item.error is None:
                     try:
                         self.lock.lockForWrite()
-                        item.error = uow.executeCommand(CheckItemIntegrityCommand(item, self.repo.base_path))
+                        item.error = uow.executeCommand(
+                            CheckItemIntegrityCommand(item, self.repo.base_path))
                     finally:
                         self.lock.unlock()
                                 
-                #Смотрим, есть ли у item-а ошибки
                 for error_code in list(item.error):
-                    #Для каждой ошибки item-а нужно
-                    #глянуть, есть ли стратегия исправления в поле self.strategy для данной ошибки?
-                    #если нет, то пропускаем, ничего не делаем
-                    #если есть, то выполняем исправление ошибки
-                    #сообщаем, что элемент нужно обновить
                     fixer = fixers.get(error_code)
                     if fixer is not None:
                         fixed = fixer.fix_error(item, self.user_login)
@@ -289,13 +274,12 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                         if fixed:
                             try:
                                 self.lock.lockForWrite()
-                                #Убираем ошибку из списка
-                                
                                 item.error.remove(error_code)
                             finally:
                                 self.lock.unlock()
-                            
-                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.items)), item.table_row)
+                
+                percents = int(100.0*float(i) / len(self.items))
+                self.emit(QtCore.SIGNAL("progress"), percents, item.table_row)
                     
         except Exception:
             self.emit(QtCore.SIGNAL("exception"), sys.exc_info())
@@ -356,10 +340,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
 
 class ThumbnailBuilderThread(QtCore.QThread):
     '''
-    Поток, выполняющий построение миниатюр изображений и сохранение их в БД.
-    
-    Данный поток автоматически запускается после выполнение любого запроса элементов
-    (т.к. в результате любого запроса могут оказаться изображения.
+        This thread is started every time after any query execution in Intems Table Tool. 
     '''
     def __init__(self, parent, repo, items, lock, rebuild=False):
         super(ThumbnailBuilderThread, self).__init__(parent)
