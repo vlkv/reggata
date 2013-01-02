@@ -1,0 +1,4 @@
+include locale/*
+exclude locale/*qm
+include reggata/resources/resources.qrc
+recursive-exclude reggata *pyc
