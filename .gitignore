@@ -3,7 +3,6 @@
 /.settings/*.prefs
 /build_set_env.bat
 /reggata_set_env.bat
-/reggata
 /runtests
 /version.txt
 /parsetab.py

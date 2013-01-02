@@ -1,1 +1,0 @@
-c:\usr\Python31_2\Lib\site-packages\PyQt4\bin\pyuic4 %1 > "ui_"%~n1".py" 
