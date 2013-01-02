@@ -38,7 +38,7 @@ logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 def configureLogging():
     if not os.path.exists(consts.USER_CONFIG_DIR):
         os.makedirs(consts.USER_CONFIG_DIR)
-        
+
     if not os.path.exists(consts.LOGGING_CONFIG_FILE):
         f = codecs.open(consts.LOGGING_CONFIG_FILE, "w", "utf-8")
         try:
@@ -59,35 +59,37 @@ def configureTranslations(app):
     language = UserConfig().get("language")
     if language:
         qm_filename = "reggata_{}.qm".format(language)
-        
+
         isQmLoaded = qtr.load(qm_filename, ".")
         if not isQmLoaded:
             qtr.load(qm_filename, "..")
-            
+
         if isQmLoaded:
             QtCore.QCoreApplication.installTranslator(qtr)
         else:
             logger.warning("Cannot find translation file {}.".format(qm_filename))
-            
-        
 
 
-if __name__ == '__main__':
+
+def main():
     configureLogging()
-    
+
     logger.info("========= Reggata started =========")
     logger.debug("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
     logger.debug("qt_version = {}".format(QtCore.QT_VERSION_STR))
     logger.debug("current dir is " + os.path.abspath("."))
-    
+
     configureTmpDir()
-    
+
     app = QApplication(sys.argv)
-    
+
     configureTranslations(app)
-    
+
     form = MainWindow()
     form.show()
     app.exec_()
     logger.info("========= Reggata finished =========")
 
+
+if __name__ == '__main__':
+    main()
