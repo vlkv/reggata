@@ -37,21 +37,6 @@ setup(
     url = reggata.__url__,
     download_url = reggata.__download_url__,
     keywords = ["tags", "tagging", "documents", "files"],
-    classifiers = [
-        "Programming Language :: Python",
-        "License :: OSI Approved :: BSD License",
-        "Operating System :: MacOS",
-        "Operating System :: POSIX",
-        "Operating System :: Microsoft :: Windows",
-        "Development Status :: 4 - Beta",
-        "Environment :: Console",
-        "Natural Language :: English",
-        "Intended Audience :: Developers",
-        "Topic :: Office/Business",
-        "Topic :: Scientific/Engineering",
-        "Topic :: Software Development"
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: Utilities"],
     long_description = read_file("./README.creole"),
     install_requires=[
         'ply',
