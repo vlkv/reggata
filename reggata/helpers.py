@@ -16,10 +16,10 @@ import time
 import platform
 import math
 import logging
-import consts
-from gui.my_message_box import MyMessageBox
+import reggata.consts
+from reggata.gui.my_message_box import MyMessageBox
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(reggata.consts.ROOT_LOGGER + "." + __name__)
 
 
 #def tr(text):

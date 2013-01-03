@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Created on 04.10.2010
 @author: vlkv
@@ -6,7 +5,6 @@ Created on 04.10.2010
 Module contains various global constants.
 '''
 import os
-from user_config import UserConfig
 import ply.yacc
 import ply.lex
 
@@ -24,8 +22,8 @@ THUMBNAIL_DEFAULT_SIZE = 100
 
 DEFAULT_TMP_DIR = USER_CONFIG_DIR + os.sep + "tmp"
 
-RATING_FIELD = UserConfig().get("reserved_fields.rating", "Rating")
-NOTES_FIELD = UserConfig().get("reserved_fields.notes", "Notes")
+RATING_FIELD = "Rating"
+NOTES_FIELD = "Notes"
 RESERVED_FIELDS = [RATING_FIELD, NOTES_FIELD]
 
 #TODO: Some custom logger (from logging module) should be substituted here
