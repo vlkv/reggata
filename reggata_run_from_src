@@ -1,4 +1,4 @@
 #!/bin/bash
 
-export PYTHONPATH=/home/vlkv/projects/reggata.git/reggata
+export PYTHONPATH=/home/vlkv/projects/reggata.git
 python3 ./reggata/reggata.py
