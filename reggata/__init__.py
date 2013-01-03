@@ -1,11 +1,8 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
-A tagging system for managing local files on your computer.
+    A tagging system for managing local files on your computer.
 """
 
-# package information
 __major__ = 0  # for major interface/format changes
 __minor__ = 5  # for minor interface/format changes
 __release__ = 0  # for tweaks, bug-fixes, or development

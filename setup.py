@@ -13,7 +13,7 @@ def read_file(filename):
 
 
 setup(
-    name = "reggata",
+    name = "Reggata",
     packages = ['reggata', 
                 'reggata.data',
                 'reggata.gui',
