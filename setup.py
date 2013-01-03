@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from distutils.core import setup
+from setuptools import setup
+#from distutils.core import setup
 import reggata
 
 
@@ -28,7 +29,7 @@ setup(
                  'reggata.logic': 'reggata/logic',
                  'reggata.parsers': 'reggata/parsers',
                  'reggata.tests': 'reggata/tests'},
-    scripts = ["reggata/reggata"],
+    scripts = ["bin/reggata"],
     version = reggata.__version__,
     description = reggata.__doc__,
     author = reggata.__author__,
@@ -52,5 +53,10 @@ setup(
         "Topic :: Software Development"
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities"],
-    long_description = read_file("./README.creole")
+    long_description = read_file("./README.creole"),
+    install_requires=[
+        'ply',
+        'SQLAlchemy'
+        # NOTE: Reggata also needs PyQt4, it must be installed manually
+    ]
 )
