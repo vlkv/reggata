@@ -3,7 +3,7 @@ Created on 28.09.2012
 @author: vlkv
 '''
 from PyQt4 import QtGui, QtCore
-from ui_externalappsdialog import Ui_ExternalAppsDialog
+from ui.ui_externalappsdialog import Ui_ExternalAppsDialog
 import helpers
 from errors import MsgException
 from logic.ext_app_mgr import ExtAppDescription

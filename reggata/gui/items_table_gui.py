@@ -6,7 +6,7 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 
-from ui_itemstablegui import Ui_ItemsTableGui
+from ui.ui_itemstablegui import Ui_ItemsTableGui
 from user_config import UserConfig
 from parsers import query_parser
 from gui.common_widgets import TextEdit

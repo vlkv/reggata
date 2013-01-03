@@ -7,7 +7,7 @@ import os
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 
-import ui_itemdialog
+from ui.ui_itemdialog import Ui_ItemDialog
 import consts
 from data.db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
 from helpers import show_exc_info, is_none_or_empty, is_internal
@@ -28,7 +28,7 @@ class ItemDialog(QtGui.QDialog):
 
     def __init__(self, parent, item, repoBasePath, mode, completer=None):
         super(ItemDialog, self).__init__(parent)
-        self.ui = ui_itemdialog.Ui_ItemDialog()
+        self.ui = Ui_ItemDialog()
         self.ui.setupUi(self)
         
         self.repoBasePath = repoBasePath

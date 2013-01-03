@@ -5,7 +5,7 @@ Created on 19.12.2012
 from gui.tool_gui import ToolGui
 import logging
 import consts
-import ui_filebrowsergui
+from ui.ui_filebrowsergui import Ui_FileBrowserGui
 from PyQt4 import QtCore
 from PyQt4.QtCore import Qt
 from data.commands import FileInfo
@@ -19,7 +19,7 @@ class FileBrowserGui(ToolGui):
 
     def __init__(self, parent, fileBrowserTool):
         super(FileBrowserGui, self).__init__(parent)
-        self.ui = ui_filebrowsergui.Ui_FileBrowserGui()
+        self.ui = Ui_FileBrowserGui()
         self.ui.setupUi(self)
         
         self.__fileBrowserTool = fileBrowserTool

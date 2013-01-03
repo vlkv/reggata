@@ -6,7 +6,7 @@ Created on 20.07.2012
 
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
-import ui_changeuserpassword
+from ui.ui_changeuserpassword import Ui_ChangeUserPasswordDialog
 from data.db_schema import *
 from helpers import *
 from errors import *
@@ -18,7 +18,7 @@ class ChangeUserPasswordDialog(QtGui.QDialog):
     def __init__(self, parent, user):
         super(ChangeUserPasswordDialog, self).__init__(parent)
                 
-        self.ui = ui_changeuserpassword.Ui_ChangeUserPasswordDialog()
+        self.ui = Ui_ChangeUserPasswordDialog()
         self.ui.setupUi(self)
         
         assert user is not None

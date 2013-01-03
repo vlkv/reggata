@@ -3,11 +3,11 @@
 Created on 16.10.2010
 @author: vlkv
 '''
-import reggata as rgt
 import os
 import codecs
-from reggata.pyjavaproperties import Properties
-import reggata.reggata_default_conf
+from pyjavaproperties import Properties
+import reggata_default_conf
+import consts
 
 
 class UserConfig(object):
@@ -23,17 +23,17 @@ class UserConfig(object):
             cls._instance = super(UserConfig, cls).__new__(cls, *args, **kwargs)
             
             cls._props = Properties()
-            if not os.path.exists(rgt.consts.USER_CONFIG_DIR):
-                os.makedirs(rgt.consts.USER_CONFIG_DIR)            
+            if not os.path.exists(consts.USER_CONFIG_DIR):
+                os.makedirs(consts.USER_CONFIG_DIR)            
                 
-            if not os.path.exists(rgt.consts.USER_CONFIG_FILE):
-                f = codecs.open(rgt.consts.USER_CONFIG_FILE, "w", "utf-8")
+            if not os.path.exists(consts.USER_CONFIG_FILE):
+                f = codecs.open(consts.USER_CONFIG_FILE, "w", "utf-8")
                 try:
-                    f.write(reggata.reggata_default_conf.reggataDefaultConf)
+                    f.write(reggata_default_conf.reggataDefaultConf)
                 finally:
                     f.close()
             
-            cls._props.load(codecs.open(rgt.consts.USER_CONFIG_FILE, "r", "utf-8"))
+            cls._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
         return cls._instance
     
     
@@ -57,7 +57,7 @@ class UserConfig(object):
     
     def store(self, key, value):
         self._props[key] = str(value)
-        self._props.store(codecs.open(rgt.consts.USER_CONFIG_FILE, 'w', "utf-8"))
+        self._props.store(codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8"))
         
         
     def storeAll(self, d):
@@ -65,10 +65,10 @@ class UserConfig(object):
             raise TypeError("This is not a dict instance.")
         for key in d.keys():
             self._props[key] = str(d[key])
-        self._props.store(codecs.open(rgt.consts.USER_CONFIG_FILE, 'w', "utf-8"))
+        self._props.store(codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8"))
     
     def refresh(self):
-        self._props.load(codecs.open(rgt.consts.USER_CONFIG_FILE, "r", "utf-8"))
+        self._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
         
 
 

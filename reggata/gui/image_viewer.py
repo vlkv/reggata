@@ -2,7 +2,7 @@
 
 from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
-import ui_imageviewer
+from ui.ui_imageviewer import Ui_ImageViewer
 import helpers
 from helpers import show_exc_info
 from errors import MsgException
@@ -155,7 +155,7 @@ class ImageViewer(QtGui.QMainWindow):
         be able to edit items.
         '''
         super(ImageViewer, self).__init__(parent)
-        self.ui = ui_imageviewer.Ui_ImageViewer()
+        self.ui = Ui_ImageViewer()
         self.ui.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
         

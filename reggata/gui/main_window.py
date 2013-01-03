@@ -3,7 +3,7 @@
 Created on 20.08.2010
 @author: vlkv
 '''
-import ui_mainwindow
+from ui.ui_mainwindow import Ui_MainWindow
 import logging
 import consts
 from helpers import *
@@ -26,7 +26,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
     '''
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.ui = ui_mainwindow.Ui_MainWindow()
+        self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setCentralWidget(None)
         

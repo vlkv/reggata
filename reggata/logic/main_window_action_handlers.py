@@ -9,7 +9,7 @@ import consts
 from helpers import show_exc_info
 from consts import STATUSBAR_TIMEOUT
 from errors import MsgException, LoginError
-import ui_aboutdialog
+import ui.ui_aboutdialog # TODO: gui imports should be removed from logic package!
 from data.db_schema import User
 from data.commands import SaveNewUserCommand, ChangeUserPasswordCommand
 from data.repo_mgr import RepoMgr
