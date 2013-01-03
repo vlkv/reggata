@@ -16,6 +16,14 @@ import reggata.helpers as helpers
 from reggata.helpers import is_none_or_empty
 
 
+
+class JsonUnsupportedVersionError(Exception):
+    def __init__(self, msg=None, cause=None):
+        super(JsonUnsupportedVersionError, self).__init__(msg)
+        self.cause = cause
+
+
+
 Base = declarative_base()
 
 class User(Base):
@@ -172,10 +180,12 @@ class Item(Base, memento.Serializable):
                      self.item_fields[i].user_login)
                     for i in range(len(self.item_fields)) )
         
+    CURRENT_JSON_VERSION = 1
+        
     def toJson(self):
         return {"__class__": self.__class__.__name__,
                 "__module__": "reggata.data.db_schema",
-                "__version__": 1,
+                "__version__": Item.CURRENT_JSON_VERSION,
                 "title": self.title,
                 "user_login": self.user_login,
                 "date_created": self.date_created,
@@ -186,6 +196,22 @@ class Item(Base, memento.Serializable):
         
     @staticmethod
     def fromJson(objState):
+        version = objState["__version__"]
+        if version is None:
+            return Item.fromJsonVersion0(objState)
+        elif version == DataRef.CURRENT_JSON_VERSION:
+            return Item.fromJsonVersionCurrent(objState)
+        else:
+            raise JsonUnsupportedVersionError()
+            
+    @staticmethod
+    def fromJsonVersion0(objState):
+        module = objState["__module__"]
+        objState["__module__"] = "reggata." + module
+        return Item.fromJsonVersionCurrent(objState)
+    
+    @staticmethod
+    def fromJsonVersionCurrent(objState):
         item = Item()
         item.title = objState["title"]
         item.user_login = objState["user_login"]
@@ -202,6 +228,7 @@ class Item(Base, memento.Serializable):
         item.data_ref = objState["data_ref"]
         
         return item
+    
     
     
     def hash(self):
@@ -427,11 +454,12 @@ class DataRef(Base, memento.Serializable):
         self.srcAbsPath = None
         self.dstRelPath = None
     
+    CURRENT_JSON_VERSION = 1
     
     def toJson(self):
         return {"__class__": self.__class__.__name__,
                 "__module__": "reggata.data.db_schema",
-                "__version__": 1,
+                "__version__": DataRef.CURRENT_JSON_VERSION,
                 "url": self.url_raw,
                 "type": self.type,
                 "hash": self.hash,
@@ -443,6 +471,22 @@ class DataRef(Base, memento.Serializable):
         
     @staticmethod
     def fromJson(objState):
+        version = objState["__version__"]
+        if version is None:
+            return DataRef.fromJsonVersion0(objState)
+        elif version == DataRef.CURRENT_JSON_VERSION:
+            return DataRef.fromJsonVersionCurrent(objState)
+        else:
+            raise JsonUnsupportedVersionError()
+            
+    @staticmethod
+    def fromJsonVersion0(objState):
+        module = objState["__module__"]
+        objState["__module__"] = "reggata." + module
+        return DataRef.fromJsonVersionCurrent(objState)
+    
+    @staticmethod
+    def fromJsonVersionCurrent(objState):
         dr = DataRef(type=objState["type"], 
                      url=objState["url"],
                      date_created=objState["date_created"])

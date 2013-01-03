@@ -46,6 +46,8 @@ class ItemSerializationSimpleTest(unittest.TestCase):
         self.assertEquals(item.user_login, "user")
         self.assertIsNone(item.id)
         
+    # TODO: add test for the case: Item is restored from json state with old version
+
 
 class ItemSerializationTest(AbstractTestCaseWithRepo):
 
