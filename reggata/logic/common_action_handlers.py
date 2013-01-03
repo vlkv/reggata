@@ -2,7 +2,7 @@
 Created on 23.12.2012
 @author: vlkv
 '''
-from logic.handler_signals import HandlerSignals
+from reggata.logic.handler_signals import HandlerSignals
 import reggata.consts as consts
 from reggata.data.commands import *
 from reggata.logic.action_handlers import AbstractActionHandler
