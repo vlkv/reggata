@@ -1,6 +1,7 @@
 *.pyc
-/bin
 /build
+/dist
+/*.egg-info
 /.settings/*.prefs
 /build_set_env.bat
 /reggata_set_env.bat
