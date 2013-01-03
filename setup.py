@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-
-#from setuptools import setup # setuptools doesn't support Python3
 from distutils.core import setup
 import reggata
-
 
 def read_file(filename):
     """Returns the text of the given filename."""
@@ -21,8 +17,6 @@ setup(
                 'reggata.logic',
                 'reggata.parsers',
                 'reggata.tests'],
-    #py_modules = ['reggata.resources_rc'],
-    #package_dir = {'': 'reggata'},
     scripts = ["bin/reggata"],
     version = reggata.__version__,
     description = reggata.__doc__,
@@ -37,6 +31,6 @@ setup(
     #install_requires=[
     #    'ply',
     #    'SQLAlchemy'
-    #    # NOTE: Reggata also needs PyQt4, but it must be installed manually
+    #    'PyQt4' # PyQt4 have to be installed manually anyway
     #]
 )
