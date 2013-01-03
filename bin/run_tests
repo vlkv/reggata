@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export PYTHONPATH="../../reggata.git"
+python3 ../reggata/tests/runtests.py

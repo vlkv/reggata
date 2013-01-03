@@ -3,11 +3,11 @@ Created on 16.09.2012
 @author: vlkv
 '''
 from PyQt4 import QtCore
-from tests.abstract_test_cases import AbstractTestCaseWithRepo
-from tests.tests_context import *
-from data import db_schema
-from data.integrity_fixer import IntegrityFixerFactory, FileNotFoundFixer, FileHashMismatchFixer
-from data.commands import CheckItemIntegrityCommand
+from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepo
+from reggata.data import db_schema
+from reggata.data.integrity_fixer import IntegrityFixerFactory, FileNotFoundFixer, FileHashMismatchFixer
+from reggata.data.commands import CheckItemIntegrityCommand
+from reggata.tests.tests_context import *
 
    
     

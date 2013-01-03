@@ -2,9 +2,9 @@
 Created on 25.01.2012
 @author: vvolkov
 '''
-from logic.worker_threads import DeleteGroupOfItemsThread
-from tests.abstract_test_cases import AbstractTestCaseWithRepo
-from data.commands import GetExpungedItemCommand
+from reggata.logic.worker_threads import DeleteGroupOfItemsThread
+from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepo
+from reggata.data.commands import GetExpungedItemCommand
 
 class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):
 

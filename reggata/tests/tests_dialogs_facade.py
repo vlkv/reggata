@@ -2,8 +2,9 @@
 Created on 28.08.2012
 @author: vvolkov
 '''
-from logic.abstract_dialogs_facade import AbstractDialogsFacade
 import os
+from reggata.logic.abstract_dialogs_facade import AbstractDialogsFacade
+
 
 class TestsDialogsFacade(AbstractDialogsFacade):
     

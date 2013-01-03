@@ -1,6 +1,6 @@
 import unittest
 import os
-from tests import test_memento, test_helpers, test_repo_mgr, test_worker_threads,\
+from reggata.tests import test_memento, test_helpers, test_repo_mgr, test_worker_threads,\
     test_action_handlers, test_items_integrity
 
 class TestsDiscoverIsNotAvailableError(Exception):

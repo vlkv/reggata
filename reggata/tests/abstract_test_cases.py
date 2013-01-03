@@ -1,11 +1,11 @@
 import unittest
-import tests_context
 import os
 import shutil
-from data.repo_mgr import RepoMgr
-from data.db_schema import DataRef
-import helpers
-from data.commands import GetExpungedItemCommand, UpdateExistingItemCommand
+import reggata.tests.tests_context as tests_context 
+from reggata.data.repo_mgr import RepoMgr
+from reggata.data.db_schema import DataRef
+import reggata.helpers as helpers
+from reggata.data.commands import GetExpungedItemCommand, UpdateExistingItemCommand
 
 
 class AbstractTestCaseWithRepo(unittest.TestCase):

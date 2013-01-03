@@ -1,9 +1,9 @@
-from tests.abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW, \
+from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW, \
     AbstractTestCaseWithRepo
-from tests.tests_context import *
-from data.repo_mgr import *
-from data.commands import *
-from errors import *
+from reggata.tests.tests_context import *
+from reggata.data.repo_mgr import *
+from reggata.data.commands import *
+from reggata.errors import *
 
 
 class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):
