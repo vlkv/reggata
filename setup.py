@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
-#from distutils.core import setup
+#from setuptools import setup # setuptools doesn't support Python3
+from distutils.core import setup
 import reggata
 
 
@@ -37,10 +37,11 @@ setup(
     url = reggata.__url__,
     download_url = reggata.__download_url__,
     keywords = ["tags", "tagging", "documents", "files"],
-    long_description = read_file("./README.creole"),
-    install_requires=[
-        'ply',
-        'SQLAlchemy'
-        # NOTE: Reggata also needs PyQt4, it must be installed manually
-    ]
+    long_description = read_file("./README.creole")
+    
+    #install_requires=[
+    #    'ply',
+    #    'SQLAlchemy'
+    #    # NOTE: Reggata also needs PyQt4, but it must be installed manually
+    #]
 )
