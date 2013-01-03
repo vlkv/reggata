@@ -6,7 +6,7 @@ import reggata
 
 
 def read_file(filename):
-    """ Return the text of the given filename. """
+    """Returns the text of the given filename."""
     with open(filename, "r") as f:
         text = f.read()
     return text
@@ -14,7 +14,18 @@ def read_file(filename):
 
 setup(
     name = "reggata",
-    packages = ["reggata"],
+    packages = ['reggata', 
+                'reggata.data',
+                'reggata.gui',
+                'reggata.logic',
+                'reggata.parsers',
+                'reggata.tests'],
+    package_dir={'reggata': 'reggata',
+                 'reggata.data': 'reggata/data',
+                 'reggata.gui': 'reggata/gui',
+                 'reggata.logic': 'reggata/logic',
+                 'reggata.parsers': 'reggata/parsers',
+                 'reggata.tests': 'reggata/tests'},
     scripts = ["reggata/reggata"],
     version = reggata.__version__,
     description = reggata.__doc__,
