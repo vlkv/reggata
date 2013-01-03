@@ -3,12 +3,12 @@ Created on 23.12.2012
 @author: vlkv
 '''
 from logic.handler_signals import HandlerSignals
-import consts
-from data.commands import *
-from logic.action_handlers import AbstractActionHandler
-from gui.item_dialog import ItemDialog
-from logic.worker_threads import UpdateGroupOfItemsThread
-from gui.items_dialog import ItemsDialog
+import reggata.consts as consts
+from reggata.data.commands import *
+from reggata.logic.action_handlers import AbstractActionHandler
+from reggata.gui.item_dialog import ItemDialog
+from reggata.logic.worker_threads import UpdateGroupOfItemsThread
+from reggata.gui.items_dialog import ItemsDialog
 
 
 

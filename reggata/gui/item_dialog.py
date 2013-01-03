@@ -6,15 +6,14 @@ Created on 15.10.2010
 import os
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
-
-from ui.ui_itemdialog import Ui_ItemDialog
-import consts
-from data.db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
-from helpers import show_exc_info, is_none_or_empty, is_internal
-from parsers import definition_parser
-from parsers.util import quote
-from errors import MsgException
-from gui.common_widgets import TextEdit
+from reggata.ui.ui_itemdialog import Ui_ItemDialog
+import reggata.consts as consts
+from reggata.data.db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
+from reggata.helpers import show_exc_info, is_none_or_empty, is_internal
+from reggata.parsers import definition_parser
+from reggata.parsers.util import quote
+from reggata.errors import MsgException
+from reggata.gui.common_widgets import TextEdit
 
 
 class ItemDialog(QtGui.QDialog):

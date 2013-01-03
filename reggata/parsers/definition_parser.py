@@ -6,8 +6,8 @@ Created on 28.11.2010
 Parser for text definition of tags and fields.
 '''
 import ply.yacc as yacc
-from parsers.definition_tokens import *
-from errors import YaccError
+from reggata.parsers.definition_tokens import *
+from reggata.errors import YaccError
 
 def p_definition_empty(p):
     '''definition :

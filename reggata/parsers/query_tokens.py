@@ -7,9 +7,9 @@ Module contains a lexical analyzer of reggata query language.
 '''
 import ply.lex as lex
 import re
-from errors import LexError
-import consts
 from PyQt4.QtCore import QCoreApplication
+from reggata.errors import LexError
+import reggata.consts as consts
 
 
 AND_OPERATOR = QCoreApplication.translate("parsers", 'and', None, QCoreApplication.UnicodeUTF8)

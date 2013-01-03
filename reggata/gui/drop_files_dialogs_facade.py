@@ -4,8 +4,8 @@ Created on 23.09.2012
 '''
 import os
 from PyQt4 import QtCore
-from gui.common_widgets import WaitDialog
-from logic.abstract_dialogs_facade import AbstractDialogsFacade
+from reggata.gui.common_widgets import WaitDialog
+from reggata.logic.abstract_dialogs_facade import AbstractDialogsFacade
 
 
 # TODO: Class should be renamed in something like... PreselectedFilesDialogsFacade

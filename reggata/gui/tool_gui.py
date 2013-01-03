@@ -2,10 +2,10 @@
 Created on 09.09.2012
 @author: vlkv
 '''
-from PyQt4 import QtGui
-from logic.abstract_tool_gui import AbstractToolGui
 import logging
-import consts
+from PyQt4 import QtGui
+from reggata.logic.abstract_tool_gui import AbstractToolGui
+import reggata.consts as consts
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

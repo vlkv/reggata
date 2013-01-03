@@ -2,15 +2,15 @@
 Created on 23.12.2012
 @author: vlkv
 '''
-from logic.action_handlers import AbstractActionHandler
-from errors import MsgException
-import helpers
-from logic.handler_signals import HandlerSignals
-import consts
-from gui.drop_files_dialogs_facade import DropFilesDialogsFacade
-from logic.items_table_action_handlers import AddSingleItemActionHandler
-from data.commands import GetFileInfoCommand, FileInfo
 import os
+from reggata.logic.action_handlers import AbstractActionHandler
+from reggata.errors import MsgException
+import reggata.helpers as helpers
+from reggata.logic.handler_signals import HandlerSignals
+import reggata.consts as consts
+from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
+from reggata.logic.items_table_action_handlers import AddSingleItemActionHandler
+from reggata.data.commands import GetFileInfoCommand, FileInfo
 
 
 class AddFileToRepoActionHandler(AbstractActionHandler):

@@ -2,12 +2,10 @@
 Created on 01.09.2012
 @author: vlkv
 '''
-import os
 import logging
-import consts
-from user_config import UserConfig
-import helpers
-
+import reggata.consts as consts
+from reggata.user_config import UserConfig
+import reggata.helpers as helpers
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

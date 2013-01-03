@@ -5,9 +5,9 @@ Created on 16.10.2010
 '''
 import os
 import codecs
-from pyjavaproperties import Properties
-import reggata_default_conf
-import consts
+from reggata.pyjavaproperties import Properties
+import reggata.reggata_default_conf as reggata_default_conf 
+import reggata.consts as consts
 
 
 class UserConfig(object):

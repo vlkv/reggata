@@ -8,8 +8,8 @@ Tokens for parser from definition_parser module.
 
 from ply import lex
 import re
-import consts
-from errors import LexError
+import reggata.consts as consts
+from reggata.errors import LexError
 
 # Token types:
 tokens = [

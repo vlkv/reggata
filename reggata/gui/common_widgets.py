@@ -3,15 +3,15 @@ Created on 11.07.2012
 
 @author: vlkv
 '''
+import logging
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 from PyQt4.QtCore import Qt
-import parsers
-from helpers import is_none_or_empty
-import logging
-import consts
-from data.commands import GetNamesOfAllTagsAndFields
-from gui.my_message_box import MyMessageBox
+import reggata.parsers as parsers
+from reggata.helpers import is_none_or_empty
+import reggata.consts as consts
+from reggata.data.commands import GetNamesOfAllTagsAndFields
+from reggata.gui.my_message_box import MyMessageBox
 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)

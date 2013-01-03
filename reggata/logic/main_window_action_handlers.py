@@ -4,22 +4,22 @@ Created on 01.10.2012
 '''
 import os
 import PyQt4.QtGui as QtGui
-import helpers
-import consts
-from helpers import show_exc_info
-from consts import STATUSBAR_TIMEOUT
-from errors import MsgException, LoginError
-import ui.ui_aboutdialog # TODO: gui imports should be removed from logic package!
-from data.db_schema import User
-from data.commands import SaveNewUserCommand, ChangeUserPasswordCommand
-from data.repo_mgr import RepoMgr
-from logic.ext_app_mgr import ExtAppMgr
-from logic.handler_signals import HandlerSignals
-from logic.worker_threads import ImportItemsThread
-from logic.action_handlers import AbstractActionHandler
-from gui.external_apps_dialog import ExternalAppsDialog
-from gui.user_dialogs_facade import UserDialogsFacade
-from gui.user_dialog import UserDialog
+import reggata.helpers as helpers
+import reggata.consts as consts
+from reggata.helpers import show_exc_info
+from reggata.consts import STATUSBAR_TIMEOUT
+from reggata.errors import MsgException, LoginError
+from reggata.ui.ui_aboutdialog import Ui_AboutDialog # TODO: gui imports should be removed from logic package!
+from reggata.data.db_schema import User
+from reggata.data.commands import SaveNewUserCommand, ChangeUserPasswordCommand
+from reggata.data.repo_mgr import RepoMgr
+from reggata.logic.ext_app_mgr import ExtAppMgr
+from reggata.logic.handler_signals import HandlerSignals
+from reggata.logic.worker_threads import ImportItemsThread
+from reggata.logic.action_handlers import AbstractActionHandler
+from reggata.gui.external_apps_dialog import ExternalAppsDialog
+from reggata.gui.user_dialogs_facade import UserDialogsFacade
+from reggata.gui.user_dialog import UserDialog
 
     
 class CreateUserActionHandler(AbstractActionHandler):
@@ -345,7 +345,7 @@ class AboutDialog(QtGui.QDialog):
     
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)
-        self.ui = ui_aboutdialog.Ui_AboutDialog()
+        self.ui = Ui_AboutDialog()
         self.ui.setupUi(self)
         
         title = '''<h1>Reggata</h1>'''

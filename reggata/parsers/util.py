@@ -3,7 +3,7 @@
 Created on 27.11.2010
 '''
 import re
-from helpers import is_none_or_empty
+from reggata.helpers import is_none_or_empty
 
 
 def escape(string):

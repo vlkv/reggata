@@ -5,10 +5,10 @@ Created on 17.10.2010
 '''
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
-from data.db_schema import User
-from ui.ui_userdialog import Ui_UserDialog
-from helpers import show_exc_info, computePasswordHash
-from errors import UnsupportedDialogModeError, MsgException
+from reggata.data.db_schema import User
+from reggata.ui.ui_userdialog import Ui_UserDialog
+from reggata.helpers import show_exc_info, computePasswordHash
+from reggata.errors import UnsupportedDialogModeError, MsgException
 
 
 class UserDialog(QtGui.QDialog):

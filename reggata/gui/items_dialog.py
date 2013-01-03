@@ -6,13 +6,13 @@ Created on 30.11.2010
 import os
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
+from reggata.ui.ui_itemsdialog import Ui_ItemsDialog
+from reggata.helpers import is_internal, is_none_or_empty, show_exc_info
+import reggata.parsers
+from reggata.data.db_schema import DataRef
+from reggata.errors import MsgException
+from reggata.gui.common_widgets import TextEdit
 
-from ui.ui_itemsdialog import Ui_ItemsDialog
-from helpers import is_internal, is_none_or_empty, show_exc_info
-import parsers
-from data.db_schema import DataRef
-from errors import MsgException
-from gui.common_widgets import TextEdit
 
 #TODO: Rename this class to some more meaningful name
 class CustomTextEdit(QtGui.QTextEdit):

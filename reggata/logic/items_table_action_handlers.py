@@ -3,18 +3,16 @@ Created on 01.10.2012
 @author: vlkv
 '''
 import os
-import helpers
-import consts
-import data.db_schema
-from data.commands import *
-from logic.action_handlers import AbstractActionHandler
-from logic.handler_signals import HandlerSignals
-from logic.worker_threads import *
-from gui.item_dialog import ItemDialog
-from gui.image_viewer import ImageViewer
-from gui.items_dialog import ItemsDialog
-from helpers import show_exc_info
-
+from reggata.helpers import show_exc_info
+import reggata.helpers as helpers
+import reggata.consts as consts
+from reggata.data.commands import *
+from reggata.logic.action_handlers import AbstractActionHandler
+from reggata.logic.handler_signals import HandlerSignals
+from reggata.logic.worker_threads import *
+from reggata.gui.item_dialog import ItemDialog
+from reggata.gui.image_viewer import ImageViewer
+from reggata.gui.items_dialog import ItemsDialog
 
 
 class AddSingleItemActionHandler(AbstractActionHandler):

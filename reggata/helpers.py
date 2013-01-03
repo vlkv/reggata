@@ -12,12 +12,12 @@ from PyQt4.QtCore import QCoreApplication
 import traceback
 import os
 import hashlib
-import time
 import platform
 import math
 import logging
-import consts
-from gui.my_message_box import MyMessageBox
+import reggata.consts as consts
+from reggata.gui.my_message_box import MyMessageBox
+
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

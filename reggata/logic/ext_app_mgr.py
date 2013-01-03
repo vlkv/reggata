@@ -3,17 +3,17 @@
 Created on 05.12.2010
 @author: vlkv
 '''
-from user_config import UserConfig
 import os
-import consts
 import subprocess
 import shlex
-from errors import MsgException
 import logging
 from PyQt4.QtCore import QCoreApplication 
 import sys
 import string
 from PyQt4 import QtCore
+from reggata.errors import MsgException
+import reggata.consts as consts
+from reggata.user_config import UserConfig
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

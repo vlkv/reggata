@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
-
+import os
+import logging
 from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
-from ui.ui_imageviewer import Ui_ImageViewer
-import helpers
-from helpers import show_exc_info
-from errors import MsgException
-from user_config import UserConfig
-import logging
-import consts
-import os
-from data.commands import GetExpungedItemCommand, UpdateExistingItemCommand
-from gui.user_dialogs_facade import UserDialogsFacade
-from gui.item_dialog import ItemDialog
-from logic.handler_signals import HandlerSignals
+from reggata.ui.ui_imageviewer import Ui_ImageViewer
+import reggata.helpers as helpers
+from reggata.helpers import show_exc_info
+from reggata.errors import MsgException
+from reggata.user_config import UserConfig
+import reggata.consts as consts
+from reggata.data.commands import GetExpungedItemCommand, UpdateExistingItemCommand
+from reggata.gui.user_dialogs_facade import UserDialogsFacade
+from reggata.gui.item_dialog import ItemDialog
+from reggata.logic.handler_signals import HandlerSignals
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+
 
 class Canvas(QtGui.QWidget):
     '''

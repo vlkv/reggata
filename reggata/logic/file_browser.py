@@ -2,23 +2,23 @@
 Created on 19.12.2012
 @author: vlkv
 '''
-from logic.abstract_tool import AbstractTool
-from gui.file_browser_gui import FileBrowserGui
 import logging
-import consts
-from errors import NoneError, NotExistError, CurrentRepoIsNoneError, CurrentUserIsNoneError
 import os
-import helpers
-from data.commands import FileInfo, GetFileInfoCommand
 from PyQt4 import QtCore
 import traceback
 from datetime import datetime
-from logic.action_handlers import ActionHandlerStorage
-from logic.common_action_handlers import EditItemActionHandler
-from logic.handler_signals import HandlerSignals
-from logic.items_table_action_handlers import AddSingleItemActionHandler
-from gui.drop_files_dialogs_facade import DropFilesDialogsFacade
-from logic.file_browser_action_handlers import AddFileToRepoActionHandler
+from reggata.logic.abstract_tool import AbstractTool
+from reggata.gui.file_browser_gui import FileBrowserGui
+import reggata.consts as consts
+from reggata.errors import NoneError, NotExistError, CurrentRepoIsNoneError, CurrentUserIsNoneError
+import reggata.helpers as helpers
+from reggata.data.commands import FileInfo, GetFileInfoCommand
+from reggata.logic.action_handlers import ActionHandlerStorage
+from reggata.logic.common_action_handlers import EditItemActionHandler
+from reggata.logic.handler_signals import HandlerSignals
+from reggata.logic.items_table_action_handlers import AddSingleItemActionHandler
+from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
+from reggata.logic.file_browser_action_handlers import AddFileToRepoActionHandler
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

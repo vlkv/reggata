@@ -3,23 +3,23 @@
 Created on 21.01.2012
 @author: vlkv
 '''
-from PyQt4 import QtCore, QtGui
-from _pyio import open
-from data.commands import *
-from data.db_schema import Thumbnail
-from data.integrity_fixer import IntegrityFixerFactory
-from data.repo_mgr import *
-from errors import *
 from tarfile import TarInfo, TarFile
-import consts
+import tarfile
+from _pyio import open
 import io
 import logging
 import os
 import sys
-import tarfile
 import traceback
 import zipfile
 import datetime
+from PyQt4 import QtCore, QtGui
+from reggata.data.commands import *
+from reggata.data.db_schema import Thumbnail
+from reggata.data.integrity_fixer import IntegrityFixerFactory
+from reggata.data.repo_mgr import *
+from reggata.errors import *
+import reggata.consts as consts
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

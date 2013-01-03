@@ -3,8 +3,8 @@ Created on 20.12.2010 by  Vitaly Volkov
 '''
 import os
 import datetime
-from data.db_schema import Item, DataRef
-from helpers import computeFileHash
+from reggata.data.db_schema import Item, DataRef
+from reggata.helpers import computeFileHash
 
 
 class IntegrityFixerFactory(object):

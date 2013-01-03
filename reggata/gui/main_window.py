@@ -3,18 +3,19 @@
 Created on 20.08.2010
 @author: vlkv
 '''
-from ui.ui_mainwindow import Ui_MainWindow
 import logging
-import consts
-from helpers import *
-from data.repo_mgr import *
-from logic.worker_threads import *
-from logic.action_handlers import *
-from logic.abstract_gui import AbstractGui
-from logic.main_window_model import MainWindowModel
-from logic.items_table import ItemsTable
-from gui.user_dialogs_facade import UserDialogsFacade
-from logic.handler_signals import HandlerSignals
+from PyQt4 import QtGui, QtCore
+import reggata.consts as consts
+from reggata.helpers import *
+from reggata.data.repo_mgr import *
+from reggata.logic.worker_threads import *
+from reggata.logic.action_handlers import *
+from reggata.logic.abstract_gui import AbstractGui
+from reggata.logic.main_window_model import MainWindowModel
+from reggata.logic.items_table import ItemsTable
+from reggata.logic.handler_signals import HandlerSignals
+from reggata.gui.user_dialogs_facade import UserDialogsFacade
+from reggata.ui.ui_mainwindow import Ui_MainWindow
 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)

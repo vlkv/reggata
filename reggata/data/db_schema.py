@@ -8,12 +8,12 @@ import sqlalchemy as sqa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey, orm
-from helpers import is_none_or_empty
 import datetime
 import os
 import hashlib
-import helpers
-import memento
+import reggata.memento as memento
+import reggata.helpers as helpers
+from reggata.helpers import is_none_or_empty
 
 
 Base = declarative_base()

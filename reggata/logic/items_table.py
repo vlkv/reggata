@@ -5,16 +5,16 @@ Created on 21.01.2012
 '''
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
-from data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
-from logic.abstract_tool import AbstractTool
-from logic.tag_cloud import TagCloud
-from logic.action_handlers import *
-from logic.items_table_action_handlers import *
-from logic.common_action_handlers import *
-from logic.ext_app_mgr import ExtAppMgr
-from gui.common_widgets import Completer
-from gui.items_table_gui import ItemsTableGui, ItemsTableModel
-from gui.drop_files_dialogs_facade import DropFilesDialogsFacade
+from reggata.data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
+from reggata.logic.abstract_tool import AbstractTool
+from reggata.logic.tag_cloud import TagCloud
+from reggata.logic.action_handlers import *
+from reggata.logic.items_table_action_handlers import *
+from reggata.logic.common_action_handlers import *
+from reggata.logic.ext_app_mgr import ExtAppMgr
+from reggata.gui.common_widgets import Completer
+from reggata.gui.items_table_gui import ItemsTableGui, ItemsTableModel
+from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
 
 
 class ItemsTable(AbstractTool):

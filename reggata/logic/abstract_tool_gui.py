@@ -3,7 +3,7 @@ Created on 07.09.2012
 @author: vlkv
 '''
 import logging
-import consts
+import reggata.consts as consts
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

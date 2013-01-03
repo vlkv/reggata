@@ -4,14 +4,14 @@ Created on 27.08.2012
 '''
 from PyQt4 import QtCore
 from PyQt4.QtGui import QMessageBox, QInputDialog, QFileDialog
-from gui.user_dialog import UserDialog
-from gui.change_user_password_dialog import ChangeUserPasswordDialog
-from gui.common_widgets import Completer, WaitDialog
-from gui.item_dialog import ItemDialog
-from gui.items_dialog import ItemsDialog
-from logic.abstract_dialogs_facade import AbstractDialogsFacade
-from helpers import is_none_or_empty
-import helpers
+from reggata.gui.user_dialog import UserDialog
+from reggata.gui.change_user_password_dialog import ChangeUserPasswordDialog
+from reggata.gui.common_widgets import Completer, WaitDialog
+from reggata.gui.item_dialog import ItemDialog
+from reggata.gui.items_dialog import ItemsDialog
+from reggata.logic.abstract_dialogs_facade import AbstractDialogsFacade
+from reggata.helpers import is_none_or_empty
+import reggata.helpers as helpers
 
 
 class UserDialogsFacade(AbstractDialogsFacade):

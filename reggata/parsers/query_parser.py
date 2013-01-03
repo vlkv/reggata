@@ -6,9 +6,9 @@ Created on 24.10.2010
 Module contains productions of reggata query language grammar.
 '''
 import ply.yacc as yacc
-from parsers.query_tree_nodes import *
-from parsers.query_tokens import *
-from errors import YaccError
+from reggata.parsers.query_tree_nodes import *
+from reggata.parsers.query_tokens import *
+from reggata.errors import YaccError
 
 
 def p_query(p):

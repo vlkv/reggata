@@ -5,11 +5,10 @@ Created on 30.09.2010
 import sqlalchemy as sqa
 from sqlalchemy.orm import sessionmaker
 import os.path
-from errors import CannotOpenRepoError
-import helpers 
-import consts
-from user_config import UserConfig
-from data.db_schema import Base, Item, HistoryRec, DataRef
+from reggata.errors import CannotOpenRepoError 
+import reggata.consts as consts
+from reggata.user_config import UserConfig
+from reggata.data.db_schema import Base, Item, HistoryRec, DataRef
 
 
 class RepoMgr(object):

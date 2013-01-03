@@ -3,10 +3,10 @@ Created on 28.09.2012
 @author: vlkv
 '''
 from PyQt4 import QtGui, QtCore
-from ui.ui_externalappsdialog import Ui_ExternalAppsDialog
-import helpers
-from errors import MsgException
-from logic.ext_app_mgr import ExtAppDescription
+from reggata.ui.ui_externalappsdialog import Ui_ExternalAppsDialog
+import reggata.helpers as helpers
+from reggata.errors import MsgException
+from reggata.logic.ext_app_mgr import ExtAppDescription
 
 
 class FileExtentionsListValidator(QtGui.QValidator):

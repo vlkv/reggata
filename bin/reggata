@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from reggata.reggata import *
+from reggata.main import *
 
 if __name__ == "__main__":
     main()

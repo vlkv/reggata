@@ -24,13 +24,13 @@ Created on 21.01.2012
 import os.path
 import sys
 import codecs
+import logging.config
 import PyQt4.QtCore as QtCore
 from PyQt4.QtGui import QApplication
-import consts
-from user_config import UserConfig
-import logging.config
-import logging_default_conf
-from gui.main_window import MainWindow
+import reggata.consts as consts
+from reggata.user_config import UserConfig
+import reggata.logging_default_conf as logging_default_conf
+from reggata.gui.main_window import MainWindow
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

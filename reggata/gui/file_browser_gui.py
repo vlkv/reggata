@@ -2,21 +2,21 @@
 Created on 19.12.2012
 @author: vlkv
 '''
-from gui.tool_gui import ToolGui
 import logging
-import consts
-from ui.ui_filebrowsergui import Ui_FileBrowserGui
 from PyQt4 import QtCore
 from PyQt4.QtCore import Qt
-from data.commands import FileInfo
-from helpers import HTMLDelegate
-import helpers
+from reggata.gui.tool_gui import ToolGui
+import reggata.consts as consts
+from reggata.ui.ui_filebrowsergui import Ui_FileBrowserGui
+from reggata.data.commands import FileInfo
+from reggata.helpers import HTMLDelegate
+import reggata.helpers as helpers
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
+
 class FileBrowserGui(ToolGui):
     
-
     def __init__(self, parent, fileBrowserTool):
         super(FileBrowserGui, self).__init__(parent)
         self.ui = Ui_FileBrowserGui()

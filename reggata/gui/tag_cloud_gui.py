@@ -6,15 +6,15 @@ Created on 13.11.2010
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
-from helpers import show_exc_info, is_none_or_empty
-from parsers.query_tokens import needs_quote
-from parsers.util import quote
-import parsers
-from errors import MsgException
-from user_config import UserConfig
-from data.commands import GetRelatedTagsCommand
-from logic.abstract_tool_gui import AbstractToolGui
-from gui.tool_gui import ToolGui
+from reggata.helpers import show_exc_info, is_none_or_empty
+from reggata.parsers.query_tokens import needs_quote
+from reggata.parsers.util import quote
+import reggata.parsers as parsers
+from reggata.errors import MsgException
+from reggata.user_config import UserConfig
+from reggata.data.commands import GetRelatedTagsCommand
+from reggata.logic.abstract_tool_gui import AbstractToolGui
+from reggata.gui.tool_gui import ToolGui
 
 
 

@@ -2,21 +2,20 @@
 Created on 21.01.2012
 @author: vlkv
 '''
+import logging
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
-
-from ui.ui_itemstablegui import Ui_ItemsTableGui
-from user_config import UserConfig
-from parsers import query_parser
-from gui.common_widgets import TextEdit
-from helpers import *
-import consts
-import logging
-from errors import *
-from data.commands import *
-from logic.worker_threads import ThumbnailBuilderThread
-from gui.tool_gui import ToolGui
+from reggata.ui.ui_itemstablegui import Ui_ItemsTableGui
+from reggata.user_config import UserConfig
+from reggata.parsers import query_parser
+from reggata.gui.common_widgets import TextEdit
+from reggata.helpers import *
+import reggata.consts as consts
+from reggata.errors import *
+from reggata.data.commands import *
+from reggata.logic.worker_threads import ThumbnailBuilderThread
+from reggata.gui.tool_gui import ToolGui
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

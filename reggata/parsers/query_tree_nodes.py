@@ -6,8 +6,8 @@ Created on 27.11.2010
 Module consists of classes, which represent nodes of syntax tree of 
 reggata query language.
 '''
-import helpers
-from data import db_schema
+import reggata.helpers as helpers
+from reggata.data import db_schema
 
 
 class QueryExpression(object):

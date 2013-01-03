@@ -6,11 +6,11 @@ Created on 20.07.2012
 
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
-from ui.ui_changeuserpassword import Ui_ChangeUserPasswordDialog
-from data.db_schema import *
-from helpers import *
-from errors import *
-from data.repo_mgr import *
+from reggata.ui.ui_changeuserpassword import Ui_ChangeUserPasswordDialog
+from reggata.data.db_schema import *
+from reggata.helpers import *
+from reggata.errors import *
+from reggata.data.repo_mgr import *
 
 
 class ChangeUserPasswordDialog(QtGui.QDialog):

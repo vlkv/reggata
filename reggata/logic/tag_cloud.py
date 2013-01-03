@@ -2,10 +2,10 @@
 Created on 08.09.2012
 @author: vlkv
 '''
-from logic.abstract_tool import AbstractTool
 from PyQt4 import QtCore
-from gui.tag_cloud_gui import TagCloudGui
-from logic.handler_signals import HandlerSignals
+from reggata.logic.abstract_tool import AbstractTool
+from reggata.logic.handler_signals import HandlerSignals
+from reggata.gui.tag_cloud_gui import TagCloudGui
 
 
 class TagCloud(AbstractTool):

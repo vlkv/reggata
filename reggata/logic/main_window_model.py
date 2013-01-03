@@ -2,17 +2,17 @@
 Created on 07.09.2012
 @author: vlkv
 '''
-from user_config import UserConfig
-from data.commands import LoginUserCommand
-from errors import CurrentRepoIsNoneError, CurrentUserIsNoneError
-from logic.items_table import ItemsTable
-from logic.tag_cloud import TagCloud
 from PyQt4 import QtCore
-from logic.ext_app_mgr import ExtAppMgr
-from logic.file_browser import FileBrowser
-from logic.action_handlers import ActionHandlerStorage
-from logic.main_window_action_handlers import *
-from logic.favorite_repos_storage import FavoriteReposStorage
+from reggata.user_config import UserConfig
+from reggata.data.commands import LoginUserCommand
+from reggata.errors import CurrentRepoIsNoneError, CurrentUserIsNoneError
+from reggata.logic.items_table import ItemsTable
+from reggata.logic.tag_cloud import TagCloud
+from reggata.logic.ext_app_mgr import ExtAppMgr
+from reggata.logic.file_browser import FileBrowser
+from reggata.logic.action_handlers import ActionHandlerStorage
+from reggata.logic.main_window_action_handlers import *
+from reggata.logic.favorite_repos_storage import FavoriteReposStorage
 
 class AbstractMainWindowModel(object):
     '''
