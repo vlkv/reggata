@@ -175,6 +175,7 @@ class Item(Base, memento.Serializable):
     def toJson(self):
         return {"__class__": self.__class__.__name__,
                 "__module__": "reggata.data.db_schema",
+                "__version__": 1,
                 "title": self.title,
                 "user_login": self.user_login,
                 "date_created": self.date_created,
@@ -430,6 +431,7 @@ class DataRef(Base, memento.Serializable):
     def toJson(self):
         return {"__class__": self.__class__.__name__,
                 "__module__": "reggata.data.db_schema",
+                "__version__": 1,
                 "url": self.url_raw,
                 "type": self.type,
                 "hash": self.hash,

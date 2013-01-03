@@ -5,7 +5,7 @@ Created on 27.07.2012
 '''
 import unittest
 import datetime
-from reggata.data.db_schema import Item 
+from reggata.data.db_schema import Item
 import reggata.memento as memento
 from reggata.tests.tests_context import itemWithTagsAndFields
 from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepo
@@ -16,6 +16,7 @@ class ItemSerializationSimpleTest(unittest.TestCase):
     simpleItemState = '''{
     "__class__": "Item", 
     "__module__": "reggata.data.db_schema", 
+    "__version__": 1, 
     "data_ref": null, 
     "date_created": {
         "__datetime__": "datetime.datetime(2012, 7, 27, 23, 14, 14, 680387)"
