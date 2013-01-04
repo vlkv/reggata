@@ -18,6 +18,7 @@ setup(
                 'reggata.parsers',
                 'reggata.tests'],
     scripts = ["bin/reggata"],
+    package_data = {'reggata': ['locale/*.qm']},
     version = reggata.__version__,
     description = reggata.__doc__,
     author = reggata.__author__,
@@ -27,7 +28,7 @@ setup(
     download_url = reggata.__download_url__,
     keywords = ["tags", "tagging", "documents", "files"],
     long_description = read_file("./README.creole")
-    
+
     #install_requires=[
     #    'ply',
     #    'SQLAlchemy'

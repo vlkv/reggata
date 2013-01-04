@@ -60,9 +60,10 @@ def configureTranslations(app):
     if language:
         qm_filename = "reggata_{}.qm".format(language)
 
-        isQmLoaded = qtr.load(qm_filename, "locale")
+        reggataDir = os.path.dirname(__file__)
+        isQmLoaded = qtr.load(qm_filename, os.path.join(reggataDir, "locale"))
         if not isQmLoaded:
-            isQmLoaded = qtr.load(qm_filename, os.path.join("..", "locale"))
+            isQmLoaded = qtr.load(qm_filename, os.path.join(reggataDir, "..", "locale"))
 
         if isQmLoaded:
             QtCore.QCoreApplication.installTranslator(qtr)
@@ -78,6 +79,8 @@ def main():
     logger.debug("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
     logger.debug("qt_version = {}".format(QtCore.QT_VERSION_STR))
     logger.debug("current dir is " + os.path.abspath("."))
+    logger.debug("__file__ is " + __file__)
+    logger.debug("os.path.abspath(__file__) is " + os.path.abspath(__file__))
 
     configureTmpDir()
 
