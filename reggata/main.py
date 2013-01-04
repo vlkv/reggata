@@ -60,9 +60,9 @@ def configureTranslations(app):
     if language:
         qm_filename = "reggata_{}.qm".format(language)
 
-        isQmLoaded = qtr.load(qm_filename, ".")
+        isQmLoaded = qtr.load(qm_filename, "locale")
         if not isQmLoaded:
-            qtr.load(qm_filename, "..")
+            isQmLoaded = qtr.load(qm_filename, os.path.join("..", "locale"))
 
         if isQmLoaded:
             QtCore.QCoreApplication.installTranslator(qtr)

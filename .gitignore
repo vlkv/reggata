@@ -1,5 +1,6 @@
 *.pyc
 /build
+/binary_builds
 /dist
 /*.egg-info
 /.settings/*.prefs
@@ -13,3 +14,4 @@
 /bin/parsetab.py
 /bin/parser.out
 /bin/reggata.log
+/bin/build_out.log

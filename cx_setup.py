@@ -1,11 +1,6 @@
-# To build executable package with cx_freeze just execute command:
-#   python setup.py build
-#
-# Command to upload release
-# scp [archive.tar.gz] vlkv,reggata@frs.sourceforge.net:/home/frs/project/r/re/reggata/[version]
+# This is a config file for building with cx_freeze binary Reggata distribution
 
 import sys
-
 from cx_Freeze import setup, Executable
 import imp
 import os
@@ -16,11 +11,11 @@ class UnsupportedPlatform(Exception):
     pass
 
 class VersionInfoNotFound(Exception):
-    pass 
+    pass
 
 
 def get_reggata_version():
-    with open("version.txt", "r") as f:
+    with open(os.path.join("..", "version.txt"), "r") as f:
         version = f.readline().strip()
         if version is None or len(version) == 0:
             raise VersionInfoNotFound()
@@ -42,37 +37,43 @@ def get_short_sys_platform():
 
 if __name__ == '__main__':
     
-    sys.path.append(r'.' + os.sep + 'ui')
-    sys.path.append(r'.' + os.sep + 'lib')
-    sys.path.append(r'.' + os.sep + 'src')
+    sys.path.append(os.path.join("..", "locale"))
+    sys.path.append(os.path.join("..", "reggata"))
     
     base = None
+    targetExeName = "reggata"
     if sys.platform.startswith("win"):
         base = "Win32GUI"
+        targetExeName = targetExeName + ".exe"
     
     reggata_version = get_reggata_version()
     print("Reggata version is " + reggata_version)
-    target_dir = os.path.join("bin", "reggata-" + reggata_version + "_" + get_short_sys_platform()) 
+    target_dir = os.path.join(
+		"..", "binary_builds", "reggata-" + reggata_version + "_" + get_short_sys_platform())
     buildOptions = dict(
             compressed = True,
             includes = ["sqlite3"],
             packages = ["sqlalchemy.dialects.sqlite", "ply"],
-            namespace_packages=["sqlalchemy"],
-            include_files = ["reggata_ru.qm", "COPYING", "README.creole", 
-                             "version.txt"],
+            include_files = [("../locale/reggata_ru.qm", "locale/reggata_ru.qm"),
+                             ("../COPYING", "COPYING"), 
+                             ("../README.creole", "README.creole"), 
+                             ("../version.txt", "version.txt")],
             build_exe = target_dir
-            )
+    )
     setup(
             name = "Reggata",
             version = reggata_version,
             description = "Reggata is a tag-based file manager",
             options = dict(build_exe = buildOptions),
-            executables = [Executable('.' + os.sep + 'src' + os.sep + 'reggata.py', base = base)]
-            )
+            executables = [Executable(os.path.join('..', 'reggata', 'main.py'), 
+                                      base = base,
+                                      targetName = targetExeName)]
+    )
     
     if sys.platform.startswith("win"):
         file, PyQt4_path, desc = imp.find_module("PyQt4")
-        shutil.copytree(PyQt4_path + os.sep + "plugins" + os.sep + "imageformats", target_dir + os.sep + "imageformats")
-    
-    print("Done")
+        shutil.copytree(os.path.join(PyQt4_path, "plugins", "imageformats"), 
+                        os.path.join(target_dir, "imageformats"))
+        
+    print("Done.")
 
