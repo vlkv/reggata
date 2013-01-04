@@ -1,5 +1,5 @@
 import unittest
-import helpers
+import reggata.helpers as helpers
 
 
 class IsNoneOrEmptyTest(unittest.TestCase):
