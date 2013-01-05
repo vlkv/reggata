@@ -56,7 +56,8 @@ class AddItemAlgorithms(object):
     def addManyItems(tool, dialogs, files):
         '''
             Creates and saves in repository items linked with given list of files (filenames). 
-        Returns a tuple (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds)
+        Returns a tuple (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds) or raises an
+        exception.
         '''
         if len(files) <= 1:
             raise ValueError("You should give more than one file.")
@@ -88,9 +89,9 @@ class AddItemAlgorithms(object):
             Creates and saves in repository a number of items linked with files defined by given listOfPaths.
         listOfPaths is a list of paths to files and directories. For every file an Item is created. 
         Every directory is scanned recursively and for every file found an Item is created.
-        Returns a tuple (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds)
+        Returns a tuple (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds) or raises 
+        an exception.
         '''
-        
         items = []
         for path in listOfPaths:
             path = os.path.normpath(path)
