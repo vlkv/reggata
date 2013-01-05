@@ -153,8 +153,8 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
         dstRelPaths = []
         for root, dirs, files in os.walk(srcDirAbsPath):
             for file in files:
-                dstRelPaths.append(os.path.relpath(os.path.join(root, file), srcDirAbsPath))
-        
+                dstRelPath = os.path.relpath(os.path.join(root, file), os.path.join(srcDirAbsPath, ".."))
+                dstRelPaths.append(dstRelPath)
         
         tool = TestsToolModel(self.repo, user)
         dialogs = TestsDialogsFacade(selectedFiles=[srcDirAbsPath])

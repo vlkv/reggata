@@ -441,6 +441,7 @@ class DataRef(Base, memento.Serializable):
         # This two fields is used only in function "Add many items recursively"
         # srcAbsPathToRecursionRoot is a absolute path to the root directory 
         # from where recursive scanning was started.
+        # TODO: rename self.srcAbsPathToRecursionRoot to something like self.srcAbsPathToRelativeRoot, because now it points one dir up of recursion root!
         self.srcAbsPathToRecursionRoot = None
         self.srcAbsPath = None
         
