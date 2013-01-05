@@ -65,12 +65,12 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             self._tool.checkActiveRepoIsNotNone()
             self._tool.checkActiveUserIsNotNone()
             
-            item = Item(user_login=self._tool.user.login)
-            
             #User can push Cancel button and do not select a file now
             #In such a case, Item will be added without file reference
             file = self.__dialogs.getOpenFileName(
                 self._tool.gui, self.tr("Select a file to link with new Item."))
+            
+            item = Item(user_login=self._tool.user.login)
             
             if not helpers.is_none_or_empty(file):
                 file = os.path.normpath(file)
