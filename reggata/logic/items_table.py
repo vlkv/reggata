@@ -81,6 +81,10 @@ class ItemsTable(AbstractTool):
         assert len(self._gui.actions) > 0, "Actions should be already built in ToolGui"
         
         self._actionHandlers.register(
+            self._gui.actions['addItems'], 
+            AddItemsActionHandler(self, self._dialogsFacade))
+        
+        self._actionHandlers.register(
             self._gui.actions['addOneItem'], 
             AddSingleItemActionHandler(self, self._dialogsFacade))
         

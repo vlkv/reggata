@@ -15,6 +15,45 @@ from reggata.gui.image_viewer import ImageViewer
 from reggata.gui.items_dialog import ItemsDialog
 
 
+
+class AddItemsActionHandler(AbstractActionHandler):
+    def __init__(self, tool, dialogs):
+        super(AddItemsActionHandler, self).__init__(tool)
+        self.__dialogs = dialogs
+        self.lastSavedItemId = None
+        
+    def handle(self):
+        try:
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
+            
+            files = self.__dialogs.getOpenFileNames(
+                self._tool.gui, self.tr("Select files you want to add to the repository."))
+            
+            if len(files) == 0:
+                # User want to add Item without file
+                pass
+            elif len(files) == 1 :
+                if os.path.isdir(files[0]):
+                    # User want to add many Items from one dir recursively
+                    pass
+                else:
+                    # User want to add single Item with file 
+                    pass
+            else:
+                # User want to add many Items from list of files and dirs
+                pass
+            
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
+                self.tr("Item added to repository."), consts.STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)    
+                
+        except Exception as ex:
+            show_exc_info(self._tool.gui, ex)
+            
+
+
+
 class AddSingleItemActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(AddSingleItemActionHandler, self).__init__(tool)
