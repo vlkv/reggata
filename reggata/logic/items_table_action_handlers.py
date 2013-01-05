@@ -21,7 +21,9 @@ class AddItemsActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(AddItemsActionHandler, self).__init__(tool)
         self.__dialogs = dialogs
-        self.lastSavedItemId = None
+        self._itemsCreatedCount = 0
+        self._filesSkippedCount = 0
+        self.lastSavedItemIds = []
         
     def handle(self):
         try:
@@ -32,27 +34,43 @@ class AddItemsActionHandler(AbstractActionHandler):
                 self._tool.gui, self.tr("Select files you want to add to the repository."))
             
             if len(files) == 0:
-                # User want to add single Item without any file
-                self.lastSavedItemId = AddItemAlgorithms.addSingleItem(self._tool, self.__dialogs)
+                # User wants to add a single Item without any file
+                savedItemId = AddItemAlgorithms.addSingleItem(self._tool, self.__dialogs)
+                self._itemsCreatedCount += 1
+                self.lastSavedItemIds.append(savedItemId)
                 
             elif len(files) == 1 :
                 file = files[0]
                 if os.path.isdir(file):
-                    # User want to add many Items from one dir recursively
-                    pass
+                    # User wants to create Items for all files in selected directory
+                    (itemsCreatedCount, filesSkippedCount, savedItemIds) = \
+                        AddItemAlgorithms.addManyItemsRecursively(self._tool, self._dialogs, [file])
+                    self._itemsCreatedCount += itemsCreatedCount
+                    self._filesSkippedCount += filesSkippedCount
+                    self.lastSavedItemIds.extend(savedItemIds)
                 else:
-                    # User want to add single Item with file 
-                    self.lastSavedItemId = AddItemAlgorithms.addSingleItem(self._tool, self.__dialogs, file)
+                    # User wants to add single Item with file
+                    savedItemId = AddItemAlgorithms.addSingleItem(self._tool, self.__dialogs, file)
+                    self._itemsCreatedCount += 1
+                    self.lastSavedItemIds.append(savedItemId)
             else:
-                # User want to add many Items from list of files and dirs
-                pass
+                # User wants to create Items for a whole list of files and dirs
+                (itemsCreatedCount, filesSkippedCount, savedItemIds) = \
+                    AddItemAlgorithms.addManyItemsRecursively(self._tool, self._dialogs, files)
+                self._itemsCreatedCount += itemsCreatedCount
+                self._filesSkippedCount += filesSkippedCount
+                self.lastSavedItemIds.extend(savedItemIds)
             
-            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
-                self.tr("Item added to repository."), consts.STATUSBAR_TIMEOUT)
-            self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)    
-                
+            self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
+            
+        except CancelOperationError:
+            return
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
+        finally:
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
+                self.tr("Operation completed. Added {}, skipped {} files.")
+                    .format(self._itemsCreatedCount, self._filesSkippedCount))
             
 
 
@@ -109,9 +127,10 @@ class AddManyItemsActionHandler(AbstractActionHandler):
             
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
                 
+        except CancelOperationError:
+            return
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
-            
         finally:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
                 self.tr("Operation completed. Added {}, skipped {} files.")
@@ -145,9 +164,10 @@ class AddManyItemsRecursivelyActionHandler(AbstractActionHandler):
                 
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
                 
+        except CancelOperationError:
+            return
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
-            
         finally:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
                 self.tr("Operation completed. Added {}, skipped {} files.")
