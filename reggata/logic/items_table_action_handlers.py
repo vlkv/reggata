@@ -86,18 +86,14 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             show_exc_info(self._tool.gui, ex)
         
 
-class AddManyItemsAbstractActionHandler(AbstractActionHandler):
+ 
+class AddManyItemsActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
-        super(AddManyItemsAbstractActionHandler, self).__init__(tool)
+        super(AddManyItemsActionHandler, self).__init__(tool)
         self._dialogs = dialogs
         self._createdObjectsCount = 0
         self._skippedObjectsCount = 0
         self.lastSavedItemIds = []
-        
- 
-class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
-    def __init__(self, tool, dialogs):
-        super(AddManyItemsActionHandler, self).__init__(tool, dialogs)
         
     def handle(self):
         try:
@@ -127,9 +123,13 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
             
         
         
-class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
+class AddManyItemsRecursivelyActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
-        super(AddManyItemsRecursivelyActionHandler, self).__init__(tool, dialogs)
+        super(AddManyItemsRecursivelyActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
+        self._createdObjectsCount = 0
+        self._skippedObjectsCount = 0
+        self.lastSavedItemIds = []
         
     def handle(self):
         '''
