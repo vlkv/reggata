@@ -55,7 +55,7 @@ class AddItemAlgorithms(object):
     @staticmethod
     def addManyItems(tool, dialogs, files):
         '''
-            Creates items linked with given list of files (filenames). 
+            Creates and saves in repository items linked with given list of files (filenames). 
         Returns a tuple (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds)
         '''
         if len(files) <= 1:
@@ -83,26 +83,48 @@ class AddItemAlgorithms(object):
 
 
     @staticmethod
-    def addManyItemsRecursively(tool, dialogs, dirPath):
-        dirPath = os.path.normpath(dirPath)
-            
+    def addManyItemsRecursively(tool, dialogs, listOfPaths):
+        '''
+            Creates and saves in repository a number of items linked with files defined by given listOfPaths.
+        listOfPaths is a list of paths to files and directories. For every file an Item is created. 
+        Every directory is scanned recursively and for every file found an Item is created.
+        Returns a tuple (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds)
+        '''
+        
         items = []
-        for root, dirs, files in os.walk(dirPath):
-            if os.path.relpath(root, dirPath) == ".reggata":
-                continue
-            for file in files:
+        for path in listOfPaths:
+            path = os.path.normpath(path)
+            
+            if os.path.isfile(path):
+                file = path
                 item = Item(user_login=tool.user.login)
                 item.title, _ = os.path.splitext(file)
-                srcAbsPath = os.path.join(root, file)
+                srcAbsPath = os.path.abspath(file)
                 item.data_ref = DataRef(type=DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
                 item.data_ref.srcAbsPath = srcAbsPath
-                item.data_ref.srcAbsPathToRecursionRoot = dirPath
+                item.data_ref.srcAbsPathToRecursionRoot = os.path.dirname(file)
                 # item.data_ref.dstRelPath will be set by ItemsDialog
                 items.append(item)
+            elif os.path.isdir(path):
+                dirPath = path
+                for root, dirs, files in os.walk(dirPath):
+                    if os.path.relpath(root, dirPath) == ".reggata":
+                        continue
+                    for file in files:
+                        item = Item(user_login=tool.user.login)
+                        item.title, _ = os.path.splitext(file)
+                        srcAbsPath = os.path.join(root, file)
+                        item.data_ref = DataRef(type=DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
+                        item.data_ref.srcAbsPath = srcAbsPath
+                        item.data_ref.srcAbsPathToRecursionRoot = dirPath
+                        # item.data_ref.dstRelPath will be set by ItemsDialog
+                        items.append(item)
+            else:
+                logger.info("Skipping path '{}'".format(path))
         
         if not dialogs.execItemsDialog(
             items, tool.gui, tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=False):
-            return
+            raise CancelOperationError("User cancelled operation.")
             
         thread = CreateGroupOfItemsThread(tool.gui, tool.repo, items)
         

@@ -91,8 +91,8 @@ class AddManyItemsActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(AddManyItemsActionHandler, self).__init__(tool)
         self._dialogs = dialogs
-        self._createdObjectsCount = 0
-        self._skippedObjectsCount = 0
+        self._itemsCreatedCount = 0
+        self._filesSkippedCount = 0
         self.lastSavedItemIds = []
         
     def handle(self):
@@ -104,12 +104,8 @@ class AddManyItemsActionHandler(AbstractActionHandler):
             if len(files) == 0:
                 raise MsgException(self.tr("No files chosen. Operation cancelled."))
             
-            (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds) = \
+            (self._itemsCreatedCount, self._filesSkippedCount, self.lastSavedItemIds) = \
                 AddItemAlgorithms.addManyItems(self._tool, self._dialogs, files)
-            
-            self._createdObjectsCount = itemsCreatedCount
-            self._skippedObjectsCount = filesSkippedCount
-            self.lastSavedItemIds = listOfSavedItemIds
             
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
                 
@@ -119,7 +115,7 @@ class AddManyItemsActionHandler(AbstractActionHandler):
         finally:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
                 self.tr("Operation completed. Added {}, skipped {} files.")
-                    .format(self._createdObjectsCount, self._skippedObjectsCount))
+                    .format(self._itemsCreatedCount, self._filesSkippedCount))
             
         
         
@@ -127,8 +123,8 @@ class AddManyItemsRecursivelyActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(AddManyItemsRecursivelyActionHandler, self).__init__(tool)
         self._dialogs = dialogs
-        self._createdObjectsCount = 0
-        self._skippedObjectsCount = 0
+        self._itemsCreatedCount = 0
+        self._filesSkippedCount = 0
         self.lastSavedItemIds = []
         
     def handle(self):
@@ -144,12 +140,8 @@ class AddManyItemsRecursivelyActionHandler(AbstractActionHandler):
             if not dirPath:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
                         
-            (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds) = \
-                AddItemAlgorithms.addManyItemsRecursively(self._tool, self._dialogs, dirPath)
-                
-            self._createdObjectsCount = itemsCreatedCount
-            self._skippedObjectsCount = filesSkippedCount
-            self.lastSavedItemIds = listOfSavedItemIds
+            (self._itemsCreatedCount, self._filesSkippedCount, self.lastSavedItemIds) = \
+                AddItemAlgorithms.addManyItemsRecursively(self._tool, self._dialogs, [dirPath])
                 
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
                 
@@ -159,7 +151,7 @@ class AddManyItemsRecursivelyActionHandler(AbstractActionHandler):
         finally:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
                 self.tr("Operation completed. Added {}, skipped {} files.")
-                    .format(self._createdObjectsCount, self._skippedObjectsCount))
+                    .format(self._itemsCreatedCount, self._filesSkippedCount))
             
 
 
