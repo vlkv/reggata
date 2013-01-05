@@ -82,6 +82,37 @@ class AddItemAlgorithms(object):
         return (thread.createdCount, thread.skippedCount, thread.lastSavedItemIds)
 
 
+    @staticmethod
+    def addManyItemsRecursively(tool, dialogs, dirPath):
+        dirPath = os.path.normpath(dirPath)
+            
+        items = []
+        for root, dirs, files in os.walk(dirPath):
+            if os.path.relpath(root, dirPath) == ".reggata":
+                continue
+            for file in files:
+                item = Item(user_login=tool.user.login)
+                item.title, _ = os.path.splitext(file)
+                srcAbsPath = os.path.join(root, file)
+                item.data_ref = DataRef(type=DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
+                item.data_ref.srcAbsPath = srcAbsPath
+                item.data_ref.srcAbsPathToRecursionRoot = dirPath
+                # item.data_ref.dstRelPath will be set by ItemsDialog
+                items.append(item)
+        
+        if not dialogs.execItemsDialog(
+            items, tool.gui, tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=False):
+            return
+            
+        thread = CreateGroupOfItemsThread(tool.gui, tool.repo, items)
+        
+        dialogs.startThreadWithWaitDialog(
+                thread, tool.gui, indeterminate=False)
+            
+        return (thread.createdCount, thread.skippedCount, thread.lastSavedItemIds)
+        
+
+
 class EditItemActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(EditItemActionHandler, self).__init__(tool)

@@ -93,16 +93,6 @@ class AddManyItemsAbstractActionHandler(AbstractActionHandler):
         self._createdObjectsCount = 0
         self._skippedObjectsCount = 0
         self.lastSavedItemIds = []
-    
-    def _startWorkerThreadAndWait(self, items):
-        thread = CreateGroupOfItemsThread(self._tool.gui, self._tool.repo, items)
-        
-        self._dialogs.startThreadWithWaitDialog(
-                thread, self._tool.gui, indeterminate=False)
-            
-        self._createdObjectsCount = thread.createdCount
-        self._skippedObjectsCount = thread.skippedCount
-        self.lastSavedItemIds = thread.lastSavedItemIds
         
  
 class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
@@ -154,27 +144,13 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
             if not dirPath:
                 raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
                         
-            dirPath = os.path.normpath(dirPath)
-            
-            items = []
-            for root, dirs, files in os.walk(dirPath):
-                if os.path.relpath(root, dirPath) == ".reggata":
-                    continue
-                for file in files:
-                    item = Item(user_login=self._tool.user.login)
-                    item.title, _ = os.path.splitext(file)
-                    srcAbsPath = os.path.join(root, file)
-                    item.data_ref = DataRef(type=DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
-                    item.data_ref.srcAbsPath = srcAbsPath
-                    item.data_ref.srcAbsPathToRecursionRoot = dirPath
-                    # item.data_ref.dstRelPath will be set by ItemsDialog
-                    items.append(item)
-            
-            if not self._dialogs.execItemsDialog(
-                items, self._tool.gui, self._tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=False):
-                return
+            (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds) = \
+                AddItemAlgorithms.addManyItemsRecursively(self._tool, self._dialogs, dirPath)
                 
-            self._startWorkerThreadAndWait(items)
+            self._createdObjectsCount = itemsCreatedCount
+            self._skippedObjectsCount = filesSkippedCount
+            self.lastSavedItemIds = listOfSavedItemIds
+                
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
                 
         except Exception as ex:
