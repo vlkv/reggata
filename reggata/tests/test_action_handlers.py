@@ -16,6 +16,7 @@ from reggata.gui.user_dialogs_facade import UserDialogsFacade
 from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepo
 from reggata.tests.tests_context import itemWithTagsAndFields, itemWithFile, itemWithoutFile
 from reggata.tests.tests_dialogs_facade import TestsDialogsFacade
+import time
 
 
 class TestsToolModel(AbstractTool):
@@ -271,6 +272,8 @@ class RebuildThumbnailActionHandlerTest(AbstractTestCaseWithRepo):
         # Maybe we should add more checks here... but
         # The main goal for this test is to check that nothing crashes in the action handler itself
         # TODO: use some image files in this test and check that thumbnails were builded!
+        time.sleep(1)
+        
 
 class DeleteItemActionHandlerTest(AbstractTestCaseWithRepo):
     
