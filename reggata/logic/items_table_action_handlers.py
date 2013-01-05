@@ -114,7 +114,7 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
             self._tool.checkActiveRepoIsNotNone()
             self._tool.checkActiveUserIsNotNone()
             
-            files = self._dialogs.getOpenFileNames(self._tool.gui, self.tr("Select file to add"))
+            files = self._dialogs.getOpenFileNames(self._tool.gui, self.tr("Select files to add"))
             if len(files) == 0:
                 raise MsgException(self.tr("No files chosen. Operation cancelled."))
             
