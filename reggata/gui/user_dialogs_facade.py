@@ -6,7 +6,7 @@ from PyQt4 import QtCore
 from PyQt4.QtGui import QMessageBox, QInputDialog, QFileDialog
 from reggata.gui.user_dialog import UserDialog
 from reggata.gui.change_user_password_dialog import ChangeUserPasswordDialog
-from reggata.gui.common_widgets import Completer, WaitDialog
+from reggata.gui.common_widgets import Completer, WaitDialog, FileDialog
 from reggata.gui.item_dialog import ItemDialog
 from reggata.gui.items_dialog import ItemsDialog
 from reggata.logic.abstract_dialogs_facade import AbstractDialogsFacade
@@ -57,7 +57,13 @@ class UserDialogsFacade(AbstractDialogsFacade):
         return file
     
     def getOpenFileNames(self, gui, textMessageForUser):
-        files = QFileDialog.getOpenFileNames(gui, textMessageForUser)
+        
+        fd = FileDialog(gui, textMessageForUser)
+        if not fd.exec_():
+            return []
+        
+        files = fd.selectedFiles()
+        #files = QFileDialog.getOpenFileNames(gui, textMessageForUser)
         return files
     
     def getExistingDirectory(self, gui, textMessageForUser):
