@@ -439,10 +439,9 @@ class DataRef(Base, memento.Serializable):
             self.date_created = datetime.datetime.today()
         
         # This two fields is used only in function "Add many items recursively"
-        # srcAbsPathToRecursionRoot is a absolute path to the root directory 
+        # srcAbsPathToRoot is a absolute path to the directory one level up from root 
         # from where recursive scanning was started.
-        # TODO: rename self.srcAbsPathToRecursionRoot to something like self.srcAbsPathToRelativeRoot, because now it points one dir up of recursion root!
-        self.srcAbsPathToRecursionRoot = None
+        self.srcAbsPathToRoot = None
         self.srcAbsPath = None
         
         # This is a relative path to file in repository (where you want to put it)
@@ -451,7 +450,7 @@ class DataRef(Base, memento.Serializable):
     
     @orm.reconstructor
     def __init_on_load__(self):
-        self.srcAbsPathToRecursionRoot = None
+        self.srcAbsPathToRoot = None
         self.srcAbsPath = None
         self.dstRelPath = None
     

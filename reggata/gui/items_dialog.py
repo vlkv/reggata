@@ -283,7 +283,7 @@ class ItemsDialog(QtGui.QDialog):
                 else:
                     if self.dst_path:
                         relPathToFile = os.path.relpath(item.data_ref.srcAbsPath, 
-                                                        item.data_ref.srcAbsPathToRecursionRoot)
+                                                        item.data_ref.srcAbsPathToRoot)
                         item.data_ref.dstRelPath = os.path.join(
                             self.dst_path, 
                             relPathToFile)
@@ -295,7 +295,7 @@ class ItemsDialog(QtGui.QDialog):
                         else:
                             item.data_ref.dstRelPath = os.path.relpath(
                                 item.data_ref.srcAbsPath, 
-                                item.data_ref.srcAbsPathToRecursionRoot)
+                                item.data_ref.srcAbsPathToRoot)
     
     def __writeTagsAndFields(self):
         #Processing Tags to add

@@ -102,7 +102,7 @@ class AddItemAlgorithms(object):
                 srcAbsPath = os.path.abspath(file)
                 item.data_ref = DataRef(type=DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
                 item.data_ref.srcAbsPath = srcAbsPath
-                item.data_ref.srcAbsPathToRecursionRoot = os.path.dirname(file)
+                item.data_ref.srcAbsPathToRoot = os.path.dirname(file)
                 # item.data_ref.dstRelPath will be set by ItemsDialog
                 items.append(item)
             elif os.path.isdir(path):
@@ -116,7 +116,7 @@ class AddItemAlgorithms(object):
                         srcAbsPath = os.path.join(root, file)
                         item.data_ref = DataRef(type=DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
                         item.data_ref.srcAbsPath = srcAbsPath
-                        item.data_ref.srcAbsPathToRecursionRoot = os.path.join(dirPath, "..")
+                        item.data_ref.srcAbsPathToRoot = os.path.join(dirPath, "..")
                         # item.data_ref.dstRelPath will be set by ItemsDialog
                         items.append(item)
             else:

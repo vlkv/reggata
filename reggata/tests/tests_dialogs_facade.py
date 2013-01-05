@@ -31,10 +31,10 @@ class TestsDialogsFacade(AbstractDialogsFacade):
             
             item.data_ref.srcAbsPath = item.data_ref.url
             
-            if item.data_ref.srcAbsPathToRecursionRoot is None: 
+            if item.data_ref.srcAbsPathToRoot is None: 
                 item.data_ref.dstRelPath = os.path.basename(item.data_ref.url)
             else:
-                item.data_ref.dstRelPath = os.path.relpath(item.data_ref.url, item.data_ref.srcAbsPathToRecursionRoot)
+                item.data_ref.dstRelPath = os.path.relpath(item.data_ref.url, item.data_ref.srcAbsPathToRoot)
         return True
      
      
