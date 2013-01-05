@@ -7,7 +7,7 @@ import reggata.consts as consts
 from reggata.data.commands import *
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.gui.item_dialog import ItemDialog
-from reggata.logic.worker_threads import UpdateGroupOfItemsThread, BackgrThread
+from reggata.logic.worker_threads import UpdateGroupOfItemsThread, BackgrThread, CreateGroupOfItemsThread
 from reggata.gui.items_dialog import ItemsDialog
 
 
@@ -51,6 +51,35 @@ class AddItemAlgorithms(object):
             uow.close()
             
         return savedItemId
+    
+    @staticmethod
+    def addManyItems(tool, dialogs, files):
+        '''
+            Creates items linked with given list of files (filenames). 
+        Returns a tuple (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds)
+        '''
+        if len(files) <= 1:
+            raise ValueError("You should give more than one file.")
+        
+        items = []
+        for file in files:
+            file = os.path.normpath(file)
+            item = Item(user_login=tool.user.login)
+            item.title, _ = os.path.splitext(os.path.basename(file))
+            item.data_ref = DataRef(type=DataRef.FILE, url=file) #DataRef.url can be changed in ItemsDialog
+            item.data_ref.srcAbsPath = file
+            items.append(item)
+        
+        if not dialogs.execItemsDialog(
+            items, tool.gui, tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=True):
+            raise CancelOperationError("User cancelled operation.")
+        
+        thread = CreateGroupOfItemsThread(tool.gui, tool.repo, items)
+        
+        dialogs.startThreadWithWaitDialog(
+                thread, tool.gui, indeterminate=False)
+            
+        return (thread.createdCount, thread.skippedCount, thread.lastSavedItemIds)
 
 
 class EditItemActionHandler(AbstractActionHandler):

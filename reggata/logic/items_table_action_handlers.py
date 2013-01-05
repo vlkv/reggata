@@ -118,20 +118,12 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
             if len(files) == 0:
                 raise MsgException(self.tr("No files chosen. Operation cancelled."))
             
-            items = []
-            for file in files:
-                file = os.path.normpath(file)
-                item = Item(user_login=self._tool.user.login)
-                item.title, _ = os.path.splitext(os.path.basename(file))
-                item.data_ref = DataRef(type=DataRef.FILE, url=file) #DataRef.url can be changed in ItemsDialog
-                item.data_ref.srcAbsPath = file
-                items.append(item)
+            (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds) = \
+                AddItemAlgorithms.addManyItems(self._tool, self._dialogs, files)
             
-            if not self._dialogs.execItemsDialog(
-                items, self._tool.gui, self._tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=True):
-                return
-            
-            self._startWorkerThreadAndWait(items)
+            self._createdObjectsCount = itemsCreatedCount
+            self._skippedObjectsCount = filesSkippedCount
+            self.lastSavedItemIds = listOfSavedItemIds
             
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
                 
