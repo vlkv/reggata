@@ -8,7 +8,7 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 from reggata.ui.ui_itemsdialog import Ui_ItemsDialog
 from reggata.helpers import is_internal, is_none_or_empty, show_exc_info
-import reggata.parsers
+import reggata.parsers as parsers
 from reggata.data.db_schema import DataRef
 from reggata.errors import MsgException
 from reggata.gui.common_widgets import TextEdit
