@@ -94,7 +94,7 @@ class AddManyItemsAbstractActionHandler(AbstractActionHandler):
         self._skippedObjectsCount = 0
         self.lastSavedItemIds = []
     
-    def _startWorkerThread(self, items):
+    def _startWorkerThreadAndWait(self, items):
         thread = CreateGroupOfItemsThread(self._tool.gui, self._tool.repo, items)
         
         self._dialogs.startThreadWithWaitDialog(
@@ -131,7 +131,7 @@ class AddManyItemsActionHandler(AddManyItemsAbstractActionHandler):
                 items, self._tool.gui, self._tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=True):
                 return
             
-            self._startWorkerThread(items)
+            self._startWorkerThreadAndWait(items)
             
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
                 
@@ -182,7 +182,7 @@ class AddManyItemsRecursivelyActionHandler(AddManyItemsAbstractActionHandler):
                 items, self._tool.gui, self._tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=False):
                 return
                 
-            self._startWorkerThread(items)
+            self._startWorkerThreadAndWait(items)
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
                 
         except Exception as ex:
