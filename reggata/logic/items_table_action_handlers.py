@@ -13,6 +13,7 @@ from reggata.logic.worker_threads import *
 from reggata.gui.item_dialog import ItemDialog
 from reggata.gui.image_viewer import ImageViewer
 from reggata.gui.items_dialog import ItemsDialog
+from reggata.logic.common_action_handlers import AddItemAlgorithms
 
 
 
@@ -31,15 +32,17 @@ class AddItemsActionHandler(AbstractActionHandler):
                 self._tool.gui, self.tr("Select files you want to add to the repository."))
             
             if len(files) == 0:
-                # User want to add Item without file
-                pass
+                # User want to add single Item without any file
+                self.lastSavedItemId = AddItemAlgorithms.addSingleItem(self._tool, self.__dialogs)
+                
             elif len(files) == 1 :
-                if os.path.isdir(files[0]):
+                file = files[0]
+                if os.path.isdir(file):
                     # User want to add many Items from one dir recursively
                     pass
                 else:
                     # User want to add single Item with file 
-                    pass
+                    self.lastSavedItemId = AddItemAlgorithms.addSingleItem(self._tool, self.__dialogs, file)
             else:
                 # User want to add many Items from list of files and dirs
                 pass
@@ -70,44 +73,18 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             file = self.__dialogs.getOpenFileName(
                 self._tool.gui, self.tr("Select a file to link with new Item."))
             
-            item = Item(user_login=self._tool.user.login)
+            self.lastSavedItemId = \
+                AddItemAlgorithms.addSingleItem(self._tool, self.__dialogs, file)
             
-            if not helpers.is_none_or_empty(file):
-                file = os.path.normpath(file)
-                item.title, _ = os.path.splitext(os.path.basename(file))
-                item.data_ref = DataRef(type=DataRef.FILE, url=file)
-
-            if not self.__dialogs.execItemDialog(
-                item=item, gui=self._tool.gui, repo=self._tool.repo, dialogMode=ItemDialog.CREATE_MODE):
-                return
-            
-            uow = self._tool.repo.createUnitOfWork()
-            try:
-                srcAbsPath = None
-                dstRelPath = None
-                if item.data_ref is not None:
-                    srcAbsPath = item.data_ref.srcAbsPath
-                    dstRelPath = item.data_ref.dstRelPath
-
-                cmd = SaveNewItemCommand(item, srcAbsPath, dstRelPath)
-                thread = BackgrThread(self._tool.gui, uow.executeCommand, cmd)
-                
-                self.__dialogs.startThreadWithWaitDialog(
-                    thread, self._tool.gui, indeterminate=True)
-                
-                self.lastSavedItemId = thread.result
-                
-            finally:
-                uow.close()
-                
-        except Exception as ex:
-            show_exc_info(self._tool.gui, ex)
-            
-        else:
-            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Item added to repository."), consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
-
+                
+        except CancelOperationError:
+            return
+        except Exception as ex:
+            show_exc_info(self._tool.gui, ex)
+        
 
 class AddManyItemsAbstractActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):

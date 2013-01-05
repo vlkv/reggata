@@ -7,9 +7,50 @@ import reggata.consts as consts
 from reggata.data.commands import *
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.gui.item_dialog import ItemDialog
-from reggata.logic.worker_threads import UpdateGroupOfItemsThread
+from reggata.logic.worker_threads import UpdateGroupOfItemsThread, BackgrThread
 from reggata.gui.items_dialog import ItemsDialog
 
+
+class AddItemAlgorithms(object):
+    
+    @staticmethod
+    def addSingleItem(tool, dialogs, file=None):
+        '''
+            Creates and saves in repo an Item linked with a given file (or without file). 
+        Returns id of saved Item, or raises an exception.
+        '''
+        savedItemId = None
+
+        item = Item(user_login=tool.user.login)
+        if not helpers.is_none_or_empty(file):
+            file = os.path.normpath(file)
+            item.title, _ = os.path.splitext(os.path.basename(file))
+            item.data_ref = DataRef(type=DataRef.FILE, url=file)
+
+        if not dialogs.execItemDialog(
+            item=item, gui=tool.gui, repo=tool.repo, dialogMode=ItemDialog.CREATE_MODE):
+            raise CancelOperationError("User cancelled operation.")
+        
+        uow = tool.repo.createUnitOfWork()
+        try:
+            srcAbsPath = None
+            dstRelPath = None
+            if item.data_ref is not None:
+                srcAbsPath = item.data_ref.srcAbsPath
+                dstRelPath = item.data_ref.dstRelPath
+
+            cmd = SaveNewItemCommand(item, srcAbsPath, dstRelPath)
+            thread = BackgrThread(tool.gui, uow.executeCommand, cmd)
+            
+            dialogs.startThreadWithWaitDialog(
+                thread, tool.gui, indeterminate=True)
+            
+            savedItemId = thread.result
+            
+        finally:
+            uow.close()
+            
+        return savedItemId
 
 
 class EditItemActionHandler(AbstractActionHandler):
