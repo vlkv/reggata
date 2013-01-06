@@ -328,23 +328,21 @@ class ItemsTableGui(ToolGui):
       
       
     def dropEvent(self, event):
-        if event.mimeData().hasUrls:
-            event.accept()
-            
-            files = []
-            for url in event.mimeData().urls():
-                files.append(url.toLocalFile())
-                
-            if len(files) == 1:
-                if os.path.isdir(files[0]):
-                    self.__itemsTableTool.acceptDropOfOneDir(files[0])
-                elif os.path.isfile(files[0]):
-                    self.__itemsTableTool.acceptDropOfOneFile(files[0])
-            else:
-                self.__itemsTableTool.acceptDropOfManyFiles(files)
-        else:
+        if not event.mimeData().hasUrls:
             event.ignore()
-    
+            return
+        
+        files = []
+        for url in event.mimeData().urls():
+            files.append(url.toLocalFile())
+            
+        if len(files) <= 0:
+            event.ignore()
+            return
+        
+        event.accept()
+        self.__itemsTableTool.acceptDropOfFilesAndDirs(files)
+        
     
     def __onTableDoubleClicked(self, index):
         if not self.__table_model.isOpenItemActionAllowed(index):

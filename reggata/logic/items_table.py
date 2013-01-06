@@ -237,36 +237,18 @@ class ItemsTable(AbstractTool):
     
     def __connectTagCloudTool(self, tagCloud):
         tagCloud._connectItemsTableTool(self)
+           
         
-        
-    
-    
-    def acceptDropOfOneDir(self, dirPath):
-        self.__dropFilesDialogs.setSelectedFiles([dirPath])
-        self.__dragNDropActionItemAddManyRec.trigger()
-    
-    
-    def acceptDropOfOneFile(self, file):
-        self.__dropFilesDialogs.setSelectedFiles([file])
-        self.__dragNDropActionItemAdd.trigger()
-
-
-    def acceptDropOfManyFiles(self, files):
+    def acceptDropOfFilesAndDirs(self, files):
         self.__dropFilesDialogs.setSelectedFiles(files)
-        self.__dragNDropActionItemAddMany.trigger()
+        self.__dragNDropActionAddItems.trigger()
 
     
     def __initDragNDropHandlers(self):
         
-        self.__dragNDropActionItemAdd = QtGui.QAction(self)
-        self.__dragNDropActionItemAddMany = QtGui.QAction(self)
-        self.__dragNDropActionItemAddManyRec = QtGui.QAction(self)
+        self.__dragNDropActionAddItems = QtGui.QAction(self)
         
         self._actionHandlers.register(
-            self.__dragNDropActionItemAdd, AddSingleItemActionHandler(self, self.__dropFilesDialogs))
-        self._actionHandlers.register(
-            self.__dragNDropActionItemAddMany, AddManyItemsActionHandler(self, self.__dropFilesDialogs))
-        self._actionHandlers.register(
-            self.__dragNDropActionItemAddManyRec, AddManyItemsRecursivelyActionHandler(self, self.__dropFilesDialogs))
-
-    
+            self.__dragNDropActionAddItems, AddItemsActionHandler(self, self.__dropFilesDialogs))
+        
+            
