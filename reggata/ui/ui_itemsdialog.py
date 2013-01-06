@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'itemsdialog.ui'
+# Form implementation generated from reading ui file '.\itemsdialog.ui'
 #
-# Created: Fri Jul 20 20:32:31 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Sun Jan  6 22:18:24 2013
+#      by: PyQt4 UI code generator 4.9
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -96,8 +96,6 @@ class Ui_ItemsDialog(object):
         self.verticalLayout.addWidget(self.buttonBox)
 
         self.retranslateUi(ItemsDialog)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), ItemsDialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), ItemsDialog.reject)
         QtCore.QMetaObject.connectSlotsByName(ItemsDialog)
 
     def retranslateUi(self, ItemsDialog):
