@@ -49,15 +49,12 @@ class DropFilesDialogsFacade(AbstractDialogsFacade):
     
     def getOpenFileNames(self, gui, textMessageForUser):
         if (len(self.__selectedFiles) == 0):
-            return None
+            return []
         
         fileNames = []
         for path in self.__selectedFiles:
             if os.path.exists(path) and os.path.isfile(path):
                 fileNames.append(path)
-        
-        if (len(fileNames) == 0):
-            return None
         
         return fileNames
     
@@ -71,5 +68,17 @@ class DropFilesDialogsFacade(AbstractDialogsFacade):
                 return path
             
         return None
+    
+    
+    def getOpenFilesAndDirs(self, gui, textMessageForUser):
+        if (len(self.__selectedFiles) == 0):
+            return []
+        
+        result = []
+        for path in self.__selectedFiles:
+            if os.path.exists(path) and (os.path.isfile(path) or os.path.isdir(path)):
+                result.append(path)
+        
+        return result
     
     

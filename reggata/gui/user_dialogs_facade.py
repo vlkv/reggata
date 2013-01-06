@@ -57,13 +57,14 @@ class UserDialogsFacade(AbstractDialogsFacade):
         return file
     
     def getOpenFileNames(self, gui, textMessageForUser):
-        
+        files = QFileDialog.getOpenFileNames(gui, textMessageForUser)
+        return files
+    
+    def getOpenFilesAndDirs(self, gui, textMessageForUser):
         fd = FileDialog(gui, textMessageForUser)
         if not fd.exec_():
             return []
-        
-        files = fd.selectedFiles()
-        #files = QFileDialog.getOpenFileNames(gui, textMessageForUser)
+        files = fd.getSelectedFiles()
         return files
     
     def getExistingDirectory(self, gui, textMessageForUser):

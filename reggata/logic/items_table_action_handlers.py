@@ -30,8 +30,8 @@ class AddItemsActionHandler(AbstractActionHandler):
             self._tool.checkActiveRepoIsNotNone()
             self._tool.checkActiveUserIsNotNone()
             
-            files = self.__dialogs.getOpenFileNames(
-                self._tool.gui, self.tr("Select files you want to add to the repository."))
+            files = self.__dialogs.getOpenFilesAndDirs(
+                self._tool.gui, self.tr("Select files you want to add to the repository"))
             
             if len(files) == 0:
                 # User wants to add a single Item without any file
@@ -44,7 +44,7 @@ class AddItemsActionHandler(AbstractActionHandler):
                 if os.path.isdir(file):
                     # User wants to create Items for all files in selected directory
                     (itemsCreatedCount, filesSkippedCount, savedItemIds) = \
-                        AddItemAlgorithms.addManyItemsRecursively(self._tool, self._dialogs, [file])
+                        AddItemAlgorithms.addManyItemsRecursively(self._tool, self.__dialogs, [file])
                     self._itemsCreatedCount += itemsCreatedCount
                     self._filesSkippedCount += filesSkippedCount
                     self.lastSavedItemIds.extend(savedItemIds)
@@ -56,7 +56,7 @@ class AddItemsActionHandler(AbstractActionHandler):
             else:
                 # User wants to create Items for a whole list of files and dirs
                 (itemsCreatedCount, filesSkippedCount, savedItemIds) = \
-                    AddItemAlgorithms.addManyItemsRecursively(self._tool, self._dialogs, files)
+                    AddItemAlgorithms.addManyItemsRecursively(self._tool, self.__dialogs, files)
                 self._itemsCreatedCount += itemsCreatedCount
                 self._filesSkippedCount += filesSkippedCount
                 self.lastSavedItemIds.extend(savedItemIds)

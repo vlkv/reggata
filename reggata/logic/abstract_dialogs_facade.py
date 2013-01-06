@@ -29,6 +29,9 @@ class AbstractDialogsFacade(object):
     def getExistingDirectory(self, gui, textMessageForUser):
         raise NotImplementedError()
     
+    def getOpenFilesAndDirs(self, gui, textMessageForUser):
+        raise NotImplementedError()
+    
     def getSaveFileName(self, gui, textMessageForUser):
         raise NotImplementedError()
     

@@ -23,28 +23,39 @@ class FileDialog(QtGui.QFileDialog):
         This FileDialog should allow user to select multiple files and directories. 
     QFileDialog cannot do this.
     '''
-    #TODO: finish this class...
     def __init__(self, *args):
         super(FileDialog, self).__init__(*args)
         self.setOption(self.DontUseNativeDialog, True)
         self.setFileMode(self.ExistingFiles)
-        btns = self.findChildren(QtGui.QPushButton)
-        self.openBtn = [x for x in btns if 'open' in str(x.text()).lower()][0]
-        self.openBtn.clicked.disconnect()
-        self.openBtn.clicked.connect(self.openClicked)
+        
+        buttons = self.findChildren(QtGui.QPushButton)
+        self.openButton = [x for x in buttons if 'open' in str(x.text()).lower()][0]
+        self.openButton.clicked.disconnect()
+        self.openButton.clicked.connect(self._openButtonClicked)
+        
         self.tree = self.findChild(QtGui.QTreeView)
+        
+        self._selectedFiles = []
 
-    def openClicked(self):
-        inds = self.tree.selectionModel().selectedIndexes()
+    def _openButtonClicked(self):
+        indices = self.tree.selectionModel().selectedIndexes()
         files = []
-        for i in inds:
+        for i in indices:
             if i.column() == 0:
-                files.append(os.path.join(str(self.directory().absolutePath()),str(i.data().toString())))
-        self.selectedFiles = files
-        self.hide()
+                files.append(os.path.join(self.directory().absolutePath(), i.data()))
+        self._selectedFiles = files
+        self.accept()
+        
+        
+    def accept(self):
+        if len(self._selectedFiles) == 0:
+            return
+        self.emit(QtCore.SIGNAL("filesSelected (const QStringList& selected)"), self._selectedFiles)
+        QtGui.QDialog.accept(self)
+        
 
-    def filesSelected(self):
-        return self.selectedFiles       
+    def getSelectedFiles(self):
+        return self._selectedFiles       
 
  
    

@@ -55,17 +55,15 @@ class TestsDialogsFacade(AbstractDialogsFacade):
     
     def getOpenFileNames(self, gui, textMessageForUser):
         if (len(self.__selectedFiles) == 0):
-            return None
+            return []
         
         fileNames = []
         for path in self.__selectedFiles:
             if os.path.exists(path) and os.path.isfile(path):
                 fileNames.append(path)
         
-        if (len(fileNames) == 0):
-            return None
-        
         return fileNames
+    
     
     def getExistingDirectory(self, gui, textMessageForUser):
         if (len(self.__selectedFiles) == 0):
@@ -76,6 +74,20 @@ class TestsDialogsFacade(AbstractDialogsFacade):
                 return path
             
         return None
+    
+    
+    def getOpenFilesAndDirs(self, gui, textMessageForUser):
+        if (len(self.__selectedFiles) == 0):
+            return []
+        
+        result = []
+        for path in self.__selectedFiles:
+            if os.path.exists(path) and (os.path.isfile(path) or os.path.isdir(path)):
+                result.append(path)
+        
+        return result
+        
+        
     
     def execMessageBox(self, parent, text, title=None, buttons=None, detailedText=None):
         return buttons[0]
