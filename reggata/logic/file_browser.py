@@ -240,13 +240,14 @@ class FileInfoSearcherThread(QtCore.QThread):
             dtStart = None
             shouldTakeTime = True
             shouldSendProgress = False
+            topRow = bottomRow = 0
             for i in range(len(self.finfos)):
                 
                 if shouldTakeTime:
                     shouldTakeTime = False
                     topRow = i
                     dtStart = datetime.now()
-                if (datetime.now() - dtStart).microseconds > self.signalTimeoutMicroSec or i == len(self.finfos) - 1:
+                if (datetime.now() - dtStart).microseconds > self.signalTimeoutMicroSec:
                     bottomRow = i
                     shouldSendProgress = True
                 
@@ -277,6 +278,9 @@ class FileInfoSearcherThread(QtCore.QThread):
                 
                 # Without this sleep, GUI is not responsive... Maybe because of GIL
                 self.msleep(10)
+            
+            self.emit(QtCore.SIGNAL("progress"), topRow, bottomRow)
+            logger.debug("FileInfoSearcherThread last progress message: topRow={} bottomRow={}".format(topRow, bottomRow))
                 
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
