@@ -12,6 +12,7 @@ from reggata.logic.handler_signals import HandlerSignals
 from reggata.logic.worker_threads import *
 from reggata.gui.image_viewer import ImageViewer
 from reggata.logic.common_action_handlers import AddItemAlgorithms
+import time
 
 
 class AddItemsActionHandler(AbstractActionHandler):
@@ -29,6 +30,9 @@ class AddItemsActionHandler(AbstractActionHandler):
             
             files = self.__dialogs.getOpenFilesAndDirs(
                 self._tool.gui, self.tr("Select files you want to add to the repository"))
+            
+            # NOTE: if len(files) == 0 (user haven't selected any files) then it is supposed that
+            # an Item without file should be created.
             
             (self._itemsCreatedCount, self._filesSkippedCount, self.lastSavedItemIds) = \
                 AddItemAlgorithms.addItems(self._tool, self.__dialogs, files)

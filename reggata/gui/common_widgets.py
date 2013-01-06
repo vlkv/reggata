@@ -95,6 +95,10 @@ class WaitDialog(QtGui.QDialog):
             thread.wait(1000)
             if thread.isRunning():
                 self.exec_()
+                
+        if thread.isExceptionRaised():
+            raise Exception(thread.exceptionDescription())
+            
     
     def indeterminate_timer(self):
         value = self.progress_bar.value()
@@ -104,26 +108,22 @@ class WaitDialog(QtGui.QDialog):
         
     
     def exception(self, exceptionInfo):
-        ''' Displays exceptionInfo text in modal message box and rejects WaitDialog. 
-        exceptionInfo - is a string containing a text about the raised exception.
-        
-        This slot is usually connected to the 'exception' signal, emitted from a 
-        worker thread.'''
-        mb = MyMessageBox(self)
-        mb.setWindowTitle(self.tr("Error"))
-        mb.setText(self.tr("Operation cannot proceed because of the raised exception."))
-        mb.setDetailedText(exceptionInfo)
-        mb.exec_()
-        
+        '''
+            This slot is usually connected to the 'exception' signal, emitted from a 
+        worker thread.
+        '''
         self.reject()
+        
         
     def closeEvent(self, close_event):
         close_event.ignore() # Disable close button (X) of the dialog.
+        
         
     def set_progress(self, percent_completed):
         '''This slot is called to display progress in percents.'''
         logger.debug("Completed {}%".format(percent_completed))
         self.progress_bar.setValue(percent_completed)
+
 
 
 class TextEdit(QtGui.QTextEdit):

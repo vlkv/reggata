@@ -20,18 +20,46 @@ from reggata.data.integrity_fixer import IntegrityFixerFactory
 from reggata.data.repo_mgr import *
 from reggata.errors import *
 import reggata.consts as consts
+from reggata.helpers import is_none_or_empty
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
-class ImportItemsThread(QtCore.QThread):
+class AbstractWorkerThread(QtCore.QThread):
+    def __init__(self, parent):
+        super(AbstractWorkerThread, self).__init__(parent)
+        self._exceptionDescription = ""
+    
+    def isExceptionRaised(self):
+        return not is_none_or_empty(self._exceptionDescription)
+    
+    def exceptionDescription(self):
+        return self._exceptionDescription
+    
+    def run(self):
+        try:
+            self.doWork()
+        except Exception as ex:
+            self._exceptionDescription = str(ex) + os.linesep + \
+                "Stack trace:" + os.linesep + \
+                traceback.format_exc()
+            logger.error(self._exceptionDescription)
+            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
+        finally:
+            self.emit(QtCore.SIGNAL("finished"))
+
+    def doWork(self):
+        raise NotImplementedError("This function should be implemented in child classes.")
+    
+
+class ImportItemsThread(AbstractWorkerThread):
     def __init__(self, parent, repo, importFromFilename, userLogin):
         super(ImportItemsThread, self).__init__(parent)
         self.repo = repo
         self.srcFile = importFromFilename
         self.userLogin = userLogin
 
-    def run(self):
+    def doWork(self):
         srcArchive = TarFile.open(self.srcFile, "r", format=tarfile.PAX_FORMAT)
         try:
             filenames = self.__getListOfMetadataFiles(srcArchive)
@@ -70,13 +98,9 @@ class ImportItemsThread(QtCore.QThread):
                     uow.close()
 
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(filenames)))
-                        
-        except Exception:
-            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
-            
         finally:
             srcArchive.close()
-            self.emit(QtCore.SIGNAL("finished"))
+        
 
     def __getListOfMetadataFiles(self, srcArchive):
         result = []
@@ -91,7 +115,7 @@ class ImportItemsThread(QtCore.QThread):
 
 
 
-class ExportItemsThread(QtCore.QThread):
+class ExportItemsThread(AbstractWorkerThread):
     def __init__(self, parent, repo, itemIds, destinationFile):
         super(ExportItemsThread, self).__init__(parent)
         self.repo = repo
@@ -100,7 +124,7 @@ class ExportItemsThread(QtCore.QThread):
         self.exportedCount = 0
         self.skippedCount = 0
         
-    def run(self):
+    def doWork(self):
         self.exportedCount = 0
         self.skippedCount = 0
         dstArchive = tarfile.open(self.dstFile, "w", format=tarfile.PAX_FORMAT)
@@ -120,13 +144,9 @@ class ExportItemsThread(QtCore.QThread):
                 self.exportedCount += 1
                         
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.itemIds)))
-                        
-        except Exception:
-            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
-            
         finally:
             dstArchive.close()
-            self.emit(QtCore.SIGNAL("finished"))
+        
     
     def __isItemIntegrityOk(self, item):
         result = False;
@@ -175,7 +195,7 @@ class ExportItemsThread(QtCore.QThread):
 
 
 
-class ExportItemsFilesThread(QtCore.QThread):
+class ExportItemsFilesThread(AbstractWorkerThread):
     def __init__(self, parent, repo, item_ids, destination_path):
         super(ExportItemsFilesThread, self).__init__(parent)
         self.repo = repo
@@ -184,7 +204,7 @@ class ExportItemsFilesThread(QtCore.QThread):
         self.filesExportedCount = 0
         self.filesSkippedCount = 0
         
-    def run(self):
+    def doWork(self):
         self.filesExportedCount = 0
         self.filesSkippedCount = 0
         uow = self.repo.createUnitOfWork()
@@ -215,16 +235,11 @@ class ExportItemsFilesThread(QtCore.QThread):
                 
                 i += 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i) / len(self.item_ids)))
-                        
-        except Exception:
-            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
-            
         finally:
-            self.emit(QtCore.SIGNAL("finished"))
             uow.close()
             
             
-class ItemIntegrityFixerThread(QtCore.QThread):
+class ItemIntegrityFixerThread(AbstractWorkerThread):
     
     def __init__(self, parent, repo, items, lock, strategy, user_login):
         super(ItemIntegrityFixerThread, self).__init__(parent)
@@ -241,15 +256,13 @@ class ItemIntegrityFixerThread(QtCore.QThread):
         self.user_login = user_login
         
     
-    def run(self):
-        
+    def doWork(self):
         uow = self.repo.createUnitOfWork()
         
         fixers = dict()
         for error_code, strategy in self.strategy.items():
             fixers[error_code] = IntegrityFixerFactory.createFixer(
                                     error_code, strategy, uow, self.repo.base_path, self.lock)
-        
         try:
             for i in range(len(self.items)):
                 item = self.items[i]
@@ -280,16 +293,12 @@ class ItemIntegrityFixerThread(QtCore.QThread):
                 
                 percents = int(100.0*float(i) / len(self.items))
                 self.emit(QtCore.SIGNAL("progress"), percents, item.table_row)
-                    
-        except Exception:
-            self.emit(QtCore.SIGNAL("exception"), sys.exc_info())
         finally:
             uow.close()
-            self.emit(QtCore.SIGNAL("finished"))
 
 
        
-class ItemIntegrityCheckerThread(QtCore.QThread):
+class ItemIntegrityCheckerThread(AbstractWorkerThread):
 
     def __init__(self, parent, repo, items, lock):
         super(ItemIntegrityCheckerThread, self).__init__(parent)
@@ -299,7 +308,7 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
         self.interrupt = False
         self.timeoutMicroSec = 500000
     
-    def run(self):
+    def doWork(self):
         error_count = 0
         uow = self.repo.createUnitOfWork()
         try:
@@ -332,14 +341,12 @@ class ItemIntegrityCheckerThread(QtCore.QThread):
                     self.msleep(1)
                     startTime = currTime
                     startIndex = i
-        except:
-            logger.error(traceback.format_exc())
         finally:
             uow.close()
-            self.emit(QtCore.SIGNAL("finished"), error_count)
 
 
-class ThumbnailBuilderThread(QtCore.QThread):
+# TODO: ThumbnailBuilderThread should be refactored... code should be more readable
+class ThumbnailBuilderThread(AbstractWorkerThread):
     '''
         This thread is started every time after any query execution in Intems Table Tool. 
     '''
@@ -351,7 +358,7 @@ class ThumbnailBuilderThread(QtCore.QThread):
         self.interrupt = False
         self.rebuild = rebuild
 
-    def run(self):
+    def doWork(self):
         uow = self.repo.createUnitOfWork()
         try:
             thumbnail_size = int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE))
@@ -419,18 +426,13 @@ class ThumbnailBuilderThread(QtCore.QThread):
                         raise
                     else:
                         #Continue generating thumbnails in this case
-                        logger.error(traceback.format_exc())
-                                    
-        except:
-            self.emit(QtCore.SIGNAL("exception"), sys.exc_info())
-            
+                        logger.error(traceback.format_exc())             
         finally:
             uow.close()
-            self.emit(QtCore.SIGNAL("finished"))
                         
 
        
-class DeleteGroupOfItemsThread(QtCore.QThread):
+class DeleteGroupOfItemsThread(AbstractWorkerThread):
     def __init__(self, parent, repo, item_ids, user_login):
         super(DeleteGroupOfItemsThread, self).__init__(parent)
         self.repo = repo
@@ -439,7 +441,7 @@ class DeleteGroupOfItemsThread(QtCore.QThread):
         self.errors = 0
         self.detailed_message = None
         
-    def run(self):
+    def doWork(self):
         self.errors = 0
         self.detailed_message = ""
         uow = self.repo.createUnitOfWork()
@@ -459,16 +461,12 @@ class DeleteGroupOfItemsThread(QtCore.QThread):
             
             uow.executeCommand(DeleteHangingTagsCommand())
             uow.executeCommand(DeleteHangingFieldsCommand())
-                        
-        except Exception:
-            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
-            
         finally:
             uow.close()
-            self.emit(QtCore.SIGNAL("finished"))
+        
             
 
-class CreateGroupOfItemsThread(QtCore.QThread):
+class CreateGroupOfItemsThread(AbstractWorkerThread):
     def __init__(self, parent, repo, items):
         super(CreateGroupOfItemsThread, self).__init__(parent)
         self.repo = repo
@@ -477,7 +475,7 @@ class CreateGroupOfItemsThread(QtCore.QThread):
         self.createdCount = 0
         self.lastSavedItemIds = []
     
-    def run(self):
+    def doWork(self):
         self.skippedCount = 0
         self.createdCount = 0
         uow = self.repo.createUnitOfWork()
@@ -500,24 +498,18 @@ class CreateGroupOfItemsThread(QtCore.QThread):
                         
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
-    
-        except Exception:
-            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
-            
         finally:
             uow.close()
-            self.emit(QtCore.SIGNAL("finished"))
-            
         
 
-class UpdateGroupOfItemsThread(QtCore.QThread):
+class UpdateGroupOfItemsThread(AbstractWorkerThread):
     
     def __init__(self, parent, repo, items):
         super(UpdateGroupOfItemsThread, self).__init__(parent)
         self.repo = repo
         self.items = items
 
-    def run(self):
+    def doWork(self):
         uow = self.repo.createUnitOfWork()
         try:
             i = 0
@@ -526,17 +518,12 @@ class UpdateGroupOfItemsThread(QtCore.QThread):
                 uow.executeCommand(cmd)
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
-                
-        except Exception:
-            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
-        
         finally:
             uow.close()
-            self.emit(QtCore.SIGNAL("finished"))
             
         
     
-class BackgrThread(QtCore.QThread):
+class BackgrThread(AbstractWorkerThread):
         
     def __init__(self, parent, function, *args):
         super(BackgrThread, self).__init__(parent)
@@ -544,11 +531,7 @@ class BackgrThread(QtCore.QThread):
         self._function = function
         self.result = None
     
-    def run(self):
-        try:
-            self.result = self._function(*self._args)
-        except Exception:
-            self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
-        finally:
-            self.emit(QtCore.SIGNAL("finished"))
+    def doWork(self):
+        self.result = self._function(*self._args)
+        
             
