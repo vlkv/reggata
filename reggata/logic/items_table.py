@@ -85,18 +85,6 @@ class ItemsTable(AbstractTool):
             AddItemsActionHandler(self, self._dialogsFacade))
         
         self._actionHandlers.register(
-            self._gui.actions['addOneItem'], 
-            AddSingleItemActionHandler(self, self._dialogsFacade))
-        
-        self._actionHandlers.register(
-            self._gui.actions['addManyItems'], 
-            AddManyItemsActionHandler(self, self._dialogsFacade))
-        
-        self._actionHandlers.register(
-            self._gui.actions['addManuItemsRec'], 
-            AddManyItemsRecursivelyActionHandler(self, self._dialogsFacade))
-        
-        self._actionHandlers.register(
             self._gui.actions['editItem'], 
             EditItemActionHandler(self, self._dialogsFacade))
         
@@ -245,9 +233,7 @@ class ItemsTable(AbstractTool):
 
     
     def __initDragNDropHandlers(self):
-        
         self.__dragNDropActionAddItems = QtGui.QAction(self)
-        
         self._actionHandlers.register(
             self.__dragNDropActionAddItems, AddItemsActionHandler(self, self.__dropFilesDialogs))
         

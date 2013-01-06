@@ -211,9 +211,6 @@ class ItemsTableGui(ToolGui):
             return
         
         self.actions['addItems'] = self._createAction(self.tr("Add items"))
-        self.actions['addOneItem'] = self._createAction(self.tr("Add one item"))  # This would be removed soon
-        self.actions['addManyItems'] = self._createAction(self.tr("Add many items"))  # This would be removed soon
-        self.actions['addManuItemsRec'] = self._createAction(self.tr("Add many items recursively"))  # This would be removed soon
         
         self.actions['editItem'] = self._createAction(self.tr("Edit item"))
         self.actions['rebuildItemsThumbnail'] = self._createAction(self.tr("Rebuild item's thumbnail"))
@@ -246,9 +243,6 @@ class ItemsTableGui(ToolGui):
         menu = self._mainMenu
         
         menu.addAction(self.actions['addItems'])
-        menu.addAction(self.actions['addOneItem']) # This would be removed soon
-        menu.addAction(self.actions['addManyItems']) # This would be removed soon
-        menu.addAction(self.actions['addManuItemsRec']) # This would be removed soon
         menu.addSeparator()
         menu.addAction(self.actions['editItem'])
         menu.addAction(self.actions['rebuildItemsThumbnail'])

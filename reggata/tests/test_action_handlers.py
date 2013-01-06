@@ -87,13 +87,13 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
         
         tool = TestsToolModel(self.repo, user)
         dialogs = TestsDialogsFacade(selectedFiles=[srcAbsPath])
-        handler = AddSingleItemActionHandler(tool, dialogs)
-        handler.handle()    
+        handler = AddItemsActionHandler(tool, dialogs)
+        handler.handle()
         
-        self.assertIsNotNone(handler.lastSavedItemId)
+        self.assertEqual(len(handler.lastSavedItemIds), 1)
         try:
             uow = self.repo.createUnitOfWork()
-            savedItem = uow.executeCommand(GetExpungedItemCommand(handler.lastSavedItemId))
+            savedItem = uow.executeCommand(GetExpungedItemCommand(handler.lastSavedItemIds[0]))
             
             self.assertIsNotNone(savedItem, 
                 "Item should exist")
@@ -124,7 +124,7 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
         
         tool = TestsToolModel(self.repo, user)
         dialogs = TestsDialogsFacade(selectedFiles=[srcAbsPath[0], srcAbsPath[1]])
-        handler = AddManyItemsActionHandler(tool, dialogs)
+        handler = AddItemsActionHandler(tool, dialogs)
         handler.handle()
         
         
@@ -158,7 +158,7 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
         
         tool = TestsToolModel(self.repo, user)
         dialogs = TestsDialogsFacade(selectedFiles=[srcDirAbsPath])
-        handler = AddManyItemsRecursivelyActionHandler(tool, dialogs)
+        handler = AddItemsActionHandler(tool, dialogs)
         handler.handle()
         
         

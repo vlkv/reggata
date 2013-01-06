@@ -10,11 +10,8 @@ from reggata.data.commands import *
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.logic.worker_threads import *
-from reggata.gui.item_dialog import ItemDialog
 from reggata.gui.image_viewer import ImageViewer
-from reggata.gui.items_dialog import ItemsDialog
 from reggata.logic.common_action_handlers import AddItemAlgorithms
-
 
 
 class AddItemsActionHandler(AbstractActionHandler):
@@ -74,7 +71,7 @@ class AddItemsActionHandler(AbstractActionHandler):
             
 
 
-
+# TODO: remove this handler, it is replaced by AddItemsActionHandler
 class AddSingleItemActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(AddSingleItemActionHandler, self).__init__(tool)
@@ -104,7 +101,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
             show_exc_info(self._tool.gui, ex)
         
 
- 
+# TODO: remove this handler, it is replaced by AddItemsActionHandler
 class AddManyItemsActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(AddManyItemsActionHandler, self).__init__(tool)
@@ -137,7 +134,7 @@ class AddManyItemsActionHandler(AbstractActionHandler):
                     .format(self._itemsCreatedCount, self._filesSkippedCount))
             
         
-        
+# TODO: remove this handler, it is replaced by AddItemsActionHandler
 class AddManyItemsRecursivelyActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(AddManyItemsRecursivelyActionHandler, self).__init__(tool)
