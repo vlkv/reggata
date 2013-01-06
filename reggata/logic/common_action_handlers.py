@@ -14,6 +14,49 @@ from reggata.gui.items_dialog import ItemsDialog
 class AddItemAlgorithms(object):
     
     @staticmethod
+    def addItems(tool, dialogs, listOfPaths):
+        '''
+            Creates and saves in repository a number of items linked with files defined by given listOfPaths.
+        listOfPaths is a list of paths to files and directories. Depending on the elements of 
+        listOfPaths one or another add algorithm is chosen.
+            Returns a tuple (itemsCreatedCount, filesSkippedCount, listOfSavedItemIds) or raises 
+        an exception.
+        '''
+        itemsCreatedCount = 0
+        filesSkippedCount = 0
+        lastSavedItemIds = []
+        
+        if len(listOfPaths) == 0:
+            # User wants to add a single Item without any file
+            savedItemId = AddItemAlgorithms.addSingleItem(tool, dialogs)
+            itemsCreatedCount += 1
+            lastSavedItemIds.append(savedItemId)
+            
+        elif len(listOfPaths) == 1 :
+            file = listOfPaths[0]
+            if os.path.isdir(file):
+                # User wants to create Items for all files in selected directory
+                (itemsCreatedCount, filesSkippedCount, savedItemIds) = \
+                    AddItemAlgorithms.addManyItemsRecursively(tool, dialogs, [file])
+                itemsCreatedCount += itemsCreatedCount
+                filesSkippedCount += filesSkippedCount
+                lastSavedItemIds.extend(savedItemIds)
+            else:
+                # User wants to add single Item with file
+                savedItemId = AddItemAlgorithms.addSingleItem(tool, dialogs, file)
+                itemsCreatedCount += 1
+                lastSavedItemIds.append(savedItemId)
+        else:
+            # User wants to create Items for a whole list of files and dirs
+            (itemsCreatedCount, filesSkippedCount, savedItemIds) = \
+                AddItemAlgorithms.addManyItemsRecursively(tool, dialogs, listOfPaths)
+            itemsCreatedCount += itemsCreatedCount
+            filesSkippedCount += filesSkippedCount
+            lastSavedItemIds.extend(savedItemIds)
+        return (itemsCreatedCount, filesSkippedCount, lastSavedItemIds)
+    
+    
+    @staticmethod
     def addSingleItem(tool, dialogs, file=None):
         '''
             Creates and saves in repo an Item linked with a given file (or without file). 

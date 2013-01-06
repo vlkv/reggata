@@ -30,33 +30,8 @@ class AddItemsActionHandler(AbstractActionHandler):
             files = self.__dialogs.getOpenFilesAndDirs(
                 self._tool.gui, self.tr("Select files you want to add to the repository"))
             
-            if len(files) == 0:
-                # User wants to add a single Item without any file
-                savedItemId = AddItemAlgorithms.addSingleItem(self._tool, self.__dialogs)
-                self._itemsCreatedCount += 1
-                self.lastSavedItemIds.append(savedItemId)
-                
-            elif len(files) == 1 :
-                file = files[0]
-                if os.path.isdir(file):
-                    # User wants to create Items for all files in selected directory
-                    (itemsCreatedCount, filesSkippedCount, savedItemIds) = \
-                        AddItemAlgorithms.addManyItemsRecursively(self._tool, self.__dialogs, [file])
-                    self._itemsCreatedCount += itemsCreatedCount
-                    self._filesSkippedCount += filesSkippedCount
-                    self.lastSavedItemIds.extend(savedItemIds)
-                else:
-                    # User wants to add single Item with file
-                    savedItemId = AddItemAlgorithms.addSingleItem(self._tool, self.__dialogs, file)
-                    self._itemsCreatedCount += 1
-                    self.lastSavedItemIds.append(savedItemId)
-            else:
-                # User wants to create Items for a whole list of files and dirs
-                (itemsCreatedCount, filesSkippedCount, savedItemIds) = \
-                    AddItemAlgorithms.addManyItemsRecursively(self._tool, self.__dialogs, files)
-                self._itemsCreatedCount += itemsCreatedCount
-                self._filesSkippedCount += filesSkippedCount
-                self.lastSavedItemIds.extend(savedItemIds)
+            (self._itemsCreatedCount, self._filesSkippedCount, self.lastSavedItemIds) = \
+                AddItemAlgorithms.addItems(self._tool, self.__dialogs, files)
             
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
             
