@@ -54,8 +54,9 @@ class FileBrowserGui(ToolGui):
             logger.info("Actions already built")
             return
         
+        self.actions['addFilesToRepo'] = self._createAction(self.tr("Add files to repository"))
         self.actions['editItems'] = self._createAction(self.tr("Edit items"))
-        self.actions['addSingleFile'] = self._createAction(self.tr("Add single file"))
+        
         
     
     def buildMainMenu(self):
@@ -66,8 +67,8 @@ class FileBrowserGui(ToolGui):
         
         self._mainMenu = self._createMenu(self.tr("File Browser"), self)
         menu = self._mainMenu
+        menu.addAction(self.actions['addFilesToRepo'])
         menu.addAction(self.actions['editItems'])
-        menu.addAction(self.actions['addSingleFile'])
 
 
 

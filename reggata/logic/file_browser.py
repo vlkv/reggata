@@ -70,7 +70,7 @@ class FileBrowser(AbstractTool):
         
         
         self._actionHandlers.register(
-            self._gui.actions['addSingleFile'], 
+            self._gui.actions['addFilesToRepo'], 
             AddFileToRepoActionHandler(self, self._dialogsFacade))
         
 

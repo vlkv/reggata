@@ -29,7 +29,7 @@ class AddFileToRepoActionHandler(AbstractActionHandler):
             
             files = self._tool.gui.selectedFiles()
             if len(files) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise MsgException(self.tr("There are no selected files."))
                         
             (self._itemsCreatedCount, self._filesSkippedCount, self.lastSavedItemIds) = \
                 AddItemAlgorithms.addItems(self._tool, self._dialogs, files)
