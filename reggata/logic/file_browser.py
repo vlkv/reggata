@@ -222,6 +222,14 @@ class FileBrowser(AbstractTool):
         self._gui.resetTableModel(self._mutex)
         
     
+    def storeCurrentState(self):
+        self._gui.saveColumnsWidths()
+    
+    
+    def restoreRecentState(self):
+        self._gui.restoreColumnsWidths()
+    
+    
     
 class FileInfoSearcherThread(QtCore.QThread):
     def __init__(self, parent, repo, finfos, mutex):

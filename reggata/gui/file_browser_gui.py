@@ -11,6 +11,7 @@ from reggata.ui.ui_filebrowsergui import Ui_FileBrowserGui
 from reggata.data.commands import FileInfo
 from reggata.helpers import HTMLDelegate
 import reggata.helpers as helpers
+from reggata.user_config import UserConfig
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -97,6 +98,41 @@ class FileBrowserGui(ToolGui):
             finfo = self.__fileBrowserTool.listDir()[row]
             result.append(finfo.path)
         return result
+    
+    
+    def restoreColumnsWidths(self):
+        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.FILENAME, int(UserConfig().get("file_browser.FILENAME.width", 450)))
+        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.TAGS, int(UserConfig().get("file_browser.TAGS.width", 300)))
+        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.USERS, int(UserConfig().get("file_browser.USERS.width", 100)))
+        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.STATUS, int(UserConfig().get("file_browser.STATUS.width", 100)))
+        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.ITEM_IDS, int(UserConfig().get("file_browser.ITEM_IDS.width", 100)))
+        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.RATING, int(UserConfig().get("file_browser.RATING.width", 200)))
+        
+    def saveColumnsWidths(self):
+        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.FILENAME)
+        if width > 0:            
+            UserConfig().store("file_browser.FILENAME.width", str(width))
+            
+        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.TAGS)
+        if width > 0:            
+            UserConfig().store("file_browser.TAGS.width", str(width))
+            
+        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.USERS)
+        if width > 0:            
+            UserConfig().store("file_browser.USERS.width", str(width))
+            
+        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.STATUS)
+        if width > 0:            
+            UserConfig().store("file_browser.STATUS.width", str(width))
+            
+        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.ITEM_IDS)
+        if width > 0:            
+            UserConfig().store("file_browser.ITEM_IDS.width", str(width))
+            
+        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.RATING)
+        if width > 0:            
+            UserConfig().store("file_browser.RATING.width", str(width))
+        
     
 
 class FileBrowserTableModel(QtCore.QAbstractTableModel):
