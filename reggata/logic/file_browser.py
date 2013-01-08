@@ -42,48 +42,48 @@ class FileBrowser(AbstractTool):
         self._thread = None
         self._enabled = False
         logger.debug("File Browser __init__ finished.")
-        
-        
+
+
     def id(self):
         return self.TOOL_ID
-    
+
     def title(self):
         return self.tr("File Browser")
-    
+
     def createGui(self, guiParent):
         self._gui = FileBrowserGui(guiParent, self)
         self._actionHandlers = ActionHandlerStorage(self._guiUpdater)
         logger.debug("File Browser GUI created.")
         return self._gui
-    
+
     def __getGui(self):
         return self._gui
     gui = property(fget=__getGui)
-    
-    
+
+
     def connectActionsWithActionHandlers(self):
         assert len(self._gui.actions) > 0, "Actions should be already built in ToolGui"
-        
+
         self._actionHandlers.register(
-            self._gui.actions['editItems'], 
+            self._gui.actions['editItems'],
             EditItemActionHandler(self, self._dialogsFacade))
-        
-        
+
+
         self._actionHandlers.register(
-            self._gui.actions['addFilesToRepo'], 
+            self._gui.actions['addFilesToRepo'],
             AddFileToRepoActionHandler(self, self._dialogsFacade))
-        
+
 
     def handlerSignals(self):
-        return [([HandlerSignals.ITEM_CHANGED, 
-                  HandlerSignals.ITEM_CREATED, 
+        return [([HandlerSignals.ITEM_CHANGED,
+                  HandlerSignals.ITEM_CREATED,
                   HandlerSignals.ITEM_DELETED], self.refreshDir)]
 
-    
+
     @property
     def repo(self):
         return self._repo
-        
+
     def setRepo(self, repo):
         self._repo = repo
         if repo is not None:
@@ -96,39 +96,39 @@ class FileBrowser(AbstractTool):
     def checkActiveRepoIsNotNone(self):
         if self._repo is None:
             raise CurrentRepoIsNoneError("Current repository is None")
-        
-    
+
+
     @property
     def user(self):
         return self._user
-    
+
     def setUser(self, user):
         self._user = user
         # TODO: update Gui according to the user change
-    
+
     def checkActiveUserIsNotNone(self):
         if self._user is None:
             raise CurrentUserIsNoneError("Current user is None")
-    
-    
+
+
     def enable(self):
         self._enabled = True
         self.refreshDir()
         logger.debug("File Browser enabled.")
-    
-    
+
+
     def disable(self):
         self._enabled = False
         logger.debug("File Browser disabled.")
-        
-    
+
+
     @property
     def currDir(self):
         if self._currDir is None:
             raise NoneError()
         return self._currDir
-    
-    
+
+
     def repoBasePath(self):
         if self._repo is None:
             raise NoneError()
@@ -141,23 +141,23 @@ class FileBrowser(AbstractTool):
         if self._listCache is None:
             self._rebuildListCache()
         return self._listCache
-    
+
     def filesCount(self):
         if self._currDir is None:
             return 0
         if self._listCache is None:
             self._rebuildListCache()
         return len(self._listCache)
-    
+
     def _rebuildListCache(self):
         if not self._enabled:
             self._listCache = []
             return
-        
+
         def resetGuiTableRows(topRow, bottomRow):
             self._gui.resetTableRows(topRow, bottomRow)
             QtCore.QCoreApplication.processEvents()
-        
+
         assert self._currDir is not None
         resultDirs = [FileInfo("..", FileInfo.DIR)]
         resultFiles = []
@@ -168,50 +168,50 @@ class FileBrowser(AbstractTool):
             elif os.path.isdir(absPath):
                 resultDirs.append(FileInfo(absPath, FileInfo.DIR))
         self._listCache = resultDirs + resultFiles
-        
+
         logger.debug("_rebuildListCache is about to start the FileInfoSearcherThread")
         self._thread = FileInfoSearcherThread(self, self._repo, self._listCache, self._mutex)
         self.connect(self._thread, QtCore.SIGNAL("progress"),
                          lambda topRow, bottomRow: resetGuiTableRows(topRow, bottomRow))
         self._thread.start()
         #self._thread.run()
-    
-    
+
+
     def changeDirUp(self):
         self.changeDir("..")
-    
+
     def changeRelDir(self, relativeDir):
         absDir = os.path.join(self._currDir, relativeDir)
         absDir = os.path.normpath(absDir)
         self.changeDir(absDir)
-    
+
     def refreshDir(self):
         self.changeDir(self._currDir)
-    
+
     def changeDir(self, directory):
         if directory == ".":
             directory = self._currDir
-            
+
         if directory == "..":
             directory, _ = os.path.split(self._currDir)
-            
+
         if not os.path.exists(directory):
             raise NotExistError(directory + " not exists on the file system.")
-        
+
         if not helpers.is_internal(directory, self.repoBasePath()):
             raise ValueError(directory +  " is outside the repository.")
-        
+
         if os.path.isfile(directory):
             raise ValueError(directory + " is not a directory but a file.")
-        
+
         assert os.path.isabs(directory)
         self.__setCurrDir(directory)
-        
-        
+
+
     def unsetDir(self):
         self.__setCurrDir(None)
-        
-        
+
+
     def __setCurrDir(self, directory):
         if self._thread is not None:
             self._thread.interrupt = True
@@ -220,17 +220,17 @@ class FileBrowser(AbstractTool):
         self._listCache = None
         self._mutex = QtCore.QMutex()
         self._gui.resetTableModel(self._mutex)
-        
-    
+
+
     def storeCurrentState(self):
         self._gui.saveColumnsWidths()
-    
-    
+
+
     def restoreRecentState(self):
         self._gui.restoreColumnsWidths()
-    
-    
-    
+
+
+
 class FileInfoSearcherThread(QtCore.QThread):
     def __init__(self, parent, repo, finfos, mutex):
         super(FileInfoSearcherThread, self).__init__(parent)
@@ -238,12 +238,12 @@ class FileInfoSearcherThread(QtCore.QThread):
         self.finfos = finfos
         self.mutex = mutex
         self.interrupt = False
-        self.signalTimeoutMicroSec = 500000 
+        self.signalTimeoutMicroSec = 500000
 
     def run(self):
-        
+
         logger.debug("FileInfoSearcherThread started. There are {} files to process".format(len(self.finfos)))
-        
+
         uow = self.repo.createUnitOfWork()
         try:
             dtStart = None
@@ -251,7 +251,7 @@ class FileInfoSearcherThread(QtCore.QThread):
             shouldSendProgress = False
             topRow = bottomRow = 0
             for i in range(len(self.finfos)):
-                
+
                 if shouldTakeTime:
                     shouldTakeTime = False
                     topRow = i
@@ -259,8 +259,8 @@ class FileInfoSearcherThread(QtCore.QThread):
                 if (datetime.now() - dtStart).microseconds > self.signalTimeoutMicroSec:
                     bottomRow = i
                     shouldSendProgress = True
-                
-                
+
+
                 finfo = self.finfos[i]
                 if self.interrupt:
                     logger.debug("FileInfoSearcherThread interrupted.")
@@ -270,7 +270,7 @@ class FileInfoSearcherThread(QtCore.QThread):
                 relPath = os.path.relpath(finfo.path, self.repo.base_path)
                 cmd = GetFileInfoCommand(relPath)
                 newFinfo = uow.executeCommand(cmd)
-                
+
                 self.mutex.lock()
                 finfo.tags = newFinfo.tags
                 finfo.fields = newFinfo.fields
@@ -278,28 +278,24 @@ class FileInfoSearcherThread(QtCore.QThread):
                 finfo.status = newFinfo.status
                 finfo.itemIds = newFinfo.itemIds
                 self.mutex.unlock()
-                
+
                 if shouldSendProgress:
                     shouldSendProgress = False
                     shouldTakeTime = True
                     self.emit(QtCore.SIGNAL("progress"), topRow, bottomRow)
                     logger.debug("FileInfoSearcherThread progress: topRow={} bottomRow={}".format(topRow, bottomRow))
-                
+
                 # Without this sleep, GUI is not responsive... Maybe because of GIL
                 self.msleep(10)
-            
+
             self.emit(QtCore.SIGNAL("progress"), topRow, bottomRow)
             logger.debug("FileInfoSearcherThread last progress message: topRow={} bottomRow={}".format(topRow, bottomRow))
-                
+
         except Exception as ex:
             self.emit(QtCore.SIGNAL("exception"), traceback.format_exc())
             logger.debug("FileInfoSearcherThread exception: {}".format(ex))
-        
+
         finally:
             uow.close()
             self.emit(QtCore.SIGNAL("finished"))
             logger.debug("FileInfoSearcherThread done.")
-            
-        
-    
-    

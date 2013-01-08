@@ -157,4 +157,3 @@ class Ui_ItemDialog(object):
         self.pushButtonRemoveDataRef.setText(QtGui.QApplication.translate("ItemDialog", "Remove", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonMoveFile.setToolTip(QtGui.QApplication.translate("ItemDialog", "Move referenced File to another location in the same repository.", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonMoveFile.setText(QtGui.QApplication.translate("ItemDialog", "Move File", None, QtGui.QApplication.UnicodeUTF8))
-

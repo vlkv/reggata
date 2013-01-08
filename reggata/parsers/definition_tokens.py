@@ -27,7 +27,7 @@ def t_STRING(t):
     and not t.value.endswith(r'\"'):
         t.value = t.value.replace(r"\\", "\\")
         t.value = t.value.replace(r'\"', r'"')
-        t.value = t.value[1:-1]        
+        t.value = t.value[1:-1]
     return t
 
 t_COLON = r':'
@@ -48,18 +48,18 @@ def build_lexer():
 def needs_quote(string):
     if re.search(r'\s', string):
         return True
-    
+
     m = re.match(t_STRING.__doc__, string)
     if m is None or m.group() != string:
         return True
-    
+
     return False
 
 
 
 if __name__ == '__main__':
     data = r'''
-    Tag1 : "Slash\\:quote\" end" 
+    Tag1 : "Slash\\:quote\" end"
     and:"tag 2"
     user : "asdf"
     '''
@@ -69,6 +69,3 @@ if __name__ == '__main__':
         tok = lexer.token()
         if not tok: break      # No more input
         print(tok)
-        
-        
-        

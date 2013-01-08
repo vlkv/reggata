@@ -21,13 +21,13 @@ TITLE_KEYWORD = QCoreApplication.translate("parsers", 'title', None, QCoreApplic
 
 # In reserved dict key is a reserved keyword, value is a token type.
 reserved = dict()
-for keyword, tokenType in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'), 
+for keyword, tokenType in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'),
               (USER_KEYWORD, 'USER'), (PATH_KEYWORD, 'PATH'), (TITLE_KEYWORD, 'TITLE')]:
     reserved[keyword.capitalize()] = tokenType
     reserved[keyword.upper()] = tokenType
     reserved[keyword.lower()] = tokenType
 # NOTE: ply displays a warning that token AND (OR and others) are defined more than once...
-# But I want to be able to write: AND And and. These would be equivalent tokens. 
+# But I want to be able to write: AND And and. These would be equivalent tokens.
 
 
 # Token types:
@@ -36,7 +36,7 @@ tokens = [
    'LPAREN', # Open round brace )
    'RPAREN', # Closing round brace )
    'COLON', # Colon : (is used after 'user' and 'path' keywords)
-   
+
    # Operations placed between field name and it's value:
    'EQUAL',
    'GREATER',
@@ -48,19 +48,19 @@ tokens = [
 
 
 
-# This string is used to represent names of Tags, Fields and Field Values. 
+# This string is used to represent names of Tags, Fields and Field Values.
 # And in a few other cases too.
 def t_STRING(t):
     r'"(\\["\\]|[^"\\])*"|([^\s():=><~"\\])+'
     # Explanation of this regexp:
-    # The first part: "(\\["\\]|[^"\\])*" String is a sequence of symbols in a double quotes, 
+    # The first part: "(\\["\\]|[^"\\])*" String is a sequence of symbols in a double quotes,
     # that consists of escaped " and \ symbols (i.e. \" and \\) and doesn't consists of " and \ symbols.
     # The second part: ([^\s():=><~"\\])+ String is a non-zero-length unquoted sequence of symbols
-    # adn doesn't consisted of whitespaces, braces, colons, and symbols > < = ~ and \  
-    
+    # adn doesn't consisted of whitespaces, braces, colons, and symbols > < = ~ and \
+
     # String should not match with any of keywords
     t.type = reserved.get(t.value, 'STRING')
-    
+
     if t.type == 'STRING' \
     and t.value.startswith('"') \
     and t.value.endswith('"') \
@@ -96,18 +96,17 @@ def needs_quote(string):
     '''
     if re.search(r'\s', string): #re.search() returns None if nothing found
         return True
-    
+
     m = re.match(t_STRING.__doc__, string)
     if m is None or m.group() != string:
         return True
-    
+
     if reserved.get(string) is not None:
         return True
-    
+
     return False
 
 
 def build_lexer():
     lexer = lex.lex(errorlog=consts.lex_errorlog)
     return lexer
-

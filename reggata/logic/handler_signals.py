@@ -11,7 +11,7 @@ class HandlerSignals():
     signal types. See also WidgetsUpdateManager, ActionHandlerStorage and
     AbstractActionHandler classes.
     '''
-    
+
     ITEM_CREATED = "itemCreated"
     ITEM_CHANGED = "itemChanged"
     ITEM_DELETED = "itemDeleted"

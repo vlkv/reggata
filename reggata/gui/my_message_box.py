@@ -9,11 +9,11 @@ import PyQt4.QtGui as QtGui
 class MyMessageBox(QtGui.QMessageBox):
     '''
         This MessageBox window can be resized with a mouse. Standard QMessageBox
-    could not. Solution was taken from here: 
+    could not. Solution was taken from here:
     http://stackoverflow.com/questions/2655354/how-to-allow-resizing-of-qmessagebox-in-pyqt4
     '''
     def __init__(self, parent=None):
-        super(MyMessageBox, self).__init__(parent)    
+        super(MyMessageBox, self).__init__(parent)
         self.setSizeGripEnabled(True)
         self.addButton(QtGui.QMessageBox.Ok)
         self.setDefaultButton(QtGui.QMessageBox.Ok)
@@ -35,7 +35,5 @@ class MyMessageBox(QtGui.QMessageBox):
             textEdit.setMinimumWidth(0)
             textEdit.setMaximumWidth(16777215)
             textEdit.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-            
+
         return result
-
-

@@ -45,8 +45,8 @@ itemWithTagsAndFields.title = "I Could Have Lied.txt"
 itemWithTagsAndFields.relFilePath = "lyrics/RHCP/I Could Have Lied.txt"
 itemWithTagsAndFields.ownerUserLogin = "user"
 itemWithTagsAndFields.tags = ["RHCP", "Lyrics"]
-itemWithTagsAndFields.fields = {"Rating": 5, 
-                                "Year": 1991, 
+itemWithTagsAndFields.fields = {"Rating": 5,
+                                "Year": 1991,
                                 "Notes": "This item has both tags and fields",
                                 "Albom": "Blood Sugar Sex Magik"}
 
@@ -95,6 +95,3 @@ itemWithErrorHashMismatchNo2.ownerUserLogin = "user"
 itemWithErrorHashMismatchNo2.relFilePath = "led_zeppelin/stairway_to_heaven.txt"
 itemWithErrorHashMismatchNo2.tags = ["Lyrics", "Led_Zeppelin", "Error"]
 itemWithErrorHashMismatchNo2.fields = {"Notes": "This item references to a file, which hash is the same as in Item with id=4"}
-
-
-

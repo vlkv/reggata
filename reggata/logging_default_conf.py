@@ -42,6 +42,5 @@ args=("reggata.log", "w", "utf-8")
 
 [formatter_defaultFormatter]
 format=%(asctime)s - %(name)s - %(levelname)s - %(message)s
-datefmt=        
+datefmt=
 '''
-

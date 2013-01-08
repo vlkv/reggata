@@ -29,4 +29,3 @@ class Ui_FileBrowserGui(object):
 
     def retranslateUi(self, FileBrowserGui):
         FileBrowserGui.setWindowTitle(QtGui.QApplication.translate("FileBrowserGui", "Form", None, QtGui.QApplication.UnicodeUTF8))
-

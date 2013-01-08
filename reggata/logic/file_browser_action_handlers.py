@@ -21,30 +21,26 @@ class AddFileToRepoActionHandler(AbstractActionHandler):
         self._itemsCreatedCount = 0
         self._filesSkippedCount = 0
         self.lastSavedItemIds = []
-        
+
     def handle(self):
         try:
             self._tool.checkActiveRepoIsNotNone()
             self._tool.checkActiveUserIsNotNone()
-            
+
             files = self._tool.gui.selectedFiles()
             if len(files) == 0:
                 raise MsgException(self.tr("There are no selected files."))
-                        
+
             (self._itemsCreatedCount, self._filesSkippedCount, self.lastSavedItemIds) = \
                 AddItemAlgorithms.addItems(self._tool, self._dialogs, files)
-        
+
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
-                            
+
         except CancelOperationError:
             return
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
         finally:
-            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, 
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation completed. Added {}, skipped {} files.")
                     .format(self._itemsCreatedCount, self._filesSkippedCount))
-            
-        
-        
-

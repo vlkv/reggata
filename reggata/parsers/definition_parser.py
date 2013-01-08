@@ -13,14 +13,14 @@ def p_definition_empty(p):
     '''definition :
     '''
     p[0] = ([], []) #Tuple (list_of_tags, list_of_fields)
- 
+
 def p_definition_fields(p):
     '''definition : definition field_value_pair
     '''
     fields = p[1][1]
     fields.append(p[2])
     p[0] = (p[1][0], fields)
-    
+
 def p_definition_tags(p):
     '''definition : definition tag
     '''
@@ -29,22 +29,22 @@ def p_definition_tags(p):
     p[0] = (tags, p[1][1])
 
 def p_field_value_pair(p):
-    '''field_value_pair : field COLON value 
+    '''field_value_pair : field COLON value
     '''
     p[0] = (p[1], p[3])
-    
+
 def p_field(p):
     '''field : STRING
     '''
     p[0] = p[1]
-    
+
 def p_value(p):
     '''value : STRING
     '''
     p[0] = p[1]
-    
+
 def p_tags_def_expression_empty(p):
-    '''tags_def_expression : 
+    '''tags_def_expression :
     '''
     p[0] = []
 
@@ -70,11 +70,10 @@ def parse(text):
 
 if __name__ == '__main__':
     data = r'''
-    Tag1 : "Slash\\:quote\" end" 
+    Tag1 : "Slash\\:quote\" end"
     and:"tag 2" LOOK
     user : "asdf"
     TAG AND MORE TAGS
     '''
     res = parse(data)
     print(res)
-        

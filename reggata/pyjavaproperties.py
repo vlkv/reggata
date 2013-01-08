@@ -24,10 +24,10 @@ class IllegalArgumentException(Exception):
     def __str__(self):
         s='Exception at line number %d => %s' % (self.lineno, self.msg)
         return s
-                 
+
 class Properties(object):
     """ A Python replacement for java.util.Properties """
-    
+
     def __init__(self, props=None):
 
         # Note: We don't take a default properties object
@@ -43,11 +43,11 @@ class Properties(object):
         # Dictionary mapping keys from property
         # dictionary to pristine dictionary
         self._keymap = {}
-        
+
         self.othercharre = re.compile(r'(?<!\\)(\s*\=)|(?<!\\)(\s*\:)')
         self.othercharre2 = re.compile(r'(\s*\=)|(\s*\:)')
         self.bspacere = re.compile(r'\\(?!\s$)')
-        
+
     def __str__(self):
         s='{'
         for key,value in list(self._props.items()):
@@ -84,11 +84,11 @@ class Properties(object):
         # key
         # This key= this value
         # key = value1 value2 value3
-        
+
         # Any line that starts with a '#' is considerered a comment
         # and skipped. Also any trailing or preceding whitespaces
         # are removed from the key/value.
-        
+
         # This is a line parser. It parses the
         # contents like by line.
 
@@ -116,19 +116,19 @@ class Properties(object):
                 first, last = m.span()
                 start, end = 0, first
                 flag = 1
-                wspacere = re.compile(r'(?<![\\\=\:])(\s)')        
+                wspacere = re.compile(r'(?<![\\\=\:])(\s)')
             else:
                 if self.othercharre2.search(line):
                     # Check if either '=' or ':' is present
                     # in the line. If they are then it means
                     # they are preceded by a backslash.
-                    
+
                     # This means, we need to modify the
                     # wspacere a bit, not to look for
                     # : or = characters.
-                    wspacere = re.compile(r'(?<![\\])(\s)')        
+                    wspacere = re.compile(r'(?<![\\])(\s)')
                 start, end = 0, len(line)
-                
+
             m2 = wspacere.search(line, start, end)
             if m2:
                 # print 'Space match=>',line
@@ -142,8 +142,8 @@ class Properties(object):
                 first, last = m.span()
                 sepidx = last - 1
                 # print line[sepidx]
-                
-                
+
+
             # If the last character is a backslash
             # it has to be preceded by a space in which
             # case the next line is read as part of the
@@ -163,13 +163,13 @@ class Properties(object):
                 key,value = line,''
             self._keyorder.append(key)
             self.processPair(key, value)
-            
+
     def processPair(self, key, value):
         """ Process a (key, value) pair """
 
         oldkey = key
         oldvalue = value
-        
+
         # Create key intelligently
         keyparts = self.bspacere.split(key)
         # print keyparts
@@ -189,7 +189,7 @@ class Properties(object):
         if strippable:
             key = key.strip()
             oldkey = oldkey.strip()
-        
+
         oldvalue = self.unescape(oldvalue)
         value = self.unescape(value)
 
@@ -212,10 +212,10 @@ class Properties(object):
             self._origprops[oldkey] = oldvalue.strip()
             # Store entry in keymap
             self._keymap[key] = oldkey
-        
+
         if key not in self._keyorder:
             self._keyorder.append(key)
-        
+
     def escape(self, value):
 
         # Java escapes the '=' and ':' in the value
@@ -232,11 +232,11 @@ class Properties(object):
         newvalue = value.replace('\:',':')
         newvalue = newvalue.replace('\=','=')
 
-        return newvalue    
-        
+        return newvalue
+
     def load(self, stream):
         """ Load properties from an open file stream """
-        
+
         # For the time being only accept file input streams
         #if type(stream) is not file:
         #    raise TypeError('Argument should be a file object!')
@@ -244,9 +244,9 @@ class Properties(object):
         #print("stream type = " + stream.__class__.__name__)
         if not isinstance(stream, io.TextIOBase) and not isinstance(stream, codecs.StreamReaderWriter):
             raise TypeError('Argument should be a io.TextIOBase or codecs.StreamReaderWriter object!')
-        
-        
-        
+
+
+
         # Check for the opened mode
         #print("mode = " + stream.mode)
         if stream.mode != 'r' and stream.mode != 'rb':
@@ -260,7 +260,7 @@ class Properties(object):
 
     def getProperty(self, key):
         """ Return a property for the given key """
-        
+
         return self._props.get(key,'')
 
     def setProperty(self, key, value):
@@ -302,7 +302,7 @@ class Properties(object):
                 if prop in self._origprops:
                     val = self._origprops[prop]
                     out.write(''.join((prop,'=',self.escape(val), os.linesep)))
-                
+
             out.close()
         except IOError as e:
             raise
@@ -319,7 +319,7 @@ class Properties(object):
         """ To support direct dictionary like access """
 
         self.setProperty(name, value)
-        
+
     def __getattr__(self, name):
         """ For attributes not found in self, redirect
         to the properties dictionary """
@@ -329,7 +329,7 @@ class Properties(object):
         except KeyError:
             if hasattr(self._props,name):
                 return getattr(self._props, name)
-            
+
 if __name__=="__main__":
     p = Properties()
     p.load(open('test2.properties'))
@@ -338,6 +338,6 @@ if __name__=="__main__":
     print(list(p.items()))
     print(p['name3'])
     p['name3'] = 'changed = value'
-    print(p['name3'])    
+    print(p['name3'])
     p['new key'] = 'new value'
     p.store(open('test2.properties','w'))

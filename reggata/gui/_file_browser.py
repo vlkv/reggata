@@ -24,56 +24,56 @@ class FileBrowser(QtGui.QTableView):
     #TODO File browser should allow edit tags and fields
 
     def __init__(self, parent=None):
-        super(FileBrowser, self).__init__(parent)        
+        super(FileBrowser, self).__init__(parent)
         self.setModel(FileBrowserTableModel(self))
         self.setItemDelegate(HTMLDelegate(self))
-        
-        
+
+
     def mouseDoubleClickEvent(self, event):
         index = self.indexAt(event.pos())
         self.root_path = self.model().file_infos[index.row()].full_path
-        
-    def keyPressEvent(self, event):        
+
+    def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            index = self.selectionModel().currentIndex()            
+            index = self.selectionModel().currentIndex()
             self.root_path = self.model().file_infos[index.row()].full_path
         else:
             super(FileBrowser, self).keyPressEvent(event)
 
     def _get_root_path(self):
         return self.model().root_path
-    
+
     def _set_root_path(self, path):
         if os.path.isdir(path) and self.model() is not None:
             self.model().root_path = path
         self.resizeRowsToContents()
-        
+
     root_path = property(_get_root_path, _set_root_path)
-    
-    
+
+
     def _set_repo(self, repo):
         self.model().repo = repo
     repo = property(fset=_set_repo)
-    
-    
-
-    
 
 
 
 
-        
-        
-        
+
+
+
+
+
+
+
 class FileBrowserTableModel(QtCore.QAbstractTableModel):
     '''A table model for displaying files (not items) of repository.'''
-    
+
     FILENAME = 0
     TAGS = 1
     USERS = 2
     STATUS = 3
     RATING = 4
-    
+
     def __init__(self, parent, repo=None, user_login=None):
         super(FileBrowserTableModel, self).__init__(parent)
         self._repo = repo
@@ -84,17 +84,17 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
             self._read_root_path()
 
     def _set_root_path(self, value):
-        
-        if value is not None:        
+
+        if value is not None:
             if self.repo is None:
                 raise Exception(self.tr("Cannot set root_path, because self.repo is None."))
-            
+
             if not helpers.is_internal(value, self.repo.base_path):
                 raise Exception(self.tr("Path must be inside current repository."))
-        
+
         self._root_path = value
         self._read_root_path()
-        
+
     def _get_root_path(self):
         return self._root_path
 
@@ -107,30 +107,30 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
             self.root_path = value.base_path
         else:
             self.root_path = None
-            
+
     def _get_repo(self):
         return self._repo
-    
+
     repo = property(_get_repo, _set_repo)
-     
+
 
     def _read_root_path(self):
-        
+
         # TODO: if there are a lot of files in repo root
         # This function is called always on start, even when file browser is hidden
         # Have to make it more lazy
-        
+
         self.file_infos = []
-        
+
         if self.repo is None or self.root_path is None:
             return
-        
+
         listdir = []
         if os.path.normpath(self._root_path) != os.path.normpath(self.repo.base_path):
             listdir.append(os.pardir)
         for fname in os.listdir(self._root_path):
-            listdir.append(fname)            
-        
+            listdir.append(fname)
+
         #TODO do this in a separate thread
         uow = self.repo.createUnitOfWork()
         try:
@@ -144,10 +144,10 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
                 else:
                     finfo = FileInfo(self._root_path, fname)
                 self.file_infos.append(finfo)
-                        
+
         finally:
             uow.close()
-            
+
         self.reset()
 
     def reset_single_row(self, row):
@@ -157,18 +157,18 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
 
     def _set_user_login(self, user_login):
         self._user_login = user_login
-        
+
     def _get_user_login(self):
         return self._user_login
-    
+
     user_login = property(_get_user_login, _set_user_login, doc="Current active user login.")
-    
+
     def rowCount(self, index=QtCore.QModelIndex()):
         return len(self.file_infos)
-    
+
     def columnCount(self, index=QtCore.QModelIndex()):
         return 5
-    
+
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal:
             if role == Qt.DisplayRole:
@@ -189,18 +189,18 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
         else:
             return None
 
-    
+
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if not index.isValid() or not (0 <= index.row() < len(self.file_infos)):
             return None
-                
+
         column = index.column()
         row = index.row()
         finfo = self.file_infos[row]
-        
+
         if role == QtCore.Qt.DisplayRole:
             if column == self.FILENAME:
-                if finfo.type == FileInfo.DIR:                
+                if finfo.type == FileInfo.DIR:
                     return "<b>" + finfo.filename + "</b>"
                 else:
                     return finfo.filename
@@ -228,8 +228,6 @@ class FileBrowserTableModel(QtCore.QAbstractTableModel):
 #U+2639 WHITE FROWNING FACE
 #U+263A WHITE SMILING FACE
                 return stars
-      
-        #return None in all other cases    
+
+        #return None in all other cases
         return None
-    
-   

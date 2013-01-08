@@ -405,6 +405,3 @@ class OpenFavoriteRepoActionHandler(AbstractActionHandler):
 
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
-
-
-

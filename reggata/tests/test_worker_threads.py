@@ -9,17 +9,16 @@ from reggata.data.commands import GetExpungedItemCommand
 class DeleteGroupOfItemsThreadTest(AbstractTestCaseWithRepo):
 
     def testName(self):
-        thread = DeleteGroupOfItemsThread(parent=None, 
-                                          repo=self.repo, 
-                                          item_ids=[1, 2, 3], 
+        thread = DeleteGroupOfItemsThread(parent=None,
+                                          repo=self.repo,
+                                          item_ids=[1, 2, 3],
                                           user_login="user")
         thread.run()
-        
+
         try:
             uow = self.repo.createUnitOfWork()
             self.assertFalse(uow.executeCommand(GetExpungedItemCommand(1)).alive)
             self.assertFalse(uow.executeCommand(GetExpungedItemCommand(2)).alive)
-            self.assertFalse(uow.executeCommand(GetExpungedItemCommand(3)).alive)            
+            self.assertFalse(uow.executeCommand(GetExpungedItemCommand(3)).alive)
         finally:
             uow.close()
-    

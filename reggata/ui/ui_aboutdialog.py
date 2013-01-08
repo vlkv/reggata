@@ -38,4 +38,3 @@ class Ui_AboutDialog(object):
 
     def retranslateUi(self, AboutDialog):
         AboutDialog.setWindowTitle(QtGui.QApplication.translate("AboutDialog", "About Reggata", None, QtGui.QApplication.UnicodeUTF8))
-

@@ -69,4 +69,3 @@ class Ui_ChangeUserPasswordDialog(object):
         self.label.setText(QtGui.QApplication.translate("ChangeUserPasswordDialog", "Current password:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_password.setText(QtGui.QApplication.translate("ChangeUserPasswordDialog", "New password:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_password_repeat.setText(QtGui.QApplication.translate("ChangeUserPasswordDialog", "Repeat new password:", None, QtGui.QApplication.UnicodeUTF8))
-

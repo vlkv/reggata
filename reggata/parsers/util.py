@@ -9,9 +9,9 @@ from reggata.helpers import is_none_or_empty
 def escape(string):
     # Escaping slashes first
     string = re.sub(r'\\', r'\\\\', string)
-    
+
     # And only then, escaping all the other symbols
-    string = re.sub(r'"', r'\"', string)    
+    string = re.sub(r'"', r'\"', string)
     return string
 
 
@@ -27,7 +27,7 @@ def quote(string):
     in a quotes. Returns modified string.
     '''
     return '"' + escape(string) + '"'
-    
+
 
 def unquote(string):
     '''
@@ -39,20 +39,19 @@ def unquote(string):
         string = string[1:-1]
         return unescape(string)
 
- 
+
 if __name__ == "__main__":
-        
+
     unescaped = r'This string should be \properly\ "escaped"!'
     print(unescaped)
     print(escape(unescaped))
-    
+
     escaped = r'Is this \\string\\ un-\"escaped\"?'
     print(escaped)
     print(unescape(escaped))
 
     # If you will call escape two times - you would have a mess as a result
     print(escape(escaped))
-    
+
     m = re.findall(r'"', unescaped)
     print(m)
-    

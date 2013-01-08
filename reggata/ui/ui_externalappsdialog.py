@@ -165,4 +165,3 @@ class Ui_ExternalAppsDialog(object):
         self.groupBox_2.setTitle(QtGui.QApplication.translate("ExternalAppsDialog", "External File Browser", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Executable:", None, QtGui.QApplication.UnicodeUTF8))
         self.buttonSelectFileBrowser.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
-

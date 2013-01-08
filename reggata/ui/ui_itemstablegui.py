@@ -70,4 +70,3 @@ class Ui_ItemsTableGui(object):
         self.label_2.setText(QtGui.QApplication.translate("ItemsTableGui", "Limit:", None, QtGui.QApplication.UnicodeUTF8))
         self.spinBox_limit.setToolTip(QtGui.QApplication.translate("ItemsTableGui", "Maximum number of rows per page to display (0 - no limit).", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("ItemsTableGui", "Page:", None, QtGui.QApplication.UnicodeUTF8))
-

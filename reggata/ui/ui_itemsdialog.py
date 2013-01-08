@@ -111,4 +111,3 @@ class Ui_ItemsDialog(object):
         self.label_10.setText(QtGui.QApplication.translate("ItemsDialog", "Tags to add:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_fields_rm.setText(QtGui.QApplication.translate("ItemsDialog", "Field names to remove:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_tags_rm.setText(QtGui.QApplication.translate("ItemsDialog", "Tags to remove:", None, QtGui.QApplication.UnicodeUTF8))
-

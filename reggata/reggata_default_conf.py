@@ -1,7 +1,7 @@
 
 reggataDefaultConf = \
 '''
-# This is a Reggata confguration file ~/.config/reggata/reggata.conf 
+# This is a Reggata confguration file ~/.config/reggata/reggata.conf
 #
 #
 
@@ -25,7 +25,7 @@ recent_user.password=da39a3ee5e6b4b0d3255bfef95601890afd80709
 #Commands for invoking external applications.
 # %f will be replaced with absolute file name (of selected item)
 # %d will be replaced with absolute path to containing directory (of selected item)
-# If path to command contains spaces, surround it with double quotes, 
+# If path to command contains spaces, surround it with double quotes,
 # for example:
 # ext_app_mgr.audio.command="C:\Program Files\K-Lite Codec Pack\Media Player Classic\mplayerc.exe" %f
 ext_app_mgr_file_types=['images', 'pdf', 'audio', 'plain_text']
@@ -59,14 +59,9 @@ thumbnail_size = 100
 # Uncomment only if you want different location of tmp directory
 #tmp_dir = "C:\tmp"
 
-
 #Field with this name will be used by Reggata to store item's rating.
 reserved_fields.rating = Rating
 
 #Field with this name will be used by Reggata to store item's notes and comments.
 reserved_fields.notes = Notes
-
 '''
-
-
-

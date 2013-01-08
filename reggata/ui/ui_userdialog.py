@@ -76,4 +76,3 @@ class Ui_UserDialog(object):
         self.comboBox_group.setItemText(1, QtGui.QApplication.translate("UserDialog", "ADMIN", None, QtGui.QApplication.UnicodeUTF8))
         self.label_password_repeat.setText(QtGui.QApplication.translate("UserDialog", "Repeat password:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_notice.setText(QtGui.QApplication.translate("UserDialog", "Note: default user login is \"user\" with empty password.", None, QtGui.QApplication.UnicodeUTF8))
-
