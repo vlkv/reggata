@@ -27,19 +27,16 @@ class UserConfig(object):
                 os.makedirs(consts.USER_CONFIG_DIR)
 
             if not os.path.exists(consts.USER_CONFIG_FILE):
-                f = codecs.open(consts.USER_CONFIG_FILE, "w", "utf-8")
-                try:
+                with codecs.open(consts.USER_CONFIG_FILE, "w", "utf-8") as f:
                     f.write(reggata_default_conf.reggataDefaultConf)
-                finally:
-                    f.close()
 
-            cls._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
+            with codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8") as f:
+                cls._props.load(f)
+
         return cls._instance
-
 
     def __init__(self):
         pass
-
 
     def __getitem__(self, key):
         '''
@@ -57,19 +54,20 @@ class UserConfig(object):
 
     def store(self, key, value):
         self._props[key] = str(value)
-        self._props.store(codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8"))
-
+        with codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8") as f:
+            self._props.store(f)
 
     def storeAll(self, d):
         if type(d) != dict:
             raise TypeError("This is not a dict instance.")
         for key in d.keys():
             self._props[key] = str(d[key])
-        self._props.store(codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8"))
+        with codecs.open(consts.USER_CONFIG_FILE, 'w', "utf-8") as f:
+            self._props.store(f)
 
     def refresh(self):
-        self._props.load(codecs.open(consts.USER_CONFIG_FILE, "r", "utf-8"))
-
+        with codecs.open(consts.USER_CONFIG_FILE, 'r', "utf-8") as f:
+            self._props.load(f)
 
 
 if __name__ == "__main__":

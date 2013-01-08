@@ -332,7 +332,8 @@ class Properties(object):
 
 if __name__=="__main__":
     p = Properties()
-    p.load(open('test2.properties'))
+    with open("test2.properties", "r") as f:
+        p.load(f)
     p.list()
     print(p)
     print(list(p.items()))
@@ -340,4 +341,5 @@ if __name__=="__main__":
     p['name3'] = 'changed = value'
     print(p['name3'])
     p['new key'] = 'new value'
-    p.store(open('test2.properties','w'))
+    with open("test2.properties", "w") as f:
+        p.store(f)

@@ -40,11 +40,8 @@ def configureLogging():
         os.makedirs(consts.USER_CONFIG_DIR)
 
     if not os.path.exists(consts.LOGGING_CONFIG_FILE):
-        f = codecs.open(consts.LOGGING_CONFIG_FILE, "w", "utf-8")
-        try:
+        with codecs.open(consts.LOGGING_CONFIG_FILE, "w", "utf-8") as f:
             f.write(logging_default_conf.loggingDefaultConf)
-        finally:
-            f.close()
 
     logging.config.fileConfig(os.path.join(consts.LOGGING_CONFIG_FILE))
 
