@@ -170,13 +170,13 @@ def computeFileHash(filename, chunksize=128*1024): # chunksize = 128 Kbytes
 
 def _computeFullFileHash(filename, chunksize, algorithm):
     assert chunksize > 0
-    f = open(filename, 'rb')
     filehash = hashlib.new(algorithm)
-    while True:
-        data = f.read(chunksize)
-        if not data:
-            break
-        filehash.update(data)
+    with open(filename, "rb") as f:
+        while True:
+            data = f.read(chunksize)
+            if not data:
+                break
+            filehash.update(data)
     hashStr = filehash.hexdigest()
     return hashStr
 
@@ -185,16 +185,16 @@ def _computePartialFileHash(filename, chunksize, algorithm, maxBytesToHash):
     assert maxBytesToHash > 0
     assert maxBytesToHash < os.path.getsize(filename)
 
-    f = open(filename, 'rb')
     filehash = hashlib.new(algorithm)
 
-    while maxBytesToHash > 0:
-        bytesToRead = chunksize if maxBytesToHash >= chunksize else maxBytesToHash
-        maxBytesToHash -= bytesToRead
-        data = f.read(bytesToRead)
-        if not data:
-            break
-        filehash.update(data)
+    with open(filename, 'rb') as f:
+        while maxBytesToHash > 0:
+            bytesToRead = chunksize if maxBytesToHash >= chunksize else maxBytesToHash
+            maxBytesToHash -= bytesToRead
+            data = f.read(bytesToRead)
+            if not data:
+                break
+            filehash.update(data)
     hashStr = filehash.hexdigest()
     return hashStr
 
