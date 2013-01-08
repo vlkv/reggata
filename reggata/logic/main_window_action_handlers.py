@@ -4,6 +4,7 @@ Created on 01.10.2012
 '''
 import os
 import PyQt4.QtGui as QtGui
+import reggata
 import reggata.helpers as helpers
 import reggata.consts as consts
 from reggata.helpers import show_exc_info
@@ -341,24 +342,16 @@ class ShowAboutDialogActionHandler(AbstractActionHandler):
 
 
 
-class AboutDialog(QtGui.QDialog):
-
-    def __init__(self, parent=None):
-        super(AboutDialog, self).__init__(parent)
-        self.ui = Ui_AboutDialog()
-        self.ui.setupUi(self)
-
-        title = '''<h1>Reggata</h1>'''
-        text = \
+about_message = \
 '''
-<p>Reggata is a tagging system for local files.
-</p>
+<h1>Reggata</h1>
+<p>Version: {0}</p>
 
-<p>Copyright 2012 Vitaly Volkov, <font color="blue">vitvlkv@gmail.com</font>
-</p>
+<p>Reggata is a tagging system for local files.</p>
 
-<p>Home page: <font color="blue">http://github.com/vlkv/reggata</font>
-</p>
+<p>Copyright 2012 Vitaly Volkov, <font color="blue">vitvlkv@gmail.com</font></p>
+
+<p>Home page: <font color="blue">http://github.com/vlkv/reggata</font></p>
 
 <p>Reggata is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -375,25 +368,15 @@ GNU General Public License for more details.
 <p>You should have received a copy of the GNU General Public License
 along with Reggata.  If not, see <font color="blue">http://www.gnu.org/licenses</font>.
 </p>
-'''
-        f = None
-        try:
-            try:
-                f = open(os.path.join(os.path.dirname(__file__), "version.txt", "r"))
-            except:
-                try:
-                    f = open(os.path.join(os.path.dirname(__file__), os.pardir, "version.txt"), "r")
-                except:
-                    f = open(os.path.join(os.path.abspath(os.curdir), "version.txt"), "r")
-            version = f.readline()
-            text = "<p>Version: " + version + "</p>" + text
-        except Exception as ex:
-            text = "<p>Version: " + "<font color='red'>&lt;no information&gt;</font>" + "</p>" + text
-        finally:
-            if f:
-                f.close()
+'''.format(reggata.__version__)
 
-        self.ui.textEdit.setHtml(title + text)
+
+class AboutDialog(QtGui.QDialog):
+    def __init__(self, parent=None):
+        super(AboutDialog, self).__init__(parent)
+        self.ui = Ui_AboutDialog()
+        self.ui.setupUi(self)
+        self.ui.textEdit.setHtml(about_message)
 
 
 class OpenFavoriteRepoActionHandler(AbstractActionHandler):
