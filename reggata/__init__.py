@@ -13,3 +13,7 @@ __license__ = "GPL v3+"
 __author_email__ = "vitvlkv@gmail.com"
 __url__ = "https://github.com/vlkv/reggata/wiki"
 __download_url__ = "https://sourceforge.net/projects/reggata/files/"
+
+
+# import for the launcher file
+from reggata.main import main
