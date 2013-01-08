@@ -10,7 +10,7 @@ def read_file(filename):
 
 setup(
     name = "Reggata",
-    packages = ['reggata', 
+    packages = ['reggata',
                 'reggata.data',
                 'reggata.gui',
                 'reggata.ui',
@@ -18,6 +18,7 @@ setup(
                 'reggata.parsers',
                 'reggata.tests'],
     scripts = ["bin/reggata"],
+    data_files = [("/usr/share/applications/", ["share/reggata.desktop"]), ],
     package_data = {'reggata': ['locale/*.qm']},
     version = reggata.__version__,
     description = reggata.__doc__,

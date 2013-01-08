@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Reggata
+GenericName=Taggin system for local files
+Comment=GUI application which converts multiple file formats
+Exec=reggata
+Icon=reggata
+Terminal=false
+StartupNotify=false
+Encoding=UTF-8
+Categories=Application;Office;
