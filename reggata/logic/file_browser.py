@@ -159,14 +159,15 @@ class FileBrowser(AbstractTool):
             QtCore.QCoreApplication.processEvents()
         
         assert self._currDir is not None
-        result=[FileInfo("..", FileInfo.DIR)]
+        resultDirs = [FileInfo("..", FileInfo.DIR)]
+        resultFiles = []
         for fname in os.listdir(self._currDir):
             absPath = os.path.join(self._currDir, fname)
             if os.path.isfile(absPath):
-                result.append(FileInfo(absPath, FileInfo.FILE))
+                resultFiles.append(FileInfo(absPath, FileInfo.FILE))
             elif os.path.isdir(absPath):
-                result.append(FileInfo(absPath, FileInfo.DIR))
-        self._listCache = result
+                resultDirs.append(FileInfo(absPath, FileInfo.DIR))
+        self._listCache = resultDirs + resultFiles
         
         logger.debug("_rebuildListCache is about to start the FileInfoSearcherThread")
         self._thread = FileInfoSearcherThread(self, self._repo, self._listCache, self._mutex)
