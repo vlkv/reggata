@@ -10,18 +10,9 @@ import re
 class UnsupportedPlatform(Exception):
     pass
 
+
 class VersionInfoNotFound(Exception):
     pass
-
-
-def get_reggata_version():
-    with open(os.path.join("..", "version.txt"), "r") as f:
-        version = f.readline().strip()
-        if version is None or len(version) == 0:
-            raise VersionInfoNotFound()
-        
-    result = re.sub(r"-g\S+", "", version)
-    return result
 
 
 def get_short_sys_platform():
@@ -33,30 +24,31 @@ def get_short_sys_platform():
         return "mac"
     else:
         raise UnsupportedPlatform()
-    
+
 
 if __name__ == '__main__':
-    
+
     sys.path.append(os.path.join("..", "locale"))
     sys.path.append(os.path.join("..", "reggata"))
-    
+
     base = None
     targetExeName = "reggata"
     if sys.platform.startswith("win"):
         base = "Win32GUI"
         targetExeName = targetExeName + ".exe"
-    
-    reggata_version = get_reggata_version()
+
+    import reggata
+    reggata_version = reggata.__version__
     print("Reggata version is " + reggata_version)
     target_dir = os.path.join(
-		"..", "binary_builds", "reggata-" + reggata_version + "_" + get_short_sys_platform())
+        "..", "binary_builds", "reggata-" + reggata_version + "_" + get_short_sys_platform())
     buildOptions = dict(
             compressed = True,
             includes = ["sqlite3"],
             packages = ["sqlalchemy.dialects.sqlite", "ply"],
             include_files = [("../locale/reggata_ru.qm", "locale/reggata_ru.qm"),
-                             ("../COPYING", "COPYING"), 
-                             ("../README.creole", "README.creole"), 
+                             ("../COPYING", "COPYING"),
+                             ("../README.creole", "README.creole"),
                              ("../version.txt", "version.txt")],
             build_exe = target_dir
     )
@@ -65,15 +57,15 @@ if __name__ == '__main__':
             version = reggata_version,
             description = "Reggata is a tag-based file manager",
             options = dict(build_exe = buildOptions),
-            executables = [Executable(os.path.join('..', 'reggata', 'main.py'), 
+            executables = [Executable(os.path.join('..', 'reggata', 'main.py'),
                                       base = base,
                                       targetName = targetExeName)]
     )
-    
+
     if sys.platform.startswith("win"):
         file, PyQt4_path, desc = imp.find_module("PyQt4")
-        shutil.copytree(os.path.join(PyQt4_path, "plugins", "imageformats"), 
+        shutil.copytree(os.path.join(PyQt4_path, "plugins", "imageformats"),
                         os.path.join(target_dir, "imageformats"))
-        
+
     print("Done.")
 
