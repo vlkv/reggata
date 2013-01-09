@@ -14,16 +14,16 @@ from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepo
 class ItemSerializationSimpleTest(unittest.TestCase):
 
     simpleItemState = '''{
-    "__class__": "Item",
-    "__module__": "reggata.data.db_schema",
-    "__version__": 1,
-    "data_ref": null,
+    "__class__": "Item", 
+    "__module__": "reggata.data.db_schema", 
+    "__version__": 1, 
+    "data_ref": null, 
     "date_created": {
         "__datetime__": "datetime.datetime(2012, 7, 27, 23, 14, 14, 680387)"
-    },
-    "fields": [],
-    "tags": [],
-    "title": "The Title",
+    }, 
+    "fields": [], 
+    "tags": [], 
+    "title": "The Title", 
     "user_login": "user"
 }'''
 
