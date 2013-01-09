@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
 Name=Reggata
-GenericName=Taggin system for local files
-Comment=GUI application which converts multiple file formats
+GenericName=Reggata
+Comment=Tagging system for local files
 Exec=reggata
 Icon=reggata
 Terminal=false
