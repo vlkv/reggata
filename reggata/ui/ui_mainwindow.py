@@ -173,3 +173,5 @@ class Ui_MainWindow(object):
         self.actionRemove_current_repository.setText(QtGui.QApplication.translate("MainWindow", "Remove current repository", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExitReggata.setText(QtGui.QApplication.translate("MainWindow", "Exit", None, QtGui.QApplication.UnicodeUTF8))
         self.actionManageExtApps.setText(QtGui.QApplication.translate("MainWindow", "Manage External Applications", None, QtGui.QApplication.UnicodeUTF8))
+
+import resources_rc

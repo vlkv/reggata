@@ -83,3 +83,5 @@ class Ui_ImageViewer(object):
         self.action_edit_item.setText(QtGui.QApplication.translate("ImageViewer", "Edit Item", None, QtGui.QApplication.UnicodeUTF8))
         self.action_edit_item.setToolTip(QtGui.QApplication.translate("ImageViewer", "Edit Item", None, QtGui.QApplication.UnicodeUTF8))
         self.action_edit_item.setShortcut(QtGui.QApplication.translate("ImageViewer", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
+
+import resources_rc
