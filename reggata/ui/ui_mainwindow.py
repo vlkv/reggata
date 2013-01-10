@@ -174,4 +174,4 @@ class Ui_MainWindow(object):
         self.actionExitReggata.setText(QtGui.QApplication.translate("MainWindow", "Exit", None, QtGui.QApplication.UnicodeUTF8))
         self.actionManageExtApps.setText(QtGui.QApplication.translate("MainWindow", "Manage External Applications", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
+from . import resources_rc
