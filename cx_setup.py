@@ -5,7 +5,6 @@ from cx_Freeze import setup, Executable
 import imp
 import os
 import shutil
-import re
 
 class UnsupportedPlatform(Exception):
     pass
