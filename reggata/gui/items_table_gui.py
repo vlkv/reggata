@@ -300,18 +300,19 @@ class ItemsTableGui(ToolGui):
         subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchUpdateHash'])
 
 
+    def __initContextMenu(self):
+        self.buildActions()
+        self.__buildContextMenu()
+        self.__addContextMenu()
+        
     def __addContextMenu(self):
         assert self.__context_menu is not None, "Context menu is not built"
         self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
         self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
 
-    def __initContextMenu(self):
-        self.buildActions()
-        self.__buildContextMenu()
-        self.__addContextMenu()
-
     def showContextMenu(self, pos):
         self.__context_menu.exec_(self.ui.tableView_items.mapToGlobal(pos))
+
 
 
     def dragEnterEvent(self, event):
