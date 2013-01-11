@@ -180,13 +180,18 @@ class FileBrowser(AbstractTool):
     def changeDirUp(self):
         self.changeDir("..")
 
+
     def changeRelDir(self, relativeDir):
         absDir = os.path.join(self._currDir, relativeDir)
         absDir = os.path.normpath(absDir)
         self.changeDir(absDir)
 
+
     def refreshDir(self):
+        if self._currDir is None:
+            return
         self.changeDir(self._currDir)
+        
 
     def changeDir(self, directory):
         if directory == ".":
