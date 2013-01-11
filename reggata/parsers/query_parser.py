@@ -10,6 +10,7 @@ from reggata.parsers.query_tree_nodes import *
 from reggata.parsers.query_tokens import *
 from reggata.errors import YaccError
 import os
+from reggata import consts
 
 
 def p_query(p):
@@ -199,7 +200,7 @@ def p_error(p):
 
 
 lexer = build_lexer()
-parsetabPyDir = os.path.dirname(__file__)
+parsetabPyDir = consts.USER_CONFIG_DIR
 parser = yacc.yacc(errorlog=consts.yacc_errorlog,
                    debug=0, # This disables creation of parser.out log file
                    tabmodule="parsetab_query",
