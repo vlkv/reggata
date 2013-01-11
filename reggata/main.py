@@ -41,9 +41,10 @@ def configureLogging():
 
     if not os.path.exists(consts.LOGGING_CONFIG_FILE):
         with codecs.open(consts.LOGGING_CONFIG_FILE, "w", "utf-8") as f:
-            f.write(logging_default_conf.loggingDefaultConf)
+            text = logging_default_conf.loggingDefaultConf
+            f.write(text)
 
-    logging.config.fileConfig(os.path.join(consts.LOGGING_CONFIG_FILE))
+    logging.config.fileConfig(consts.LOGGING_CONFIG_FILE)
 
 
 def configureTmpDir():

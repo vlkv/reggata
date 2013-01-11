@@ -1,3 +1,8 @@
+import os
+from reggata import consts
+
+
+logFilePath = os.path.join(consts.USER_CONFIG_DIR, "reggata.log")
 
 loggingDefaultConf = \
 '''
@@ -36,11 +41,11 @@ propagate=0
 class=FileHandler
 level=DEBUG
 formatter=defaultFormatter
-args=("reggata.log", "w", "utf-8")
+args=(r"{logFilePath}", "w", "utf-8")
 
 
 
 [formatter_defaultFormatter]
 format=%(asctime)s - %(name)s - %(levelname)s - %(message)s
 datefmt=
-'''
+'''.format(**{"logFilePath": logFilePath})
