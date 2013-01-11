@@ -9,6 +9,7 @@ import ply.yacc as yacc
 from reggata.parsers.query_tree_nodes import *
 from reggata.parsers.query_tokens import *
 from reggata.errors import YaccError
+import os
 
 
 def p_query(p):
@@ -198,7 +199,11 @@ def p_error(p):
 
 
 lexer = build_lexer()
-parser = yacc.yacc(errorlog=consts.yacc_errorlog)
+parsetabPyDir = os.path.dirname(__file__)
+parser = yacc.yacc(errorlog=consts.yacc_errorlog,
+                   debug=0, # This disables creation of parser.out log file
+                   tabmodule="parsetab_query",
+                   outputdir=parsetabPyDir)
 
 
 def parse(text):
