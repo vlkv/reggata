@@ -30,11 +30,31 @@ class FileBrowserGui(ToolGui):
         self.connect(self.ui.filesTableView, QtCore.SIGNAL("activated(const QModelIndex&)"), self.__onMouseDoubleClick)
 
         self.resetTableModel(None)
+        
+        self.__context_menu = None
+        self.__initContextMenu()
 
 
     def resetTableModel(self, mutex):
         self.__tableModel = FileBrowserTableModel(self, self.__fileBrowserTool, mutex)
         self.ui.filesTableView.setModel(self.__tableModel)
+
+
+    def __initContextMenu(self):
+        self.buildActions()
+        self.__buildContextMenu()
+        self.__addContextMenu()
+        
+    def __addContextMenu(self):
+        assert self.__context_menu is not None, "Context menu is not built"
+        self.ui.filesTableView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.connect(self.ui.filesTableView, 
+                     QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), 
+                     self.showContextMenu)
+
+    def showContextMenu(self, pos):
+        self.__context_menu.exec_(self.ui.filesTableView.mapToGlobal(pos))
+
 
 
     def __onMouseDoubleClick(self, index):
@@ -70,8 +90,18 @@ class FileBrowserGui(ToolGui):
         menu = self._mainMenu
         menu.addAction(self.actions['addFilesToRepo'])
         menu.addAction(self.actions['editItems'])
+        
+    def __buildContextMenu(self):
+        if self.__context_menu is not None:
+            logger.info("Context menu of this Tool already built")
+            return
 
+        self.__context_menu = self._createMenu(menuTitle=None, menuParent=self)
+        menu = self.__context_menu
 
+        menu.addAction(self.actions['addFilesToRepo'])
+        menu.addAction(self.actions['editItems'])
+        
 
     def selectedItemIds(self):
         #We use set, because selectedIndexes() may return duplicates
