@@ -14,9 +14,9 @@ ROOT_LOGGER = "reggata"
 
 METADATA_DIR = ".reggata"
 DB_FILE = "database.sqlite3"
-USER_CONFIG_DIR = os.path.expanduser("~") + os.sep + ".config" + os.sep + "reggata"
-USER_CONFIG_FILE = USER_CONFIG_DIR + os.sep + "reggata.conf"
-LOGGING_CONFIG_FILE = USER_CONFIG_DIR + os.sep + "logging.conf"
+USER_CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".config", "reggata")
+USER_CONFIG_FILE = os.path.join(USER_CONFIG_DIR, "reggata.conf")
+LOGGING_CONFIG_FILE = os.path.join(USER_CONFIG_DIR, "logging.conf")
 
 THUMBNAIL_DEFAULT_SIZE = 100
 
