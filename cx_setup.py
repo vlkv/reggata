@@ -46,7 +46,7 @@ if __name__ == '__main__':
             compressed = True,
             includes = ["sqlite3"],
             packages = ["sqlalchemy.dialects.sqlite", "ply"],
-            include_files = [("../locale/reggata_ru.qm", "locale/reggata_ru.qm"),
+            include_files = [("../reggata/locale/reggata_ru.qm", "reggata/locale/reggata_ru.qm"),
                              ("../COPYING", "COPYING"),
                              ("../README.creole", "README.creole"),
                              ("../version.txt", "version.txt")],
