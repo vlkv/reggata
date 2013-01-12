@@ -14,13 +14,16 @@ import traceback
 import zipfile
 import datetime
 from PyQt4 import QtCore, QtGui
-from reggata.data.commands import *
+import reggata.data.commands as cmds
 from reggata.data.db_schema import Thumbnail
 from reggata.data.integrity_fixer import IntegrityFixerFactory
-from reggata.data.repo_mgr import *
-from reggata.errors import *
+import reggata.data.repo_mgr as repo
+import reggata.errors as errors
 import reggata.consts as consts
 from reggata.helpers import is_none_or_empty
+from reggata import memento
+import shutil
+from reggata.user_config import UserConfig
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -88,7 +91,7 @@ class ImportItemsThread(AbstractWorkerThread):
                     itemSrcAbsPath = dstAbsPath
                     itemDstRelPath = os.path.relpath(dstAbsPath, self.repo.base_path) \
                         if dstAbsPath is not None else None
-                    cmd = SaveNewItemCommand(item, itemSrcAbsPath, itemDstRelPath)
+                    cmd = cmds.SaveNewItemCommand(item, itemSrcAbsPath, itemDstRelPath)
                     uow.executeCommand(cmd)
                 except Exception:
                     if dstAbsPath is not None:
@@ -152,7 +155,7 @@ class ExportItemsThread(AbstractWorkerThread):
         result = False;
         uow = self.repo.createUnitOfWork()
         try:
-            error_set = uow.executeCommand(CheckItemIntegrityCommand(item, self.repo.base_path))
+            error_set = uow.executeCommand(cmds.CheckItemIntegrityCommand(item, self.repo.base_path))
             result = (len(error_set) == 0)
         finally:
             uow.close()
@@ -187,7 +190,7 @@ class ExportItemsThread(AbstractWorkerThread):
         item = None
         uow = self.repo.createUnitOfWork()
         try:
-            item = uow.executeCommand(GetExpungedItemCommand(itemId))
+            item = uow.executeCommand(cmds.GetExpungedItemCommand(itemId))
         finally:
             uow.close()
         assert item is not None
@@ -211,7 +214,7 @@ class ExportItemsFilesThread(AbstractWorkerThread):
         try:
             i = 0
             for itemId in self.item_ids:
-                item = uow.executeCommand(GetExpungedItemCommand(itemId))
+                item = uow.executeCommand(cmds.GetExpungedItemCommand(itemId))
                 if item.is_data_ref_null():
                     continue
 
@@ -273,7 +276,7 @@ class ItemIntegrityFixerThread(AbstractWorkerThread):
                     try:
                         self.lock.lockForWrite()
                         item.error = uow.executeCommand(
-                            CheckItemIntegrityCommand(item, self.repo.base_path))
+                            cmds.CheckItemIntegrityCommand(item, self.repo.base_path))
                     finally:
                         self.lock.unlock()
 
@@ -316,7 +319,7 @@ class ItemIntegrityCheckerThread(AbstractWorkerThread):
             startIndex = 0
             for i in range(len(self.items)):
                 item = self.items[i]
-                error_set = uow.executeCommand(CheckItemIntegrityCommand(item, self.repo._base_path))
+                error_set = uow.executeCommand(cmds.CheckItemIntegrityCommand(item, self.repo._base_path))
 
                 try:
                     self.lock.lockForWrite()
@@ -409,7 +412,7 @@ class ThumbnailBuilderThread(AbstractWorkerThread):
                     th.data = buffer.buffer().data()
                     th.size = thumbnail_size
 
-                    uow.executeCommand(SaveThumbnailCommand(item.data_ref.id, th))
+                    uow.executeCommand(cmds.SaveThumbnailCommand(item.data_ref.id, th))
 
                     #Update items collection
                     try:
@@ -449,9 +452,9 @@ class DeleteGroupOfItemsThread(AbstractWorkerThread):
             i = 0
             for itemId in self.item_ids:
                 try:
-                    cmd = DeleteItemCommand(itemId, self.user_login)
+                    cmd = cmds.DeleteItemCommand(itemId, self.user_login)
                     uow.executeCommand(cmd)
-                except AccessError as ex:
+                except errors.AccessError as ex:
                     # User self.user_login has no permissions to delete this item
                     self.errors += 1
                     self.detailed_message += str(ex) + os.linesep
@@ -459,8 +462,8 @@ class DeleteGroupOfItemsThread(AbstractWorkerThread):
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.item_ids)))
 
-            uow.executeCommand(DeleteHangingTagsCommand())
-            uow.executeCommand(DeleteHangingFieldsCommand())
+            uow.executeCommand(cmds.DeleteHangingTagsCommand())
+            uow.executeCommand(cmds.DeleteHangingFieldsCommand())
         finally:
             uow.close()
 
@@ -489,11 +492,11 @@ class CreateGroupOfItemsThread(AbstractWorkerThread):
                     if item.data_ref:
                         srcAbsPath = item.data_ref.srcAbsPath
                         dstRelPath = item.data_ref.dstRelPath
-                    savedItemId = uow.executeCommand(SaveNewItemCommand(item, srcAbsPath, dstRelPath))
+                    savedItemId = uow.executeCommand(cmds.SaveNewItemCommand(item, srcAbsPath, dstRelPath))
                     self.lastSavedItemIds.append(savedItemId)
                     self.createdCount += 1
 
-                except (ValueError, DataRefAlreadyExistsError):
+                except (ValueError, errors.DataRefAlreadyExistsError):
                     self.skippedCount += 1
 
                 i = i + 1
@@ -514,7 +517,7 @@ class UpdateGroupOfItemsThread(AbstractWorkerThread):
         try:
             i = 0
             for item in self.items:
-                cmd = UpdateExistingItemCommand(item, item.user_login)
+                cmd = cmds.UpdateExistingItemCommand(item, item.user_login)
                 uow.executeCommand(cmd)
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
