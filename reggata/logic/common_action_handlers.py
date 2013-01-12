@@ -4,7 +4,7 @@ Created on 23.12.2012
 '''
 from reggata.logic.handler_signals import HandlerSignals
 import reggata.consts as consts
-from reggata.data.commands import *
+import reggata.data.commands as cmds
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.gui.item_dialog import ItemDialog
 from reggata.logic.worker_threads import UpdateGroupOfItemsThread, BackgrThread, CreateGroupOfItemsThread
@@ -13,6 +13,7 @@ import reggata.data.db_schema as db
 import reggata.helpers as hlp
 import reggata.errors as err
 import logging
+import os
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -89,7 +90,7 @@ class AddItemAlgorithms(object):
                 srcAbsPath = item.data_ref.srcAbsPath
                 dstRelPath = item.data_ref.dstRelPath
 
-            cmd = SaveNewItemCommand(item, srcAbsPath, dstRelPath)
+            cmd = cmds.SaveNewItemCommand(item, srcAbsPath, dstRelPath)
             thread = BackgrThread(tool.gui, uow.executeCommand, cmd)
 
             dialogs.startThreadWithWaitDialog(
@@ -217,13 +218,13 @@ class EditItemActionHandler(AbstractActionHandler):
     def __editSingleItem(self, itemId):
         uow = self._tool.repo.createUnitOfWork()
         try:
-            item = uow.executeCommand(GetExpungedItemCommand(itemId))
+            item = uow.executeCommand(cmds.GetExpungedItemCommand(itemId))
 
             if not self._dialogs.execItemDialog(
                 item=item, gui=self._tool.gui, repo=self._tool.repo, dialogMode=ItemDialog.EDIT_MODE):
                 return
 
-            cmd = UpdateExistingItemCommand(item, self._tool.user.login)
+            cmd = cmds.UpdateExistingItemCommand(item, self._tool.user.login)
             uow.executeCommand(cmd)
         finally:
             uow.close()
@@ -233,7 +234,7 @@ class EditItemActionHandler(AbstractActionHandler):
         try:
             items = []
             for itemId in itemIds:
-                items.append(uow.executeCommand(GetExpungedItemCommand(itemId)))
+                items.append(uow.executeCommand(cmds.GetExpungedItemCommand(itemId)))
 
             if not self._dialogs.execItemsDialog(
                 items, self._tool.gui, self._tool.repo, ItemsDialog.EDIT_MODE, sameDstPath=True):
