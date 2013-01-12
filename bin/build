@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mkdir ../binary_builds
+
+python3 ../cx_setup.py build

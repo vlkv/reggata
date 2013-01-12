@@ -35,6 +35,8 @@ if __name__ == '__main__':
     if sys.platform.startswith("win"):
         base = "Win32GUI"
         targetExeName = targetExeName + ".exe"
+    elif sys.platform.startswith("linux"):
+        targetExeName = targetExeName + ".sh"
 
     import reggata
     reggata_version = reggata.__version__
@@ -48,7 +50,8 @@ if __name__ == '__main__':
             include_files = [("../reggata/locale/reggata_ru.qm", "reggata/locale/reggata_ru.qm"),
                              ("../COPYING", "COPYING"),
                              ("../README.creole", "README.creole"),
-                             ("../version.txt", "version.txt")],
+                             #("../version.txt", "version.txt")
+                             ],
             build_exe = target_dir
     )
     setup(

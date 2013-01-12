@@ -1,4 +1,14 @@
+include bin/*
+exclude bin/.gitignore
+include COPYING
+include README.creole
 include reggata/locale/*
-exclude reggata/locale/*qm
-include reggata/resources/resources.qrc
-recursive-exclude reggata *pyc
+include reggata/resources/*
+include reggata/resources/icons/*
+include reggata/ui/*.ui
+include share/*
+include doc/*
+recursive-exclude reggata *.pyc
+
+
+

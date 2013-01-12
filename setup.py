@@ -9,7 +9,7 @@ def read_file(filename):
 
 
 setup(
-    name = "Reggata",
+    name = "reggata",
     packages = ['reggata',
                 'reggata.data',
                 'reggata.gui',
