@@ -9,7 +9,6 @@ import ply.yacc as yacc
 from reggata.parsers.query_tree_nodes import *
 from reggata.parsers.query_tokens import *
 from reggata.errors import YaccError
-import os
 from reggata import consts
 
 
