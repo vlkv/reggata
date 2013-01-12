@@ -3,21 +3,17 @@
 Created on 21.01.2012
 @author: vlkv
 '''
-from tarfile import TarInfo, TarFile
+from tarfile import TarFile
 import tarfile
 from _pyio import open
-import io
 import logging
 import os
-import sys
 import traceback
-import zipfile
 import datetime
 from PyQt4 import QtCore, QtGui
 import reggata.data.commands as cmds
 from reggata.data.db_schema import Thumbnail
 from reggata.data.integrity_fixer import IntegrityFixerFactory
-import reggata.data.repo_mgr as repo
 import reggata.errors as errors
 import reggata.consts as consts
 from reggata.helpers import is_none_or_empty
