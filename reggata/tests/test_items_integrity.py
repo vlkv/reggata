@@ -7,14 +7,15 @@ from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepo
 from reggata.data import db_schema
 from reggata.data.integrity_fixer import IntegrityFixerFactory, FileNotFoundFixer, FileHashMismatchFixer
 from reggata.data.commands import CheckItemIntegrityCommand
-from reggata.tests.tests_context import *
+import reggata.tests.tests_context as ctx
+import os
 
 
 
 class CheckItemIntegrityTest(AbstractTestCaseWithRepo):
 
     def test_checkItemWithoutErrors(self):
-        item = self.getExistingItem(itemWithFile.id)
+        item = self.getExistingItem(ctx.itemWithFile.id)
         uow = self.repo.createUnitOfWork()
         try:
             cmd = CheckItemIntegrityCommand(item, self.repo.base_path)
@@ -25,7 +26,7 @@ class CheckItemIntegrityTest(AbstractTestCaseWithRepo):
 
 
     def test_checkItemWithErrorFileNotFound(self):
-        item = self.getExistingItem(itemWithErrorFileNotFound.id)
+        item = self.getExistingItem(ctx.itemWithErrorFileNotFound.id)
         uow = self.repo.createUnitOfWork()
         try:
             cmd = CheckItemIntegrityCommand(item, self.repo.base_path)
@@ -36,7 +37,7 @@ class CheckItemIntegrityTest(AbstractTestCaseWithRepo):
             uow.close()
 
     def test_checkItemWithErrorFileHashMismatch(self):
-        item = self.getExistingItem(itemWithErrorHashMismatch.id)
+        item = self.getExistingItem(ctx.itemWithErrorHashMismatch.id)
         uow = self.repo.createUnitOfWork()
         try:
             cmd = CheckItemIntegrityCommand(item, self.repo.base_path)
@@ -55,7 +56,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         DataRef object will be created for it. Original DataRef object will be deleted
          (if no other items reference to it).
         '''
-        item = self.getExistingItem(itemWithErrorFileNotFound.id)
+        item = self.getExistingItem(ctx.itemWithErrorFileNotFound.id)
         originalDataRefId = item.data_ref.id
 
         uow = self.repo.createUnitOfWork()
@@ -64,13 +65,13 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             fixer = IntegrityFixerFactory.createFixer(db_schema.Item.ERROR_FILE_NOT_FOUND,
                                               FileNotFoundFixer.TRY_FIND,
                                               uow, self.repo.base_path, itemsLock)
-            result = fixer.fix_error(item, itemWithErrorFileNotFound.ownerUserLogin)
+            result = fixer.fix_error(item, ctx.itemWithErrorFileNotFound.ownerUserLogin)
             uow.session.commit()
             self.assertTrue(result)
         finally:
             uow.close()
 
-        fixedItem = self.getExistingItem(itemWithErrorFileNotFound.id)
+        fixedItem = self.getExistingItem(ctx.itemWithErrorFileNotFound.id)
 
         self.assertNotEquals(originalDataRefId, fixedItem.data_ref.id,
             "A new DataRef object should be created")
@@ -96,7 +97,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             Fixer should find in the repo an existing DataRef object with the same matching hash.
         Original DataRef object should be deleted (if no other items reference to it).
         '''
-        item = self.getExistingItem(itemWithErrorFileNotFoundNo2.id)
+        item = self.getExistingItem(ctx.itemWithErrorFileNotFoundNo2.id)
         originalDataRefId = item.data_ref.id
 
         uow = self.repo.createUnitOfWork()
@@ -105,14 +106,14 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             fixer = IntegrityFixerFactory.createFixer(db_schema.Item.ERROR_FILE_NOT_FOUND,
                                               FileNotFoundFixer.TRY_FIND,
                                               uow, self.repo.base_path, itemsLock)
-            result = fixer.fix_error(item, itemWithErrorFileNotFoundNo2.ownerUserLogin)
+            result = fixer.fix_error(item, ctx.itemWithErrorFileNotFoundNo2.ownerUserLogin)
             uow.session.commit()
             self.assertTrue(result)
         finally:
             uow.close()
 
-        fixedItem = self.getExistingItem(itemWithErrorFileNotFoundNo2.id)
-        self.assertEquals(fixedItem.data_ref.url_raw, itemId_1.relFilePath,
+        fixedItem = self.getExistingItem(ctx.itemWithErrorFileNotFoundNo2.id)
+        self.assertEquals(fixedItem.data_ref.url_raw, ctx.itemId_1.relFilePath,
             "Fixed should find this stored file")
 
         fixedItemFileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
@@ -123,7 +124,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         self.assertIsNone(originalDataRef,
             "Original DataRef object should be deleted from database: no more references to it")
 
-        anotherItem = self.getExistingItem(itemId_1.id)
+        anotherItem = self.getExistingItem(ctx.itemId_1.id)
         self.assertEquals(fixedItem.data_ref.id, anotherItem.data_ref.id,
             "Now two different items reference to the same DataRef object")
 
@@ -135,7 +136,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             Fixer should just delete Item's reference to the lost file and delete original
         DataRef object from database (if no other items reference to it).
         '''
-        item = self.getExistingItem(itemWithErrorFileNotFound.id)
+        item = self.getExistingItem(ctx.itemWithErrorFileNotFound.id)
         originalDataRefId = item.data_ref.id
 
         uow = self.repo.createUnitOfWork()
@@ -144,13 +145,13 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             fixer = IntegrityFixerFactory.createFixer(db_schema.Item.ERROR_FILE_NOT_FOUND,
                                               FileNotFoundFixer.DELETE,
                                               uow, self.repo.base_path, itemsLock)
-            result = fixer.fix_error(item, itemWithErrorFileNotFound.ownerUserLogin)
+            result = fixer.fix_error(item, ctx.itemWithErrorFileNotFound.ownerUserLogin)
             uow.session.commit()
             self.assertTrue(result)
         finally:
             uow.close()
 
-        fixedItem = self.getExistingItem(itemWithErrorFileNotFound.id)
+        fixedItem = self.getExistingItem(ctx.itemWithErrorFileNotFound.id)
         self.assertIsNone(fixedItem.data_ref,
             "Item has no references to files now")
 
@@ -166,7 +167,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         (because url must be unique). But we cannot delete original DataRef object
         if there are some items that reference to it.
         '''
-        item = self.getExistingItem(itemWithErrorHashMismatch.id)
+        item = self.getExistingItem(ctx.itemWithErrorHashMismatch.id)
         originalDataRefId = item.data_ref.id
         originalFileHash = item.data_ref.hash
         originalFilePath = item.data_ref.url_raw
@@ -177,13 +178,13 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             fixer = IntegrityFixerFactory.createFixer(db_schema.Item.ERROR_FILE_HASH_MISMATCH,
                                               FileHashMismatchFixer.UPDATE_HASH,
                                               uow, self.repo.base_path, itemsLock)
-            result = fixer.fix_error(item, itemWithErrorHashMismatch.ownerUserLogin)
+            result = fixer.fix_error(item, ctx.itemWithErrorHashMismatch.ownerUserLogin)
             uow.session.commit()
             self.assertTrue(result)
         finally:
             uow.close()
 
-        fixedItem = self.getExistingItem(itemWithErrorHashMismatch.id)
+        fixedItem = self.getExistingItem(ctx.itemWithErrorHashMismatch.id)
 
         self.assertEqual(fixedItem.data_ref.id, originalDataRefId,
             "An Existing DataRef object should have been modified")
@@ -206,7 +207,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         should be created for it. Original DataRef object will be deleted,
         because other items do not reference to it
         '''
-        item = self.getExistingItem(itemWithErrorHashMismatch.id)
+        item = self.getExistingItem(ctx.itemWithErrorHashMismatch.id)
         originalDataRefId = item.data_ref.id
         originalFileHash = item.data_ref.hash
 
@@ -216,13 +217,13 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             fixer = IntegrityFixerFactory.createFixer(db_schema.Item.ERROR_FILE_HASH_MISMATCH,
                                               FileHashMismatchFixer.TRY_FIND_FILE,
                                               uow, self.repo.base_path, itemsLock)
-            result = fixer.fix_error(item, itemWithErrorHashMismatch.ownerUserLogin)
+            result = fixer.fix_error(item, ctx.itemWithErrorHashMismatch.ownerUserLogin)
             uow.session.commit()
             self.assertTrue(result)
         finally:
             uow.close()
 
-        fixedItem = self.getExistingItem(itemWithErrorHashMismatch.id)
+        fixedItem = self.getExistingItem(ctx.itemWithErrorHashMismatch.id)
 
         self.assertNotEquals(originalDataRefId, fixedItem.data_ref.id,
             "A new DataRef object should be created")
@@ -250,7 +251,7 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             Fixer should find an existing DataRef object with matching file hash.
         Original DataRef object will be deleted, because other items do not reference to it.
         '''
-        item = self.getExistingItem(itemWithErrorHashMismatchNo2.id)
+        item = self.getExistingItem(ctx.itemWithErrorHashMismatchNo2.id)
         originalDataRefId = item.data_ref.id
         originalFileHash = item.data_ref.hash
 
@@ -260,13 +261,13 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
             fixer = IntegrityFixerFactory.createFixer(db_schema.Item.ERROR_FILE_HASH_MISMATCH,
                                               FileHashMismatchFixer.TRY_FIND_FILE,
                                               uow, self.repo.base_path, itemsLock)
-            result = fixer.fix_error(item, itemWithErrorHashMismatchNo2.ownerUserLogin)
+            result = fixer.fix_error(item, ctx.itemWithErrorHashMismatchNo2.ownerUserLogin)
             uow.session.commit()
             self.assertTrue(result)
         finally:
             uow.close()
 
-        fixedItem = self.getExistingItem(itemWithErrorHashMismatchNo2.id)
+        fixedItem = self.getExistingItem(ctx.itemWithErrorHashMismatchNo2.id)
 
         fixedItemFileAbsPath = os.path.join(self.repo.base_path, fixedItem.data_ref.url)
         self.assertTrue(os.path.exists(fixedItemFileAbsPath),
@@ -276,12 +277,12 @@ class FixItemIntegrityTest(AbstractTestCaseWithRepo):
         self.assertIsNone(originalDataRef,
             "Original DataRef object should be deleted")
 
-        self.assertEquals(fixedItem.data_ref.url_raw, itemId_4.relFilePath,
+        self.assertEquals(fixedItem.data_ref.url_raw, ctx.itemId_4.relFilePath,
             "Fixer should have been found this file")
 
         self.assertEquals(originalFileHash, fixedItem.data_ref.hash,
             "File hash should be still the same")
 
-        anotherItem = self.getExistingItem(itemId_4.id)
+        anotherItem = self.getExistingItem(ctx.itemId_4.id)
         self.assertEquals(fixedItem.data_ref.id, anotherItem.data_ref.id,
             "Now two items reference to the same DataRef object")
