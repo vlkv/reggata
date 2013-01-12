@@ -27,8 +27,8 @@ NOTES_FIELD = "Notes"
 RESERVED_FIELDS = [RATING_FIELD, NOTES_FIELD]
 
 #TODO: Some custom logger (from logging module) should be substituted here
-yacc_errorlog = ply.yacc.NullLogger()
-lex_errorlog = ply.lex.NullLogger()
+yacc_errorlog = ply.yacc.PlyLogger(open(os.path.join(USER_CONFIG_DIR, "yacc.log"), "w"))
+lex_errorlog = ply.lex.PlyLogger(open(os.path.join(USER_CONFIG_DIR, "lex.log"), "w"))
 
 STATUSBAR_TIMEOUT = 5000
 
