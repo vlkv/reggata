@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     A tagging system for managing local files on your computer.
 """

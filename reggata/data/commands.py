@@ -287,9 +287,9 @@ class FileInfo(object):
     DIR = "DIRECTORY"
     OTHER = "OTHER"
 
-    def __init__(self, path, type=None, status=None):
+    def __init__(self, path, objType=None, status=None):
         assert not hlp.is_none_or_empty(path)
-        assert type is not None or status is not None
+        assert objType is not None or status is not None
 
         #remove trailing slashes in the path
         while path.endswith(os.sep):
@@ -297,7 +297,7 @@ class FileInfo(object):
 
         self.path = path
         self.status = status
-        self.type = type
+        self.type = objType
         self.tags = []
         self.fields = []
         self.itemIds = []
@@ -330,7 +330,7 @@ class GetFileInfoCommand(AbstractCommand):
                 .options(joinedload_all("items.item_fields.field"))\
                 .one()
             self._session.expunge(data_ref)
-            finfo = FileInfo(data_ref.url, type=FileInfo.FILE, status=FileInfo.STORED)
+            finfo = FileInfo(data_ref.url, objType=FileInfo.FILE, status=FileInfo.STORED)
 
             for item in data_ref.items:
                 finfo.itemIds.append(item.id)

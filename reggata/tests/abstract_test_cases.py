@@ -24,10 +24,10 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
         self.repo = None
         shutil.rmtree(self.copyOfRepoBasePath)
 
-    def getExistingItem(self, id):
+    def getExistingItem(self, itemId):
         try:
             uow = self.repo.createUnitOfWork()
-            item = uow.executeCommand(GetExpungedItemCommand(id))
+            item = uow.executeCommand(GetExpungedItemCommand(itemId))
             self.assertIsNotNone(item)
         finally:
             uow.close()
@@ -44,13 +44,13 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
             uow.close()
         return dataRef
 
-    def getDataRefById(self, id):
+    def getDataRefById(self, objId):
         '''
             Returns a DataRef object with given id or None, if DataRef object not found.
         '''
         try:
             uow = self.repo.createUnitOfWork()
-            dataRef = uow._session.query(DataRef).filter(DataRef.id==id).first()
+            dataRef = uow._session.query(DataRef).filter(DataRef.id==objId).first()
         finally:
             uow.close()
         return dataRef
