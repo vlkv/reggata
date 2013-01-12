@@ -730,7 +730,7 @@ class SaveNewItemCommand(AbstractCommand):
 
 
         if isDataRefRequired:
-            item.data_ref = db.DataRef(type=db.DataRef.FILE, url=dstRelPath)
+            item.data_ref = db.DataRef(objType=db.DataRef.FILE, url=dstRelPath)
             item.data_ref.user_login = user_login
             item.data_ref.size = os.path.getsize(srcAbsPath)
             item.data_ref.hash = hlp.computeFileHash(srcAbsPath)

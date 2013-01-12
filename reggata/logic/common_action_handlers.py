@@ -76,7 +76,7 @@ class AddItemAlgorithms(object):
         if not hlp.is_none_or_empty(file):
             file = os.path.normpath(file)
             item.title, _ = os.path.splitext(os.path.basename(file))
-            item.data_ref = db.DataRef(type=db.DataRef.FILE, url=file)
+            item.data_ref = db.DataRef(objType=db.DataRef.FILE, url=file)
 
         if not dialogs.execItemDialog(
             item=item, gui=tool.gui, repo=tool.repo, dialogMode=ItemDialog.CREATE_MODE):
@@ -118,7 +118,7 @@ class AddItemAlgorithms(object):
             file = os.path.normpath(file)
             item = db.Item(user_login=tool.user.login)
             item.title, _ = os.path.splitext(os.path.basename(file))
-            item.data_ref = db.DataRef(type=db.DataRef.FILE, url=file) #DataRef.url can be changed in ItemsDialog
+            item.data_ref = db.DataRef(objType=db.DataRef.FILE, url=file) #DataRef.url can be changed in ItemsDialog
             item.data_ref.srcAbsPath = file
             items.append(item)
 
@@ -152,7 +152,7 @@ class AddItemAlgorithms(object):
                 item = db.Item(user_login=tool.user.login)
                 item.title, _ = os.path.splitext(file)
                 srcAbsPath = os.path.abspath(file)
-                item.data_ref = db.DataRef(type=db.DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
+                item.data_ref = db.DataRef(objType=db.DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
                 item.data_ref.srcAbsPath = srcAbsPath
                 item.data_ref.srcAbsPathToRoot = os.path.dirname(file)
                 # item.data_ref.dstRelPath will be set by ItemsDialog
@@ -166,7 +166,7 @@ class AddItemAlgorithms(object):
                         item = db.Item(user_login=tool.user.login)
                         item.title, _ = os.path.splitext(file)
                         srcAbsPath = os.path.join(root, file)
-                        item.data_ref = db.DataRef(type=db.DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
+                        item.data_ref = db.DataRef(objType=db.DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
                         item.data_ref.srcAbsPath = srcAbsPath
                         item.data_ref.srcAbsPathToRoot = os.path.join(dirPath, "..")
                         # item.data_ref.dstRelPath will be set by ItemsDialog

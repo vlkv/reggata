@@ -222,7 +222,7 @@ class ItemDialog(QtGui.QDialog):
         if is_none_or_empty(title):
             self.ui.lineEdit_title.setText(os.path.basename(file))
 
-        data_ref = DataRef(type=DataRef.FILE, url=file)
+        data_ref = DataRef(objType=DataRef.FILE, url=file)
         self.item.data_ref = data_ref
 
         assert(os.path.isabs(data_ref.url))

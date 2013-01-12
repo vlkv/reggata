@@ -75,7 +75,7 @@ class AbstractIntegrityFixer(object):
                     continue
 
                 fileRelPath = os.path.relpath(os.path.join(root, file), self.repo_base_path)
-                newDataRef = DataRef(type=DataRef.FILE, url=fileRelPath, date_created=datetime.datetime.today())
+                newDataRef = DataRef(objType=DataRef.FILE, url=fileRelPath, date_created=datetime.datetime.today())
                 newDataRef.hash = calculatedHash
                 newDataRef.size = os.path.getsize(os.path.join(root, file))
                 self.uow.session.add(newDataRef)

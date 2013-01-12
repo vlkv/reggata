@@ -429,8 +429,8 @@ class DataRef(Base, memento.Serializable):
     items = relationship("Item", cascade="expunge, refresh-expire")
 
 
-    def __init__(self, type=None, url=None, date_created=None):
-        self.type = type
+    def __init__(self, objType=None, url=None, date_created=None):
+        self.type = objType
         self.url = url
 
         if date_created is not None:
@@ -487,7 +487,7 @@ class DataRef(Base, memento.Serializable):
 
     @staticmethod
     def fromJsonVersionCurrent(objState):
-        dr = DataRef(type=objState["type"],
+        dr = DataRef(objType=objState["type"],
                      url=objState["url"],
                      date_created=objState["date_created"])
         dr.hash = objState["hash"]
