@@ -6,7 +6,7 @@ Created on 24.10.2010
 Module contains productions of reggata query language grammar.
 '''
 import ply.yacc as yacc
-from reggata.parsers.query_tree_nodes import *
+import reggata.parsers.query_tree_nodes as tree
 from reggata.parsers.query_tokens import *
 from reggata.errors import YaccError
 from reggata import consts
@@ -30,7 +30,7 @@ def p_query(p):
 def p_compound_query(p):
     '''compound_query : LPAREN simple_query RPAREN
     '''
-    p[0] = CompoundQuery(p[2])
+    p[0] = tree.CompoundQuery(p[2])
 
 
 def p_compound_query_and(p):
@@ -77,7 +77,7 @@ def p_simple_query(p):
 def p_simple_query_single_extra_clause(p):
     '''simple_query : extra_clause
     '''
-    sec = SingleExtraClause()
+    sec = tree.SingleExtraClause()
     for e in p[1]:
         sec.add_extra_clause(e)
         p[0] = sec
@@ -86,7 +86,7 @@ def p_simple_query_single_extra_clause(p):
 def p_extra_clause_user(p):
     '''extra_clause : USER COLON STRING extra_clause
     '''
-    e = ExtraClause('USER', p[3])
+    e = tree.ExtraClause('USER', p[3])
     p[4].append(e)
     p[0] = p[4]
 
@@ -94,7 +94,7 @@ def p_extra_clause_user(p):
 def p_extra_clause_path(p):
     '''extra_clause : PATH COLON STRING extra_clause
     '''
-    e = ExtraClause('PATH', p[3])
+    e = tree.ExtraClause('PATH', p[3])
     p[4].append(e)
     p[0] = p[4]
 
@@ -102,7 +102,7 @@ def p_extra_clause_path(p):
 def p_extra_clause_title(p):
     '''extra_clause : TITLE COLON STRING extra_clause
     '''
-    e = ExtraClause('TITLE', p[3])
+    e = tree.ExtraClause('TITLE', p[3])
     p[4].append(e)
     p[0] = p[4]
 
@@ -125,7 +125,7 @@ def p_tags_conjunction(p):
         p[1].add_tag(p[2])
         p[0] = p[1]
     elif len(p) == 2:
-        tc = TagsConjunction()
+        tc = tree.TagsConjunction()
         tc.add_tag(p[1])
         p[0] =  tc
 
@@ -143,7 +143,7 @@ def p_tag_not_tag(p):
 def p_tag(p):
     '''tag : STRING
     '''
-    p[0] = Tag(p[1])
+    p[0] = tree.Tag(p[1])
 
 
 def p_fields_conjunction(p):
@@ -159,7 +159,7 @@ def p_fields_conjunction(p):
 def p_fields_conjunction_empty(p):
     '''fields_conjunction : field_op_value
     '''
-    fc = FieldsConjunction()
+    fc = tree.FieldsConjunction()
     fc.add_field_op_val(p[1])
     p[0] = fc
 
@@ -167,7 +167,7 @@ def p_fields_conjunction_empty(p):
 def p_field_op_value(p):
     '''field_op_value : field_name field_op field_value
     '''
-    p[0] = FieldOpVal(p[1], p[2], p[3])
+    p[0] = tree.FieldOpVal(p[1], p[2], p[3])
 
 
 def p_field_name(p):
