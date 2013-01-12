@@ -9,13 +9,16 @@ from PyQt4.QtCore import Qt
 from reggata.ui.ui_itemstablegui import Ui_ItemsTableGui
 from reggata.user_config import UserConfig
 from reggata.parsers import query_parser
+import reggata.data.db_schema as db
 from reggata.gui.common_widgets import TextEdit
-from reggata.helpers import *
+import reggata.helpers as helpers
 import reggata.consts as consts
-from reggata.errors import *
-from reggata.data.commands import *
+import reggata.errors as errors
+import reggata.data.commands as cmds
 from reggata.logic.worker_threads import ThumbnailBuilderThread
 from reggata.gui.tool_gui import ToolGui
+import os
+import traceback
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -49,9 +52,9 @@ class ItemsTableGui(ToolGui):
         self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
 
         #Tuning table cell rendering
-        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.TITLE, HTMLDelegate(self))
-        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.IMAGE_THUMB, ImageThumbDelegate(self))
-        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.RATING, RatingDelegate(self))
+        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.TITLE, helpers.HTMLDelegate(self))
+        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.IMAGE_THUMB, helpers.ImageThumbDelegate(self))
+        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.RATING, helpers.RatingDelegate(self))
 
         #Turn on table sorting
         self.ui.tableView_items.setSortingEnabled(True)
@@ -82,7 +85,7 @@ class ItemsTableGui(ToolGui):
     def query_exec(self):
         try:
             if self.__table_model is None:
-                raise MsgException(self.tr("Items Table Widget has no Model."))
+                raise errors.MsgException(self.tr("Items Table Widget has no Model."))
 
             query_text = self.query_text()
             limit = self.query_limit()
@@ -94,7 +97,7 @@ class ItemsTableGui(ToolGui):
 
         except Exception as ex:
             logger.warning(str(ex))
-            show_exc_info(self, ex)
+            helpers.show_exc_info(self, ex)
 
 
     def query_reset(self):
@@ -304,7 +307,7 @@ class ItemsTableGui(ToolGui):
         self.buildActions()
         self.__buildContextMenu()
         self.__addContextMenu()
-        
+
     def __addContextMenu(self):
         assert self.__context_menu is not None, "Context menu is not built"
         self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -439,29 +442,25 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
 
         uow = self.repo.createUnitOfWork()
         try:
-            #Нужно остановить поток (запущенный от предыдущего запроса), если будет выполнен новый запрос (этот)
             if self.thread is not None and self.thread.isRunning():
-                #Нужно остановить поток, если будет выполнен другой запрос
                 self.thread.interrupt = True
-                self.thread.wait(5*1000) #TODO Тут может надо ждать бесконечно?
+                self.thread.wait(5*1000)
 
             if query_text is None or query_text.strip()=="":
-                #Если запрос пустой, тогда извлекаем элементы не имеющие тегов
-                self.items = uow.executeCommand(GetUntaggedItems(limit, page, order_by))
+                self.items = uow.executeCommand(cmds.GetUntaggedItems(limit, page, order_by))
             else:
                 query_tree = query_parser.parse(query_text)
-                cmd = QueryItemsByParseTree(query_tree, limit, page, order_by)
+                cmd = cmds.QueryItemsByParseTree(query_tree, limit, page, order_by)
                 self.items = uow.executeCommand(cmd)
 
-            #Нужно запустить поток, который будет генерировать миниатюры
             self.thread = ThumbnailBuilderThread(self, self.repo, self.items, self.lock)
             self.connect(self.thread, QtCore.SIGNAL("progress"), lambda percents, row: reset_row(row))
             self.thread.start()
 
             self.reset()
 
-        except (YaccError, LexError) as ex:
-            raise MsgException(self.tr("Error in the query. Detail info: {}").format(str(ex)))
+        except (errors.YaccError, errors.LexError) as ex:
+            raise errors.MsgException(self.tr("Error in the query. Detail info: {}").format(str(ex)))
 
         finally:
             uow.close()
@@ -543,7 +542,7 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
             elif column == self.TITLE:
                 if item.data_ref is not None:
                     s  =  str(item.data_ref.type) + ": " + item.data_ref.url
-                    if  item.data_ref.type == DataRef.FILE:
+                    if  item.data_ref.type == db.DataRef.FILE:
                         s += os.linesep + self.tr("Checksum (hash): {}").format(item.data_ref.hash)
                         s += os.linesep + self.tr("File size: {} bytes").format(item.data_ref.size)
                         s += os.linesep + self.tr("Date hashed: {}").format(item.data_ref.date_hashed)
@@ -607,10 +606,10 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
             else:
                 s = ""
                 for error in error_set:
-                    if error == Item.ERROR_FILE_HASH_MISMATCH:
-                        s += "File contents has changed (hash mismatch)".format(Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
-                    elif error == Item.ERROR_FILE_NOT_FOUND:
-                        s += "File not found (maybe it was deleted, moved or renamed?)".format(Item.ERROR_FILE_NOT_FOUND) + os.linesep
+                    if error == db.Item.ERROR_FILE_HASH_MISMATCH:
+                        s += "File contents has changed (hash mismatch)".format(db.Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
+                    elif error == db.Item.ERROR_FILE_NOT_FOUND:
+                        s += "File not found (maybe it was deleted, moved or renamed?)".format(db.Item.ERROR_FILE_NOT_FOUND) + os.linesep
                 if s.endswith(os.linesep):
                     s = s[:-1]
         else:
@@ -627,9 +626,9 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
             return helpers.to_commalist(error_set, lambda x: self.__formatErrorShort(x))
 
     def __formatErrorShort(self, itemErrorCode):
-        if itemErrorCode == Item.ERROR_FILE_NOT_FOUND:
+        if itemErrorCode == db.Item.ERROR_FILE_NOT_FOUND:
             return self.tr("File not found")
-        elif itemErrorCode == Item.ERROR_FILE_HASH_MISMATCH:
+        elif itemErrorCode == db.Item.ERROR_FILE_HASH_MISMATCH:
             return self.tr("Hash mismatch")
         else:
             assert False, "Unknown error code"
@@ -660,7 +659,7 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
             #Store new rating value into database
             uow = self.repo.createUnitOfWork()
             try:
-                cmd = UpdateExistingItemCommand(item, self.user_login)
+                cmd = cmds.UpdateExistingItemCommand(item, self.user_login)
                 uow.executeCommand(cmd)
                 self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
                 return True
