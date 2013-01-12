@@ -3,19 +3,18 @@ Created on 01.10.2012
 @author: vlkv
 '''
 import os
+import time
+from PyQt4 import QtCore, QtGui
+from reggata.user_config import UserConfig
 from reggata.helpers import show_exc_info, format_exc_info
 import reggata.consts as consts
-import reggata.data.db_schema as db
 import reggata.errors as errors
+import reggata.data.db_schema as db
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.logic.common_action_handlers import AddItemAlgorithms
 from reggata.logic.handler_signals import HandlerSignals
 import reggata.logic.worker_threads as threads
 from reggata.gui.image_viewer import ImageViewer
-
-import time
-from PyQt4 import QtCore, QtGui
-from reggata.user_config import UserConfig
 
 
 class AddItemsActionHandler(AbstractActionHandler):
