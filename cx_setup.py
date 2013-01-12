@@ -48,7 +48,7 @@ if __name__ == '__main__':
             include_files = [("../reggata/locale/reggata_ru.qm", "locale/reggata_ru.qm"),
                              ("../COPYING", "COPYING"),
                              ("../README.creole", "README.creole"),
-                             #("../version.txt", "version.txt")
+                             ("../git_version.txt", "git_version.txt"),
                              ],
             build_exe = target_dir
     )
