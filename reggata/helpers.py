@@ -277,7 +277,7 @@ class RatingDelegate(QtGui.QStyledItemDelegate):
         painter.save()
         painter.fillRect(option.rect, bg_color)
         painter.translate(option.rect.x(), option.rect.y())
-        for i in range(0, rating):
+        for _ in range(0, rating):
             painter.drawPixmap(0, 0, self.star)
             painter.translate(self.star.width() + 1, 0.0)
         painter.restore()
@@ -340,11 +340,11 @@ class HTMLDelegate(QtGui.QStyledItemDelegate):
             doc.setHtml(raw_text)
 
             cursor = QtGui.QTextCursor(doc)
-            format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(text_color))
+            fmt = QtGui.QTextCharFormat()
+            fmt.setForeground(QtGui.QBrush(text_color))
             cursor.movePosition(QtGui.QTextCursor.Start)
             cursor.movePosition(QtGui.QTextCursor.End, QtGui.QTextCursor.KeepAnchor)
-            cursor.mergeCharFormat(format)
+            cursor.mergeCharFormat(fmt)
 
             painter.save()
             painter.fillRect(option.rect, bg_color)

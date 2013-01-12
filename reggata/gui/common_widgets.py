@@ -3,6 +3,7 @@ Created on 11.07.2012
 
 @author: vlkv
 '''
+import os
 import logging
 import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
@@ -11,9 +12,6 @@ import reggata.parsers as parsers
 from reggata.helpers import is_none_or_empty
 import reggata.consts as consts
 from reggata.data.commands import GetNamesOfAllTagsAndFields
-from reggata.gui.my_message_box import MyMessageBox
-import os
-
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 

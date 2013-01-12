@@ -2,14 +2,9 @@
 Created on 23.12.2012
 @author: vlkv
 '''
-import os
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.errors import MsgException, CancelOperationError
-import reggata.helpers as helpers
 from reggata.logic.handler_signals import HandlerSignals
-import reggata.consts as consts
-from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
-from reggata.data.commands import GetFileInfoCommand, FileInfo
 from reggata.logic.common_action_handlers import AddItemAlgorithms
 from reggata.helpers import show_exc_info
 

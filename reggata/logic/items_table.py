@@ -4,7 +4,6 @@ Created on 21.01.2012
 @author: vlkv
 '''
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import Qt
 from reggata.data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
 import reggata.data.db_schema as db
 from reggata.logic.abstract_tool import AbstractTool
