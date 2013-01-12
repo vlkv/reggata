@@ -2,7 +2,6 @@
 Created on 23.07.2012
 @author: vlkv
 '''
-import sqlalchemy as sqa
 from sqlalchemy.orm import contains_eager, joinedload_all
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import ResourceClosedError
@@ -122,14 +121,14 @@ class GetUntaggedItems(AbstractCommand):
     def __getUntaggedItems(self, limit, page, order_by):
         order_by_1 = ""
         order_by_2 = ""
-        for col, dir in order_by:
+        for col, direction in order_by:
             if order_by_1:
                 order_by_1 += ", "
             if order_by_2:
                 order_by_2 += ", "
-            order_by_2 += col + " " + dir + " "
+            order_by_2 += col + " " + direction + " "
             if col == "title":
-                order_by_1 += col + " " + dir + " "
+                order_by_1 += col + " " + direction + " "
         if order_by_1:
             order_by_1 = " ORDER BY " + order_by_1
         if order_by_2:
@@ -214,14 +213,14 @@ class QueryItemsByParseTree(AbstractCommand):
     def __queryItemsByParseTree(self, query_tree, limit, page, order_by):
         order_by_1 = ""
         order_by_2 = ""
-        for col, dir in order_by:
+        for col, direction in order_by:
             if order_by_1:
                 order_by_1 += ", "
             if order_by_2:
                 order_by_2 += ", "
-            order_by_2 += col + " " + dir + " "
+            order_by_2 += col + " " + direction + " "
             if col == "title":
-                order_by_1 += col + " " + dir + " "
+                order_by_1 += col + " " + direction + " "
         if order_by_1:
             order_by_1 = " ORDER BY " + order_by_1
         if order_by_2:

@@ -8,7 +8,6 @@ from PyQt4.QtCore import Qt
 from reggata.gui.tool_gui import ToolGui
 import reggata.consts as consts
 from reggata.ui.ui_filebrowsergui import Ui_FileBrowserGui
-from reggata.data.commands import FileInfo
 from reggata.helpers import HTMLDelegate
 import reggata.helpers as helpers
 from reggata.user_config import UserConfig
@@ -30,7 +29,7 @@ class FileBrowserGui(ToolGui):
         self.connect(self.ui.filesTableView, QtCore.SIGNAL("activated(const QModelIndex&)"), self.__onMouseDoubleClick)
 
         self.resetTableModel(None)
-        
+
         self.__context_menu = None
         self.__initContextMenu()
 
@@ -44,12 +43,12 @@ class FileBrowserGui(ToolGui):
         self.buildActions()
         self.__buildContextMenu()
         self.__addContextMenu()
-        
+
     def __addContextMenu(self):
         assert self.__context_menu is not None, "Context menu is not built"
         self.ui.filesTableView.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.connect(self.ui.filesTableView, 
-                     QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), 
+        self.connect(self.ui.filesTableView,
+                     QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"),
                      self.showContextMenu)
 
     def showContextMenu(self, pos):
@@ -90,7 +89,7 @@ class FileBrowserGui(ToolGui):
         menu = self._mainMenu
         menu.addAction(self.actions['addFilesToRepo'])
         menu.addAction(self.actions['editItems'])
-        
+
     def __buildContextMenu(self):
         if self.__context_menu is not None:
             logger.info("Context menu of this Tool already built")
@@ -101,7 +100,7 @@ class FileBrowserGui(ToolGui):
 
         menu.addAction(self.actions['addFilesToRepo'])
         menu.addAction(self.actions['editItems'])
-        
+
 
     def selectedItemIds(self):
         #We use set, because selectedIndexes() may return duplicates

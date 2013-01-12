@@ -232,10 +232,10 @@ class ItemsDialog(QtGui.QDialog):
                 continue
 
             if dstPath is None:
-                dstPath, null = os.path.split(item.data_ref.url)
+                dstPath, _ = os.path.split(item.data_ref.url)
                 samePath = 'yes'
             else:
-                path, null = os.path.split(item.data_ref.url)
+                path, _ = os.path.split(item.data_ref.url)
                 if dstPath != path:
                     samePath = 'no'
                     dstPath = None
@@ -300,23 +300,23 @@ class ItemsDialog(QtGui.QDialog):
     def __writeTagsAndFields(self):
         #Processing Tags to add
         text = self.ui.plainTextEdit_tags_add.toPlainText()
-        tags, tmp = parsers.definition_parser.parse(text)
+        tags, _ = parsers.definition_parser.parse(text)
         tags_add = set(tags)
 
         #Processing Tags to remove
         text = self.ui.plainTextEdit_tags_rm.toPlainText()
-        tags, tmp = parsers.definition_parser.parse(text)
+        tags, _ = parsers.definition_parser.parse(text)
         tags_rm = set(tags)
 
         #Processing (Field,Value) pairs to add
         text = self.ui.plainTextEdit_fields_add.toPlainText()
-        tmp, fields = parsers.definition_parser.parse(text)
+        _, fields = parsers.definition_parser.parse(text)
         fieldvals_add = set(fields)
 
         # Processing Field names to remove
         # NOTE: from parsers point of view it is Tags, but we know that it is Field names.
         text = self.ui.plainTextEdit_fields_rm.toPlainText()
-        fieldNames, tmp = parsers.definition_parser.parse(text)
+        fieldNames, _ = parsers.definition_parser.parse(text)
         fields_rm = set(fieldNames)
 
 
@@ -362,15 +362,15 @@ class ItemsDialog(QtGui.QDialog):
                 raise MsgException(self.tr(
                     "Selected group of items doesn't reference any physical files on filesysem."))
 
-            dir = QtGui.QFileDialog.getExistingDirectory(self,
+            selDir = QtGui.QFileDialog.getExistingDirectory(self,
                 self.tr("Select destination path within repository"),
                 self.repoBasePath)
-            if not dir:
+            if not selDir:
                 return
-            if not is_internal(dir, self.repoBasePath):
+            if not is_internal(selDir, self.repoBasePath):
                 raise MsgException(self.tr("Chosen directory is out of opened repository."))
 
-            self.dst_path = os.path.relpath(dir, self.repoBasePath)
+            self.dst_path = os.path.relpath(selDir, self.repoBasePath)
             self.ui.locationDirRelPath.setText(self.dst_path)
 
         except Exception as ex:

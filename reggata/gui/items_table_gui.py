@@ -419,21 +419,21 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
         self.page = page
 
         if self.order_dir == Qt.AscendingOrder:
-            dir = "ASC"
+            directory = "ASC"
         else:
-            dir = "DESC"
+            directory = "DESC"
 
         order_by = []
         if self.order_by_column is not None:
             column = self.order_by_column
             if column == self.ID:
-                order_by.append(("id", dir))
+                order_by.append(("id", directory))
             elif column == self.TITLE:
-                order_by.append(("title", dir))
+                order_by.append(("title", directory))
             #This is not exactly sorting by pure rating, but by fields and their values...
             elif column == self.RATING:
                 order_by.append(("items_fields_field_id", "DESC"))
-                order_by.append(("items_fields_field_value", dir))
+                order_by.append(("items_fields_field_value", directory))
 
 
         def reset_row(row):

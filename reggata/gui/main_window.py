@@ -267,7 +267,7 @@ class WidgetsUpdateManager():
         for widgets in self.__signalsWidgets.values():
             j = None
             for i in range(len(widgets)):
-                aWidget, aCallable = widgets[i]
+                aWidget, _aCallable = widgets[i]
                 if widget == aWidget:
                     j = i
                     break
@@ -285,5 +285,5 @@ class WidgetsUpdateManager():
 
     def onHandlerSignal(self, handlerSignal, *params):
         widgets = self.__signalsWidgets[handlerSignal]
-        for aWidget, aCallable in widgets:
+        for _aWidget, aCallable in widgets:
             aCallable(*params)

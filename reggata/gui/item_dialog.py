@@ -127,7 +127,7 @@ class ItemDialog(QtGui.QDialog):
         #Processing Tags
         del self.item.item_tags[:]
         text = self.ui.plainTextEdit_tags.toPlainText()
-        tags, tmp = definition_parser.parse(text)
+        tags, _tmp = definition_parser.parse(text)
         for t in tags:
             tag = Tag(name=t)
             item_tag = Item_Tag(tag)
@@ -137,7 +137,7 @@ class ItemDialog(QtGui.QDialog):
         #Processing Fields
         del self.item.item_fields[:]
         text = self.ui.plainTextEdit_fields.toPlainText()
-        tmp, fields = definition_parser.parse(text)
+        _tmp, fields = definition_parser.parse(text)
         for (f, v) in fields:
             if f in consts.RESERVED_FIELDS:
                 raise MsgException(self.tr("Field name '{}' is reserved.").format(f))

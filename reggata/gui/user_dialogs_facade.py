@@ -10,7 +10,6 @@ from reggata.gui.common_widgets import Completer, WaitDialog, FileDialog
 from reggata.gui.item_dialog import ItemDialog
 from reggata.gui.items_dialog import ItemsDialog
 from reggata.logic.abstract_dialogs_facade import AbstractDialogsFacade
-from reggata.helpers import is_none_or_empty
 import reggata.helpers as helpers
 
 
