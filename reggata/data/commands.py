@@ -9,10 +9,10 @@ from sqlalchemy.exc import ResourceClosedError
 import shutil
 import datetime
 import os.path
-from reggata.errors import *
-from reggata.helpers import *
+import reggata.errors as err
+import reggata.helpers as hlp
 import reggata.consts as consts
-from reggata.data.db_schema import *
+import reggata.data.db_schema as db
 from reggata.user_config import UserConfig
 
 
@@ -30,14 +30,14 @@ class GetExpungedItemCommand(AbstractCommand):
 
     def _execute(self, uow):
         self._session = uow.session
-        item = self._session.query(Item)\
+        item = self._session.query(db.Item)\
             .options(joinedload_all('data_ref'))\
             .options(joinedload_all('item_tags.tag'))\
             .options(joinedload_all('item_fields.field'))\
             .get(self.__itemId)
 
         if item is None:
-            raise NotFoundError()
+            raise err.NotFoundError()
 
         self._session.expunge(item)
         return item
@@ -54,7 +54,7 @@ class DeleteHangingTagsCommand(AbstractCommand):
         from tags left join items_tags on tags.id = items_tags.tag_id
         where items_tags.item_id is NULL
         '''
-        hangingTags = self._session.query(Tag).from_statement(sql).all()
+        hangingTags = self._session.query(db.Tag).from_statement(sql).all()
         count = len(hangingTags)
         for tag in hangingTags:
             self._session.delete(tag)
@@ -74,7 +74,7 @@ class DeleteHangingFieldsCommand(AbstractCommand):
         from fields left join items_fields on fields.id = items_fields.field_id
         where items_fields.item_id is NULL
         '''
-        hangingFields = self._session.query(Field).from_statement(sql).all()
+        hangingFields = self._session.query(db.Field).from_statement(sql).all()
         count = len(hangingFields)
         for field in hangingFields:
             self._session.delete(field)
@@ -92,7 +92,7 @@ class SaveThumbnailCommand(AbstractCommand):
     def _execute(self, uow):
         self._session = uow.session
 
-        data_ref = self._session.query(DataRef).get(self.__dataRefId)
+        data_ref = self._session.query(db.DataRef).get(self.__dataRefId)
         self._session.refresh(data_ref) #TODO: Research if we can remove this refresh
 
         self.__thumbnail.data_ref_id = data_ref.id
@@ -150,14 +150,14 @@ class GetUntaggedItems(AbstractCommand):
 
         sql = '''
         select sub.*, ''' + \
-        Item_Tag._sql_from() + ", " + \
-        Tag._sql_from() + ", " + \
-        Item_Field._sql_from() + ", " + \
-        Field._sql_from() + \
+        db.Item_Tag._sql_from() + ", " + \
+        db.Tag._sql_from() + ", " + \
+        db.Item_Field._sql_from() + ", " + \
+        db.Field._sql_from() + \
         '''
         from (select i.*, ''' + \
-            DataRef._sql_from() + ", " + \
-            Thumbnail._sql_from() + \
+            db.DataRef._sql_from() + ", " + \
+            db.Thumbnail._sql_from() + \
             '''
             from items i
             left join items_tags it on i.id = it.item_id
@@ -177,7 +177,7 @@ class GetUntaggedItems(AbstractCommand):
 
         items = []
         try:
-            items = self._session.query(Item)\
+            items = self._session.query(db.Item)\
             .options(contains_eager("data_ref"), \
                      contains_eager("data_ref.thumbnails"), \
                      contains_eager("item_tags"), \
@@ -243,11 +243,11 @@ class QueryItemsByParseTree(AbstractCommand):
 
         sql = '''
         select sub.*,
-        ''' + Item_Tag._sql_from() + ''',
-        ''' + Tag._sql_from() + ''',
-        ''' + Thumbnail._sql_from() + ''',
-        ''' + Item_Field._sql_from() + ''',
-        ''' + Field._sql_from() + '''
+        ''' + db.Item_Tag._sql_from() + ''',
+        ''' + db.Tag._sql_from() + ''',
+        ''' + db.Thumbnail._sql_from() + ''',
+        ''' + db.Item_Field._sql_from() + ''',
+        ''' + db.Field._sql_from() + '''
         from (''' + sub_sql + " " + order_by_1 + " " + limit_offset +  ''') as sub
         left join items_tags on sub.id = items_tags.item_id
         left join tags on tags.id = items_tags.tag_id
@@ -261,7 +261,7 @@ class QueryItemsByParseTree(AbstractCommand):
 
         items = []
         try:
-            items = self._session.query(Item)\
+            items = self._session.query(db.Item)\
             .options(contains_eager("data_ref"), \
                      contains_eager("data_ref.thumbnails"), \
                      contains_eager("item_tags"), \
@@ -289,7 +289,7 @@ class FileInfo(object):
     OTHER = "OTHER"
 
     def __init__(self, path, type=None, status=None):
-        assert not helpers.is_none_or_empty(path)
+        assert not hlp.is_none_or_empty(path)
         assert type is not None or status is not None
 
         #remove trailing slashes in the path
@@ -324,8 +324,8 @@ class GetFileInfoCommand(AbstractCommand):
 
     def __getFileInfo(self, path):
         try:
-            data_ref = self._session.query(DataRef)\
-                .filter(DataRef.url_raw==to_db_format(path))\
+            data_ref = self._session.query(db.DataRef)\
+                .filter(db.DataRef.url_raw==hlp.to_db_format(path))\
                 .options(joinedload_all("items"))\
                 .options(joinedload_all("items.item_tags.tag"))\
                 .options(joinedload_all("items.item_fields.field"))\
@@ -363,13 +363,13 @@ class LoginUserCommand(AbstractCommand):
         return self.__loginUser(self.__login, self.__password)
 
     def __loginUser(self, login, password):
-        if is_none_or_empty(login):
-            raise LoginError("User login cannot be empty.")
-        user = self._session.query(User).get(login)
+        if hlp.is_none_or_empty(login):
+            raise err.LoginError("User login cannot be empty.")
+        user = self._session.query(db.User).get(login)
         if user is None:
-            raise LoginError("User {} doesn't exist.".format(login))
+            raise err.LoginError("User {} doesn't exist.".format(login))
         if user.password != password:
-            raise LoginError("Password incorrect.")
+            raise err.LoginError("Password incorrect.")
 
         self._session.expunge(user)
         return user
@@ -381,9 +381,9 @@ class ChangeUserPasswordCommand(AbstractCommand):
         self.__newPasswordHash = newPasswordHash
 
     def _execute(self, uow):
-        user = uow.session.query(User).get(self.__userLogin)
+        user = uow.session.query(db.User).get(self.__userLogin)
         if user is None:
-            raise LoginError("User {} doesn't exist.".format(self.__userLogin))
+            raise err.LoginError("User {} doesn't exist.".format(self.__userLogin))
 
         user.password = self.__newPasswordHash
         uow.session.commit()
@@ -482,10 +482,10 @@ class GetRelatedTagsCommand(AbstractCommand):
             # First we get a list of item ids
             sql = '''--get_related_tags(): getting list of id for all selected tags
             select * from tags t
-            where t.name in (''' + to_commalist(tag_names, lambda x: "'" + x + "'") + ''')
+            where t.name in (''' + hlp.to_commalist(tag_names, lambda x: "'" + x + "'") + ''')
             order by t.id'''
             try:
-                tags = self._session.query(Tag).from_statement(sql).all()
+                tags = self._session.query(db.Tag).from_statement(sql).all()
             except ResourceClosedError:
                 tags = []
             tag_ids = []
@@ -562,17 +562,17 @@ class DeleteItemCommand(AbstractCommand):
 
         # TODO: Make admin users to be able to delete any files, owned by anybody.
 
-        item = self._session.query(Item).get(item_id)
+        item = self._session.query(db.Item).get(item_id)
         if item.user_login != user_login:
-            raise AccessError("Cannot delete item id={0} because it is owned by another user {1}."
+            raise err.AccessError("Cannot delete item id={0} because it is owned by another user {1}."
                               .format(item_id, item.user_login))
 
         if item.has_tags_except_of(user_login):
-            raise AccessError("Cannot delete item id={0} because another user tagged it."
+            raise err.AccessError("Cannot delete item id={0} because another user tagged it."
                               .format(item_id))
 
         if item.has_fields_except_of(user_login):
-            raise AccessError("Cannot delete item id={0} because another user attached a field to it."
+            raise err.AccessError("Cannot delete item id={0} because another user attached a field to it."
                               .format(item_id))
 
         data_ref = item.data_ref
@@ -592,12 +592,12 @@ class DeleteItemCommand(AbstractCommand):
             delete_data_ref = False
 
         if delete_data_ref:
-            another_item = self._session.query(Item).filter(Item.data_ref==data_ref).first()
+            another_item = self._session.query(db.Item).filter(db.Item.data_ref==data_ref).first()
             if another_item:
                 delete_data_ref = False
 
         if delete_data_ref:
-            is_file = (data_ref.type == DataRef.FILE)
+            is_file = (data_ref.type == db.DataRef.FILE)
             abs_path = os.path.join(self._repoBasePath, data_ref.url)
 
             self._session.delete(data_ref)
@@ -655,7 +655,7 @@ class SaveNewItemCommand(AbstractCommand):
         #Don't worry, item.data_ref will be assigned a new DataRef instance later (if required).
         item.data_ref = None
 
-        isDataRefRequired = not is_none_or_empty(srcAbsPath)
+        isDataRefRequired = not hlp.is_none_or_empty(srcAbsPath)
         if isDataRefRequired:
             assert(dstRelPath is not None)
             #NOTE: If dstRelPath is an empty string it means the root of repository
@@ -670,26 +670,26 @@ class SaveNewItemCommand(AbstractCommand):
             if os.path.isabs(dstRelPath):
                 raise ValueError("dstRelPath must be a relative to repository root path.")
 
-            dstRelPath = removeTrailingOsSeps(dstRelPath)
+            dstRelPath = hlp.removeTrailingOsSeps(dstRelPath)
             dstRelPath = os.path.normpath(dstRelPath)
             dstAbsPath = os.path.abspath(os.path.join(self._repoBasePath, dstRelPath))
             dstAbsPath = os.path.normpath(dstAbsPath)
             if srcAbsPath != dstAbsPath and os.path.exists(dstAbsPath):
                 raise ValueError("{} should not point to an existing file.".format(dstAbsPath))
 
-            dataRef = self._session.query(DataRef).filter(
-                DataRef.url_raw==to_db_format(dstRelPath)).first()
+            dataRef = self._session.query(db.DataRef).filter(
+                db.DataRef.url_raw==hlp.to_db_format(dstRelPath)).first()
             if dataRef is not None:
-                raise DataRefAlreadyExistsError("DataRef instance with url='{}' "
+                raise err.DataRefAlreadyExistsError("DataRef instance with url='{}' "
                                                    "is already in database. ".format(dstRelPath))
 
         user_login = item.user_login
-        if is_none_or_empty(user_login):
-            raise AccessError("Argument user_login shouldn't be null or empty.")
+        if hlp.is_none_or_empty(user_login):
+            raise err.AccessError("Argument user_login shouldn't be null or empty.")
 
-        user = self._session.query(User).get(user_login)
+        user = self._session.query(db.User).get(user_login)
         if user is None:
-            raise AccessError("User with login {} doesn't exist.".format(user_login))
+            raise err.AccessError("User with login {} doesn't exist.".format(user_login))
 
 
         #Remove from item those tags, which have corresponding Tag objects in database
@@ -698,7 +698,7 @@ class SaveNewItemCommand(AbstractCommand):
         for item_tag in item_tags_copy:
             item_tag.user_login = user_login
             tag = item_tag.tag
-            t = self._session.query(Tag).filter(Tag.name==tag.name).first()
+            t = self._session.query(db.Tag).filter(db.Tag.name==tag.name).first()
             if t is not None:
                 item_tag.tag = t
                 existing_item_tags.append(item_tag)
@@ -710,7 +710,7 @@ class SaveNewItemCommand(AbstractCommand):
         for item_field in item_fields_copy:
             item_field.user_login = user_login
             field = item_field.field
-            f = self._session.query(Field).filter(Field.name==field.name).first()
+            f = self._session.query(db.Field).filter(db.Field.name==field.name).first()
             if f is not None:
                 item_field.field = f
                 existing_item_fields.append(item_field)
@@ -731,10 +731,10 @@ class SaveNewItemCommand(AbstractCommand):
 
 
         if isDataRefRequired:
-            item.data_ref = DataRef(type=DataRef.FILE, url=dstRelPath)
+            item.data_ref = db.DataRef(type=db.DataRef.FILE, url=dstRelPath)
             item.data_ref.user_login = user_login
             item.data_ref.size = os.path.getsize(srcAbsPath)
-            item.data_ref.hash = computeFileHash(srcAbsPath)
+            item.data_ref.hash = hlp.computeFileHash(srcAbsPath)
             item.data_ref.date_hashed = datetime.datetime.today()
             self._session.add(item.data_ref)
             self._session.flush()
@@ -790,7 +790,7 @@ class UpdateExistingItemCommand(AbstractCommand):
         self.__updateExistingItem(self.__item, self.__userLogin)
 
     def __updateExistingItem(self, item, user_login):
-        persistentItem = self._session.query(Item).get(item.id)
+        persistentItem = self._session.query(db.Item).get(item.id)
 
         #We must gather some information before any changes have been made
         srcAbsPathForFileOperation = None
@@ -823,7 +823,7 @@ class UpdateExistingItemCommand(AbstractCommand):
     def __updateTags(self, item, persistentItem, user_login):
         # Removing tags
         for itag in persistentItem.item_tags:
-            i = index_of(item.item_tags, lambda x: True if x.tag.name==itag.tag.name else False)
+            i = hlp.index_of(item.item_tags, lambda x: True if x.tag.name==itag.tag.name else False)
             if i is None:
                 #NOTE: Tag object would still persist in DB (even if no items would use it)
                 self._session.delete(itag)
@@ -831,16 +831,16 @@ class UpdateExistingItemCommand(AbstractCommand):
 
         # Adding tags
         for itag in item.item_tags:
-            i = index_of(persistentItem.item_tags, lambda x: True if x.tag.name==itag.tag.name else False)
+            i = hlp.index_of(persistentItem.item_tags, lambda x: True if x.tag.name==itag.tag.name else False)
             if i is None:
-                tag = self._session.query(Tag).filter(Tag.name==itag.tag.name).first()
+                tag = self._session.query(db.Tag).filter(db.Tag.name==itag.tag.name).first()
                 if tag is None:
                     # Such a tag is not in DB yet
-                    tag = Tag(itag.tag.name)
+                    tag = db.Tag(itag.tag.name)
                     self._session.add(tag)
                     self._session.flush()
                 # Link the tag with the item
-                item_tag = Item_Tag(tag, user_login)
+                item_tag = db.Item_Tag(tag, user_login)
                 self._session.add(item_tag)
                 item_tag.item = persistentItem
                 persistentItem.item_tags.append(item_tag)
@@ -849,22 +849,22 @@ class UpdateExistingItemCommand(AbstractCommand):
     def __updateFields(self, item, persistentItem, user_login):
         # Removing fields
         for ifield in persistentItem.item_fields:
-            i = index_of(item.item_fields, lambda o: True if o.field.name==ifield.field.name else False)
+            i = hlp.index_of(item.item_fields, lambda o: True if o.field.name==ifield.field.name else False)
             if i is None:
                 self._session.delete(ifield)
         self._session.flush()
 
         # Adding fields
         for ifield in item.item_fields:
-            i = index_of(persistentItem.item_fields, \
+            i = hlp.index_of(persistentItem.item_fields, \
                          lambda o: True if o.field.name==ifield.field.name else False)
             if i is None:
-                field = self._session.query(Field).filter(Field.name==ifield.field.name).first()
+                field = self._session.query(db.Field).filter(db.Field.name==ifield.field.name).first()
                 if field is None:
-                    field = Field(ifield.field.name)
+                    field = db.Field(ifield.field.name)
                     self._session.add(field)
                     self._session.flush()
-                item_field = Item_Field(field, ifield.field_value, user_login)
+                item_field = db.Item_Field(field, ifield.field_value, user_login)
                 self._session.add(item_field)
                 item_field.item = persistentItem
                 persistentItem.item_fields.append(item_field)
@@ -896,11 +896,11 @@ class UpdateExistingItemCommand(AbstractCommand):
             # The item is attached to DataRef object at the first time or
             # it changes his DataRef object to another DataRef object
             url = item.data_ref.url
-            if item.data_ref.type == DataRef.FILE:
+            if item.data_ref.type == db.DataRef.FILE:
                 assert os.path.isabs(url), "item.data_ref.url should be an absolute path"
                 url = os.path.relpath(url, self._repoBasePath)
 
-            existing_data_ref = self._session.query(DataRef).filter(DataRef.url_raw==to_db_format(url)).first()
+            existing_data_ref = self._session.query(db.DataRef).filter(db.DataRef.url_raw==hlp.to_db_format(url)).first()
             if existing_data_ref is not None:
                 persistentItem.data_ref = existing_data_ref
             else:
@@ -909,14 +909,14 @@ class UpdateExistingItemCommand(AbstractCommand):
                 self._session.add(item.data_ref)
                 self._session.flush()
                 persistentItem.data_ref = item.data_ref
-                if item.data_ref.type == DataRef.FILE:
+                if item.data_ref.type == db.DataRef.FILE:
                     need_file_operation = "copy"
 
             self._session.flush()
             return need_file_operation
 
-        shouldMoveReferencedFile = item.data_ref.type == DataRef.FILE \
-            and not is_none_or_empty(item.data_ref.dstRelPath) \
+        shouldMoveReferencedFile = item.data_ref.type == db.DataRef.FILE \
+            and not hlp.is_none_or_empty(item.data_ref.dstRelPath) \
             and os.path.normpath(persistentItem.data_ref.url) != os.path.normpath(item.data_ref.dstRelPath)
         if shouldMoveReferencedFile:
             # A file referenced by the item is going to be moved to some another location
@@ -945,7 +945,7 @@ class UpdateExistingItemCommand(AbstractCommand):
         # Performs operations with the file in OS filesystem
 
         assert fileOperation in [None, "copy", "move"]
-        if is_none_or_empty(fileOperation):
+        if hlp.is_none_or_empty(fileOperation):
             return
 
         assert persistentItem.data_ref is not None, \
@@ -954,7 +954,7 @@ class UpdateExistingItemCommand(AbstractCommand):
         assert srcAbsPathForFileOperation is not None, \
         "Path to target file is not given. We couldn't do any filesystem operations without it."
 
-        assert persistentItem.data_ref.type == DataRef.FILE, \
+        assert persistentItem.data_ref.type == db.DataRef.FILE, \
         "Filesystem operations can be done only when type is DataRef.FILE"
 
         dstAbsPath = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
@@ -984,10 +984,10 @@ class UpdateExistingItemCommand(AbstractCommand):
                 dr.url = dr.url[0:len(dr.url)-1]
 
             # Check if the file is already withing repo tree
-            if is_internal(dr.url, os.path.abspath(self._repoBasePath)):
+            if hlp.is_internal(dr.url, os.path.abspath(self._repoBasePath)):
                 dr.url = os.path.relpath(dr.url, self._repoBasePath)
             else:
-                if not is_none_or_empty(dr.dstRelPath) and dr.dstRelPath != ".":
+                if not hlp.is_none_or_empty(dr.dstRelPath) and dr.dstRelPath != ".":
                     dr.url = dr.dstRelPath
                     #TODO insert check to be sure that dr.dstRelPath inside a repository!!!
                 else:
@@ -998,7 +998,7 @@ class UpdateExistingItemCommand(AbstractCommand):
 
         data_ref.size = os.path.getsize(data_ref.url)
 
-        data_ref.hash = computeFileHash(data_ref.url)
+        data_ref.hash = hlp.computeFileHash(data_ref.url)
         data_ref.date_hashed = datetime.datetime.today()
 
         _prepare_data_ref_url(data_ref)
@@ -1013,7 +1013,7 @@ class CheckItemIntegrityCommand(AbstractCommand):
     def _execute(self, uow):
         errorSet = set()
 
-        if self.__item.data_ref is not None and self.__item.data_ref.type == DataRef.FILE:
+        if self.__item.data_ref is not None and self.__item.data_ref.type == db.DataRef.FILE:
             self.__checkFileDataRef(uow.session, errorSet)
 
         return errorSet
@@ -1021,15 +1021,15 @@ class CheckItemIntegrityCommand(AbstractCommand):
     def __checkFileDataRef(self, session, errorSet):
         fileAbsPath = os.path.join(self.__repoBasePath, self.__item.data_ref.url)
         if not os.path.exists(fileAbsPath):
-            errorSet.add(Item.ERROR_FILE_NOT_FOUND)
+            errorSet.add(db.Item.ERROR_FILE_NOT_FOUND)
         else:
             size = os.path.getsize(fileAbsPath)
             if self.__item.data_ref.size != size:
-                errorSet.add(Item.ERROR_FILE_HASH_MISMATCH)
+                errorSet.add(db.Item.ERROR_FILE_HASH_MISMATCH)
                 return
                 # If sizes are different, then there is no need to compute hash:
                 # hashes will be different too
 
-            fileHash = helpers.computeFileHash(fileAbsPath)
+            fileHash = hlp.computeFileHash(fileAbsPath)
             if self.__item.data_ref.hash != fileHash:
-                errorSet.add(Item.ERROR_FILE_HASH_MISMATCH)
+                errorSet.add(db.Item.ERROR_FILE_HASH_MISMATCH)

@@ -9,6 +9,13 @@ from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.gui.item_dialog import ItemDialog
 from reggata.logic.worker_threads import UpdateGroupOfItemsThread, BackgrThread, CreateGroupOfItemsThread
 from reggata.gui.items_dialog import ItemsDialog
+import reggata.data.db_schema as db
+import reggata.helpers as hlp
+import reggata.errors as err
+import logging
+
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+
 
 
 class AddItemAlgorithms(object):
@@ -64,15 +71,15 @@ class AddItemAlgorithms(object):
         '''
         savedItemId = None
 
-        item = Item(user_login=tool.user.login)
-        if not helpers.is_none_or_empty(file):
+        item = db.Item(user_login=tool.user.login)
+        if not hlp.is_none_or_empty(file):
             file = os.path.normpath(file)
             item.title, _ = os.path.splitext(os.path.basename(file))
-            item.data_ref = DataRef(type=DataRef.FILE, url=file)
+            item.data_ref = db.DataRef(type=db.DataRef.FILE, url=file)
 
         if not dialogs.execItemDialog(
             item=item, gui=tool.gui, repo=tool.repo, dialogMode=ItemDialog.CREATE_MODE):
-            raise CancelOperationError("User cancelled operation.")
+            raise err.CancelOperationError("User cancelled operation.")
 
         uow = tool.repo.createUnitOfWork()
         try:
@@ -108,15 +115,15 @@ class AddItemAlgorithms(object):
         items = []
         for file in files:
             file = os.path.normpath(file)
-            item = Item(user_login=tool.user.login)
+            item = db.Item(user_login=tool.user.login)
             item.title, _ = os.path.splitext(os.path.basename(file))
-            item.data_ref = DataRef(type=DataRef.FILE, url=file) #DataRef.url can be changed in ItemsDialog
+            item.data_ref = db.DataRef(type=db.DataRef.FILE, url=file) #DataRef.url can be changed in ItemsDialog
             item.data_ref.srcAbsPath = file
             items.append(item)
 
         if not dialogs.execItemsDialog(
             items, tool.gui, tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=True):
-            raise CancelOperationError("User cancelled operation.")
+            raise err.CancelOperationError("User cancelled operation.")
 
         thread = CreateGroupOfItemsThread(tool.gui, tool.repo, items)
 
@@ -141,10 +148,10 @@ class AddItemAlgorithms(object):
 
             if os.path.isfile(path):
                 file = path
-                item = Item(user_login=tool.user.login)
+                item = db.Item(user_login=tool.user.login)
                 item.title, _ = os.path.splitext(file)
                 srcAbsPath = os.path.abspath(file)
-                item.data_ref = DataRef(type=DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
+                item.data_ref = db.DataRef(type=db.DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
                 item.data_ref.srcAbsPath = srcAbsPath
                 item.data_ref.srcAbsPathToRoot = os.path.dirname(file)
                 # item.data_ref.dstRelPath will be set by ItemsDialog
@@ -155,10 +162,10 @@ class AddItemAlgorithms(object):
                     if os.path.relpath(root, dirPath) == ".reggata":
                         continue
                     for file in files:
-                        item = Item(user_login=tool.user.login)
+                        item = db.Item(user_login=tool.user.login)
                         item.title, _ = os.path.splitext(file)
                         srcAbsPath = os.path.join(root, file)
-                        item.data_ref = DataRef(type=DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
+                        item.data_ref = db.DataRef(type=db.DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
                         item.data_ref.srcAbsPath = srcAbsPath
                         item.data_ref.srcAbsPathToRoot = os.path.join(dirPath, "..")
                         # item.data_ref.dstRelPath will be set by ItemsDialog
@@ -168,7 +175,7 @@ class AddItemAlgorithms(object):
 
         if not dialogs.execItemsDialog(
             items, tool.gui, tool.repo, ItemsDialog.CREATE_MODE, sameDstPath=False):
-            raise CancelOperationError("User cancelled operation.")
+            raise err.CancelOperationError("User cancelled operation.")
 
         thread = CreateGroupOfItemsThread(tool.gui, tool.repo, items)
 
@@ -191,7 +198,7 @@ class EditItemActionHandler(AbstractActionHandler):
 
             itemIds = self._tool.gui.selectedItemIds()
             if len(itemIds) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise err.MsgException(self.tr("There are no selected items."))
 
             if len(itemIds) > 1:
                 self.__editManyItems(itemIds)
@@ -199,7 +206,7 @@ class EditItemActionHandler(AbstractActionHandler):
                 self.__editSingleItem(itemIds.pop())
 
         except Exception as ex:
-            show_exc_info(self._tool.gui, ex)
+            hlp.show_exc_info(self._tool.gui, ex)
 
         else:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
