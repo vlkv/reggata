@@ -6,6 +6,7 @@ Created on 21.01.2012
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 from reggata.data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
+import reggata.data.db_schema as db
 from reggata.logic.abstract_tool import AbstractTool
 from reggata.logic.tag_cloud import TagCloud
 from reggata.logic.action_handlers import *
@@ -15,6 +16,7 @@ from reggata.logic.ext_app_mgr import ExtAppMgr
 from reggata.gui.common_widgets import Completer
 from reggata.gui.items_table_gui import ItemsTableGui, ItemsTableModel
 from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
+import reggata.errors as errors
 
 
 class ItemsTable(AbstractTool):
@@ -128,22 +130,22 @@ class ItemsTable(AbstractTool):
             self._gui.actions['checkItemsIntegrity'],
             CheckItemIntegrityActionHandler(self))
 
-        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
+        strategy = {db.Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
         self._actionHandlers.register(
             self._gui.actions['fixFileNotFoundTryFind'],
             FixItemIntegrityErrorActionHandler(self, strategy))
 
-        strategy = {Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
+        strategy = {db.Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
         self._actionHandlers.register(
             self._gui.actions['fixFileNotFoundRemoveDataRef'],
             FixItemIntegrityErrorActionHandler(self, strategy))
 
-        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
+        strategy = {db.Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
         self._actionHandlers.register(
             self._gui.actions['fixHashMismatchTryFind'],
             FixItemIntegrityErrorActionHandler(self, strategy))
 
-        strategy = {Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
+        strategy = {db.Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
         self._actionHandlers.register(
             self._gui.actions['fixHashMismatchUpdateHash'],
             FixItemIntegrityErrorActionHandler(self, strategy))
@@ -183,7 +185,7 @@ class ItemsTable(AbstractTool):
 
     def checkActiveRepoIsNotNone(self):
         if self._repo is None:
-            raise CurrentRepoIsNoneError("Current repository is None")
+            raise errors.CurrentRepoIsNoneError("Current repository is None")
 
 
     @property
@@ -199,7 +201,7 @@ class ItemsTable(AbstractTool):
 
     def checkActiveUserIsNotNone(self):
         if self._user is None:
-            raise CurrentUserIsNoneError("Current user is None")
+            raise errors.CurrentUserIsNoneError("Current user is None")
 
 
     def storeCurrentState(self):
