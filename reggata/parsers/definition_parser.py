@@ -8,7 +8,6 @@ Parser for text definition of tags and fields.
 import ply.yacc as yacc
 from reggata.parsers.definition_tokens import *
 from reggata.errors import YaccError
-import os
 from reggata import consts
 
 def p_definition_empty(p):
@@ -65,7 +64,7 @@ lexer = build_lexer()
 parsetabPyDir = consts.USER_CONFIG_DIR
 parser = yacc.yacc(errorlog=consts.yacc_errorlog,
                    debug=0, # This disables creation of parser.out log file
-                   tabmodule="parsetab_def", 
+                   tabmodule="parsetab_def",
                    outputdir=parsetabPyDir)
 
 
