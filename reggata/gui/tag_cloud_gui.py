@@ -7,15 +7,12 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 from reggata.helpers import show_exc_info, is_none_or_empty
-from reggata.parsers.query_tokens import needs_quote
-from reggata.parsers.util import quote
 import reggata.parsers as parsers
 from reggata.errors import MsgException
 from reggata.user_config import UserConfig
 from reggata.data.commands import GetRelatedTagsCommand
 from reggata.logic.abstract_tool_gui import AbstractToolGui
 from reggata.gui.tool_gui import ToolGui
-
 
 
 def scale_value(value, src_range, dst_range):
@@ -169,9 +166,9 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
             cursor1 = self.textCursor()
             cursor1.setPosition(self.selection_start)
             cursor1.setPosition(self.selection_end, QtGui.QTextCursor.KeepAnchor)
-            format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(QtGui.QColor(self.text_color)))
-            cursor1.mergeCharFormat(format)
+            fmt = QtGui.QTextCharFormat()
+            fmt.setForeground(QtGui.QBrush(QtGui.QColor(self.text_color)))
+            cursor1.mergeCharFormat(fmt)
             self.word = None
         elif self.word is not None and self.tag_count is not None and e.type() == QtCore.QEvent.ToolTip:
             #Show number of items for tag name under the mouse cursor
@@ -195,18 +192,18 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
             cursor1 = self.textCursor()
             cursor1.setPosition(self.selection_start)
             cursor1.setPosition(self.selection_end, QtGui.QTextCursor.KeepAnchor)
-            format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(QtGui.QColor(self.text_color)))
-            cursor1.mergeCharFormat(format)
+            fmt = QtGui.QTextCharFormat()
+            fmt.setForeground(QtGui.QBrush(QtGui.QColor(self.text_color)))
+            cursor1.mergeCharFormat(fmt)
             self.word = None
 
         if word != self.word:
             self.selection_start = cursor.selectionStart()
             self.selection_end = cursor.selectionEnd()
 
-            format = QtGui.QTextCharFormat()
-            format.setForeground(QtGui.QBrush(QtGui.QColor(self.hl_text_color)))
-            cursor.mergeCharFormat(format)
+            fmt = QtGui.QTextCharFormat()
+            fmt.setForeground(QtGui.QBrush(QtGui.QColor(self.hl_text_color)))
+            cursor.mergeCharFormat(fmt)
             self.word = word
 
         # NOTE: There is a problem when tag contains a spaces or dashes (and other special chars).
@@ -252,7 +249,7 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
                 sel_text = self.word
             if not sel_text:
                 raise MsgException(self.tr("There is no selected text in tag cloud."))
-            if parsers.query_parser.needs_quote(sel_text):
+            if parsers.query_tokens.needs_quote(sel_text):
                 sel_text = parsers.util.quote(sel_text)
             self.tags.add(sel_text)
             self.emit(QtCore.SIGNAL("selectedTagsChanged"), self.tags, self.not_tags)
@@ -270,7 +267,7 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
                 sel_text = self.word
             if not sel_text:
                 raise MsgException(self.tr("There is no selected text in tag cloud."))
-            if parsers.query_parser.needs_quote(sel_text):
+            if parsers.query_tokens.needs_quote(sel_text):
                 sel_text = parsers.util.quote(sel_text)
             self.not_tags.add(sel_text)
             self.emit(QtCore.SIGNAL("selectedTagsChanged"), self.tags, self.not_tags)

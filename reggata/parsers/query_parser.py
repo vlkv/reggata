@@ -7,7 +7,7 @@ Module contains productions of reggata query language grammar.
 '''
 import ply.yacc as yacc
 import reggata.parsers.query_tree_nodes as tree
-from reggata.parsers.query_tokens import *
+from reggata.parsers.query_tokens import tokens, build_lexer
 from reggata.errors import YaccError
 from reggata import consts
 
@@ -197,11 +197,11 @@ def p_field_value(p):
 def p_error(p):
     raise YaccError("Syntax error in '{}'".format(str(p)))
 
-
+tokens  # This line is needed to supress warning that 'tokens is unused'
 lexer = build_lexer()
 parsetabPyDir = consts.USER_CONFIG_DIR
 parser = yacc.yacc(errorlog=consts.yacc_errorlog,
-                   debug=0, # This disables creation of parser.out log file
+                   debug=(1 if consts.DEBUG else 0), # If debug yacc creates parser.out log file
                    tabmodule="parsetab_query",
                    outputdir=parsetabPyDir)
 

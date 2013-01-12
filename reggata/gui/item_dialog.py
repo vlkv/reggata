@@ -10,7 +10,7 @@ from reggata.ui.ui_itemdialog import Ui_ItemDialog
 import reggata.consts as consts
 from reggata.data.db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
 from reggata.helpers import show_exc_info, is_none_or_empty, is_internal
-from reggata.parsers import definition_parser
+from reggata.parsers import definition_parser, definition_tokens
 from reggata.parsers.util import quote
 from reggata.errors import MsgException
 from reggata.gui.common_widgets import TextEdit
@@ -103,9 +103,9 @@ class ItemDialog(QtGui.QDialog):
                         self.tr("Unknown reserved field name '{}'").format(itf.field.name))
             #Processing all other fields
             else:
-                name = quote(itf.field.name) if definition_parser.needs_quote(itf.field.name) \
+                name = quote(itf.field.name) if definition_tokens.needs_quote(itf.field.name) \
                     else itf.field.name
-                value = quote(itf.field_value) if definition_parser.needs_quote(itf.field_value) \
+                value = quote(itf.field_value) if definition_tokens.needs_quote(itf.field_value) \
                     else itf.field_value
                 s = s + name + ": " + value + os.linesep
         self.ui.plainTextEdit_fields.setPlainText(s)
@@ -114,7 +114,7 @@ class ItemDialog(QtGui.QDialog):
         s = ""
         for itg in self.item.item_tags:
             tag_name = itg.tag.name
-            s = s + (quote(tag_name) if definition_parser.needs_quote(tag_name) else tag_name) + " "
+            s = s + (quote(tag_name) if definition_tokens.needs_quote(tag_name) else tag_name) + " "
         self.ui.plainTextEdit_tags.setPlainText(s)
 
 

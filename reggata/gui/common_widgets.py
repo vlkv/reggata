@@ -287,7 +287,7 @@ class Completer(QtGui.QListWidget):
             cursor = self.widget.textCursor()
             cursor.select(QtGui.QTextCursor.WordUnderCursor)
             word = item.text()
-            if parsers.query_parser.needs_quote(word):
+            if parsers.query_tokens.needs_quote(word):
                 word = parsers.util.quote(word)
             cursor.insertText(word + self.end_str)
         self.hide()

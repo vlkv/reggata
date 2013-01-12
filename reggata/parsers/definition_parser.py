@@ -6,7 +6,7 @@ Created on 28.11.2010
 Parser for text definition of tags and fields.
 '''
 import ply.yacc as yacc
-from reggata.parsers.definition_tokens import *
+from reggata.parsers.definition_tokens import tokens, build_lexer
 from reggata.errors import YaccError
 from reggata import consts
 
@@ -61,9 +61,10 @@ def p_error(p):
 
 lexer = build_lexer()
 
+tokens  # This line is needed to supress warning that 'tokens is unused'
 parsetabPyDir = consts.USER_CONFIG_DIR
 parser = yacc.yacc(errorlog=consts.yacc_errorlog,
-                   debug=0, # This disables creation of parser.out log file
+                   debug=(1 if consts.DEBUG else 0), # If debug yacc creates parser.out log file
                    tabmodule="parsetab_def",
                    outputdir=parsetabPyDir)
 
