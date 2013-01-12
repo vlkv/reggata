@@ -474,7 +474,7 @@ class GetRelatedTagsCommand(AbstractCommand):
             # for given list of tags.
             try:
                 return self._session.query("name", "c").from_statement(sql).all()
-            except ResourceClosedError as ex:
+            except ResourceClosedError:
                 return []
 
         else:
@@ -535,7 +535,7 @@ class GetRelatedTagsCommand(AbstractCommand):
             ORDER BY t.name'''
             try:
                 return self._session.query("name", "c").from_statement(sql).all()
-            except ResourceClosedError as ex:
+            except ResourceClosedError:
                 return []
 
 
@@ -747,7 +747,7 @@ class SaveNewItemCommand(AbstractCommand):
         if isDataRefRequired and srcAbsPath != dstAbsPath:
             try:
                 #Making dirs
-                head, tail = os.path.split(dstAbsPath)
+                head, _tail = os.path.split(dstAbsPath)
                 os.makedirs(head)
             except:
                 pass

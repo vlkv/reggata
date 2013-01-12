@@ -150,7 +150,7 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
         srcDirAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp"))
 
         dstRelPaths = []
-        for root, dirs, files in os.walk(srcDirAbsPath):
+        for root, _dirs, files in os.walk(srcDirAbsPath):
             for file in files:
                 dstRelPath = os.path.relpath(os.path.join(root, file), os.path.join(srcDirAbsPath, ".."))
                 dstRelPaths.append(dstRelPath)

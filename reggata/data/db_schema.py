@@ -529,7 +529,7 @@ class DataRef(Base, memento.Serializable):
         supported = set([".bmp", ".gif", ".jpg", ".jpeg", ".png", ".pbm", ".pgm",
                          ".ppm", ".xbm", ".xpm"])
         if self.type and self.type == "FILE" and not is_none_or_empty(self.url):
-            root, ext = os.path.splitext(self.url.lower())
+            _root, ext = os.path.splitext(self.url.lower())
             if ext in supported:
                 return True
 

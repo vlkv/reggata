@@ -103,11 +103,8 @@ class Properties(object):
             # Skip lines which are comments
             if line[0] == '#': continue
             # Some flags
-            escaped=False
             # Position of first separation char
             sepidx = -1
-            # A flag for performing wspace re check
-            flag = 0
             # Check for valid space separation
             # First obtain the max index to which we
             # can search.
@@ -115,7 +112,6 @@ class Properties(object):
             if m:
                 first, last = m.span()
                 start, end = 0, first
-                flag = 1
                 wspacere = re.compile(r'(?<![\\\=\:])(\s)')
             else:
                 if self.othercharre2.search(line):
@@ -255,7 +251,7 @@ class Properties(object):
         try:
             lines = stream.readlines()
             self.__parse(lines)
-        except IOError as e:
+        except IOError:
             raise
 
     def getProperty(self, key):
@@ -304,7 +300,7 @@ class Properties(object):
                     out.write(''.join((prop,'=',self.escape(val), os.linesep)))
 
             out.close()
-        except IOError as e:
+        except IOError:
             raise
 
     def getPropertyDict(self):

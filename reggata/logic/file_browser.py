@@ -16,7 +16,6 @@ from reggata.data.commands import FileInfo, GetFileInfoCommand
 from reggata.logic.action_handlers import ActionHandlerStorage
 from reggata.logic.common_action_handlers import EditItemActionHandler
 from reggata.logic.handler_signals import HandlerSignals
-from reggata.logic.items_table_action_handlers import AddSingleItemActionHandler
 from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
 from reggata.logic.file_browser_action_handlers import AddFileToRepoActionHandler
 
@@ -191,7 +190,7 @@ class FileBrowser(AbstractTool):
         if self._currDir is None:
             return
         self.changeDir(self._currDir)
-        
+
 
     def changeDir(self, directory):
         if directory == ".":

@@ -1,7 +1,6 @@
 from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW, \
     AbstractTestCaseWithRepo
 import reggata.tests.tests_context as context
-import reggata.data.repo_mgr as repo
 import reggata.data.db_schema as db
 import reggata.data.commands as cmds
 import reggata.errors as err
@@ -215,7 +214,7 @@ class DeleteItemTest(AbstractTestCaseWithRepo):
         userThatDeletesItem = context.itemWithFile.ownerUserLogin
         try:
             uow = self.repo.createUnitOfWork()
-            itemBeforeDelete = uow.executeCommand(cmds.GetExpungedItemCommand(context.itemWithFile.id))
+            _itemBeforeDelete = uow.executeCommand(cmds.GetExpungedItemCommand(context.itemWithFile.id))
 
             cmd = cmds.DeleteItemCommand(context.itemWithFile.id, userThatDeletesItem,
                                     delete_physical_file=True)

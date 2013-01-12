@@ -159,7 +159,7 @@ class AddItemAlgorithms(object):
                 items.append(item)
             elif os.path.isdir(path):
                 dirPath = path
-                for root, dirs, files in os.walk(dirPath):
+                for root, _dirs, files in os.walk(dirPath):
                     if os.path.relpath(root, dirPath) == ".reggata":
                         continue
                     for file in files:

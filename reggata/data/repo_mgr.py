@@ -8,7 +8,7 @@ import os.path
 from reggata.errors import CannotOpenRepoError
 import reggata.consts as consts
 from reggata.user_config import UserConfig
-from reggata.data.db_schema import Base, Item, HistoryRec, DataRef
+from reggata.data.db_schema import Base, HistoryRec
 
 
 class RepoMgr(object):

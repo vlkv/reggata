@@ -63,7 +63,7 @@ class AbstractIntegrityFixer(object):
         #TODO We should first search in the same directory (maybe this file was just renamed)
         newDataRef = None
         needBreak = False
-        for root, dirs, files in os.walk(self.repo_base_path):
+        for root, _dirs, files in os.walk(self.repo_base_path):
             for file in files:
                 #Skip files which size is different from originalDataRef.size
                 size = os.path.getsize(os.path.join(root, file))
