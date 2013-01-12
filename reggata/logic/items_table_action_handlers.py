@@ -3,16 +3,19 @@ Created on 01.10.2012
 @author: vlkv
 '''
 import os
-from reggata.helpers import show_exc_info
-import reggata.helpers as helpers
+from reggata.helpers import show_exc_info, format_exc_info
 import reggata.consts as consts
-from reggata.data.commands import *
+import reggata.data.db_schema as db
+import reggata.errors as errors
 from reggata.logic.action_handlers import AbstractActionHandler
-from reggata.logic.handler_signals import HandlerSignals
-from reggata.logic.worker_threads import *
-from reggata.gui.image_viewer import ImageViewer
 from reggata.logic.common_action_handlers import AddItemAlgorithms
+from reggata.logic.handler_signals import HandlerSignals
+import reggata.logic.worker_threads as threads
+from reggata.gui.image_viewer import ImageViewer
+
 import time
+from PyQt4 import QtCore, QtGui
+from reggata.user_config import UserConfig
 
 
 class AddItemsActionHandler(AbstractActionHandler):
@@ -39,7 +42,7 @@ class AddItemsActionHandler(AbstractActionHandler):
 
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
 
-        except CancelOperationError:
+        except errors.CancelOperationError:
             return
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -74,7 +77,7 @@ class AddSingleItemActionHandler(AbstractActionHandler):
                 self.tr("Item added to repository."), consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
 
-        except CancelOperationError:
+        except errors.CancelOperationError:
             return
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -96,14 +99,14 @@ class AddManyItemsActionHandler(AbstractActionHandler):
 
             files = self._dialogs.getOpenFileNames(self._tool.gui, self.tr("Select files to add"))
             if len(files) == 0:
-                raise MsgException(self.tr("No files chosen. Operation cancelled."))
+                raise errors.MsgException(self.tr("No files chosen. Operation cancelled."))
 
             (self._itemsCreatedCount, self._filesSkippedCount, self.lastSavedItemIds) = \
                 AddItemAlgorithms.addManyItems(self._tool, self._dialogs, files)
 
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
 
-        except CancelOperationError:
+        except errors.CancelOperationError:
             return
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -133,14 +136,14 @@ class AddManyItemsRecursivelyActionHandler(AbstractActionHandler):
             dirPath = self._dialogs.getExistingDirectory(
                 self._tool.gui, self.tr("Select single existing directory"))
             if not dirPath:
-                raise MsgException(self.tr("Directory is not chosen. Operation cancelled."))
+                raise errors.MsgException(self.tr("Directory is not chosen. Operation cancelled."))
 
             (self._itemsCreatedCount, self._filesSkippedCount, self.lastSavedItemIds) = \
                 AddItemAlgorithms.addManyItemsRecursively(self._tool, self._dialogs, [dirPath])
 
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
 
-        except CancelOperationError:
+        except errors.CancelOperationError:
             return
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -171,7 +174,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
 
             rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise errors.MsgException(self.tr("There are no selected items."))
 
 
             uow = self._tool.repo.createUnitOfWork()
@@ -182,7 +185,7 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
                     item.table_row = row
                     items.append(item)
 
-                thread = ThumbnailBuilderThread(
+                thread = threads.ThumbnailBuilderThread(
                     self._tool.gui, self._tool.repo, items, self._tool.itemsLock,
                     rebuild=True)
 
@@ -214,15 +217,15 @@ class DeleteItemActionHandler(AbstractActionHandler):
 
             itemIds = self._tool.gui.selectedItemIds()
             if len(itemIds) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise errors.MsgException(self.tr("There are no selected items."))
 
             mbResult = self._dialogs.execMessageBox(self._tool.gui,
                 text=self.tr("Do you really want to delete {} selected file(s)?").format(len(itemIds)),
                 buttons=[QtGui.QMessageBox.Yes, QtGui.QMessageBox.No])
             if mbResult != QtGui.QMessageBox.Yes:
-                raise CancelOperationError()
+                raise errors.CancelOperationError()
 
-            thread = DeleteGroupOfItemsThread(
+            thread = threads.DeleteGroupOfItemsThread(
                 self._tool.gui, self._tool.repo, itemIds, self._tool.user.login)
 
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
@@ -232,7 +235,7 @@ class DeleteItemActionHandler(AbstractActionHandler):
                     text=self.tr("There were {0} errors.").format(thread.errors),
                     detailedText=thread.detailed_message)
 
-        except CancelOperationError:
+        except errors.CancelOperationError:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation cancelled."), consts.STATUSBAR_TIMEOUT)
 
@@ -255,12 +258,12 @@ class OpenItemActionHandler(AbstractActionHandler):
         try:
             selRows = self._tool.gui.selectedRows()
             if len(selRows) != 1:
-                raise MsgException(self.tr("Select one item, please."))
+                raise errors.MsgException(self.tr("Select one item, please."))
 
             dataRef = self._tool.gui.itemAtRow(selRows.pop()).data_ref
 
-            if dataRef is None or dataRef.type != DataRef.FILE:
-                raise MsgException(self.tr("This action can be applied only to the items linked with files."))
+            if dataRef is None or dataRef.type != db.DataRef.FILE:
+                raise errors.MsgException(self.tr("This action can be applied only to the items linked with files."))
 
             self._extAppMgr.openFileWithExtApp(os.path.join(self._tool.repo.base_path, dataRef.url))
 
@@ -283,7 +286,7 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
 
             rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise errors.MsgException(self.tr("There are no selected items."))
 
             startIndex = 0 #This is the index of the first image to show
             items = []
@@ -320,7 +323,7 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
 
             rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise errors.MsgException(self.tr("There are no selected items."))
 
             tmpDir = UserConfig().get("tmp_dir", consts.DEFAULT_TMP_DIR)
             if not os.path.exists(tmpDir):
@@ -354,12 +357,12 @@ class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
         try:
             selRows = self._tool.gui.selectedRows()
             if len(selRows) != 1:
-                raise MsgException(self.tr("Select one item, please."))
+                raise errors.MsgException(self.tr("Select one item, please."))
 
             dataRef = self._tool.gui.itemAtRow(selRows.pop()).data_ref
 
-            if dataRef is None or dataRef.type != DataRef.FILE:
-                raise MsgException(
+            if dataRef is None or dataRef.type != db.DataRef.FILE:
+                raise errors.MsgException(
                     self.tr("This action can be applied only to the items linked with files."))
 
 
@@ -388,16 +391,16 @@ class ExportItemsActionHandler(AbstractActionHandler):
 
             itemIds = self._tool.gui.selectedItemIds()
             if len(itemIds) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise errors.MsgException(self.tr("There are no selected items."))
 
             exportFilename = self._dialogs.getSaveFileName(
                 self._tool.gui,
                 self.tr('Save data as..'),
                 self.tr("Reggata Archive File (*.raf)"))
             if not exportFilename:
-                raise MsgException(self.tr("You haven't chosen a file. Operation canceled."))
+                raise errors.MsgException(self.tr("You haven't chosen a file. Operation canceled."))
 
-            thread = ExportItemsThread(self, self._tool.repo, itemIds, exportFilename)
+            thread = threads.ExportItemsThread(self, self._tool.repo, itemIds, exportFilename)
 
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
 
@@ -428,15 +431,15 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
 
             itemIds = self._tool.gui.selectedItemIds()
             if len(itemIds) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise errors.MsgException(self.tr("There are no selected items."))
 
             dstDirPath = self._dialogs.getExistingDirectory(
                 self._tool.gui, self.tr("Choose a directory path to export files into."))
 
             if not dstDirPath:
-                raise MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
+                raise errors.MsgException(self.tr("You haven't chosen existent directory. Operation canceled."))
 
-            thread = ExportItemsFilesThread(self, self._tool.repo, itemIds, dstDirPath)
+            thread = threads.ExportItemsFilesThread(self, self._tool.repo, itemIds, dstDirPath)
 
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
 
@@ -463,12 +466,12 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
 
             rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise errors.MsgException(self.tr("There are no selected items."))
 
             exportFilename = self._dialogs.getSaveFileName(self._tool.gui,
                 self.tr('Save results in a file.'))
             if not exportFilename:
-                raise MsgException(self.tr("Operation canceled."))
+                raise errors.MsgException(self.tr("Operation canceled."))
 
             with open(exportFilename, "w", newline='') as exportFile:
                 for row in rows:
@@ -506,7 +509,7 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
 
             rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise errors.MsgException(self.tr("There are no selected items."))
 
             items = []
             for row in rows:
@@ -514,7 +517,7 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
                 item.table_row = row
                 items.append(item)
 
-            thread = ItemIntegrityFixerThread(
+            thread = threads.ItemIntegrityFixerThread(
                 self._tool.gui, self._tool.repo, items, self._tool.itemsLock, self.__strategy, self._tool.user.login)
 
             self.connect(thread, QtCore.SIGNAL("progress"),
@@ -548,7 +551,7 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
 
             rows = self._tool.gui.selectedRows()
             if len(rows) == 0:
-                raise MsgException(self.tr("There are no selected items."))
+                raise errors.MsgException(self.tr("There are no selected items."))
 
             items = []
             for row in rows:
@@ -556,7 +559,7 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
                 item.table_row = row
                 items.append(item)
 
-            thread = ItemIntegrityCheckerThread(
+            thread = threads.ItemIntegrityCheckerThread(
                 self._tool.gui, self._tool.repo, items, self._tool.itemsLock)
 
             self.connect(thread, QtCore.SIGNAL("progress"),
