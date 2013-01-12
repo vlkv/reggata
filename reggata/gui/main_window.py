@@ -3,20 +3,20 @@
 Created on 20.08.2010
 @author: vlkv
 '''
+import os
 import logging
 from PyQt4 import QtGui, QtCore
 import reggata.consts as consts
-from reggata.helpers import *
-from reggata.data.repo_mgr import *
-from reggata.logic.worker_threads import *
-from reggata.logic.action_handlers import *
+import reggata.helpers as helpers
+import reggata.errors as errors
+import reggata.data.repo_mgr as repo
 from reggata.logic.abstract_gui import AbstractGui
 from reggata.logic.main_window_model import MainWindowModel
 from reggata.logic.items_table import ItemsTable
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.gui.user_dialogs_facade import UserDialogsFacade
 from reggata.ui.ui_mainwindow import Ui_MainWindow
-
+from reggata.user_config import UserConfig
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -117,12 +117,12 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         try:
             #Try to open and login recent repository with recent user login
             tmp = UserConfig()["recent_repo.base_path"]
-            self._model.repo = RepoMgr(tmp)
+            self._model.repo = repo.RepoMgr(tmp)
             self._model.loginRecentUser()
-        except CannotOpenRepoError:
+        except errors.CannotOpenRepoError:
             self.ui.statusbar.showMessage(self.tr("Cannot open recent repository."), consts.STATUSBAR_TIMEOUT)
             self._model.repo = None
-        except LoginError:
+        except errors.LoginError:
             self.ui.statusbar.showMessage(self.tr("Cannot login recent repository."), consts.STATUSBAR_TIMEOUT)
             self._model.user = None
         except Exception:
@@ -211,7 +211,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
                 self.ui.label_repo.setToolTip("")
 
         except Exception as ex:
-            raise CannotOpenRepoError(str(ex), ex)
+            raise errors.CannotOpenRepoError(str(ex), ex)
 
 
     def showMessageOnStatusBar(self, text, timeoutBeforeClear=None):
