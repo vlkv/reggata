@@ -8,7 +8,7 @@ import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
 from reggata.ui.ui_itemstablegui import Ui_ItemsTableGui
 from reggata.user_config import UserConfig
-from reggata.parsers import query_parser
+from reggata.parsers import query_parser, query_tokens
 import reggata.data.db_schema as db
 from reggata.gui.common_widgets import TextEdit
 import reggata.helpers as helpers
@@ -157,7 +157,7 @@ class ItemsTableGui(ToolGui):
         for tag in tags:
             text = text + tag + " "
         for tag in not_tags:
-            text = text + query_parser.NOT_OPERATOR + " " + tag + " "
+            text = text + query_tokens.NOT_OPERATOR + " " + tag + " "
         text = self.ui.lineEdit_query.setText(text)
         self.query_exec()
 
