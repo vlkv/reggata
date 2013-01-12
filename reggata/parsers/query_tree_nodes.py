@@ -387,8 +387,8 @@ class ExtraClause(QueryExpression):
     should be located in subdirectory "music/favorite/new".
     '''
 
-    def __init__(self, type=None, value=None):
-        self.type = type #'USER', 'PATH' or 'TITLE'
+    def __init__(self, objType=None, value=None):
+        self.type = objType #'USER', 'PATH' or 'TITLE'
         self.value = value # User login or repository path
 
     def interpret(self):
