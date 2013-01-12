@@ -10,9 +10,8 @@ from reggata.data.commands import GetExpungedItemCommand
 from reggata.logic.abstract_tool import AbstractTool
 from reggata.logic.abstract_tool_gui import AbstractToolGui
 from reggata.logic.common_action_handlers import EditItemActionHandler
-from reggata.logic.action_handlers import *
-from reggata.logic.items_table_action_handlers import *
-from reggata.gui.user_dialogs_facade import UserDialogsFacade
+from reggata.logic.items_table_action_handlers import AddItemsActionHandler,\
+    DeleteItemActionHandler, RebuildItemThumbnailActionHandler
 from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepo
 from reggata.tests.tests_context import itemWithTagsAndFields, itemWithFile, itemWithoutFile
 from reggata.tests.tests_dialogs_facade import TestsDialogsFacade
