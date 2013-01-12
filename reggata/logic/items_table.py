@@ -9,14 +9,15 @@ from reggata.data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixe
 import reggata.data.db_schema as db
 from reggata.logic.abstract_tool import AbstractTool
 from reggata.logic.tag_cloud import TagCloud
-from reggata.logic.action_handlers import *
-from reggata.logic.items_table_action_handlers import *
-from reggata.logic.common_action_handlers import *
+import reggata.logic.action_handlers as handlers
+import reggata.logic.items_table_action_handlers as it_handlers
+import reggata.logic.common_action_handlers as com_handlers
 from reggata.logic.ext_app_mgr import ExtAppMgr
 from reggata.gui.common_widgets import Completer
 from reggata.gui.items_table_gui import ItemsTableGui, ItemsTableModel
 from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
 import reggata.errors as errors
+from reggata.logic.handler_signals import HandlerSignals
 
 
 class ItemsTable(AbstractTool):
@@ -58,7 +59,7 @@ class ItemsTable(AbstractTool):
 
     def createGui(self, guiParent):
         self._gui = ItemsTableGui(guiParent, self)
-        self._actionHandlers = ActionHandlerStorage(self._widgetsUpdateManager)
+        self._actionHandlers = handlers.ActionHandlerStorage(self._widgetsUpdateManager)
 
         self.__initDragNDropHandlers()
 
@@ -84,71 +85,71 @@ class ItemsTable(AbstractTool):
 
         self._actionHandlers.register(
             self._gui.actions['addItems'],
-            AddItemsActionHandler(self, self._dialogsFacade))
+            it_handlers.AddItemsActionHandler(self, self._dialogsFacade))
 
         self._actionHandlers.register(
             self._gui.actions['editItem'],
-            EditItemActionHandler(self, self._dialogsFacade))
+            com_handlers.EditItemActionHandler(self, self._dialogsFacade))
 
         self._actionHandlers.register(
             self._gui.actions['rebuildItemsThumbnail'],
-            RebuildItemThumbnailActionHandler(self))
+            it_handlers.RebuildItemThumbnailActionHandler(self))
 
         self._actionHandlers.register(
             self._gui.actions['deleteItem'],
-            DeleteItemActionHandler(self, self._dialogsFacade))
+            it_handlers.DeleteItemActionHandler(self, self._dialogsFacade))
 
         self._actionHandlers.register(
             self._gui.actions['openItem'],
-            OpenItemActionHandler(self, self._extAppMgr))
+            it_handlers.OpenItemActionHandler(self, self._extAppMgr))
 
         self._actionHandlers.register(
             self._gui.actions['openItemWithBuiltinImageViewer'],
-            OpenItemWithInternalImageViewerActionHandler(self))
+            it_handlers.OpenItemWithInternalImageViewerActionHandler(self))
 
         self._actionHandlers.register(
             self._gui.actions['createM3uAndOpenIt'],
-            ExportItemsToM3uAndOpenItActionHandler(self, self._extAppMgr))
+            it_handlers.ExportItemsToM3uAndOpenItActionHandler(self, self._extAppMgr))
 
         self._actionHandlers.register(
             self._gui.actions['openItemWithExternalFileManager'],
-            OpenItemWithExternalFileManagerActionHandler(self, self._extAppMgr))
+            it_handlers.OpenItemWithExternalFileManagerActionHandler(self, self._extAppMgr))
 
         self._actionHandlers.register(
             self._gui.actions['exportItems'],
-            ExportItemsActionHandler(self, self._dialogsFacade))
+            it_handlers.ExportItemsActionHandler(self, self._dialogsFacade))
 
         self._actionHandlers.register(
             self._gui.actions['exportItemsFiles'],
-            ExportItemsFilesActionHandler(self, self._dialogsFacade))
+            it_handlers.ExportItemsFilesActionHandler(self, self._dialogsFacade))
 
         self._actionHandlers.register(
             self._gui.actions['exportItemsFilePaths'],
-            ExportItemsFilePathsActionHandler(self, self._dialogsFacade))
+            it_handlers.ExportItemsFilePathsActionHandler(self, self._dialogsFacade))
 
         self._actionHandlers.register(
             self._gui.actions['checkItemsIntegrity'],
-            CheckItemIntegrityActionHandler(self))
+            it_handlers.CheckItemIntegrityActionHandler(self))
 
         strategy = {db.Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.TRY_FIND}
         self._actionHandlers.register(
             self._gui.actions['fixFileNotFoundTryFind'],
-            FixItemIntegrityErrorActionHandler(self, strategy))
+            it_handlers.FixItemIntegrityErrorActionHandler(self, strategy))
 
         strategy = {db.Item.ERROR_FILE_NOT_FOUND: FileNotFoundFixer.DELETE}
         self._actionHandlers.register(
             self._gui.actions['fixFileNotFoundRemoveDataRef'],
-            FixItemIntegrityErrorActionHandler(self, strategy))
+            it_handlers.FixItemIntegrityErrorActionHandler(self, strategy))
 
         strategy = {db.Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.TRY_FIND_FILE}
         self._actionHandlers.register(
             self._gui.actions['fixHashMismatchTryFind'],
-            FixItemIntegrityErrorActionHandler(self, strategy))
+            it_handlers.FixItemIntegrityErrorActionHandler(self, strategy))
 
         strategy = {db.Item.ERROR_FILE_HASH_MISMATCH: FileHashMismatchFixer.UPDATE_HASH}
         self._actionHandlers.register(
             self._gui.actions['fixHashMismatchUpdateHash'],
-            FixItemIntegrityErrorActionHandler(self, strategy))
+            it_handlers.FixItemIntegrityErrorActionHandler(self, strategy))
 
 
     def handlerSignals(self):
@@ -237,4 +238,4 @@ class ItemsTable(AbstractTool):
     def __initDragNDropHandlers(self):
         self.__dragNDropActionAddItems = QtGui.QAction(self)
         self._actionHandlers.register(
-            self.__dragNDropActionAddItems, AddItemsActionHandler(self, self.__dropFilesDialogs))
+            self.__dragNDropActionAddItems, it_handlers.AddItemsActionHandler(self, self.__dropFilesDialogs))
