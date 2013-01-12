@@ -3,10 +3,10 @@
     A tagging system for managing local files on your computer.
 """
 
-__major__ = 0  # for major interface/format changes
-__minor__ = 6  # for minor interface/format changes
-__release__ = 1  # for tweaks, bug-fixes, or development
-__version__ = '%d.%d.%d' % (__major__, __minor__, __release__)
+__major__ = 1  # for major interface/format changes
+__minor__ = 0  # for minor interface/format changes
+__release__ = "0b1"  # for tweaks, bug-fixes, or development
+__version__ = "{}.{}.{}".format(__major__, __minor__, __release__)
 
 __author__ = "Vitaly Volkov"
 __license__ = "GPL v3+"
