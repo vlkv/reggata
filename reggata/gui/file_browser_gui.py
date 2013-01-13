@@ -26,12 +26,16 @@ class FileBrowserGui(ToolGui):
         self.__tableModel = None
 
         self.ui.filesTableView.setItemDelegate(HTMLDelegate(self))
-        self.connect(self.ui.filesTableView, QtCore.SIGNAL("activated(const QModelIndex&)"), self.__onMouseDoubleClick)
+        self.connect(self.ui.filesTableView, 
+                     QtCore.SIGNAL("activated(const QModelIndex&)"), 
+                     self.__onTableCellActivated)
 
-        self.resetTableModel(None)
+        self.resetTableModel(mutex=None)
 
         self.__context_menu = None
         self.__initContextMenu()
+        
+        self.__prevSelRows = []  # This is a stack of row indices 
 
 
     def resetTableModel(self, mutex):
@@ -44,6 +48,7 @@ class FileBrowserGui(ToolGui):
         self.__buildContextMenu()
         self.__addContextMenu()
 
+
     def __addContextMenu(self):
         assert self.__context_menu is not None, "Context menu is not built"
         self.ui.filesTableView.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -51,17 +56,31 @@ class FileBrowserGui(ToolGui):
                      QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"),
                      self.showContextMenu)
 
+
     def showContextMenu(self, pos):
         self.__context_menu.exec_(self.ui.filesTableView.mapToGlobal(pos))
 
 
 
-    def __onMouseDoubleClick(self, index):
-        filename = self.ui.filesTableView.model().data(index, FileBrowserTableModel.ROLE_FILENAME)
+    def __onTableCellActivated(self, index):
         try:
+            filename = self.ui.filesTableView.model().data(index, FileBrowserTableModel.ROLE_FILENAME)
             self.__fileBrowserTool.changeRelDir(filename)
+            self.__handleCurrentlySelectedRow(isGoingUp=(filename == ".."), 
+                                              newRow=index.row())
         except Exception as ex:
             logger.debug("Cannot change current directory: " + str(ex))
+
+
+    def __handleCurrentlySelectedRow(self, isGoingUp, newRow):
+        if isGoingUp:
+            assert len(self.__prevSelRows) > 0
+            row = self.__prevSelRows.pop()
+            self.ui.filesTableView.selectRow(row)
+        else:
+            self.ui.filesTableView.selectRow(0)
+            self.__prevSelRows.append(newRow)
+        
 
     def resetTableRow(self, row):
         self.__tableModel.resetTableRow(row)
