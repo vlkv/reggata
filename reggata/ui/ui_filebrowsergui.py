@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'filebrowsergui.ui'
 #
-# Created: Wed Dec 19 21:06:38 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Sun Jan 13 10:46:36 2013
+#      by: PyQt4 UI code generator 4.9
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -22,6 +22,7 @@ class Ui_FileBrowserGui(object):
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.filesTableView = QtGui.QTableView(FileBrowserGui)
         self.filesTableView.setObjectName(_fromUtf8("filesTableView"))
+        self.filesTableView.verticalHeader().setVisible(False)
         self.verticalLayout.addWidget(self.filesTableView)
 
         self.retranslateUi(FileBrowserGui)
@@ -29,3 +30,4 @@ class Ui_FileBrowserGui(object):
 
     def retranslateUi(self, FileBrowserGui):
         FileBrowserGui.setWindowTitle(QtGui.QApplication.translate("FileBrowserGui", "Form", None, QtGui.QApplication.UnicodeUTF8))
+
