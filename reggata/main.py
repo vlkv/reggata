@@ -29,8 +29,10 @@ import PyQt4.QtCore as QtCore
 from PyQt4.QtGui import QApplication
 import reggata.consts as consts
 from reggata.user_config import UserConfig
+import reggata.reggata_dir_locator
 import reggata.logging_default_conf as logging_default_conf
 from reggata.gui.main_window import MainWindow
+
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -58,7 +60,6 @@ def configureTranslations(app):
     if language:
         qm_filename = "reggata_{}.qm".format(language)
 
-        import reggata.reggata_dir_locator
         reggataDir = reggata.reggata_dir_locator.modulePath()
         logger.debug("reggataDir is " + reggataDir)
         

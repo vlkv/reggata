@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-A launcher for running reggata from source.
+    A launcher for running reggata from source.
 """
 
 if __name__ == "__main__":
