@@ -701,8 +701,8 @@ class SaveNewItemCommand(AbstractCommand):
         self._session.add(item)
         self._session.flush()
         
-        tagsNamesToAdd = map(lambda itag: itag.tag.name, item_tags_copy)
-        operations.ItemOperations.addTags(self._session, item, tagsNamesToAdd, user_login)
+        tagNamesToAdd = map(lambda itag: itag.tag.name, item_tags_copy)
+        operations.ItemOperations.addTags(self._session, item, tagNamesToAdd, user_login)
         
         nameValuePairsToAdd = map(lambda ifield: (ifield.field.name, ifield.field_value), item_fields_copy)
         operations.ItemOperations.addOrUpdateFields(self._session, item, nameValuePairsToAdd, user_login)
