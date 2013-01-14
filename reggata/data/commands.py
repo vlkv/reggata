@@ -13,6 +13,7 @@ import reggata.helpers as hlp
 import reggata.consts as consts
 import reggata.data.db_schema as db
 from reggata.user_config import UserConfig
+from reggata.data import operations
 
 
 class AbstractCommand:
@@ -819,31 +820,16 @@ class UpdateExistingItemCommand(AbstractCommand):
         persistentItem.user_login = item.user_login
         self._session.flush()
 
-    def __updateTags(self, item, persistentItem, user_login):
-        # Removing tags
-        for itag in persistentItem.item_tags:
-            i = hlp.index_of(item.item_tags, lambda x: True if x.tag.name==itag.tag.name else False)
-            if i is None:
-                #NOTE: Tag object would still persist in DB (even if no items would use it)
-                self._session.delete(itag)
-        self._session.flush()
+    def __updateTags(self, item, persistentItem, userLogin):
+        oldTagNames = set(map(lambda itag: itag.tag.name, [itag for itag in item.item_tags]))
+        newTagNames = set(map(lambda itag: itag.tag.name, [itag for itag in persistentItem.item_tags]))
+        
+        tagNamesToRemove = newTagNames - oldTagNames
+        operations.ItemOperations.removeTags(self._session, persistentItem, tagNamesToRemove)
 
-        # Adding tags
-        for itag in item.item_tags:
-            i = hlp.index_of(persistentItem.item_tags, lambda x: True if x.tag.name==itag.tag.name else False)
-            if i is None:
-                tag = self._session.query(db.Tag).filter(db.Tag.name==itag.tag.name).first()
-                if tag is None:
-                    # Such a tag is not in DB yet
-                    tag = db.Tag(itag.tag.name)
-                    self._session.add(tag)
-                    self._session.flush()
-                # Link the tag with the item
-                item_tag = db.Item_Tag(tag, user_login)
-                self._session.add(item_tag)
-                item_tag.item = persistentItem
-                persistentItem.item_tags.append(item_tag)
-        self._session.flush()
+        tagNamesToAdd = oldTagNames - newTagNames
+        operations.ItemOperations.addTags(self._session, persistentItem, tagNamesToAdd, userLogin)
+
 
     def __updateFields(self, item, persistentItem, user_login):
         # Removing fields
