@@ -798,8 +798,10 @@ class UpdateExistingItemCommand(AbstractCommand):
         self._session.flush()
 
     def __updateTags(self, item, persistentItem, userLogin):
-        newTagNames = set(map(lambda itag: itag.tag.name, [itag for itag in item.item_tags]))
-        oldTagNames = set(map(lambda itag: itag.tag.name, [itag for itag in persistentItem.item_tags]))
+        newTagNames = set(map(lambda itag: itag.tag.name, 
+                              [itag for itag in item.item_tags]))
+        oldTagNames = set(map(lambda itag: itag.tag.name, 
+                              [itag for itag in persistentItem.item_tags]))
         
         tagNamesToRemove = oldTagNames - newTagNames
         operations.ItemOperations.removeTags(self._session, persistentItem, tagNamesToRemove)
@@ -817,26 +819,14 @@ class UpdateExistingItemCommand(AbstractCommand):
         fieldNamesToRemove = oldFieldNames - newFieldNames
         operations.ItemOperations.removeFields(self._session, persistentItem, fieldNamesToRemove)
         
+        fieldNamesToStay = newFieldNames - fieldNamesToRemove
+        itemFieldsToStay = [ifield for ifield in item.item_fields 
+                            if (ifield.field.name in fieldNamesToStay)]
+        nameValuePairsToAdd = map(lambda ifield: (ifield.field.name, ifield.field_value), 
+                                  itemFieldsToStay)
+        operations.ItemOperations.addOrUpdateFields(self._session, persistentItem, 
+                                                    nameValuePairsToAdd, user_login)
 
-        # Adding fields
-        for ifield in item.item_fields:
-            i = hlp.index_of(persistentItem.item_fields, \
-                         lambda o: True if o.field.name==ifield.field.name else False)
-            if i is None:
-                field = self._session.query(db.Field).filter(db.Field.name==ifield.field.name).first()
-                if field is None:
-                    field = db.Field(ifield.field.name)
-                    self._session.add(field)
-                    self._session.flush()
-                item_field = db.Item_Field(field, ifield.field_value, user_login)
-                self._session.add(item_field)
-                item_field.item = persistentItem
-                persistentItem.item_fields.append(item_field)
-            elif ifield.field_value != persistentItem.item_fields[i].field_value:
-                # Item already has such a field, we should just change it's value
-                self._session.add(persistentItem.item_fields[i])
-                persistentItem.item_fields[i].field_value = ifield.field_value
-        self._session.flush()
 
     def __updateDataRefObject(self, item, persistentItem, user_login):
         # Processing DataRef object
