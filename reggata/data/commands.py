@@ -691,44 +691,21 @@ class SaveNewItemCommand(AbstractCommand):
         if user is None:
             raise err.AccessError("User with login {} doesn't exist.".format(user_login))
 
-
-        #Remove from item those tags, which have corresponding Tag objects in database
-        item_tags_copy = item.item_tags[:] #Making list copy
-        existing_item_tags = []
-        for item_tag in item_tags_copy:
-            item_tag.user_login = user_login
-            tag = item_tag.tag
-            t = self._session.query(db.Tag).filter(db.Tag.name==tag.name).first()
-            if t is not None:
-                item_tag.tag = t
-                existing_item_tags.append(item_tag)
-                item.item_tags.remove(item_tag)
-
-        #Remove from item those fields, which have corresponding Field objects in database
-        item_fields_copy = item.item_fields[:] #Making list copy
-        existing_item_fields = []
-        for item_field in item_fields_copy:
-            item_field.user_login = user_login
-            field = item_field.field
-            f = self._session.query(db.Field).filter(db.Field.name==field.name).first()
-            if f is not None:
-                item_field.field = f
-                existing_item_fields.append(item_field)
-                item.item_fields.remove(item_field)
-
-        #Saving item with just absolutely new tags and fields
+        item_tags_copy = item.item_tags[:] #Making a copy
+        del item.item_tags[:]
+        
+        item_fields_copy = item.item_fields[:] #Making a copy
+        del item.item_fields[:]
+        
+        # Storing the item without tags and fields (for now)
         self._session.add(item)
         self._session.flush()
-
-        #Adding to the item existent tags
-        for it in existing_item_tags:
-            item.item_tags.append(it)
-        #Adding to the item existent fields
-        for if_ in existing_item_fields:
-            item.item_fields.append(if_)
-        #Saving item with existent tags and fields
-        self._session.flush()
-
+        
+        tagsNamesToAdd = map(lambda itag: itag.tag.name, item_tags_copy)
+        operations.ItemOperations.addTags(self._session, item, tagsNamesToAdd, user_login)
+        
+        nameValuePairsToAdd = map(lambda ifield: (ifield.field.name, ifield.field_value), item_fields_copy)
+        operations.ItemOperations.addOrUpdateFields(self._session, item, nameValuePairsToAdd, user_login)
 
         if isDataRefRequired:
             item.data_ref = db.DataRef(objType=db.DataRef.FILE, url=dstRelPath)
