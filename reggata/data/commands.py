@@ -798,23 +798,25 @@ class UpdateExistingItemCommand(AbstractCommand):
         self._session.flush()
 
     def __updateTags(self, item, persistentItem, userLogin):
-        oldTagNames = set(map(lambda itag: itag.tag.name, [itag for itag in item.item_tags]))
-        newTagNames = set(map(lambda itag: itag.tag.name, [itag for itag in persistentItem.item_tags]))
+        newTagNames = set(map(lambda itag: itag.tag.name, [itag for itag in item.item_tags]))
+        oldTagNames = set(map(lambda itag: itag.tag.name, [itag for itag in persistentItem.item_tags]))
         
-        tagNamesToRemove = newTagNames - oldTagNames
+        tagNamesToRemove = oldTagNames - newTagNames
         operations.ItemOperations.removeTags(self._session, persistentItem, tagNamesToRemove)
 
-        tagNamesToAdd = oldTagNames - newTagNames
+        tagNamesToAdd = newTagNames - oldTagNames
         operations.ItemOperations.addTags(self._session, persistentItem, tagNamesToAdd, userLogin)
 
 
     def __updateFields(self, item, persistentItem, user_login):
-        # Removing fields
-        for ifield in persistentItem.item_fields:
-            i = hlp.index_of(item.item_fields, lambda o: True if o.field.name==ifield.field.name else False)
-            if i is None:
-                self._session.delete(ifield)
-        self._session.flush()
+        newFieldNames = set(map(lambda ifield: ifield.field.name, 
+                                [ifield for ifield in item.item_fields]))
+        oldFieldNames = set(map(lambda ifield: ifield.field.name, 
+                                [ifield for ifield in persistentItem.item_fields]))
+        
+        fieldNamesToRemove = oldFieldNames - newFieldNames
+        operations.ItemOperations.removeFields(self._session, persistentItem, fieldNamesToRemove)
+        
 
         # Adding fields
         for ifield in item.item_fields:
