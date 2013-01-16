@@ -92,22 +92,18 @@ class ItemOperations:
             raise err.DataRefAlreadyExistsError("DataRef instance with url='{}' "
                                                "is already in database. ".format(dstRelPath))
 
-
         item.data_ref = db.DataRef(objType=db.DataRef.FILE, url=dstRelPath)
         item.data_ref.user_login = userLogin
         item.data_ref.size = os.path.getsize(srcAbsPath)
         item.data_ref.hash = hlp.computeFileHash(srcAbsPath)
         item.data_ref.date_hashed = datetime.datetime.today()
         session.add(item.data_ref)
-        session.flush()
-
         item.data_ref_id = item.data_ref.id
         session.flush()
 
         #Now it's time to COPY physical file to the repository
         if srcAbsPath != dstAbsPath:
             try:
-                #Making dirs
                 head, _tail = os.path.split(dstAbsPath)
                 os.makedirs(head)
             except:
@@ -116,7 +112,6 @@ class ItemOperations:
             #TODO should not use shutil.copy() function, because I cannot specify block size!
             #On very large files (about 15Gb) shutil.copy() function takes really A LOT OF TIME.
             #Because of small block size, I think.
-
 
 
     @staticmethod
