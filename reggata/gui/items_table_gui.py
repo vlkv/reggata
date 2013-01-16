@@ -659,7 +659,9 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
             #Store new rating value into database
             uow = self.repo.createUnitOfWork()
             try:
-                cmd = cmds.UpdateExistingItemCommand(item, self.user_login)
+                srcAbsPath = os.path.join(self.repo.base_path, item.data_ref.url) if item.data_ref is not None else None
+                dstRelPath = item.data_ref.url if item.data_ref is not None else None
+                cmd = cmds.UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, self.user_login)
                 uow.executeCommand(cmd)
                 self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
                 return True

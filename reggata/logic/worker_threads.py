@@ -513,7 +513,7 @@ class UpdateGroupOfItemsThread(AbstractWorkerThread):
         try:
             i = 0
             for item in self.items:
-                srcAbsPath = item.data_ref.url if item.data_ref is not None else None
+                srcAbsPath = item.data_ref.srcAbsPath if item.data_ref is not None else None
                 dstRelPath = item.data_ref.dstRelPath if item.data_ref is not None else None
                 cmd = cmds.UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, item.user_login)
                 uow.executeCommand(cmd)

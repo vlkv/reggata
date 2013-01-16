@@ -329,7 +329,9 @@ class ImageViewer(QtGui.QMainWindow):
                 self.ui.statusbar.showMessage(self.tr("Operation cancelled."), consts.STATUSBAR_TIMEOUT)
                 return
 
-            cmd = UpdateExistingItemCommand(item, self.user_login)
+            srcAbsPath = item.data_ref.srcAbsPath if item.data_ref is not None else None
+            dstRelPath = item.data_ref.dstRelPath if item.data_ref is not None else None
+            cmd = UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, self.user_login)
             uow.executeCommand(cmd)
             self.ui.statusbar.showMessage(self.tr("Operation completed."), consts.STATUSBAR_TIMEOUT)
         finally:
