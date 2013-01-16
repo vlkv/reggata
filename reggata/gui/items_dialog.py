@@ -158,7 +158,7 @@ class ItemsDialog(QtGui.QDialog):
                 for k in range(0, len(self.items)):
                     if i == k:
                         continue
-                    if not self.items[k].has_tag(tag_name):
+                    if not self.items[k].hasTag(tag_name):
                         has_all = False
                         break
                 seen_tags.add(tag_name)
@@ -181,9 +181,9 @@ class ItemsDialog(QtGui.QDialog):
                 for k in range(0, len(self.items)):
                     if i == k:
                         continue
-                    if not self.items[k].has_field(field_name):
+                    if not self.items[k].hasField(field_name):
                         all_have_field = False
-                    if not self.items[k].has_field(field_name, field_value):
+                    if not self.items[k].hasField(field_name, field_value):
                         all_have_field_value = False
                     if not all_have_field and not all_have_field_value:
                         break
@@ -338,21 +338,21 @@ class ItemsDialog(QtGui.QDialog):
         for item in self.items:
             #Adding Tags
             for t in tags_add:
-                if not item.has_tag(t):
-                    item.add_tag(t, item.user_login)
+                if not item.hasTag(t):
+                    item.addTag(t, item.user_login)
 
             #Removing Tags
             for t in tags_rm:
-                item.remove_tag(t)
+                item.removeTag(t)
 
             #Adding new (Field,Value) pairs
             for f, v in fieldvals_add:
-                item.remove_field(f)
-                item.set_field_value(f, v, item.user_login)
+                item.removeField(f)
+                item.setFieldValue(f, v, item.user_login)
 
             #Removing Fields
             for f in fields_rm:
-                item.remove_field(f)
+                item.removeField(f)
 
 
 

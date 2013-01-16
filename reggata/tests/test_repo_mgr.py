@@ -168,8 +168,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         tagNameThatExistsInRepo = "Lyrics"
         tagNameNew = "No items in test repo with such Tag!"
 
-        item.add_tag(tagNameThatExistsInRepo, userLogin)
-        item.add_tag(tagNameNew, userLogin)
+        item.addTag(tagNameThatExistsInRepo, userLogin)
+        item.addTag(tagNameNew, userLogin)
 
         try:
             uow = self.repo.createUnitOfWork()
@@ -180,8 +180,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
 
         savedItem = self.getExistingItem(savedItemId)
         self.assertEqual(savedItem.title, item.title)
-        self.assertTrue(savedItem.has_tag(tagNameThatExistsInRepo))
-        self.assertTrue(savedItem.has_tag(tagNameNew))
+        self.assertTrue(savedItem.hasTag(tagNameThatExistsInRepo))
+        self.assertTrue(savedItem.hasTag(tagNameNew))
         self.assertEqual(len(savedItem.item_tags), 2)
 
 
@@ -192,8 +192,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
         fieldOne = ("Year", 2012)
         fieldTwo = ("No items in test repo with such Field!", "Some value")
 
-        item.set_field_value(fieldOne[0], fieldOne[1], userLogin)
-        item.set_field_value(fieldTwo[0], fieldTwo[1], userLogin)
+        item.setFieldValue(fieldOne[0], fieldOne[1], userLogin)
+        item.setFieldValue(fieldTwo[0], fieldTwo[1], userLogin)
 
         try:
             uow = self.repo.createUnitOfWork()
@@ -204,8 +204,8 @@ class SaveNewItemTest(AbstractTestCaseWithRepo):
 
         savedItem = self.getExistingItem(savedItemId)
         self.assertEqual(savedItem.title, item.title)
-        self.assertTrue(savedItem.has_field(fieldOne[0], fieldOne[1]))
-        self.assertTrue(savedItem.has_field(fieldTwo[0], fieldTwo[1]))
+        self.assertTrue(savedItem.hasField(fieldOne[0], fieldOne[1]))
+        self.assertTrue(savedItem.hasField(fieldTwo[0], fieldTwo[1]))
         self.assertEqual(len(savedItem.item_fields), 2)
 
 
@@ -270,21 +270,21 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
         #Remove one existing tag
         tagNameToRemove = "RHCP"
-        self.assertTrue(item.has_tag(tagNameToRemove))
-        self.assertTrue(item.remove_tag(tagNameToRemove))
+        self.assertTrue(item.hasTag(tagNameToRemove))
+        self.assertTrue(item.removeTag(tagNameToRemove))
 
         #Add one new tag
         tagNameToAdd = "TagNameToAdd"
         self.assertNotEqual(tagNameToRemove, tagNameToAdd)
-        self.assertFalse(item.has_tag(tagNameToAdd))
-        item.add_tag(tagNameToAdd, userLogin)
+        self.assertFalse(item.hasTag(tagNameToAdd))
+        item.addTag(tagNameToAdd, userLogin)
 
         self.updateExistingItem(item, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
-        self.assertFalse(item.has_tag(tagNameToRemove))
-        self.assertTrue(item.has_tag(tagNameToAdd))
-        self.assertTrue(item.has_tag("Lyrics"))
+        self.assertFalse(item.hasTag(tagNameToRemove))
+        self.assertTrue(item.hasTag(tagNameToAdd))
+        self.assertTrue(item.hasTag("Lyrics"))
         self.assertEqual(len(item.item_tags), 2)
 
 
@@ -298,28 +298,28 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
         #Remove one existing field
         fieldNameToRemove = "Year"
-        self.assertTrue(item.has_field(fieldNameToRemove, 1991))
-        self.assertTrue(item.remove_field(fieldNameToRemove))
+        self.assertTrue(item.hasField(fieldNameToRemove, 1991))
+        self.assertTrue(item.removeField(fieldNameToRemove))
 
         #Add one new field
         fieldToAdd = ("FieldNameToAdd", "Some value")
-        self.assertFalse(item.has_field(fieldToAdd[0]))
-        item.set_field_value(fieldToAdd[0], fieldToAdd[1], userLogin)
+        self.assertFalse(item.hasField(fieldToAdd[0]))
+        item.setFieldValue(fieldToAdd[0], fieldToAdd[1], userLogin)
 
         #Edit one existing field
         fieldToEdit = ("Notes", "Some new notes")
-        self.assertTrue(item.has_field(fieldToEdit[0]))
-        self.assertFalse(item.has_field(fieldToEdit[0], fieldToEdit[1]))
-        item.set_field_value(fieldToEdit[0], fieldToEdit[1], userLogin)
+        self.assertTrue(item.hasField(fieldToEdit[0]))
+        self.assertFalse(item.hasField(fieldToEdit[0], fieldToEdit[1]))
+        item.setFieldValue(fieldToEdit[0], fieldToEdit[1], userLogin)
 
         self.updateExistingItem(item, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
-        self.assertFalse(item.has_field(fieldNameToRemove))
-        self.assertTrue(item.has_field(fieldToAdd[0], fieldToAdd[1]))
-        self.assertTrue(item.has_field(fieldToEdit[0], fieldToEdit[1]))
-        self.assertTrue(item.has_field("Rating", 5))
-        self.assertTrue(item.has_field("Albom", "Blood Sugar Sex Magik"))
+        self.assertFalse(item.hasField(fieldNameToRemove))
+        self.assertTrue(item.hasField(fieldToAdd[0], fieldToAdd[1]))
+        self.assertTrue(item.hasField(fieldToEdit[0], fieldToEdit[1]))
+        self.assertTrue(item.hasField("Rating", 5))
+        self.assertTrue(item.hasField("Albom", "Blood Sugar Sex Magik"))
         self.assertEqual(len(item.item_fields), 4)
 
 

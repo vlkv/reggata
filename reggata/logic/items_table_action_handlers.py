@@ -475,7 +475,7 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
             with open(exportFilename, "w", newline='') as exportFile:
                 for row in rows:
                     item = self._tool.gui.itemAtRow(row)
-                    if item.is_data_ref_null():
+                    if not item.hasDataRef():
                         continue
                     textline = self._tool.repo.base_path + \
                         os.sep + self._tool.gui.itemAtRow(row).data_ref.url + os.linesep

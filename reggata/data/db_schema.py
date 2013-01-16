@@ -43,7 +43,7 @@ class User(Base):
         self.group = group
         self.date_created = datetime.datetime.today()
 
-    def check_valid(self):
+    def checkValid(self):
         if helpers.is_none_or_empty(self.login):
             raise ValueError("Attribute User.login shouldn't be empty.")
         return True
@@ -265,45 +265,45 @@ class Item(Base, memento.Serializable):
         return hashlib.sha1(text.encode("utf-8")).hexdigest()
 
 
-    def get_field_value(self, field_name, user_login=None):
+    def getFieldValue(self, fieldName, userLogin=None):
         '''
-            Returns value of field field_name. If no such field exists in this item,
+            Returns value of field fieldName. If no such field exists in this item,
         returns None.
         '''
         for item_field in self.item_fields:
-            if item_field.field.name == field_name:
-                if user_login is None or item_field.user_login == user_login:
+            if item_field.field.name == fieldName:
+                if userLogin is None or item_field.user_login == userLogin:
                     return item_field.field_value
         return None
 
-    def has_tags_except_of(self, user_login):
+    def hasTagsExceptOf(self, userLogin):
         for item_tag in self.item_tags:
-            if item_tag.user_login != user_login:
+            if item_tag.user_login != userLogin:
                 return True
         return False
 
-    def has_fields_except_of(self, user_login):
+    def hasFieldsExceptOf(self, userLogin):
         for item_field in self.item_fields:
-            if item_field.user_login != user_login:
+            if item_field.user_login != userLogin:
                 return True
         return False
 
-    def add_tag(self, name, user_login):
+    def addTag(self, name, userLogin):
         # TODO: Maybe raise exception if this item already has such (tag, user_login)?
-        assert user_login is not None
+        assert userLogin is not None
         tag = Tag(name)
-        item_tag = Item_Tag(tag, user_login)
-        self.item_tags.append(item_tag)
+        itemTag = Item_Tag(tag, userLogin)
+        self.item_tags.append(itemTag)
 
-    def set_field_value(self, name, value, user_login):
+    def setFieldValue(self, name, value, userLogin):
         '''
             Changes field value if it exists, or creates new field and sets a value to it.
         '''
-        assert user_login is not None
+        assert userLogin is not None
 
         itf = None
         for item_field in self.item_fields:
-            if item_field.field.name == name and item_field.user_login == user_login:
+            if item_field.field.name == name and item_field.user_login == userLogin:
                 itf = item_field
                 break
 
@@ -311,9 +311,10 @@ class Item(Base, memento.Serializable):
             itf.field_value = value
         else:
             field = Field(name)
-            item_field = Item_Field(field, value, user_login)
+            item_field = Item_Field(field, value, userLogin)
             self.item_fields.append(item_field)
 
+    # TODO: this function should be moved to a separate formatter class
     def format_field_vals(self):
         s = ""
         for item_field in self.item_fields:
@@ -322,6 +323,7 @@ class Item(Base, memento.Serializable):
             s = s[0:-1]
         return s
 
+    # TODO: this function should be moved to a separate formatter class
     def format_tags(self):
         '''
             Returns a string representation of all Items tags.
@@ -333,12 +335,12 @@ class Item(Base, memento.Serializable):
             s = s[0:-1]
         return s
 
-    def remove_tag(self, tag_name):
+    def removeTag(self, tagName):
         #TODO: Maybe should pass userLogin to this fun?
         i = 0
         while i < len(self.item_tags):
             item_tag = self.item_tags[i]
-            if item_tag.tag.name == tag_name:
+            if item_tag.tag.name == tagName:
                 break
             i = i + 1
 
@@ -348,12 +350,12 @@ class Item(Base, memento.Serializable):
         else:
             return None
 
-    def remove_field(self, field_name):
+    def removeField(self, fieldName):
         #TODO: Maybe should pass userLogin to this fun?
         i = 0
         while i < len(self.item_fields):
             item_field = self.item_fields[i]
-            if item_field.field.name == field_name:
+            if item_field.field.name == fieldName:
                 break
             i = i + 1
 
@@ -364,31 +366,31 @@ class Item(Base, memento.Serializable):
             return None
 
 
-    def has_tag(self, tag_name):
+    def hasTag(self, tagName):
         for item_tag in self.item_tags:
-            if item_tag.tag.name == tag_name:
+            if item_tag.tag.name == tagName:
                 return True
         return False
 
-    def has_field(self, field_name, field_value=None):
+    def hasField(self, fieldName, fieldValue=None):
         '''
             Returns True if this Item has a field with given name and a given value
         (only if field_value arg is not None).
         When field_value is None, only field names are checked for match.
         '''
         for item_field in self.item_fields:
-            if item_field.field.name == field_name:
-                if field_value is None or item_field.field_value == str(field_value):
+            if item_field.field.name == fieldName:
+                if fieldValue is None or item_field.field_value == str(fieldValue):
                     return True
         return False
 
-    def check_valid(self):
+    def checkValid(self):
         if self.title == "" or self.title is None:
             raise Exception("Attribute Item.title shouldn't be empty.")
         return True
 
-    def is_data_ref_null(self):
-        return self.data_ref is None
+    def hasDataRef(self):
+        return self.data_ref is not None
 
 
 class DataRef(Base, memento.Serializable):

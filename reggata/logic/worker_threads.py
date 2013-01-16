@@ -211,7 +211,7 @@ class ExportItemsFilesThread(AbstractWorkerThread):
             i = 0
             for itemId in self.item_ids:
                 item = uow.executeCommand(cmds.GetExpungedItemCommand(itemId))
-                if item.is_data_ref_null():
+                if not item.hasDataRef():
                     continue
 
                 src_file_path = os.path.join(self.repo.base_path, item.data_ref.url)

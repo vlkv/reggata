@@ -528,7 +528,7 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
                     self.lock.unlock()
             elif column == self.RATING:
                 #Should display only rating field owned by current active user
-                rating_str = item.get_field_value(consts.RATING_FIELD, self.user_login)
+                rating_str = item.getFieldValue(consts.RATING_FIELD, self.user_login)
                 try:
                     rating = int(rating_str)
                 except:
@@ -649,12 +649,12 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
             item = self.items[index.row()]
 
             #Remember old rating value
-            old_value = item.get_field_value(consts.RATING_FIELD, self.user_login)
+            old_value = item.getFieldValue(consts.RATING_FIELD, self.user_login)
 
             if old_value == value:
                 return False
 
-            item.set_field_value(consts.RATING_FIELD, value, self.user_login)
+            item.setFieldValue(consts.RATING_FIELD, value, self.user_login)
 
             #Store new rating value into database
             uow = self.repo.createUnitOfWork()
@@ -665,7 +665,7 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
                 return True
             except:
                 #Restore old value
-                item.set_field_value(consts.RATING_FIELD, old_value, self.user_login)
+                item.setFieldValue(consts.RATING_FIELD, old_value, self.user_login)
             finally:
                 uow.close()
 

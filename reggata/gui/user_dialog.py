@@ -68,7 +68,7 @@ class UserDialog(QtGui.QDialog):
     def button_ok(self):
         try:
             self.write()
-            self.user.check_valid()
+            self.user.checkValid()
             self.accept()
         except Exception as ex:
             show_exc_info(self, ex)

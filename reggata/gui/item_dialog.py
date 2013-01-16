@@ -197,7 +197,7 @@ class ItemDialog(QtGui.QDialog):
 
             elif self.mode == ItemDialog.CREATE_MODE or self.mode == ItemDialog.EDIT_MODE:
                 self.write()
-                self.item.check_valid()
+                self.item.checkValid()
                 self.accept()
 
             else:

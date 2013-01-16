@@ -567,11 +567,11 @@ class DeleteItemCommand(AbstractCommand):
             raise err.AccessError("Cannot delete item id={0} because it is owned by another user {1}."
                               .format(item_id, item.user_login))
 
-        if item.has_tags_except_of(user_login):
+        if item.hasTagsExceptOf(user_login):
             raise err.AccessError("Cannot delete item id={0} because another user tagged it."
                               .format(item_id))
 
-        if item.has_fields_except_of(user_login):
+        if item.hasFieldsExceptOf(user_login):
             raise err.AccessError("Cannot delete item id={0} because another user attached a field to it."
                               .format(item_id))
 
@@ -693,17 +693,17 @@ class SaveNewItemCommand(AbstractCommand):
 
         item_tags_copy = item.item_tags[:] #Making a copy
         del item.item_tags[:]
-        
+
         item_fields_copy = item.item_fields[:] #Making a copy
         del item.item_fields[:]
-        
+
         # Storing the item without tags and fields (for now)
         self._session.add(item)
         self._session.flush()
-        
+
         tagNamesToAdd = map(lambda itag: itag.tag.name, item_tags_copy)
         operations.ItemOperations.addTags(self._session, item, tagNamesToAdd, user_login)
-        
+
         nameValuePairsToAdd = map(lambda ifield: (ifield.field.name, ifield.field_value), item_fields_copy)
         operations.ItemOperations.addOrUpdateFields(self._session, item, nameValuePairsToAdd, user_login)
 
@@ -798,11 +798,11 @@ class UpdateExistingItemCommand(AbstractCommand):
         self._session.flush()
 
     def __updateTags(self, item, persistentItem, userLogin):
-        newTagNames = set(map(lambda itag: itag.tag.name, 
+        newTagNames = set(map(lambda itag: itag.tag.name,
                               [itag for itag in item.item_tags]))
-        oldTagNames = set(map(lambda itag: itag.tag.name, 
+        oldTagNames = set(map(lambda itag: itag.tag.name,
                               [itag for itag in persistentItem.item_tags]))
-        
+
         tagNamesToRemove = oldTagNames - newTagNames
         operations.ItemOperations.removeTags(self._session, persistentItem, tagNamesToRemove)
 
@@ -811,20 +811,20 @@ class UpdateExistingItemCommand(AbstractCommand):
 
 
     def __updateFields(self, item, persistentItem, user_login):
-        newFieldNames = set(map(lambda ifield: ifield.field.name, 
+        newFieldNames = set(map(lambda ifield: ifield.field.name,
                                 [ifield for ifield in item.item_fields]))
-        oldFieldNames = set(map(lambda ifield: ifield.field.name, 
+        oldFieldNames = set(map(lambda ifield: ifield.field.name,
                                 [ifield for ifield in persistentItem.item_fields]))
-        
+
         fieldNamesToRemove = oldFieldNames - newFieldNames
         operations.ItemOperations.removeFields(self._session, persistentItem, fieldNamesToRemove)
-        
+
         fieldNamesToStay = newFieldNames - fieldNamesToRemove
-        itemFieldsToStay = [ifield for ifield in item.item_fields 
+        itemFieldsToStay = [ifield for ifield in item.item_fields
                             if (ifield.field.name in fieldNamesToStay)]
-        nameValuePairsToAdd = map(lambda ifield: (ifield.field.name, ifield.field_value), 
+        nameValuePairsToAdd = map(lambda ifield: (ifield.field.name, ifield.field_value),
                                   itemFieldsToStay)
-        operations.ItemOperations.addOrUpdateFields(self._session, persistentItem, 
+        operations.ItemOperations.addOrUpdateFields(self._session, persistentItem,
                                                     nameValuePairsToAdd, user_login)
 
 
