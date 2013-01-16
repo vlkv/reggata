@@ -55,11 +55,11 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
             uow.close()
         return dataRef
 
-    def updateExistingItem(self, detachedItem, user_login):
+    def updateExistingItem(self, detachedItem, newSrcAbsPath, newDstRelPath, user_login):
         item = None
         try:
             uow = self.repo.createUnitOfWork()
-            cmd = UpdateExistingItemCommand(detachedItem, user_login)
+            cmd = UpdateExistingItemCommand(detachedItem, newSrcAbsPath, newDstRelPath, user_login)
             item = uow.executeCommand(cmd)
         finally:
             uow.close()

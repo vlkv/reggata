@@ -224,7 +224,9 @@ class EditItemActionHandler(AbstractActionHandler):
                 item=item, gui=self._tool.gui, repo=self._tool.repo, dialogMode=ItemDialog.EDIT_MODE):
                 return
 
-            cmd = cmds.UpdateExistingItemCommand(item, self._tool.user.login)
+            srcAbsPath = item.data_ref.url if item.data_ref is not None else None
+            dstRelPath = item.data_ref.dstRelPath if item.data_ref is not None else None
+            cmd = cmds.UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, self._tool.user.login)
             uow.executeCommand(cmd)
         finally:
             uow.close()

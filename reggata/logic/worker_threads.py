@@ -513,7 +513,9 @@ class UpdateGroupOfItemsThread(AbstractWorkerThread):
         try:
             i = 0
             for item in self.items:
-                cmd = cmds.UpdateExistingItemCommand(item, item.user_login)
+                srcAbsPath = item.data_ref.url if item.data_ref is not None else None
+                dstRelPath = item.data_ref.dstRelPath if item.data_ref is not None else None
+                cmd = cmds.UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, item.user_login)
                 uow.executeCommand(cmd)
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))

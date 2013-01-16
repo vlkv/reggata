@@ -253,7 +253,9 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
                             "You should change item's title to some different value.")
         item.title = newItemTitle
 
-        self.updateExistingItem(item, item.user_login)
+        newSrcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
+        newDstRelPath = item.data_ref.url
+        self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
         #Get an item from repo again and check it's title
         item = self.getExistingItem(context.itemWithFile.id)
@@ -279,7 +281,9 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertFalse(item.hasTag(tagNameToAdd))
         item.addTag(tagNameToAdd, userLogin)
 
-        self.updateExistingItem(item, item.user_login)
+        newSrcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
+        newDstRelPath = item.data_ref.url
+        self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertFalse(item.hasTag(tagNameToRemove))
@@ -312,7 +316,9 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertFalse(item.hasField(fieldToEdit[0], fieldToEdit[1]))
         item.setFieldValue(fieldToEdit[0], fieldToEdit[1], userLogin)
 
-        self.updateExistingItem(item, item.user_login)
+        newSrcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
+        newDstRelPath = item.data_ref.url
+        self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertFalse(item.hasField(fieldNameToRemove))
@@ -333,10 +339,9 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertFalse(os.path.exists(os.path.join(self.repo.base_path, "file.txt")))
 
         # Link file with the item
-        srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
-        item.data_ref = db.DataRef(db.DataRef.FILE, srcAbsPath)
-
-        self.updateExistingItem(item, item.user_login)
+        newDstRelPath = os.path.join("..", "tmp", "file.txt")
+        newSrcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, newDstRelPath))
+        self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
         item = self.getExistingItem(context.itemWithoutFile.id)
         self.assertEqual(item.title, context.itemWithoutFile.title)
@@ -357,11 +362,9 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertFalse(os.path.exists(os.path.join(self.repo.base_path, "dir1", "dir2", "file.txt")))
 
         # Link file with the item
-        srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
-        item.data_ref = db.DataRef(db.DataRef.FILE, srcAbsPath)
-        item.data_ref.dstRelPath = os.path.join("dir1", "dir2", "copied_file.txt")
-
-        self.updateExistingItem(item, item.user_login)
+        newSrcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
+        newDstRelPath = os.path.join("dir1", "dir2", "copied_file.txt")
+        self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
         item = self.getExistingItem(context.itemWithoutFile.id)
         self.assertEqual(item.title, context.itemWithoutFile.title)
@@ -378,10 +381,10 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, item.data_ref.url)))
 
         # Move linked file to another location within the repository
+        newSrcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
         path = ["new", "location", "for", "file", "I Could Have Lied.txt"]
-        item.data_ref.dstRelPath = os.path.join(*path)
-
-        self.updateExistingItem(item, item.user_login)
+        newDstRelPath = os.path.join(*path)
+        self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertEqual(item.title, context.itemWithTagsAndFields.title)
@@ -398,10 +401,10 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
         # Move linked file to another location within the repository
         # NOTE: File will be not only moved, but also renamed
+        newSrcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
         path = ["new", "location", "for", "file", "could_have_lied_lyrics.txt"]
-        item.data_ref.dstRelPath = os.path.join(*path)
-
-        self.updateExistingItem(item, item.user_login)
+        newDstRelPath = os.path.join(*path)
+        self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertEqual(item.title, context.itemWithTagsAndFields.title)
@@ -416,9 +419,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertIsNotNone(item.data_ref)
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, item.data_ref.url)))
 
-        item.data_ref = None
-
-        self.updateExistingItem(item, item.user_login)
+        self.updateExistingItem(item, None, None, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertEqual(item.title, context.itemWithTagsAndFields.title)
@@ -437,10 +438,9 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertIsNotNone(item)
 
         # Link file with the item
-        url = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
-        item.data_ref = db.DataRef(db.DataRef.FILE, url)
-
-        self.updateExistingItem(item, item.user_login)
+        newDstRelPath = "..", "tmp", "file.txt"
+        newSrcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, newDstRelPath))
+        self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertEqual(item.title, context.itemWithTagsAndFields.title)
@@ -467,9 +467,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         relUrl = os.path.join("this", "is", "untracked", "file.txt")
         absUrl = os.path.abspath(os.path.join(self.repo.base_path, relUrl))
         self.assertTrue(os.path.exists(absUrl))
-        item.data_ref = db.DataRef(db.DataRef.FILE, absUrl)
-
-        self.updateExistingItem(item, item.user_login)
+        self.updateExistingItem(item, absUrl, relUrl, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertEqual(item.title, context.itemWithTagsAndFields.title)
@@ -496,9 +494,8 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         relUrl = context.itemWithFile.relFilePath
         absUrl = os.path.abspath(os.path.join(self.repo.base_path, relUrl))
         self.assertTrue(os.path.exists(absUrl))
-        item.data_ref = db.DataRef(db.DataRef.FILE, absUrl)
 
-        self.updateExistingItem(item, item.user_login)
+        self.updateExistingItem(item, absUrl, relUrl, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertEqual(item.title, context.itemWithTagsAndFields.title)

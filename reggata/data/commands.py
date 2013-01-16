@@ -705,23 +705,34 @@ class UpdateExistingItemCommand(AbstractCommand):
         If item.data_ref.url is changed --- that means that user wants this item
     to reference to another file.
         If item.data_ref.dstRelPath is not None --- that means that user wants
-    to move (and maybe rename) original referenced file withing the repository.
+    to move (and maybe rename) original referenced file within the repository.
 
     TODO: Maybe we should use item.data_ref.srcAbsPathForFileOperation instead of item.data_ref.url... ?
     TODO: We should deny any user to change tags/fields/files of items, owned by another user.
     '''
-    #TODO: Use srcAbsPath=None, dstRelPath=None arguments in this command
-    def __init__(self, item, userLogin):
+    def __init__(self, item, newSrcAbsPath, newDstRelPath, userLogin):
         self.__item = item
         self.__userLogin = userLogin
+        self.__newSrcAbsPath = newSrcAbsPath
+        self.__newDstRelPath = newDstRelPath
 
     def _execute(self, uow):
         self._session = uow.session
         self._repoBasePath = uow._repo_base_path
-        self.__updateExistingItem(self.__item, self.__userLogin)
+        self.__updateExistingItem(self.__item, self.__newSrcAbsPath, self.__newDstRelPath, self.__userLogin)
 
-    def __updateExistingItem(self, item, user_login):
+    def __updateExistingItem(self, item, newSrcAbsPath, newDstRelPath, user_login):
         persistentItem = self._session.query(db.Item).get(item.id)
+
+        # origSrcAbsPath is a path to Item's file before any updates on the Item,
+        #    maybe it is None (if the Item is not linked with a file).
+        # newSrcAbsPath, is a path to a file Item would reference to after this update operation.
+        #    It may be None - so Item would loose the file.
+        #    If the Item is going to reference the same file after update, then
+        #    newSrcAbsPath must be equal to origSrcAbsPath.
+        # newDstRelPath let the system know where should it move the file,
+        #    or how the file should be renamed. This argument should not be None, or empty.
+
 
         #We must gather some information before any changes have been made
         srcAbsPathForFileOperation = None
