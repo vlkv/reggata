@@ -119,6 +119,14 @@ class ItemOperations:
         pass
 
     @staticmethod
+    def removeFile(session, item):
+        '''
+            This operation unlinks file from given item. If this file is not referenced by
+        other alive items, it is deleted from filesystem also.
+        '''
+        pass
+
+    @staticmethod
     def renameFile(session, item, newFileName):
         pass
 

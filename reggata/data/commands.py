@@ -733,28 +733,68 @@ class UpdateExistingItemCommand(AbstractCommand):
         # newDstRelPath let the system know where should it move the file,
         #    or how the file should be renamed. This argument should not be None, or empty.
 
-
-        #We must gather some information before any changes have been made
-        srcAbsPathForFileOperation = None
-        if persistentItem.data_ref is not None:
-            srcAbsPathForFileOperation = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
-        elif item.data_ref is not None:
-            srcAbsPathForFileOperation = item.data_ref.url
-
         self.__updatePlainDataMembers(item, persistentItem)
         self.__updateTags(item, persistentItem, user_login)
         self.__updateFields(item, persistentItem, user_login)
-        fileOperation = self.__updateDataRefObject(item, persistentItem, user_login)
 
-        self._session.refresh(persistentItem)
+        if newSrcAbsPath is None and persistentItem.hasDataRef():
+            operations.ItemOperations.removeFile(self._session, persistentItem)
+        else
 
-        self.__updateFilesystem(persistentItem, fileOperation, srcAbsPathForFileOperation)
+
+#        fileOperation = self.__updateDataRefObject(item, persistentItem, user_login)
+#        self._session.refresh(persistentItem)
+#        self.__updateFilesystem(persistentItem, fileOperation, srcAbsPathForFileOperation)
 
         self._session.commit()
 
         self._session.refresh(persistentItem)
         self._session.expunge(persistentItem)
         return persistentItem
+
+    # TODO: implement this algorithm
+    def __updateDataRefAndFilesystem(self, item, persistentItem, newSrcAbsPath, newDstRelPath):
+        origSrcAbsPath = None
+        if persistentItem.data_ref is not None:
+            origSrcAbsPath = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
+
+        if origSrcAbsPath is None and newSrcAbsPath is None:
+            # Item is not linked with a file neither before nor after update
+            return
+
+        if origSrcAbsPath is None and newSrcAbsPath is not None:
+            # Item was without a file, and now it is linked with a file
+            assert not hlp.is_none_or_empty(newDstRelPath)
+            isNewFileStored = None # TODO: find it out
+            if isNewFileStored:
+                operations.ItemOperations.addStoredFile(self._session,
+                                                        persistentItem,
+                                                        repoRootPath,
+                                                        srcRelPath, dstRelPath)
+            else:
+                operations.ItemOperations.addUntrackedFile(session, item,
+                                                           repoBasePath,
+                                                           srcAbsPath, dstRelPath,
+                                                           userLogin)
+            return
+
+        if origSrcAbsPath is not None and origSrcAbsPath != newSrcAbsPath:
+            # Item was with file1, now it is linked with a file2
+            # TODO ... first remove file from item, then do the same as on the prev "if"
+            pass
+
+        if origSrcAbsPath is not None and origSrcAbsPath == newSrcAbsPath:
+            # Item was with a file, and after update it should be with the same file, but...
+            origRepoRelPath = None # TODO: find it out
+            if newDstRelPath != origRepoRelPath:
+                # Item was with a file, but this file is going to be renamed or moved
+                operations.ItemOperations.moveFile(session, item, repoRootPath, newDstRelPath)
+            else
+                # Nothing has changed, do nothing
+                pass
+
+
+
 
     def __updatePlainDataMembers(self, item, persistentItem):
         #Here we update simple data members of the item
@@ -792,7 +832,7 @@ class UpdateExistingItemCommand(AbstractCommand):
         operations.ItemOperations.addOrUpdateFields(self._session, persistentItem,
                                                     nameValuePairsToAdd, user_login)
 
-
+    # TODO: remove this fun
     def __updateDataRefObject(self, item, persistentItem, user_login):
         # Processing DataRef object
         srcAbsPath = None
@@ -860,6 +900,7 @@ class UpdateExistingItemCommand(AbstractCommand):
             self._session.flush()
             return need_file_operation
 
+    # TODO: remove this fun
     def __updateFilesystem(self, persistentItem, fileOperation, srcAbsPathForFileOperation):
         # Performs operations with the file in OS filesystem
 
