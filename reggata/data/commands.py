@@ -655,34 +655,6 @@ class SaveNewItemCommand(AbstractCommand):
         #Don't worry, item.data_ref will be assigned a new DataRef instance later (if required).
         item.data_ref = None
 
-        isDataRefRequired = not hlp.is_none_or_empty(srcAbsPath)
-        if isDataRefRequired:
-            assert(dstRelPath is not None)
-            #NOTE: If dstRelPath is an empty string it means the root of repository
-
-            srcAbsPath = os.path.normpath(srcAbsPath)
-            if not os.path.isabs(srcAbsPath):
-                raise ValueError("srcAbsPath must be an absolute path.")
-
-            if not os.path.exists(srcAbsPath):
-                raise ValueError("srcAbsPath must point to an existing file.")
-
-            if os.path.isabs(dstRelPath):
-                raise ValueError("dstRelPath must be a relative to repository root path.")
-
-            dstRelPath = hlp.removeTrailingOsSeps(dstRelPath)
-            dstRelPath = os.path.normpath(dstRelPath)
-            dstAbsPath = os.path.abspath(os.path.join(self._repoBasePath, dstRelPath))
-            dstAbsPath = os.path.normpath(dstAbsPath)
-            if srcAbsPath != dstAbsPath and os.path.exists(dstAbsPath):
-                raise ValueError("{} should not point to an existing file.".format(dstAbsPath))
-
-            dataRef = self._session.query(db.DataRef).filter(
-                db.DataRef.url_raw==hlp.to_db_format(dstRelPath)).first()
-            if dataRef is not None:
-                raise err.DataRefAlreadyExistsError("DataRef instance with url='{}' "
-                                                   "is already in database. ".format(dstRelPath))
-
         user_login = item.user_login
         if hlp.is_none_or_empty(user_login):
             raise err.AccessError("Argument user_login shouldn't be null or empty.")
@@ -691,48 +663,30 @@ class SaveNewItemCommand(AbstractCommand):
         if user is None:
             raise err.AccessError("User with login {} doesn't exist.".format(user_login))
 
-        item_tags_copy = item.item_tags[:] #Making a copy
-        del item.item_tags[:]
-
-        item_fields_copy = item.item_fields[:] #Making a copy
-        del item.item_fields[:]
+        #Making copies of tags and fields
+        item_tags_copy = item.item_tags[:]
+        item_fields_copy = item.item_fields[:]
 
         # Storing the item without tags and fields (for now)
+        del item.item_tags[:]
+        del item.item_fields[:]
         self._session.add(item)
         self._session.flush()
 
         tagNamesToAdd = map(lambda itag: itag.tag.name, item_tags_copy)
         operations.ItemOperations.addTags(self._session, item, tagNamesToAdd, user_login)
 
-        nameValuePairsToAdd = map(lambda ifield: (ifield.field.name, ifield.field_value), item_fields_copy)
-        operations.ItemOperations.addOrUpdateFields(self._session, item, nameValuePairsToAdd, user_login)
+        nameValuePairsToAdd = map(lambda ifield: (ifield.field.name, ifield.field_value),
+                                  item_fields_copy)
+        operations.ItemOperations.addOrUpdateFields(self._session, item, nameValuePairsToAdd,
+                                                    user_login)
 
+        isDataRefRequired = not hlp.is_none_or_empty(srcAbsPath)
         if isDataRefRequired:
-            item.data_ref = db.DataRef(objType=db.DataRef.FILE, url=dstRelPath)
-            item.data_ref.user_login = user_login
-            item.data_ref.size = os.path.getsize(srcAbsPath)
-            item.data_ref.hash = hlp.computeFileHash(srcAbsPath)
-            item.data_ref.date_hashed = datetime.datetime.today()
-            self._session.add(item.data_ref)
-            self._session.flush()
-
-            item.data_ref_id = item.data_ref.id
-            self._session.flush()
-        else:
-            item.data_ref = None
-
-        #Now it's time to COPY physical file to the repository
-        if isDataRefRequired and srcAbsPath != dstAbsPath:
-            try:
-                #Making dirs
-                head, _tail = os.path.split(dstAbsPath)
-                os.makedirs(head)
-            except:
-                pass
-            shutil.copy(srcAbsPath, dstAbsPath)
-            #TODO should not use shutil.copy() function, because I cannot specify block size!
-            #On very large files (about 15Gb) shutil.copy() function takes really A LOT OF TIME.
-            #Because of small block size, I think.
+            operations.ItemOperations.addUntrackedFile(self._session, item,
+                                                   self._repoBasePath,
+                                                   srcAbsPath, dstRelPath,
+                                                   user_login)
 
         self._session.commit()
         item_id = item.id
