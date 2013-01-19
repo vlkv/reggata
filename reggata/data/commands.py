@@ -729,7 +729,17 @@ class UpdateExistingItemCommand(AbstractCommand):
         self.__updateExistingItem(self.__item, self.__newSrcAbsPath, self.__newDstRelPath, self.__userLogin)
 
     def __updateExistingItem(self, item, newSrcAbsPath, newDstRelPath, userLogin):
-        logger.info("__updateExistingItem with args={}".format((item, newSrcAbsPath, newDstRelPath, userLogin)))
+        logger.info("__updateExistingItem with args={}"
+                    .format((item, newSrcAbsPath, newDstRelPath, userLogin)))
+
+        if newSrcAbsPath is None:
+            assert newDstRelPath is None, \
+            "Both newSrcAbsPath and newDstRelPath args should be None."
+        else:
+            assert not hlp.is_none_or_empty(newSrcAbsPath)
+            assert not hlp.is_none_or_empty(newDstRelPath), \
+            "Both newSrcAbsPath and newDstRelPath args should be not empty."
+
         persistentItem = self._session.query(db.Item).get(item.id)
 
         # We do not need any info in item.data_ref.
@@ -845,137 +855,6 @@ class UpdateExistingItemCommand(AbstractCommand):
                                   itemFieldsToStay)
         operations.ItemOperations.addOrUpdateFields(self._session, persistentItem,
                                                     nameValuePairsToAdd, user_login)
-
-    # TODO: remove this fun
-    def __updateDataRefObject(self, item, persistentItem, user_login):
-        # Processing DataRef object
-        srcAbsPath = None
-        dstAbsPath = None
-        need_file_operation = None
-
-        shouldRemoveDataRef = item.data_ref is None
-        if shouldRemoveDataRef:
-            # User removed the DataRef object from item (or it was None before..)
-            #TODO Maybe remove DataRef if there are no items that reference to it?
-            persistentItem.data_ref = None
-            persistentItem.data_ref_id = None
-
-            self._session.flush()
-            return need_file_operation
-
-        shouldAttachAnotherDataRef = persistentItem.data_ref is None \
-            or persistentItem.data_ref.url != item.data_ref.url
-        if shouldAttachAnotherDataRef:
-            # The item is attached to DataRef object at the first time or
-            # it changes his DataRef object to another DataRef object
-            url = item.data_ref.url
-            if item.data_ref.type == db.DataRef.FILE:
-                assert os.path.isabs(url), "item.data_ref.url should be an absolute path"
-                url = os.path.relpath(url, self._repoBasePath)
-
-            existing_data_ref = self._session.query(db.DataRef).filter(db.DataRef.url_raw==hlp.to_db_format(url)).first()
-            if existing_data_ref is not None:
-                persistentItem.data_ref = existing_data_ref
-            else:
-                #We should create new DataRef object in this case
-                self._prepare_data_ref(item.data_ref, user_login)
-                self._session.add(item.data_ref)
-                self._session.flush()
-                persistentItem.data_ref = item.data_ref
-                if item.data_ref.type == db.DataRef.FILE:
-                    need_file_operation = "copy"
-
-            self._session.flush()
-            return need_file_operation
-
-        shouldMoveReferencedFile = item.data_ref.type == db.DataRef.FILE \
-            and not hlp.is_none_or_empty(item.data_ref.dstRelPath) \
-            and os.path.normpath(persistentItem.data_ref.url) != os.path.normpath(item.data_ref.dstRelPath)
-        if shouldMoveReferencedFile:
-            # A file referenced by the item is going to be moved to some another location
-            # within the repository. item.data_ref.dstRelPath is the new relative
-            # path to this file. File will be copied.
-
-            srcAbsPath = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
-            dstAbsPath = os.path.join(self._repoBasePath, item.data_ref.dstRelPath)
-            if not os.path.exists(srcAbsPath):
-                raise Exception("File {0} not found!".format(srcAbsPath))
-
-            if os.path.exists(dstAbsPath) and os.path.abspath(srcAbsPath) != os.path.abspath(dstAbsPath):
-                raise Exception("Pathname {0} already exists. File {1} would not be moved."
-                                .format(dstAbsPath, srcAbsPath))
-
-            if os.path.abspath(srcAbsPath) == os.path.abspath(dstAbsPath):
-                raise Exception("Destination path {0} should be different from item's DataRef.url {1}"
-                                .format(dstAbsPath, srcAbsPath))
-
-            persistentItem.data_ref.url = item.data_ref.dstRelPath
-            need_file_operation = "move"
-            self._session.flush()
-            return need_file_operation
-
-    # TODO: remove this fun
-    def __updateFilesystem(self, persistentItem, fileOperation, srcAbsPathForFileOperation):
-        # Performs operations with the file in OS filesystem
-
-        assert fileOperation in [None, "copy", "move"]
-        if hlp.is_none_or_empty(fileOperation):
-            return
-
-        assert persistentItem.data_ref is not None, \
-        "Item must have a DataRef object to be able to do some filesystem operations."
-
-        assert srcAbsPathForFileOperation is not None, \
-        "Path to target file is not given. We couldn't do any filesystem operations without it."
-
-        assert persistentItem.data_ref.type == db.DataRef.FILE, \
-        "Filesystem operations can be done only when type is DataRef.FILE"
-
-        dstAbsPath = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
-        if srcAbsPathForFileOperation == dstAbsPath:
-            return # There is nothing to do in this case
-
-        dstAbsPathDir, dstFilename = os.path.split(dstAbsPath)
-        if not os.path.exists(dstAbsPathDir):
-            os.makedirs(dstAbsPathDir)
-
-        if fileOperation == "copy":
-            shutil.copy(srcAbsPathForFileOperation, dstAbsPath)
-        elif fileOperation == "move":
-            shutil.move(srcAbsPathForFileOperation, dstAbsPathDir)
-            oldName = os.path.join(dstAbsPathDir, os.path.basename(srcAbsPathForFileOperation))
-            newName = os.path.join(dstAbsPathDir, dstFilename)
-            os.rename(oldName, newName)
-
-
-    def _prepare_data_ref(self, data_ref, user_login):
-
-        def _prepare_data_ref_url(dr):
-            dr.url = os.path.normpath(dr.url)
-
-            # Remove trailing slash (if it presents)
-            if dr.url.endswith(os.sep):
-                dr.url = dr.url[0:len(dr.url)-1]
-
-            # Check if the file is already withing repo tree
-            if hlp.is_internal(dr.url, os.path.abspath(self._repoBasePath)):
-                dr.url = os.path.relpath(dr.url, self._repoBasePath)
-            else:
-                if not hlp.is_none_or_empty(dr.dstRelPath) and dr.dstRelPath != ".":
-                    dr.url = dr.dstRelPath
-                    #TODO insert check to be sure that dr.dstRelPath inside a repository!!!
-                else:
-                    # When dstRelPath is empty or ".", then copy file to repo root dir
-                    dr.url = os.path.basename(dr.url)
-
-        data_ref.user_login = user_login
-
-        data_ref.size = os.path.getsize(data_ref.url)
-
-        data_ref.hash = hlp.computeFileHash(data_ref.url)
-        data_ref.date_hashed = datetime.datetime.today()
-
-        _prepare_data_ref_url(data_ref)
 
 
 class CheckItemIntegrityCommand(AbstractCommand):
