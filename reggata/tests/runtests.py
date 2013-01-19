@@ -2,6 +2,9 @@ import unittest
 import os
 from reggata.tests import test_memento, test_helpers, test_repo_mgr, test_worker_threads,\
     test_action_handlers, test_items_integrity
+from reggata import consts, logging_default_conf
+import codecs
+import logging
 
 class TestsDiscoverIsNotAvailableError(Exception):
     pass
@@ -48,6 +51,7 @@ def runTestsFromList():
     testRunner = TestRunner()
     testRunner.runAllTests()
 
+
 def discoverAndRunAllTests():
     loader = unittest.TestLoader()
     try:
@@ -57,12 +61,19 @@ def discoverAndRunAllTests():
         raise TestsDiscoverIsNotAvailableError()
     testRunner.run(tests)
 
+
+def configureLogging():
+    logging.config.fileConfig(consts.LOGGING_CONFIG_FILE)
+
+
 if __name__ == '__main__':
     print("Current dir is " + os.path.abspath("."))
 
     fileAbsPath = os.path.abspath(__file__)
     dirAbsPath = os.path.dirname(fileAbsPath)
     print("Directory of runtests.py is " + dirAbsPath)
+
+    configureLogging()
 
     try:
         print("Trying to discover and run all tests...")
