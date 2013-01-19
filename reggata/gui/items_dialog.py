@@ -49,7 +49,7 @@ class ItemsDialog(QtGui.QDialog):
         self.items = items
 
         #This is a relative (to repo root) path where all files in the group are located or will be moved to
-        self.dst_path = None
+        self.dstPath = None
 
         self.group_has_files = False
 
@@ -199,20 +199,20 @@ class ItemsDialog(QtGui.QDialog):
         self.ui.textEdit_fields.setText(fields_str)
 
 
-        same_path, self.dst_path = self.__checkIfAllTheItemsInTheSamePath(self.items)
+        same_path, self.dstPath = self.__checkIfAllTheItemsInTheSamePath(self.items)
         if same_path is None:
             self.group_has_files = False
-            assert self.dst_path is None, "When same_path is None, dst_path should be None also."
+            assert self.dstPath is None, "When same_path is None, dst_path should be None also."
             self.ui.locationDirRelPath.setText(self.tr('<no files>'))
             self.ui.locationDirRelPath.setEnabled(False)
             self.ui.buttonSelectLocationDirRelPath.setEnabled(False)
         elif same_path == 'yes':
             self.group_has_files = True
-            assert not is_none_or_empty(self.dst_path)
-            self.ui.locationDirRelPath.setText(self.dst_path)
+            assert not is_none_or_empty(self.dstPath)
+            self.ui.locationDirRelPath.setText(self.dstPath)
         else:
             self.group_has_files = True
-            assert self.dst_path is None, "Because items' files are located in different directories."
+            assert self.dstPath is None, "Because items' files are located in different directories."
             self.ui.locationDirRelPath.setText(self.tr('<different values>'))
 
     #TODO: would be much better to return (groupHasAtLeastOneFile, filesInTheSamePath, thePath)
@@ -249,8 +249,8 @@ class ItemsDialog(QtGui.QDialog):
 
 
     def write(self):
-        # self.dst_path must be a relative (to root of repo) path to a directory where to put the files.
-        # If self.dst_path is none or empty then items will be
+        # self.dstPath must be a relative (to root of repo) path to a directory where to put the files.
+        # If self.dstPath is none or empty then items will be
         #    a) in CREATE_MODE - put in the root of repo (in the case of recursive adding: tree hierarchy
         # of the source will be copyied);
         #    b) in EDIT_MODE - files of repository will not be moved anywhere.
@@ -261,12 +261,12 @@ class ItemsDialog(QtGui.QDialog):
 
 
     def __writeDataRefs(self):
-        if self.mode == ItemsDialog.EDIT_MODE and not is_none_or_empty(self.dst_path):
+        if self.mode == ItemsDialog.EDIT_MODE and not is_none_or_empty(self.dstPath):
             for item in self.items:
                 if (item.data_ref is None) or (item.data_ref.type != DataRef.FILE):
                     continue
                 item.data_ref.dstRelPath = os.path.join(
-                    self.dst_path,
+                    self.dstPath,
                     os.path.basename(item.data_ref.url))
 
         elif self.mode == ItemsDialog.CREATE_MODE:
@@ -277,16 +277,16 @@ class ItemsDialog(QtGui.QDialog):
                     continue
 
                 if self.same_dst_path:
-                    tmp = self.dst_path if not is_none_or_empty(self.dst_path) else ""
+                    tmp = self.dstPath if not is_none_or_empty(self.dstPath) else ""
                     item.data_ref.dstRelPath = os.path.join(
                         tmp,
                         os.path.basename(item.data_ref.srcAbsPath))
                 else:
-                    if self.dst_path:
+                    if self.dstPath:
                         relPathToFile = os.path.relpath(item.data_ref.srcAbsPath,
                                                         item.data_ref.srcAbsPathToRoot)
                         item.data_ref.dstRelPath = os.path.join(
-                            self.dst_path,
+                            self.dstPath,
                             relPathToFile)
                     else:
                         if is_internal(item.data_ref.srcAbsPath, self.repoBasePath):
@@ -371,8 +371,8 @@ class ItemsDialog(QtGui.QDialog):
             if not is_internal(selDir, self.repoBasePath):
                 raise MsgException(self.tr("Chosen directory is out of opened repository."))
 
-            self.dst_path = os.path.relpath(selDir, self.repoBasePath)
-            self.ui.locationDirRelPath.setText(self.dst_path)
+            self.dstPath = os.path.relpath(selDir, self.repoBasePath)
+            self.ui.locationDirRelPath.setText(self.dstPath)
 
         except Exception as ex:
             show_exc_info(self, ex)
