@@ -199,53 +199,48 @@ class ItemsDialog(QtGui.QDialog):
         self.ui.textEdit_fields.setText(fields_str)
 
 
-        same_path, self.dstPath = self.__checkIfAllTheItemsInTheSamePath(self.items)
-        if same_path is None:
-            self.group_has_files = False
-            assert self.dstPath is None, "When same_path is None, dst_path should be None also."
+        self.group_has_files, isSamePath, self.dstPath = self.__checkIfAllTheItemsInTheSamePath(self.items)
+        if not self.group_has_files:
+            assert isSamePath is None
+            assert self.dstPath is None
             self.ui.locationDirRelPath.setText(self.tr('<no files>'))
             self.ui.locationDirRelPath.setEnabled(False)
             self.ui.buttonSelectLocationDirRelPath.setEnabled(False)
-        elif same_path == 'yes':
-            self.group_has_files = True
+        elif isSamePath:
             assert not is_none_or_empty(self.dstPath)
             self.ui.locationDirRelPath.setText(self.dstPath)
         else:
-            self.group_has_files = True
             assert self.dstPath is None, "Because items' files are located in different directories."
             self.ui.locationDirRelPath.setText(self.tr('<different values>'))
 
-    #TODO: would be much better to return (groupHasAtLeastOneFile, filesInTheSamePath, thePath)
+
     def __checkIfAllTheItemsInTheSamePath(self, items):
-        ''' Returns a tuple (answer, thePath), where
-            answer - one of ['yes', 'no', None]. 'yes' means that some (maybe even all)
-        items are linked with files and all the files are located in the same path.
-        'no' - means that some (maybe even all) items are linked with files
-        but the files are located in different directories.
-        None - means that there are no items with files or len(items) is zero.
-            thePath - string with the filesystem path if the answer is 'yes' or
-        None in all other cases.
         '''
+            Returns a tuple (isAtLeastOneFilePresents, isSamePath, dstPath) for a group of items.
+        '''
+        isAtLeastOneFilePresents = False
         dstPath = None
-        samePath = None
+        isSamePath = None
         for item in items:
             if item.data_ref is None or item.data_ref.type != DataRef.FILE:
                 continue
 
+            isAtLeastOneFilePresents = True
+
             if dstPath is None:
                 dstPath, _ = os.path.split(item.data_ref.url)
-                samePath = 'yes'
+                isSamePath = True
             else:
                 path, _ = os.path.split(item.data_ref.url)
                 if dstPath != path:
-                    samePath = 'no'
+                    isSamePath = False
                     dstPath = None
                     break
 
-        if samePath == 'yes' and len(dstPath.strip()) == 0:
+        if isSamePath == True and len(dstPath.strip()) == 0:
             dstPath = "."
 
-        return (samePath, dstPath)
+        return (isAtLeastOneFilePresents, isSamePath, dstPath)
 
 
     def write(self):
