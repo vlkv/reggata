@@ -53,7 +53,8 @@ class ItemsDialog(QtGui.QDialog):
 
         self.group_has_files = False
 
-        #If this field is true, all items will be moved into one selected destination path
+        # If this field is true, all items will be moved into one selected destination path
+        # It affects the result only in CREATE_MODE...
         self.same_dst_path = same_dst_path
 
         self.completer = completer
