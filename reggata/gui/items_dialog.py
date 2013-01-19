@@ -51,7 +51,7 @@ class ItemsDialog(QtGui.QDialog):
         #This is a relative (to repo root) path where all files in the group are located or will be moved to
         self.dstPath = None
 
-        self.group_has_files = False
+        self.groupHasFiles = False
 
         # If this field is true, all items will be moved into one selected destination path
         # It affects the result only in CREATE_MODE...
@@ -135,12 +135,12 @@ class ItemsDialog(QtGui.QDialog):
 
         for item in self.items:
             if item.data_ref is not None and item.data_ref.type == DataRef.FILE:
-                self.group_has_files = True
+                self.groupHasFiles = True
                 break
             else:
-                self.group_has_files = False
+                self.groupHasFiles = False
 
-        assert self.group_has_files, "You cannot CREATE a group of Items without files."
+        assert self.groupHasFiles, "You cannot CREATE a group of Items without files."
 
 
     def __readInEditMode(self):
@@ -199,8 +199,8 @@ class ItemsDialog(QtGui.QDialog):
         self.ui.textEdit_fields.setText(fields_str)
 
 
-        self.group_has_files, isSamePath, self.dstPath = self.__checkIfAllTheItemsInTheSamePath(self.items)
-        if not self.group_has_files:
+        self.groupHasFiles, isSamePath, self.dstPath = self.__checkIfAllTheItemsInTheSamePath(self.items)
+        if not self.groupHasFiles:
             assert isSamePath is None
             assert self.dstPath is None
             self.ui.locationDirRelPath.setText(self.tr('<no files>'))
@@ -249,7 +249,7 @@ class ItemsDialog(QtGui.QDialog):
         #    a) in CREATE_MODE - put in the root of repo (in the case of recursive adding: tree hierarchy
         # of the source will be copyied);
         #    b) in EDIT_MODE - files of repository will not be moved anywhere.
-        if self.group_has_files:
+        if self.groupHasFiles:
             self.__writeDataRefs()
 
         self.__writeTagsAndFields()
@@ -354,7 +354,7 @@ class ItemsDialog(QtGui.QDialog):
 
     def selectLocationDirRelPath(self):
         try:
-            if self.mode == ItemsDialog.EDIT_MODE and not self.group_has_files:
+            if self.mode == ItemsDialog.EDIT_MODE and not self.groupHasFiles:
                 raise MsgException(self.tr(
                     "Selected group of items doesn't reference any physical files on filesysem."))
 
