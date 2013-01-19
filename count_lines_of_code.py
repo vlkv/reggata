@@ -1,15 +1,15 @@
 # Prints recursive count of lines of python source code from <current dir>/src
 
 import os
-startPath = os.path.join(os.getcwd(), "src")
-ignore_set = set(["__init__.py"])
+startPath = os.path.join(os.getcwd(), "reggata")
+ignore_set = set(["__init__.py", "resources_rc.py"])
 
 resultsList = []
 for pydir, _, pyfiles in os.walk(startPath):
     for pyfile in pyfiles:
         if not pyfile.endswith(".py"):
             continue
-        if pyfile in ignore_set:
+        if pyfile in ignore_set or pyfile.startswith("ui_"):
             continue
         absPath = os.path.join(pydir, pyfile)
         
