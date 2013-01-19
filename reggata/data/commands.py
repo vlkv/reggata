@@ -7,6 +7,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import ResourceClosedError
 import shutil
 import datetime
+import logging
 import os.path
 import reggata.errors as err
 import reggata.helpers as hlp
@@ -14,6 +15,8 @@ import reggata.consts as consts
 import reggata.data.db_schema as db
 from reggata.user_config import UserConfig
 from reggata.data import operations
+
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
 class AbstractCommand:
@@ -726,6 +729,7 @@ class UpdateExistingItemCommand(AbstractCommand):
         self.__updateExistingItem(self.__item, self.__newSrcAbsPath, self.__newDstRelPath, self.__userLogin)
 
     def __updateExistingItem(self, item, newSrcAbsPath, newDstRelPath, userLogin):
+        logger.info("__updateExistingItem with args={}".format((item, newSrcAbsPath, newDstRelPath, userLogin)))
         persistentItem = self._session.query(db.Item).get(item.id)
 
         # We do not need any info in item.data_ref.
