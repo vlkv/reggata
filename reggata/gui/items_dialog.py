@@ -256,13 +256,18 @@ class ItemsDialog(QtGui.QDialog):
 
 
     def __writeDataRefs(self):
-        if self.mode == ItemsDialog.EDIT_MODE and not is_none_or_empty(self.dstPath):
+        if self.mode == ItemsDialog.EDIT_MODE:
             for item in self.items:
                 if (item.data_ref is None) or (item.data_ref.type != DataRef.FILE):
                     continue
-                item.data_ref.dstRelPath = os.path.join(
-                    self.dstPath,
-                    os.path.basename(item.data_ref.url))
+
+                item.data_ref.srcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
+                if is_none_or_empty(self.dstPath):
+                    item.data_ref.dstRelPath = item.data_ref.url
+                else:
+                    item.data_ref.dstRelPath = os.path.join(self.dstPath,
+                                                            os.path.basename(item.data_ref.url))
+
 
         elif self.mode == ItemsDialog.CREATE_MODE:
             # In CREATE_MODE item.data_ref.url for all items will be None at this point
