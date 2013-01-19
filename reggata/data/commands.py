@@ -609,6 +609,7 @@ class DeleteItemCommand(AbstractCommand):
         self._session.commit()
 
 
+# TODO: Allow user to save new Item with a previously stored file (a file attached to some other Item).
 class SaveNewItemCommand(AbstractCommand):
     '''
         Command saves in database given item.
@@ -724,7 +725,7 @@ class UpdateExistingItemCommand(AbstractCommand):
         self._repoBasePath = uow._repo_base_path
         self.__updateExistingItem(self.__item, self.__newSrcAbsPath, self.__newDstRelPath, self.__userLogin)
 
-    def __updateExistingItem(self, item, newSrcAbsPath, newDstRelPath, user_login):
+    def __updateExistingItem(self, item, newSrcAbsPath, newDstRelPath, userLogin):
         persistentItem = self._session.query(db.Item).get(item.id)
 
         # We do not need any info in item.data_ref.
@@ -732,9 +733,9 @@ class UpdateExistingItemCommand(AbstractCommand):
         item.data_ref = None
 
         self.__updatePlainDataMembers(item, persistentItem)
-        self.__updateTags(item, persistentItem, user_login)
-        self.__updateFields(item, persistentItem, user_login)
-        self.__updateDataRefAndFilesystem(item, persistentItem, newSrcAbsPath, newDstRelPath)
+        self.__updateTags(item, persistentItem, userLogin)
+        self.__updateFields(item, persistentItem, userLogin)
+        self.__updateDataRefAndFilesystem(item, persistentItem, newSrcAbsPath, newDstRelPath, userLogin)
         self._session.commit()
 
         self._session.refresh(persistentItem)
@@ -742,15 +743,20 @@ class UpdateExistingItemCommand(AbstractCommand):
         return persistentItem
 
 
-    def __updateDataRefAndFilesystem(self, item, persistentItem, newSrcAbsPath, newDstRelPath):
+    def __updateDataRefAndFilesystem(self, item, persistentItem, newSrcAbsPath, newDstRelPath, userLogin):
         origSrcAbsPath = None if persistentItem.data_ref is None \
                               else os.path.join(self._repoBasePath, persistentItem.data_ref.url)
         assert origSrcAbsPath is None or len(origSrcAbsPath) > 0
-        assert os.path.isabs(origSrcAbsPath)
+        assert origSrcAbsPath is None or os.path.isabs(origSrcAbsPath)
 
         if origSrcAbsPath is None and newSrcAbsPath is None:
             # Item is not linked with a file neither before nor after update. Do nothing.
             assert newDstRelPath is None
+            return
+
+        if origSrcAbsPath is None and newSrcAbsPath is not None:
+            # Item was without a file, and now it is linked with a file
+            self.__addStoredOrUntrackedFile(persistentItem, newSrcAbsPath, newDstRelPath, userLogin)
             return
 
         if origSrcAbsPath is not None and newSrcAbsPath is None:
@@ -759,37 +765,44 @@ class UpdateExistingItemCommand(AbstractCommand):
             operations.ItemOperations.removeFile(self._session, persistentItem)
             return
 
-        if origSrcAbsPath is None and newSrcAbsPath is not None:
-            # Item was without a file, and now it is linked with a file
-            assert not hlp.is_none_or_empty(newDstRelPath)
-            isNewFileStored = None # TODO: find it out
-            if isNewFileStored:
-                operations.ItemOperations.addStoredFile(self._session,
-                                                        persistentItem,
-                                                        repoRootPath,
-                                                        srcRelPath, dstRelPath)
-            else:
-                operations.ItemOperations.addUntrackedFile(session, item,
-                                                           repoBasePath,
-                                                           srcAbsPath, dstRelPath,
-                                                           userLogin)
-            return
-
         if origSrcAbsPath is not None and origSrcAbsPath != newSrcAbsPath:
             # Item was with file1, now it is linked with a file2
-            # TODO ... first remove file from item, then do the same as on the prev "if"
-            pass
+            operations.ItemOperations.removeFile(self._session, persistentItem)
+            self.__addStoredOrUntrackedFile(persistentItem, newSrcAbsPath, newDstRelPath, userLogin)
+            return
 
         if origSrcAbsPath is not None and origSrcAbsPath == newSrcAbsPath:
-            # Item was with a file, and after update it should be with the same file, but...
-            origRepoRelPath = None # TODO: find it out
-            if newDstRelPath != origRepoRelPath:
+            # Item was with a file, and after update it should be with the same file, but
+            # it could be renamed or moved somewhere else within repository.
+            origFileRelPath = os.path.relpath(origSrcAbsPath, self._repoBasePath)
+            if newDstRelPath != origFileRelPath:
                 # Item was with a file, but this file is going to be renamed or moved
-                operations.ItemOperations.moveFile(session, item, repoRootPath, newDstRelPath)
-            else
+                operations.ItemOperations.moveFile(self._session, persistentItem,
+                                                   self._repoBasePath, newDstRelPath)
+            else:
                 # Nothing has changed, do nothing
                 pass
+            return
 
+    def __addStoredOrUntrackedFile(self, persistentItem, newSrcAbsPath, newDstRelPath, userLogin):
+        assert not hlp.is_none_or_empty(newDstRelPath)
+
+        # Check if a newSrcAbsPath points to an already stored file
+        newSrcRelPath = os.path.relpath(newSrcAbsPath, self._repoBasePath)
+        existingDataRef = self._session.query(db.DataRef).filter(
+            db.DataRef.url_raw==hlp.to_db_format(newSrcRelPath)).first()
+        isNewFileStored = existingDataRef is not None
+
+        if isNewFileStored:
+            # NOTE: newDstRelPath is ignored in this case...
+            operations.ItemOperations.addStoredFile(self._session, persistentItem,
+                                                    self._repoBasePath,
+                                                    existingDataRef)
+        else:
+            operations.ItemOperations.addUntrackedFile(self._session, persistentItem,
+                                                       self._repoBasePath,
+                                                       newSrcAbsPath, newDstRelPath,
+                                                       userLogin)
 
 
 

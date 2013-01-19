@@ -39,7 +39,7 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
             uow = self.repo.createUnitOfWork()
             dataRef = uow._session.query(DataRef) \
                     .filter(DataRef.url_raw==helpers.to_db_format(url)).first()
-            self.assertIsNotNone(dataRef)
+            # NOTE: dataRef could be None
         finally:
             uow.close()
         return dataRef

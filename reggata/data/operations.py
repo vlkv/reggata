@@ -115,8 +115,18 @@ class ItemOperations:
 
 
     @staticmethod
-    def addStoredFile(session, item, repoRootPath, srcRelPath, dstRelPath):
-        pass
+    def addStoredFile(session, item, repoBasePath, dataRef):
+        fileAbsPath = os.path.join(repoBasePath, dataRef.url)
+        if not os.path.exists(fileAbsPath):
+            raise ValueError("dataRef object points a file that doesn't exist.")
+
+        item.data_ref = dataRef
+        item.data_ref_id = dataRef.id
+        session.flush()
+
+
+
+
 
     @staticmethod
     def removeFile(session, item):
@@ -124,15 +134,51 @@ class ItemOperations:
             This operation unlinks file from given item. If this file is not referenced by
         other alive items, it is deleted from filesystem also.
         '''
-        pass
+        assert item.data_ref is not None, "The Item instance doen't have any DataRef objects"
+        dataRef = item.data_ref
+        item.data_ref = None
+        item.data_ref_id = None
+        session.flush()
+
+        anotherItem = session.query(db.Item).filter(db.Item.data_ref==dataRef).first()
+        if anotherItem is None:
+            session.delete(dataRef)
+            session.flush()
+
+        # TODO: I don't know if we should delete physical file also here...
+
+
+    @staticmethod
+    def moveFile(session, item, repoBasePath, newDstRelPath):
+        assert item.data_ref is not None
+
+        srcAbsPath = os.path.join(repoBasePath, item.data_ref.url)
+        if not os.path.exists(srcAbsPath):
+            raise ValueError("File '{}' is not found on the filesystem.".format(srcAbsPath))
+
+        newDstAbsPath = os.path.join(repoBasePath, newDstRelPath)
+        if os.path.exists(newDstAbsPath):
+            raise ValueError("Cannot move file '{}' to '{}' because destination file already exists."
+                             .format(srcAbsPath, newDstAbsPath))
+
+        item.data_ref.url = newDstRelPath
+
+        dstAbsPathDir = os.path.dirname(newDstAbsPath)
+        if not os.path.exists(dstAbsPathDir):
+            os.makedirs(dstAbsPathDir)
+
+        shutil.move(srcAbsPath, dstAbsPathDir)
+        oldName = os.path.join(dstAbsPathDir, os.path.basename(srcAbsPath))
+        os.rename(oldName, newDstAbsPath)
+
+        session.flush()
+
 
     @staticmethod
     def renameFile(session, item, newFileName):
+        # TODO: call moveFile...
         pass
 
-    @staticmethod
-    def moveFile(session, item, repoRootPath, newDstRelPath):
-        pass
 
     @staticmethod
     def addThumbnail(session, item):

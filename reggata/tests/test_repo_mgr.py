@@ -253,7 +253,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
                             "You should change item's title to some different value.")
         item.title = newItemTitle
 
-        newSrcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
+        newSrcAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
         newDstRelPath = item.data_ref.url
         self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
@@ -281,7 +281,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertFalse(item.hasTag(tagNameToAdd))
         item.addTag(tagNameToAdd, userLogin)
 
-        newSrcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
+        newSrcAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
         newDstRelPath = item.data_ref.url
         self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
@@ -316,7 +316,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertFalse(item.hasField(fieldToEdit[0], fieldToEdit[1]))
         item.setFieldValue(fieldToEdit[0], fieldToEdit[1], userLogin)
 
-        newSrcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
+        newSrcAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
         newDstRelPath = item.data_ref.url
         self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
 
@@ -330,29 +330,25 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
 
     def test_addFileToItemWithoutFile(self):
-        #TODO: Add HistoryRec checking
-
         # Referenced file for new DataRef will be from the outside of the repo
         item = self.getExistingItem(context.itemWithoutFile.id)
         self.assertEqual(item.title, context.itemWithoutFile.title)
         self.assertIsNone(item.data_ref)
         self.assertFalse(os.path.exists(os.path.join(self.repo.base_path, "file.txt")))
 
-        # Link file with the item
-        newDstRelPath = os.path.join("..", "tmp", "file.txt")
-        newSrcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, newDstRelPath))
-        self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
+        # Link file with the item, file should be in the repo root
+        srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
+        dstRelPath = "file.txt"
+        self.updateExistingItem(item, srcAbsPath, dstRelPath, item.user_login)
 
         item = self.getExistingItem(context.itemWithoutFile.id)
         self.assertEqual(item.title, context.itemWithoutFile.title)
         self.assertIsNotNone(item.data_ref)
-        self.assertEqual(item.data_ref.url, "file.txt")
+        self.assertEqual(item.data_ref.url, dstRelPath)
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, "file.txt")))
 
 
     def test_addFileToItemWithoutFileWithDestinationInsideRepo(self):
-        #TODO: Add HistoryRec checking
-
         # Referenced file for new DataRef will be from the outside of the repo
         # We will specify the destination path in the repo - where to put the file
 
@@ -381,7 +377,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, item.data_ref.url)))
 
         # Move linked file to another location within the repository
-        newSrcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
+        newSrcAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
         path = ["new", "location", "for", "file", "I Could Have Lied.txt"]
         newDstRelPath = os.path.join(*path)
         self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
@@ -401,7 +397,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
         # Move linked file to another location within the repository
         # NOTE: File will be not only moved, but also renamed
-        newSrcAbsPath = os.path.join(self.repoBasePath, item.data_ref.url)
+        newSrcAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
         path = ["new", "location", "for", "file", "could_have_lied_lyrics.txt"]
         newDstRelPath = os.path.join(*path)
         self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
@@ -427,9 +423,11 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
         # Physical file should not be deleted
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, context.itemWithTagsAndFields.relFilePath)))
-        #DataRef should not be deleted after this operation
+
+        #DataRef be deleted, because there is no other Items reference to it
+        # TODO: implement a test with a case when DataRef is referenced by another alive Item
         dataRef = self.getDataRef(context.itemWithTagsAndFields.relFilePath)
-        self.assertIsNotNone(dataRef)
+        self.assertIsNone(dataRef)
 
 
     def test_replaceFileOfItemWithAnotherOuterFile(self):
@@ -438,21 +436,22 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         self.assertIsNotNone(item)
 
         # Link file with the item
-        newDstRelPath = "..", "tmp", "file.txt"
-        newSrcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, newDstRelPath))
-        self.updateExistingItem(item, newSrcAbsPath, newDstRelPath, item.user_login)
+        dstRelPath = "file.txt"
+        srcAbsPath = os.path.abspath(os.path.join(self.repo.base_path, "..", "tmp", "file.txt"))
+        self.updateExistingItem(item, srcAbsPath, dstRelPath, item.user_login)
 
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertEqual(item.title, context.itemWithTagsAndFields.title)
         self.assertIsNotNone(item.data_ref)
-        self.assertEqual(item.data_ref.url, "file.txt")
+        self.assertEqual(item.data_ref.url, dstRelPath)
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, "file.txt")))
 
         # Old physical file should not be deleted
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, context.itemWithTagsAndFields.relFilePath)))
-        #Old DataRef should not be deleted after this operation
+
+        #Old DataRef should be deleted after this operation
         dataRef = self.getDataRef(context.itemWithTagsAndFields.relFilePath)
-        self.assertIsNotNone(dataRef)
+        self.assertIsNone(dataRef)
 
     def test_replaceFileOfItemWithAnotherInnerFile(self):
         # File of new DataRef will be from the same repo.
@@ -477,9 +476,10 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
         # Old physical file should not be deleted
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, context.itemWithTagsAndFields.relFilePath)))
-        #Old DataRef should not be deleted after this operation
+
+        #Old DataRef should be deleted after this operation
         dataRef = self.getDataRef(context.itemWithTagsAndFields.relFilePath)
-        self.assertIsNotNone(dataRef)
+        self.assertIsNone(dataRef)
 
     def test_replaceFileOfItemWithAnotherInnerStoredFile(self):
         # File of new DataRef will be from the same repo, and it will be
@@ -510,9 +510,10 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
         # Old physical file should not be deleted
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, context.itemWithTagsAndFields.relFilePath)))
+
         #Old DataRef should not be deleted after this operation
         dataRef = self.getDataRef(context.itemWithTagsAndFields.relFilePath)
-        self.assertIsNotNone(dataRef)
+        self.assertIsNone(dataRef)
 
 
 
