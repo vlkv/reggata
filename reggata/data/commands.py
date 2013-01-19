@@ -696,21 +696,24 @@ class SaveNewItemCommand(AbstractCommand):
 
 
 
+# TODO: We should deny any user to change tags/fields/files of items, owned by another user.
 class UpdateExistingItemCommand(AbstractCommand):
-    '''
-        item - is a detached object, representing a new state for stored item with id == item.id.
-        user_login - is a login of user, who is doing the modifications of the item.
-        Returns detached updated item or raises an exception, if something goes wrong.
 
-        If item.data_ref.url is changed --- that means that user wants this item
-    to reference to another file.
-        If item.data_ref.dstRelPath is not None --- that means that user wants
-    to move (and maybe rename) original referenced file within the repository.
-
-    TODO: Maybe we should use item.data_ref.srcAbsPathForFileOperation instead of item.data_ref.url... ?
-    TODO: We should deny any user to change tags/fields/files of items, owned by another user.
-    '''
     def __init__(self, item, newSrcAbsPath, newDstRelPath, userLogin):
+        '''
+        Modifies Item and returns detached updated item or raises an exception, if something goes wrong.
+        item --- is a detached object, representing a new state for stored item with id == item.id.
+    item.data_ref object doesn't have any impact on item modifications. All DataRef modifications
+    should be done with newSrcAbsPath, newDstRelPath arguments.
+        newSrcAbsPath --- is a path to a file Item would reference to after this update operation.
+    It may be None - so Item would loose the file.
+    NOTE: If the Item is going to reference the same file after update, then
+    newSrcAbsPath must be equal to origSrcAbsPath (origSrcAbsPath is a path to Item's file before
+    any updates on the Item, maybe it is None).
+        newDstRelPath --- lets the system know where should it move the file,
+    or how the file should be renamed.
+        userLogin --- is a login of user, who is doing the modifications of the item.
+    '''
         self.__item = item
         self.__userLogin = userLogin
         self.__newSrcAbsPath = newSrcAbsPath
@@ -724,42 +727,36 @@ class UpdateExistingItemCommand(AbstractCommand):
     def __updateExistingItem(self, item, newSrcAbsPath, newDstRelPath, user_login):
         persistentItem = self._session.query(db.Item).get(item.id)
 
-        # origSrcAbsPath is a path to Item's file before any updates on the Item,
-        #    maybe it is None (if the Item is not linked with a file).
-        # newSrcAbsPath, is a path to a file Item would reference to after this update operation.
-        #    It may be None - so Item would loose the file.
-        #    If the Item is going to reference the same file after update, then
-        #    newSrcAbsPath must be equal to origSrcAbsPath.
-        # newDstRelPath let the system know where should it move the file,
-        #    or how the file should be renamed. This argument should not be None, or empty.
+        # We do not need any info in item.data_ref.
+        # All file info will be get from persistentItem.data_ref
+        item.data_ref = None
 
         self.__updatePlainDataMembers(item, persistentItem)
         self.__updateTags(item, persistentItem, user_login)
         self.__updateFields(item, persistentItem, user_login)
-
-        if newSrcAbsPath is None and persistentItem.hasDataRef():
-            operations.ItemOperations.removeFile(self._session, persistentItem)
-        else
-
-
-#        fileOperation = self.__updateDataRefObject(item, persistentItem, user_login)
-#        self._session.refresh(persistentItem)
-#        self.__updateFilesystem(persistentItem, fileOperation, srcAbsPathForFileOperation)
-
+        self.__updateDataRefAndFilesystem(item, persistentItem, newSrcAbsPath, newDstRelPath)
         self._session.commit()
 
         self._session.refresh(persistentItem)
         self._session.expunge(persistentItem)
         return persistentItem
 
-    # TODO: implement this algorithm
+
     def __updateDataRefAndFilesystem(self, item, persistentItem, newSrcAbsPath, newDstRelPath):
-        origSrcAbsPath = None
-        if persistentItem.data_ref is not None:
-            origSrcAbsPath = os.path.join(self._repoBasePath, persistentItem.data_ref.url)
+        origSrcAbsPath = None if persistentItem.data_ref is None \
+                              else os.path.join(self._repoBasePath, persistentItem.data_ref.url)
+        assert origSrcAbsPath is None or len(origSrcAbsPath) > 0
+        assert os.path.isabs(origSrcAbsPath)
 
         if origSrcAbsPath is None and newSrcAbsPath is None:
-            # Item is not linked with a file neither before nor after update
+            # Item is not linked with a file neither before nor after update. Do nothing.
+            assert newDstRelPath is None
+            return
+
+        if origSrcAbsPath is not None and newSrcAbsPath is None:
+            # Item was linked with a file, now it is leaved without a file
+            assert newDstRelPath is None
+            operations.ItemOperations.removeFile(self._session, persistentItem)
             return
 
         if origSrcAbsPath is None and newSrcAbsPath is not None:
