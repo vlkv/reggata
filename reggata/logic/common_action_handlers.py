@@ -239,7 +239,7 @@ class EditItemActionHandler(AbstractActionHandler):
                 items.append(uow.executeCommand(cmds.GetExpungedItemCommand(itemId)))
 
             if not self._dialogs.execItemsDialog(
-                items, self._tool.gui, self._tool.repo, ItemsDialog.EDIT_MODE, sameDstPath=True):
+                items, self._tool.gui, self._tool.repo, ItemsDialog.EDIT_MODE, sameDstPath=False):
                 return
 
             thread = UpdateGroupOfItemsThread(self._tool.gui, self._tool.repo, items)
