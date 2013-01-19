@@ -71,13 +71,14 @@ class ItemOperations:
 
         srcAbsPath = os.path.normpath(srcAbsPath)
         if not os.path.isabs(srcAbsPath):
-            raise ValueError("srcAbsPath must be an absolute path.")
+            raise ValueError("srcAbsPath='{}' must be an absolute path.".format(srcAbsPath))
 
         if not os.path.exists(srcAbsPath):
-            raise ValueError("srcAbsPath must point to an existing file.")
+            raise ValueError("srcAbsPath='{}' must point to an existing file.".format(srcAbsPath))
 
         if os.path.isabs(dstRelPath):
-            raise ValueError("dstRelPath must be a relative to repository root path.")
+            raise ValueError("dstRelPath='{}' must be a relative to repository root path, but it is absolute."
+                             .format(dstRelPath))
 
         dstRelPath = hlp.removeTrailingOsSeps(dstRelPath)
         dstRelPath = os.path.normpath(dstRelPath)

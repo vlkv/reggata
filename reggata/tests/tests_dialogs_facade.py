@@ -20,7 +20,7 @@ class TestsDialogsFacade(AbstractDialogsFacade):
 
     def execItemDialog(self, item, gui, repo, dialogMode):
         if item.data_ref is not None:
-            item.data_ref.srcAbsPath = item.data_ref.url
+            item.data_ref.srcAbsPath = os.path.join(repo.base_path, item.data_ref.url)
             item.data_ref.dstRelPath = os.path.basename(item.data_ref.url)
         return True
 
@@ -29,12 +29,13 @@ class TestsDialogsFacade(AbstractDialogsFacade):
             if item.data_ref is None:
                 continue
 
-            item.data_ref.srcAbsPath = item.data_ref.url
+            srcAbsPath = os.path.join(repo.base_path, item.data_ref.url)
+            item.data_ref.srcAbsPath = srcAbsPath
 
             if item.data_ref.srcAbsPathToRoot is None:
-                item.data_ref.dstRelPath = os.path.basename(item.data_ref.url)
+                item.data_ref.dstRelPath = os.path.basename(srcAbsPath)
             else:
-                item.data_ref.dstRelPath = os.path.relpath(item.data_ref.url, item.data_ref.srcAbsPathToRoot)
+                item.data_ref.dstRelPath = os.path.relpath(srcAbsPath, item.data_ref.srcAbsPathToRoot)
         return True
 
 

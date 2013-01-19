@@ -181,11 +181,16 @@ class AddItemsActionHandlerTest(AbstractTestCaseWithRepo):
 
 
 class RemoveAllTagsFromItemDialogsFacade(TestsDialogsFacade):
+    def __init__(self):
+        super(RemoveAllTagsFromItemDialogsFacade, self).__init__()
+
     def execItemDialog(self, item, gui, repo, dialogMode):
+        super(RemoveAllTagsFromItemDialogsFacade, self).execItemDialog(item, gui, repo, dialogMode)
         del item.item_tags[:]
         return True
 
     def execItemsDialog(self, items, gui, repo, dialogMode, sameDstPath):
+        super(RemoveAllTagsFromItemDialogsFacade, self).execItemsDialog(items, gui, repo, dialogMode, sameDstPath)
         for item in items:
             del item.item_tags[:]
         return True
