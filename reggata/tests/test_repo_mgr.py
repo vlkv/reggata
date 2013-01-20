@@ -424,10 +424,36 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
         # Physical file should not be deleted
         self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, context.itemWithTagsAndFields.relFilePath)))
 
-        #DataRef be deleted, because there is no other Items reference to it
-        # TODO: implement a test with a case when DataRef is referenced by another alive Item
+        #DataRef is deleted, because there is no other Items reference to it
         dataRef = self.getDataRef(context.itemWithTagsAndFields.relFilePath)
         self.assertIsNone(dataRef)
+
+    def test_removeSharedFileFromItem(self):
+        item = self.getExistingItem(context.itemNo1WithSharedFile.id)
+        self.assertEqual(item.title, context.itemNo1WithSharedFile.title)
+        self.assertIsNotNone(item.data_ref)
+        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, item.data_ref.url)))
+
+        item2 = self.getExistingItem(context.itemNo2WithSharedFile.id)
+        self.assertEqual(item2.title, context.itemNo2WithSharedFile.title)
+        self.assertIsNotNone(item2.data_ref)
+        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path, item2.data_ref.url)))
+
+        self.assertEqual(item.data_ref.url, item2.data_ref.url, "File is shared by two items")
+
+        self.updateExistingItem(item, None, None, item.user_login)
+
+        item = self.getExistingItem(context.itemNo1WithSharedFile.id)
+        self.assertEqual(item.title, context.itemNo1WithSharedFile.title)
+        self.assertIsNone(item.data_ref)
+
+        # Physical file should not be deleted
+        self.assertTrue(os.path.exists(os.path.join(self.repo.base_path,
+                                                    context.itemNo1WithSharedFile.relFilePath)))
+
+        #DataRef is not deleted, because there is another Item, that reference to it
+        dataRef = self.getDataRef(context.itemNo1WithSharedFile.relFilePath)
+        self.assertIsNotNone(dataRef)
 
 
     def test_replaceFileOfItemWithAnotherOuterFile(self):

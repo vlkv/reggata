@@ -95,3 +95,15 @@ itemWithErrorHashMismatchNo2.ownerUserLogin = "user"
 itemWithErrorHashMismatchNo2.relFilePath = "led_zeppelin/stairway_to_heaven.txt"
 itemWithErrorHashMismatchNo2.tags = ["Lyrics", "Led_Zeppelin", "Error"]
 itemWithErrorHashMismatchNo2.fields = {"Notes": "This item references to a file, which hash is the same as in Item with id=4"}
+
+itemNo1WithSharedFile = ItemReliableFacts()
+itemNo1WithSharedFile.id = 12
+itemNo1WithSharedFile.title = "Item No.1 that reference to git_version.txt"
+itemNo1WithSharedFile.relFilePath = "history/git_version.txt"
+
+itemNo2WithSharedFile = ItemReliableFacts()
+itemNo2WithSharedFile.id = 13
+itemNo2WithSharedFile.title = "Item No.2 that reference to git_version.txt"
+itemNo2WithSharedFile.relFilePath = "history/git_version.txt"
+
+
