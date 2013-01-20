@@ -217,7 +217,8 @@ class ItemDialog(QtGui.QDialog):
 
     def buttonAddDataRef(self):
 
-        file = QtGui.QFileDialog.getOpenFileName(self, self.tr("Select a file to link with the Item."))
+        file = QtGui.QFileDialog.getOpenFileName(self,
+                                                 self.tr("Select a file to link with the Item."))
         if is_none_or_empty(file):
             return
 
@@ -232,35 +233,43 @@ class ItemDialog(QtGui.QDialog):
         assert(os.path.isabs(data_ref.url))
         self.ui.fileAbsPath.setText(data_ref.url)
 
+        dstRelPath = None
+        if is_internal(data_ref.url, self.repoBasePath):
+            dstRelPath = os.path.relpath(data_ref.url, self.repoBasePath)
+        else:
+            dstRelPath = os.path.basename(data_ref.url)
+        dstRelPath = os.path.join(".", dstRelPath)
+
+        self.ui.fileLocationDirRelPath.setText(dstRelPath)
+
 
     def buttonRemoveDataRef(self):
         self.item.data_ref = None
         self.item.data_ref_id = None
-        self.ui.fileAbsPath.setText(None)
-        self.ui.fileLocationDirRelPath.setText(None)
+        self.ui.fileAbsPath.setText("")
+        self.ui.fileLocationDirRelPath.setText("")
 
 
     def buttonMoveFile(self):
         try:
             if self.item.data_ref is None:
-                raise Exception(self.tr("You must add a Data Reference first."))
+                raise Exception(self.tr("You must add a file first."))
 
             directory = QtGui.QFileDialog.getExistingDirectory(
-                self,
-                self.tr("Select destination path within repository"),
+                self, self.tr("Select destination path within repository"),
                 self.repoBasePath)
-
             if is_none_or_empty(directory):
                 return
 
             if not is_internal(directory, self.repoBasePath):
                 raise MsgException(self.tr("Chosen directory is out of active repository."))
-            else:
-                new_dst_path = os.path.relpath(directory, self.repoBasePath)
-                if new_dst_path != ".":
-                    new_dst_path = "." + os.path.sep + new_dst_path
 
-                self.ui.fileLocationDirRelPath.setText(new_dst_path)
+            new_dst_path = os.path.relpath(directory, self.repoBasePath)
+            if not new_dst_path.startswith("."):
+                new_dst_path = os.path.join(".", new_dst_path)
+
+            newDstRelPath = os.path.join(new_dst_path, os.path.basename(self.item.data_ref.url))
+            self.ui.fileLocationDirRelPath.setText(newDstRelPath)
 
         except Exception as ex:
             show_exc_info(self, ex)
