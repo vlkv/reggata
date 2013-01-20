@@ -8,12 +8,14 @@ import PyQt4.QtGui as QtGui
 import PyQt4.QtCore as QtCore
 from reggata.ui.ui_itemdialog import Ui_ItemDialog
 import reggata.consts as consts
+import reggata.helpers as helpers
 from reggata.data.db_schema import Item, DataRef, Tag, Item_Tag, Field, Item_Field
 from reggata.helpers import show_exc_info, is_none_or_empty, is_internal
 from reggata.parsers import definition_parser, definition_tokens
 from reggata.parsers.util import quote
 from reggata.errors import MsgException
 from reggata.gui.common_widgets import TextEdit
+
 
 
 class ItemDialog(QtGui.QDialog):
@@ -29,6 +31,7 @@ class ItemDialog(QtGui.QDialog):
         super(ItemDialog, self).__init__(parent)
         self.ui = Ui_ItemDialog()
         self.ui.setupUi(self)
+        self.ui.srcAbsPathErrorLabel.setText("")
 
         self.repoBasePath = repoBasePath
 
@@ -58,30 +61,34 @@ class ItemDialog(QtGui.QDialog):
 
     def read(self):
         '''
-        Function updates all dialog GUI elements according to self.item object data.
+            Function updates all dialog GUI elements according to self.item object data.
         '''
         self.ui.lineEdit_id.setText(str(self.item.id))
         self.ui.lineEdit_user_login.setText(self.item.user_login)
         self.ui.lineEdit_title.setText(self.item.title)
 
 
+        # TODO: data_ref.url should be always a relative path. data_ref.srcAbsPath should be used...
         if self.item.data_ref:
             #Make an absolute path to the DataRef file
             fileAbsPath = self.item.data_ref.url
             if not os.path.isabs(fileAbsPath):
                 fileAbsPath = os.path.join(self.repoBasePath, fileAbsPath)
-            if not os.path.exists(fileAbsPath):
-                self.ui.fileAbsPath.setText("FILE NOT FOUND: " + fileAbsPath)
-            else:
-                self.ui.fileAbsPath.setText(fileAbsPath)
 
-            locationDirRelPath = ""
+            self.ui.fileAbsPath.setText(fileAbsPath)
+
+            if not os.path.exists(fileAbsPath):
+                self.ui.srcAbsPathErrorLabel.setText('<html><font color="red">' +
+                                                     self.tr("Error: File not found"))
+
+            locationDirRelPath = None
             if self.mode == ItemDialog.EDIT_MODE or self.mode == ItemDialog.VIEW_MODE:
-                #Make a relative path to the directory where DataRef file is located
-                locationDirRelPath = os.path.dirname(self.item.data_ref.url)
-                locationDirRelPath = "." \
-                    if locationDirRelPath.strip() == "" \
-                    else "." + os.path.sep + locationDirRelPath
+                locationDirRelPath = os.path.join(".", self.item.data_ref.url)
+            elif self.mode == ItemDialog.CREATE_MODE:
+                # TODO: use data_ref.srcAbsPath
+                locationDirRelPath = os.path.basename(self.item.data_ref.url)
+                locationDirRelPath = os.path.join(".", locationDirRelPath)
+
             self.ui.fileLocationDirRelPath.setText(locationDirRelPath)
 
 
@@ -120,8 +127,9 @@ class ItemDialog(QtGui.QDialog):
 
 
     def write(self):
-        '''Writes all data from dialog GUI elements to the self.item object.'''
-
+        '''
+            Writes all data from dialog GUI elements to the self.item object.
+        '''
         self.item.title = self.ui.lineEdit_title.text()
 
         #Processing Tags
@@ -171,23 +179,19 @@ class ItemDialog(QtGui.QDialog):
         assert(self.item.data_ref is not None)
 
         srcAbsPath = self.ui.fileAbsPath.text()
+        dstRelPath = self.ui.fileLocationDirRelPath.text()
 
-        isFileInsideRepo = is_internal(srcAbsPath, self.repoBasePath)
+        srcAbsPath = os.path.normpath(srcAbsPath)
+        dstRelPath = os.path.normpath(dstRelPath)
 
-        dirRelPath = self.ui.fileLocationDirRelPath.text()
-        if not is_none_or_empty(dirRelPath):
-            #File will be copied to user selected location
-            filename = os.path.basename(srcAbsPath)
-            dstRelPath = os.path.join(dirRelPath, filename)
-        elif isFileInsideRepo:
-            #File will stay where it is
-            dstRelPath = os.path.relpath(srcAbsPath, self.repoBasePath)
-        else:
-            #File will be copied to the repository root
-            dstRelPath = os.path.basename(srcAbsPath)
+        if helpers.is_none_or_empty(srcAbsPath):
+            raise MsgException(self.tr("srcAbsPath should not be empty."))
 
-        self.item.data_ref.srcAbsPath = os.path.normpath(srcAbsPath)
-        self.item.data_ref.dstRelPath = os.path.normpath(dstRelPath)
+        if helpers.is_none_or_empty(dstRelPath):
+            raise MsgException(self.tr("dstRelPath should not be empty."))
+
+        self.item.data_ref.srcAbsPath = srcAbsPath
+        self.item.data_ref.dstRelPath = dstRelPath
 
 
     def button_ok(self):

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'itemdialog.ui'
+# Form implementation generated from reading ui file '.\itemdialog.ui'
 #
-# Created: Thu Sep 13 21:42:01 2012
-#      by: PyQt4 UI code generator 4.9.4
+# Created: Sun Jan 20 19:45:53 2013
+#      by: PyQt4 UI code generator 4.9
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -99,9 +99,17 @@ class Ui_ItemDialog(object):
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         self.verticalLayout = QtGui.QVBoxLayout(self.groupBox)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.horizontalLayout_2 = QtGui.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         self.label_4 = QtGui.QLabel(self.groupBox)
         self.label_4.setObjectName(_fromUtf8("label_4"))
-        self.verticalLayout.addWidget(self.label_4)
+        self.horizontalLayout_2.addWidget(self.label_4)
+        spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem2)
+        self.srcAbsPathErrorLabel = QtGui.QLabel(self.groupBox)
+        self.srcAbsPathErrorLabel.setObjectName(_fromUtf8("srcAbsPathErrorLabel"))
+        self.horizontalLayout_2.addWidget(self.srcAbsPathErrorLabel)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.fileAbsPath = QtGui.QLineEdit(self.groupBox)
         self.fileAbsPath.setReadOnly(True)
         self.fileAbsPath.setObjectName(_fromUtf8("fileAbsPath"))
@@ -124,8 +132,8 @@ class Ui_ItemDialog(object):
         self.pushButtonMoveFile = QtGui.QPushButton(self.groupBox)
         self.pushButtonMoveFile.setObjectName(_fromUtf8("pushButtonMoveFile"))
         self.horizontalLayout.addWidget(self.pushButtonMoveFile)
-        spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem2)
+        spacerItem3 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem3)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.verticalLayout_2.addWidget(self.groupBox)
         self.buttonBox = QtGui.QDialogButtonBox(ItemDialog)
@@ -150,6 +158,8 @@ class Ui_ItemDialog(object):
         self.label_6.setText(QtGui.QApplication.translate("ItemDialog", "Tags:", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox.setTitle(QtGui.QApplication.translate("ItemDialog", "Data Reference", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("ItemDialog", "Absolute path to referenced File:", None, QtGui.QApplication.UnicodeUTF8))
+        self.srcAbsPathErrorLabel.setText(QtGui.QApplication.translate("ItemDialog", "<html><font color=\"red\">srcAbsPathErrorLabel</font></html>\n"
+"", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("ItemDialog", "Location of referenced File in the Repository:", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonAddDataRef.setToolTip(QtGui.QApplication.translate("ItemDialog", "Add Data Reference to this Item", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonAddDataRef.setText(QtGui.QApplication.translate("ItemDialog", "Add", None, QtGui.QApplication.UnicodeUTF8))
@@ -157,3 +167,4 @@ class Ui_ItemDialog(object):
         self.pushButtonRemoveDataRef.setText(QtGui.QApplication.translate("ItemDialog", "Remove", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonMoveFile.setToolTip(QtGui.QApplication.translate("ItemDialog", "Move referenced File to another location in the same repository.", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButtonMoveFile.setText(QtGui.QApplication.translate("ItemDialog", "Move File", None, QtGui.QApplication.UnicodeUTF8))
+
