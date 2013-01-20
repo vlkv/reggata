@@ -1,0 +1,5 @@
+commit 81e37c6bb81460099252eb4cc7ca31053f865930
+Author: Vitaly Volkov <vitvlkv@gmail.com>
+Date:   Sat Jan 12 14:04:57 2013 +0000
+
+    Updated version number for beta release
