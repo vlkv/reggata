@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\itemdialog.ui'
 #
-# Created: Sun Jan 20 19:45:53 2013
+# Created: Sun Jan 20 20:14:58 2013
 #      by: PyQt4 UI code generator 4.9
 #
 # WARNING! All changes made in this file will be lost!
@@ -117,10 +117,10 @@ class Ui_ItemDialog(object):
         self.label_8 = QtGui.QLabel(self.groupBox)
         self.label_8.setObjectName(_fromUtf8("label_8"))
         self.verticalLayout.addWidget(self.label_8)
-        self.fileLocationDirRelPath = QtGui.QLineEdit(self.groupBox)
-        self.fileLocationDirRelPath.setReadOnly(True)
-        self.fileLocationDirRelPath.setObjectName(_fromUtf8("fileLocationDirRelPath"))
-        self.verticalLayout.addWidget(self.fileLocationDirRelPath)
+        self.fileRelPath = QtGui.QLineEdit(self.groupBox)
+        self.fileRelPath.setReadOnly(True)
+        self.fileRelPath.setObjectName(_fromUtf8("fileRelPath"))
+        self.verticalLayout.addWidget(self.fileRelPath)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.pushButtonAddDataRef = QtGui.QPushButton(self.groupBox)

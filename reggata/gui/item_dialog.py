@@ -89,7 +89,7 @@ class ItemDialog(QtGui.QDialog):
                 locationDirRelPath = os.path.basename(self.item.data_ref.url)
                 locationDirRelPath = os.path.join(".", locationDirRelPath)
 
-            self.ui.fileLocationDirRelPath.setText(locationDirRelPath)
+            self.ui.fileRelPath.setText(locationDirRelPath)
 
 
         #Displaying item's list of field-values
@@ -179,7 +179,7 @@ class ItemDialog(QtGui.QDialog):
         assert(self.item.data_ref is not None)
 
         srcAbsPath = self.ui.fileAbsPath.text()
-        dstRelPath = self.ui.fileLocationDirRelPath.text()
+        dstRelPath = self.ui.fileRelPath.text()
 
         srcAbsPath = os.path.normpath(srcAbsPath)
         dstRelPath = os.path.normpath(dstRelPath)
@@ -240,14 +240,14 @@ class ItemDialog(QtGui.QDialog):
             dstRelPath = os.path.basename(data_ref.url)
         dstRelPath = os.path.join(".", dstRelPath)
 
-        self.ui.fileLocationDirRelPath.setText(dstRelPath)
+        self.ui.fileRelPath.setText(dstRelPath)
 
 
     def buttonRemoveDataRef(self):
         self.item.data_ref = None
         self.item.data_ref_id = None
         self.ui.fileAbsPath.setText("")
-        self.ui.fileLocationDirRelPath.setText("")
+        self.ui.fileRelPath.setText("")
 
 
     def buttonMoveFile(self):
@@ -269,7 +269,7 @@ class ItemDialog(QtGui.QDialog):
                 new_dst_path = os.path.join(".", new_dst_path)
 
             newDstRelPath = os.path.join(new_dst_path, os.path.basename(self.item.data_ref.url))
-            self.ui.fileLocationDirRelPath.setText(newDstRelPath)
+            self.ui.fileRelPath.setText(newDstRelPath)
 
         except Exception as ex:
             show_exc_info(self, ex)
