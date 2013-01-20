@@ -1,4 +1,3 @@
-
 reggataDefaultConf = \
 '''
 # This is a Reggata confguration file ~/.config/reggata/reggata.conf
@@ -59,9 +58,4 @@ thumbnail_size = 100
 # Uncomment only if you want different location of tmp directory
 #tmp_dir = "C:\tmp"
 
-#Field with this name will be used by Reggata to store item's rating.
-reserved_fields.rating = Rating
-
-#Field with this name will be used by Reggata to store item's notes and comments.
-reserved_fields.notes = Notes
 '''
