@@ -742,10 +742,6 @@ class UpdateExistingItemCommand(AbstractCommand):
 
         persistentItem = self._session.query(db.Item).get(item.id)
 
-        # We do not need any info in item.data_ref.
-        # All file info will be get from persistentItem.data_ref
-        item.data_ref = None
-
         self.__updatePlainDataMembers(item, persistentItem)
         self.__updateTags(item, persistentItem, userLogin)
         self.__updateFields(item, persistentItem, userLogin)
