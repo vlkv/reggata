@@ -93,7 +93,7 @@ class FileBrowserGui(ToolGui):
             logger.info("Actions already built")
             return
 
-        self.actions['openFile'] = self._createAction(self.tr("Open file"))
+        self.actions['openFile'] = self._createAction(self.tr("Open"))
         self.actions['addFilesToRepo'] = self._createAction(self.tr("Add files"))
         self.actions['editItems'] = self._createAction(self.tr("Edit items"))
 

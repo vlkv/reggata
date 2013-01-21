@@ -17,7 +17,9 @@ from reggata.logic.action_handlers import ActionHandlerStorage
 from reggata.logic.common_action_handlers import EditItemActionHandler
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
-from reggata.logic.file_browser_action_handlers import AddFileToRepoActionHandler
+from reggata.logic.file_browser_action_handlers import AddFileToRepoActionHandler,\
+    OpenFileActionHandler
+from reggata.logic.ext_app_mgr import ExtAppMgr
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -40,6 +42,7 @@ class FileBrowser(AbstractTool):
         self._mutex = None
         self._thread = None
         self._enabled = False
+        self._extAppMgr = ExtAppMgr()
         logger.debug("File Browser __init__ finished.")
 
 
@@ -71,6 +74,10 @@ class FileBrowser(AbstractTool):
         self._actionHandlers.register(
             self._gui.actions['addFilesToRepo'],
             AddFileToRepoActionHandler(self, self._dialogsFacade))
+
+        self._actionHandlers.register(
+            self._gui.actions['openFile'],
+            OpenFileActionHandler(self, self._extAppMgr))
 
 
     def handlerSignals(self):
