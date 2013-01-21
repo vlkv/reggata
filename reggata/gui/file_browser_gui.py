@@ -26,16 +26,16 @@ class FileBrowserGui(ToolGui):
         self.__tableModel = None
 
         self.ui.filesTableView.setItemDelegate(HTMLDelegate(self))
-        self.connect(self.ui.filesTableView, 
-                     QtCore.SIGNAL("activated(const QModelIndex&)"), 
+        self.connect(self.ui.filesTableView,
+                     QtCore.SIGNAL("activated(const QModelIndex&)"),
                      self.__onTableCellActivated)
 
         self.resetTableModel(mutex=None)
 
         self.__context_menu = None
         self.__initContextMenu()
-        
-        self.__prevSelRows = []  # This is a stack of row indices 
+
+        self.__prevSelRows = []  # This is a stack of row indices
 
 
     def resetTableModel(self, mutex):
@@ -66,7 +66,7 @@ class FileBrowserGui(ToolGui):
         try:
             filename = self.ui.filesTableView.model().data(index, FileBrowserTableModel.ROLE_FILENAME)
             self.__fileBrowserTool.changeRelDir(filename)
-            self.__handleCurrentlySelectedRow(isGoingUp=(filename == ".."), 
+            self.__handleCurrentlySelectedRow(isGoingUp=(filename == ".."),
                                               newRow=index.row())
         except Exception as ex:
             logger.debug("Cannot change current directory: " + str(ex))
@@ -80,7 +80,7 @@ class FileBrowserGui(ToolGui):
         else:
             self.ui.filesTableView.selectRow(0)
             self.__prevSelRows.append(newRow)
-        
+
 
     def resetTableRow(self, row):
         self.__tableModel.resetTableRow(row)
@@ -93,21 +93,10 @@ class FileBrowserGui(ToolGui):
             logger.info("Actions already built")
             return
 
+        self.actions['openFile'] = self._createAction(self.tr("Open file"))
         self.actions['addFilesToRepo'] = self._createAction(self.tr("Add files"))
         self.actions['editItems'] = self._createAction(self.tr("Edit items"))
 
-
-
-    def buildMainMenu(self):
-        assert len(self.actions) > 0, "Actions should be already built"
-        if self._mainMenu is not None:
-            logger.info("Main Menu of this Tool already built")
-            return
-
-        self._mainMenu = self._createMenu(self.tr("File Browser"), self)
-        menu = self._mainMenu
-        menu.addAction(self.actions['addFilesToRepo'])
-        menu.addAction(self.actions['editItems'])
 
     def __buildContextMenu(self):
         if self.__context_menu is not None:
@@ -117,6 +106,7 @@ class FileBrowserGui(ToolGui):
         self.__context_menu = self._createMenu(menuTitle=None, menuParent=self)
         menu = self.__context_menu
 
+        menu.addAction(self.actions['openFile'])
         menu.addAction(self.actions['addFilesToRepo'])
         menu.addAction(self.actions['editItems'])
 
