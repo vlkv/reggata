@@ -94,8 +94,10 @@ class FileBrowserGui(ToolGui):
             return
 
         self.actions['openFile'] = self._createAction(self.tr("Open"))
-        self.actions['addFilesToRepo'] = self._createAction(self.tr("Add files"))
-        self.actions['editItems'] = self._createAction(self.tr("Edit items"))
+        self.actions['addFiles'] = self._createAction(self.tr("Add"))
+        self.actions['editItems'] = self._createAction(self.tr("Edit"))
+        self.actions['moveFiles'] = self._createAction(self.tr("Move"))
+        self.actions['renameFile'] = self._createAction(self.tr("Rename"))
 
 
     def __buildContextMenu(self):
@@ -107,8 +109,10 @@ class FileBrowserGui(ToolGui):
         menu = self.__context_menu
 
         menu.addAction(self.actions['openFile'])
-        menu.addAction(self.actions['addFilesToRepo'])
+        menu.addAction(self.actions['addFiles'])
         menu.addAction(self.actions['editItems'])
+        menu.addAction(self.actions['moveFiles'])
+        menu.addAction(self.actions['renameFile'])
 
 
     def selectedItemIds(self):

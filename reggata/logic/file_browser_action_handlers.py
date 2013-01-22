@@ -2,19 +2,22 @@
 Created on 23.12.2012
 @author: vlkv
 '''
+import os
+import logging
 from reggata.logic.action_handlers import AbstractActionHandler
 import reggata.errors as err
 import reggata.consts as consts
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.logic.common_action_handlers import AddItemAlgorithms
 from reggata.helpers import show_exc_info
-import os
+
+logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
 
-class AddFileToRepoActionHandler(AbstractActionHandler):
+class AddFilesToRepoActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
-        super(AddFileToRepoActionHandler, self).__init__(tool)
+        super(AddFilesToRepoActionHandler, self).__init__(tool)
         self._dialogs = dialogs
         self._itemsCreatedCount = 0
         self._filesSkippedCount = 0
@@ -72,3 +75,20 @@ class OpenFileActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Done."), consts.STATUSBAR_TIMEOUT)
 
+
+class MoveFilesActionHandler(AbstractActionHandler):
+    def __init__(self, tool, dialogs):
+        super(MoveFilesActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
+
+    def handle(self):
+        logger.info("MoveFilesActionHandler.handle invoked")
+
+
+class RenameFileActionHandler(AbstractActionHandler):
+    def __init__(self, tool, dialogs):
+        super(RenameFileActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
+
+    def handle(self):
+        logger.info("RenameFileActionHandler.handle invoked")
