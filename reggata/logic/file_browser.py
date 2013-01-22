@@ -14,7 +14,7 @@ from reggata.errors import NoneError, NotExistError, CurrentRepoIsNoneError, Cur
 import reggata.helpers as helpers
 from reggata.data.commands import FileInfo, GetFileInfoCommand
 from reggata.logic.action_handlers import ActionHandlerStorage
-from reggata.logic.common_action_handlers import EditItemActionHandler
+from reggata.logic.common_action_handlers import EditItemsActionHandler
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
 from reggata.logic.file_browser_action_handlers import AddFilesToRepoActionHandler,\
@@ -68,7 +68,7 @@ class FileBrowser(AbstractTool):
 
         self._actionHandlers.register(
             self._gui.actions['editItems'],
-            EditItemActionHandler(self, self._dialogsFacade))
+            EditItemsActionHandler(self, self._dialogsFacade))
 
 
         self._actionHandlers.register(

@@ -187,9 +187,9 @@ class AddItemAlgorithms(object):
 
 
 
-class EditItemActionHandler(AbstractActionHandler):
+class EditItemsActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
-        super(EditItemActionHandler, self).__init__(tool)
+        super(EditItemsActionHandler, self).__init__(tool)
         self._dialogs = dialogs
 
     def handle(self):

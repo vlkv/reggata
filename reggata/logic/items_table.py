@@ -88,7 +88,7 @@ class ItemsTable(AbstractTool):
 
         self._actionHandlers.register(
             self._gui.actions['editItem'],
-            com_handlers.EditItemActionHandler(self, self._dialogsFacade))
+            com_handlers.EditItemsActionHandler(self, self._dialogsFacade))
 
         self._actionHandlers.register(
             self._gui.actions['rebuildItemsThumbnail'],

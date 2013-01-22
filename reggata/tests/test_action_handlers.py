@@ -9,7 +9,7 @@ from reggata.data.db_schema import User
 from reggata.data.commands import GetExpungedItemCommand
 from reggata.logic.abstract_tool import AbstractTool
 from reggata.logic.abstract_tool_gui import AbstractToolGui
-from reggata.logic.common_action_handlers import EditItemActionHandler
+from reggata.logic.common_action_handlers import EditItemsActionHandler
 from reggata.logic.items_table_action_handlers import AddItemsActionHandler,\
     DeleteItemActionHandler, RebuildItemThumbnailActionHandler
 from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepo
@@ -205,7 +205,7 @@ class EditItemsActionHandlerTest(AbstractTestCaseWithRepo):
         tool.gui.setSelectedItemIds([itemWithTagsAndFields.id])
         dialogs = RemoveAllTagsFromItemDialogsFacade()
 
-        handler = EditItemActionHandler(tool, dialogs)
+        handler = EditItemsActionHandler(tool, dialogs)
         handler.handle()
 
         try:
@@ -231,7 +231,7 @@ class EditItemsActionHandlerTest(AbstractTestCaseWithRepo):
         tool.gui.setSelectedItemIds(selectedItemIds)
         dialogs = RemoveAllTagsFromItemDialogsFacade()
 
-        handler = EditItemActionHandler(tool, dialogs)
+        handler = EditItemsActionHandler(tool, dialogs)
         handler.handle()
 
         for itemId in selectedItemIds:

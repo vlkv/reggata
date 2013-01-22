@@ -83,6 +83,7 @@ class MoveFilesActionHandler(AbstractActionHandler):
 
     def handle(self):
         logger.info("MoveFilesActionHandler.handle invoked")
+        # TODO implement
 
 
 class RenameFileActionHandler(AbstractActionHandler):
