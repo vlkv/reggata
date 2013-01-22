@@ -4,12 +4,13 @@ Created on 23.12.2012
 '''
 import os
 import logging
-from reggata.logic.action_handlers import AbstractActionHandler
 import reggata.errors as err
 import reggata.consts as consts
 from reggata.logic.handler_signals import HandlerSignals
+from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.logic.common_action_handlers import AddItemAlgorithms
-from reggata.helpers import show_exc_info
+from reggata.helpers import show_exc_info, is_none_or_empty
+import reggata.data.commands as cmds
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -93,3 +94,48 @@ class RenameFileActionHandler(AbstractActionHandler):
 
     def handle(self):
         logger.info("RenameFileActionHandler.handle invoked")
+        try:
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
+
+            selFiles = self._tool.gui.selectedFiles()
+            if len(selFiles) != 1:
+                raise err.MsgException(self.tr("Please select one file or directory"))
+
+            selFile = selFiles[0]
+
+            newName, isOk = self._dialogs.execGetTextDialog(
+                self._tool.gui, self.tr("Rename File"), self.tr("Enter new file name:"),
+                os.path.basename(selFile))
+
+            if not isOk or newName == os.path.basename(selFile):
+                return
+
+            if is_none_or_empty(newName.strip()):
+                raise err.MsgException(self.tr("Wrong input, file name cannot be empty."))
+
+            if os.path.isdir(selFile):
+                self.__renameDir(selFile, newName)
+            elif os.path.isfile(selFile):
+                self.__renameFile(selFile, newName)
+            else:
+                raise err.MsgException(self.tr("Cannot rename '{}'.".format(selFile)))
+
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
+                                    consts.STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
+
+        except Exception as ex:
+            show_exc_info(self._tool.gui, ex)
+
+    def __renameDir(self, dirAbsPath, newDirName):
+        raise NotImplementedError("Directory rename is not implemented yet")
+        # TODO: implement
+
+    def __renameFile(self, fileAbsPath, newFileName):
+        uow = self._tool.repo.createUnitOfWork()
+        try:
+            uow.executeCommand(cmds.RenameFileCommand(fileAbsPath, newFileName))
+        finally:
+            uow.close()
+
