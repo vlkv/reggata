@@ -15,6 +15,7 @@ import reggata.consts as consts
 import reggata.data.db_schema as db
 from reggata.user_config import UserConfig
 from reggata.data import operations
+from reggata.helpers import to_db_format
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -878,6 +879,35 @@ class RenameFileCommand(AbstractCommand):
         shutil.move(self._fileAbsPath, newFileAbsPath)
 
         session.commit()
+
+
+class RenameDirectoryCommand(AbstractCommand):
+    def __init__(self, dirAbsPath, newDirName):
+        super(RenameDirectoryCommand, self).__init__()
+        self._dirAbsPath = dirAbsPath
+        self._newDirName = newDirName
+
+    def _execute(self, uow):
+        session = uow.session
+        repoBasePath = uow._repo_base_path
+        dirRelPath = os.path.relpath(self._dirAbsPath, repoBasePath)
+
+        sql = '''select ''' + db.DataRef._sql_from() + '''
+        from data_refs
+            where data_refs_url LIKE "''' + to_db_format(dirRelPath) + '''/%"
+        '''
+        affectedDataRefs = session.query(db.DataRef).from_statement(sql).all()
+        for dataRef in affectedDataRefs:
+            oldAbsFilePath = os.path.join(repoBasePath, dataRef.url)
+            suffix = os.path.relpath(oldAbsFilePath, self._dirAbsPath)
+            dataRef.url = os.path.join(dirRelPath, suffix)
+
+        # TODO: fix bugs in this command...
+
+        shutil.move(self._dirAbsPath, os.path.join(self._dirAbsPath, "..", self._newDirName))
+
+        session.commit()
+
 
 
 class CheckItemIntegrityCommand(AbstractCommand):

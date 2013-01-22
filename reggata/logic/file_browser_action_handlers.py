@@ -119,7 +119,9 @@ class RenameFileActionHandler(AbstractActionHandler):
             elif os.path.isfile(selFile):
                 self.__renameFile(selFile, newName)
             else:
-                raise err.MsgException(self.tr("Cannot rename '{}'.".format(selFile)))
+                raise err.MsgException(self.tr(
+                    "Cannot rename '{}' because it is not a file or directory."
+                    .format(selFile)))
 
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
                                     consts.STATUSBAR_TIMEOUT)
@@ -129,8 +131,11 @@ class RenameFileActionHandler(AbstractActionHandler):
             show_exc_info(self._tool.gui, ex)
 
     def __renameDir(self, dirAbsPath, newDirName):
-        raise NotImplementedError("Directory rename is not implemented yet")
-        # TODO: implement
+        uow = self._tool.repo.createUnitOfWork()
+        try:
+            uow.executeCommand(cmds.RenameDirectoryCommand(dirAbsPath, newDirName))
+        finally:
+            uow.close()
 
     def __renameFile(self, fileAbsPath, newFileName):
         uow = self._tool.repo.createUnitOfWork()
