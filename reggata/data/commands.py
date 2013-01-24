@@ -882,27 +882,34 @@ class RenameFileCommand(AbstractCommand):
 
 
 class RenameDirectoryCommand(AbstractCommand):
+    '''
+        Suppose, we have these files in a repository:
+            /dir1/dir2/repo/dir3/dir4/file1
+            /dir1/dir2/repo/dir3/dir4/file2
+            /dir1/dir2/repo/dir3/dir4/dir5/file3
+        And you want to rename directory 'dir4' to 'renamed_dir4'. Command arguments should be:
+            dirAbsPath = /dir1/dir2/repo/dir3/dir4
+            newDirName = renamed_dir4
+    '''
     def __init__(self, dirAbsPath, newDirName):
         super(RenameDirectoryCommand, self).__init__()
-        self._dirAbsPath = dirAbsPath
-        self._newDirName = newDirName
+        self._dirAbsPath = dirAbsPath.rstrip(os.pathsep)
+        self._newDirName = newDirName.strip(os.pathsep)
 
     def _execute(self, uow):
         session = uow.session
         repoBasePath = uow._repo_base_path
         dirRelPath = os.path.relpath(self._dirAbsPath, repoBasePath)
 
-        sql = '''select ''' + db.DataRef._sql_from() + '''
-        from data_refs
-            where data_refs_url LIKE "''' + to_db_format(dirRelPath) + '''/%"
-        '''
-        affectedDataRefs = session.query(db.DataRef).from_statement(sql).all()
+        head, _tail = os.path.split(dirRelPath)
+        newDirRelPath = os.path.join(head, self._newDirName)
+
+        affectedDataRefs = session.query(db.DataRef).filter(
+            db.DataRef.url_raw.like(to_db_format(dirRelPath) + "/%"))
         for dataRef in affectedDataRefs:
             oldAbsFilePath = os.path.join(repoBasePath, dataRef.url)
             suffix = os.path.relpath(oldAbsFilePath, self._dirAbsPath)
-            dataRef.url = os.path.join(dirRelPath, suffix)
-
-        # TODO: fix bugs in this command...
+            dataRef.url = os.path.join(newDirRelPath, suffix)
 
         shutil.move(self._dirAbsPath, os.path.join(self._dirAbsPath, "..", self._newDirName))
 
