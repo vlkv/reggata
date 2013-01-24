@@ -893,16 +893,25 @@ class RenameDirectoryCommand(AbstractCommand):
     '''
     def __init__(self, dirAbsPath, newDirName):
         super(RenameDirectoryCommand, self).__init__()
-        self._dirAbsPath = dirAbsPath.rstrip(os.pathsep)
-        self._newDirName = newDirName.strip(os.pathsep)
+        self._dirAbsPath = dirAbsPath.rstrip(os.sep)
+        self._newDirName = newDirName.strip(os.sep)
+        if '/' in self._newDirName or '\\' in self._newDirName:
+            raise ValueError("OS pathname separator should not be in '{}'".format(self._newDirName))
 
     def _execute(self, uow):
         session = uow.session
         repoBasePath = uow._repo_base_path
         dirRelPath = os.path.relpath(self._dirAbsPath, repoBasePath)
 
-        head, _tail = os.path.split(dirRelPath)
+        head, oldDirName = os.path.split(dirRelPath)
+        if self._newDirName == oldDirName:
+            return
+
         newDirRelPath = os.path.join(head, self._newDirName)
+        if os.path.exists(os.path.join(repoBasePath, newDirRelPath)):
+            raise err.FileAlreadyExistsError(
+                "Directory '{}' already exists, please choose a different name."
+                .format(self._newDirName))
 
         affectedDataRefs = session.query(db.DataRef).filter(
             db.DataRef.url_raw.like(to_db_format(dirRelPath) + "/%"))
