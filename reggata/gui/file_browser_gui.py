@@ -134,12 +134,12 @@ class FileBrowserGui(ToolGui):
             Returns a list of selected files (abs paths?..).
         '''
         #We use set, because selectedIndexes() may return duplicates
-        result = []
+        result = set()
         for index in self.ui.filesTableView.selectionModel().selectedIndexes():
             row = index.row()
             finfo = self.__fileBrowserTool.listDir()[row]
-            result.append(finfo.path)
-        return result
+            result.add(finfo.path)
+        return list(result)
 
 
     def restoreColumnsWidths(self):
