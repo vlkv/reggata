@@ -10,6 +10,7 @@ from reggata.parsers.definition_tokens import tokens, build_lexer
 from reggata.errors import YaccError
 from reggata import consts
 
+
 def p_definition_empty(p):
     '''definition :
     '''
@@ -61,9 +62,13 @@ def p_error(p):
 
 lexer = build_lexer()
 
+# TODO: use file for logging
+#yacc_errorlog = ply.yacc.PlyLogger(open(os.path.join(USER_CONFIG_DIR, "yacc.log"), "w"))
+yacc_errorlog = yacc.NullLogger()
+
 tokens  # This line is needed to supress warning that 'tokens is unused'
 parsetabPyDir = consts.USER_CONFIG_DIR
-parser = yacc.yacc(errorlog=consts.yacc_errorlog,
+parser = yacc.yacc(errorlog=yacc_errorlog,
                    debug=(1 if consts.DEBUG else 0), # If debug yacc creates parser.out log file
                    tabmodule="parsetab_def",
                    outputdir=parsetabPyDir)

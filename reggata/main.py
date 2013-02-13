@@ -38,15 +38,17 @@ logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
 
 def configureLogging():
-    if not os.path.exists(consts.USER_CONFIG_DIR):
-        os.makedirs(consts.USER_CONFIG_DIR)
-
     if not os.path.exists(consts.LOGGING_CONFIG_FILE):
         with codecs.open(consts.LOGGING_CONFIG_FILE, "w", "utf-8") as f:
             text = logging_default_conf.loggingDefaultConf
             f.write(text)
 
     logging.config.fileConfig(consts.LOGGING_CONFIG_FILE)
+
+
+def configureConfigDir():
+    if not os.path.exists(consts.USER_CONFIG_DIR):
+        os.makedirs(consts.USER_CONFIG_DIR)
 
 
 def configureTmpDir():
@@ -76,14 +78,14 @@ def configureTranslations(app):
 
 
 def main():
+    configureConfigDir()
+    configureTmpDir()
     configureLogging()
 
     logger.info("========= Reggata started =========")
     logger.debug("pyqt_version = {}".format(QtCore.PYQT_VERSION_STR))
     logger.debug("qt_version = {}".format(QtCore.QT_VERSION_STR))
     logger.debug("current dir is " + os.path.abspath("."))
-
-    configureTmpDir()
 
     app = QApplication(sys.argv)
 

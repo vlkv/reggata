@@ -197,10 +197,14 @@ def p_field_value(p):
 def p_error(p):
     raise YaccError("Syntax error in '{}'".format(str(p)))
 
+# TODO: use file for logging
+#yacc_errorlog = ply.yacc.PlyLogger(open(os.path.join(USER_CONFIG_DIR, "yacc.log"), "w"))
+yacc_errorlog = yacc.NullLogger()
+
 tokens  # This line is needed to supress warning that 'tokens is unused'
 lexer = build_lexer()
 parsetabPyDir = consts.USER_CONFIG_DIR
-parser = yacc.yacc(errorlog=consts.yacc_errorlog,
+parser = yacc.yacc(errorlog=yacc_errorlog,
                    debug=(1 if consts.DEBUG else 0), # If debug yacc creates parser.out log file
                    tabmodule="parsetab_query",
                    outputdir=parsetabPyDir)

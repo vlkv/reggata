@@ -108,5 +108,9 @@ def needs_quote(string):
 
 
 def build_lexer():
-    lexer = lex.lex(errorlog=consts.lex_errorlog)
+    # TODO: use file for logging
+    #lex_errorlog = ply.lex.PlyLogger(open(os.path.join(USER_CONFIG_DIR, "lex.log"), "w"))
+    lex_errorlog = lex.NullLogger()
+    lexer = lex.lex(errorlog=lex_errorlog)
     return lexer
+

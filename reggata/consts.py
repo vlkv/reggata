@@ -5,8 +5,6 @@ Created on 04.10.2010
 Module contains various global constants.
 '''
 import os
-import ply.yacc
-import ply.lex
 
 DEBUG = False
 
@@ -25,10 +23,6 @@ DEFAULT_TMP_DIR = USER_CONFIG_DIR + os.sep + "tmp"
 RATING_FIELD = "Rating"
 NOTES_FIELD = "Notes"
 RESERVED_FIELDS = [RATING_FIELD, NOTES_FIELD]
-
-#TODO: Some custom logger (from logging module) should be substituted here
-yacc_errorlog = ply.yacc.PlyLogger(open(os.path.join(USER_CONFIG_DIR, "yacc.log"), "w"))
-lex_errorlog = ply.lex.PlyLogger(open(os.path.join(USER_CONFIG_DIR, "lex.log"), "w"))
 
 STATUSBAR_TIMEOUT = 5000
 
