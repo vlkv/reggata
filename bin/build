@@ -1,5 +1,7 @@
 #!/bin/bash
 
+git log -1 > ../git_version.txt		
+
 mkdir ../binary_builds
 
 python3 ../cx_setup.py build
