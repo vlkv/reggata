@@ -49,6 +49,7 @@ if __name__ == '__main__':
                              ("../COPYING", "COPYING"),
                              ("../README.creole", "README.creole"),
                              ("../git_version.txt", "git_version.txt"),
+                             ("../bin/reggata.sh", "reggata.sh"),
                              ],
             build_exe = target_dir
     )
@@ -66,6 +67,9 @@ if __name__ == '__main__':
         file, PyQt4_path, desc = imp.find_module("PyQt4")
         shutil.copytree(os.path.join(PyQt4_path, "plugins", "imageformats"),
                         os.path.join(target_dir, "imageformats"))
-
+    elif sys.platform.startswith("linux"):
+        # TODO: automate search for these libraries:
+        shutil.copy("/usr/lib/qt4/libQtCore.so.4", os.path.join(target_dir, "libQtCore.so.4"))
+        shutil.copy("/usr/lib/qt4/libQtGui.so.4", os.path.join(target_dir, "libQtGui.so.4"))
     print("Done.")
 
