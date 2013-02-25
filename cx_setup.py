@@ -34,7 +34,8 @@ if __name__ == '__main__':
     targetExeName = "reggata"
     if sys.platform.startswith("win"):
         base = "Win32GUI"
-        targetExeName = targetExeName + ".exe"
+        targetExeName = targetExeName + ".exe"      
+        
 
     import reggata
     reggata_version = reggata.__version__
@@ -71,5 +72,10 @@ if __name__ == '__main__':
         # TODO: automate search for these libraries:
         shutil.copy("/usr/lib/qt4/libQtCore.so.4", os.path.join(target_dir, "libQtCore.so.4"))
         shutil.copy("/usr/lib/qt4/libQtGui.so.4", os.path.join(target_dir, "libQtGui.so.4"))
+        shutil.copy("/usr/lib/libpng15.so.15", os.path.join(target_dir, "libpng15.so.15"))
+        shutil.copy("/usr/lib/libXrandr.so.2", os.path.join(target_dir, "libXrandr.so.2"))
+        shutil.copy("/usr/lib/libXfixes.so.3", os.path.join(target_dir, "libXfixes.so.3"))
+        shutil.copy("/usr/lib/libXcursor.so.1", os.path.join(target_dir, "libXcursor.so.1"))
+        
     print("Done.")
 
