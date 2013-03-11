@@ -1,0 +1,17 @@
+Source: reggata
+Maintainer: Vitaly Volkov <vitvlkv@gmail.com>
+Section: python
+Priority: optional
+Build-Depends: python3-all (>= 3.1), debhelper (>= 9.20120909)
+X-Python3-Version: >= 3.1.2
+Standards-Version: 3.9.4
+
+Package: python3-reggata
+Architecture: all
+Depends: ${misc:Depends}, python3 (>= 3.1.2), python3-pyqt4 (>= 4.9.3), python3-sqlalchemy (>= 0.7), sqlite3 (>= 3.7), python3-ply (>= 3.4)
+Description: Tagging system for local files.
+ Reggata is a desktop application that lets you link with your files any 
+ number of tags (keywords) and fields (<name>:<value> pairs). 
+ Later you can find your files by this tags and fields with a tag cloud 
+ (simply by mouse clicking) or a special Reggata's query language 
+ (more advanced way). Project homepage https://github.com/vlkv/reggata

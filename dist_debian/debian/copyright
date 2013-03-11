@@ -1,0 +1,18 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Reggata
+Source: https://github.com/vlkv/reggata
+
+Files: *
+Copyright: 2009 Vitaly Volkov <vitvlkv@gmail.com>
+License: GPL-3+
+ On Debian systems, the full text of the GNU General Public
+ License version 3 can be found in the file
+ `/usr/share/common-licenses/GPL-3'.
+
+Files: debian/reggata/pyjavaproperties.py
+Copyright: 2009 Jesse Noller <jnoller@gmail.com>
+           2009 Anand Pilla <abpillai@gmail.com>
+License: PSF-2
+ PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2 can be found in the Internet
+ 'http://opensource.org/licenses/PythonSoftFoundation.php'
+
