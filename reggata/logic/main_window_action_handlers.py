@@ -293,14 +293,14 @@ class ImportItemsActionHandler(AbstractActionHandler):
 
 
 class ExitReggataActionHandler(AbstractActionHandler):
-    def __init__(self, gui):
-        super(ExitReggataActionHandler, self).__init__(gui)
+    def __init__(self, tool):
+        super(ExitReggataActionHandler, self).__init__(tool)
 
     def handle(self):
         try:
-            self._gui.close()
+            self._tool.gui.close()
         except Exception as ex:
-            show_exc_info(self._gui, ex)
+            show_exc_info(self._tool.gui, ex)
 
 
 class ManageExternalAppsActionHandler(AbstractActionHandler):
