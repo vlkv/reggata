@@ -70,7 +70,6 @@ class FileBrowser(AbstractTool):
             self._gui.actions['editItems'],
             EditItemsActionHandler(self, self._dialogsFacade))
 
-
         self._actionHandlers.register(
             self._gui.actions['addFiles'],
             AddFilesToRepoActionHandler(self, self._dialogsFacade))

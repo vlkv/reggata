@@ -84,7 +84,24 @@ class MoveFilesActionHandler(AbstractActionHandler):
 
     def handle(self):
         logger.info("MoveFilesActionHandler.handle invoked")
-        # TODO implement
+        try:
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
+
+            selFiles = self._tool.gui.selectedFiles()
+            
+            # TODO implement
+            # Ask user to select a destination directory within repository.
+            # Walk recursively in all selected dirs/files and create 
+            # a list of files to move (this list would not contain any dirs).
+            # Create a thread that would move files one by one showing WaitDialog to user
+
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
+                                    consts.STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
+            
+        except Exception as ex:
+            show_exc_info(self._tool.gui, ex)
 
 
 class RenameFileActionHandler(AbstractActionHandler):
