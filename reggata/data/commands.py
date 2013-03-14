@@ -855,20 +855,38 @@ class UpdateExistingItemCommand(AbstractCommand):
 
 
 class MoveFileCommand(AbstractCommand):
-    def __init__(self, fileAbsPath, dstDirAbsPath):
+    def __init__(self, srcFileAbsPath, dstFileAbsPath):
         super(MoveFileCommand, self).__init__()
-        self._fileAbsPath = fileAbsPath
-        self._dstDirAbsPath = dstDirAbsPath
+        self._srcFileAbsPath = srcFileAbsPath
+        self._dstFileAbsPath = dstFileAbsPath
 
     def _execute(self, uow):
         session = uow.session
         repoBasePath = uow._repo_base_path
+        
+        if os.path.exists(self._dstFileAbsPath):
+            raise err.FileAlreadyExistsError(
+                "Cannot move file: destination file '{}' already exists."
+                .format(self._dstFileAbsPath))
+        
+        dstFileRelPath = os.path.relpath(self._dstFileAbsPath, repoBasePath)
+        dstDataRef = session.query(db.DataRef).filter(
+            db.DataRef.url_raw==hlp.to_db_format(dstFileRelPath)).first()
+        if dstDataRef is not None:
+            raise err.DataRefAlreadyExistsError(
+                "Cannot move file: there is a hanging DataRef object, that references to file '{}'"
+                .format(dstFileRelPath))
+        
+        srcFileRelPath = os.path.relpath(self._srcFileAbsPath, repoBasePath)
+        srcDataRef = session.query(db.DataRef).filter(
+            db.DataRef.url_raw==hlp.to_db_format(srcFileRelPath)).first()
+        if srcDataRef is not None:
+            srcDataRef.url = self._dstFileAbsPath
 
-        # TODO...
-
+        shutil.move(self._srcFileAbsPath, self._dstFileAbsPath)
+        
         session.commit()
-
-
+        
 
 class RenameFileCommand(AbstractCommand):
     def __init__(self, fileAbsPath, newFilename):
