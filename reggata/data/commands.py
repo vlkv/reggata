@@ -853,6 +853,23 @@ class UpdateExistingItemCommand(AbstractCommand):
         operations.ItemOperations.addOrUpdateFields(self._session, persistentItem,
                                                     nameValuePairsToAdd, user_login)
 
+
+class MoveFileCommand(AbstractCommand):
+    def __init__(self, fileAbsPath, dstDirAbsPath):
+        super(MoveFileCommand, self).__init__()
+        self._fileAbsPath = fileAbsPath
+        self._dstDirAbsPath = dstDirAbsPath
+
+    def _execute(self, uow):
+        session = uow.session
+        repoBasePath = uow._repo_base_path
+
+        # TODO...
+
+        session.commit()
+
+
+
 class RenameFileCommand(AbstractCommand):
     def __init__(self, fileAbsPath, newFilename):
         super(RenameFileCommand, self).__init__()
