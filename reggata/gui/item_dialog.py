@@ -86,7 +86,10 @@ class ItemDialog(QtGui.QDialog):
                 locationDirRelPath = os.path.join(".", self.item.data_ref.url)
             elif self.mode == ItemDialog.CREATE_MODE:
                 # TODO: use data_ref.srcAbsPath
-                locationDirRelPath = os.path.basename(self.item.data_ref.url)
+                if helpers.is_internal(fileAbsPath, self.repoBasePath):
+                    locationDirRelPath = os.path.relpath(fileAbsPath, self.repoBasePath)
+                else:
+                    locationDirRelPath = os.path.basename(self.item.data_ref.url)
                 locationDirRelPath = os.path.join(".", locationDirRelPath)
 
             self.ui.fileRelPath.setText(locationDirRelPath)
