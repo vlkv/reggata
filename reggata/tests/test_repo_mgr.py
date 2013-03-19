@@ -555,7 +555,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
 class OtherCommandsTest(AbstractTestCaseWithRepo):
 
-    def test_renameItemsFile(self):
+    def test_renameFileCommand(self):
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertIsNotNone(item.data_ref, "This item must have a file")
         fileAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
@@ -577,3 +577,32 @@ class OtherCommandsTest(AbstractTestCaseWithRepo):
         finally:
             uow.close()
 
+
+    def test_renameDirectoryCommand(self):
+        dirRelPath = os.path.join("lyrics", "RHCP")
+        dirAbsPath = os.path.join(self.repo.base_path, dirRelPath)
+        newDirName = "RedHotChiliPeppers"
+        
+        dataRefsBefore = self.getDataRefsFromDir(dirRelPath)
+        self.assertTrue(len(dataRefsBefore) > 0, "There must be files in directory")
+        for dataRef in dataRefsBefore:
+            self.assertTrue(dataRef.url.startswith(dirRelPath))
+        
+        try:
+            uow = self.repo.createUnitOfWork()
+            cmd = cmds.RenameDirectoryCommand(dirAbsPath, newDirName)
+            uow.executeCommand(cmd)
+        finally:
+            uow.close()
+
+        dataRefsAfter = self.getDataRefsFromDir(dirRelPath)
+        self.assertTrue(len(dataRefsAfter) == 0, "There must be no files in old directory")
+        
+        newDirRelPath = os.path.join(os.path.dirname(dirRelPath), newDirName)
+        dataRefsAfter2 = self.getDataRefsFromDir(newDirRelPath)
+        self.assertTrue(len(dataRefsAfter2) > 0, "There must be files in new directory")
+        for dataRef in dataRefsAfter2:
+            self.assertTrue(dataRef.url.startswith(newDirRelPath))
+        
+
+        

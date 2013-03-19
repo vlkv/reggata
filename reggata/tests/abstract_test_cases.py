@@ -44,6 +44,7 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
             uow.close()
         return dataRef
 
+
     def getDataRefById(self, objId):
         '''
             Returns a DataRef object with given id or None, if DataRef object not found.
@@ -54,6 +55,18 @@ class AbstractTestCaseWithRepo(unittest.TestCase):
         finally:
             uow.close()
         return dataRef
+
+    
+    def getDataRefsFromDir(self, dirRelPath):
+        dataRefs = []
+        try:
+            uow = self.repo.createUnitOfWork()
+            dataRefs = uow._session.query(DataRef).filter(
+                DataRef.url_raw.like(helpers.to_db_format(dirRelPath) + "/%")).all()
+        finally:
+            uow.close()
+        return dataRefs
+
 
     def updateExistingItem(self, detachedItem, newSrcAbsPath, newDstRelPath, user_login):
         item = None
