@@ -550,3 +550,30 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
     #def test_removeTagsFromItemByNotOwnerUser(self):
         #TODO implement test
     #    pass
+
+
+
+class OtherCommandsTest(AbstractTestCaseWithRepo):
+
+    def test_renameItemsFile(self):
+        item = self.getExistingItem(context.itemWithTagsAndFields.id)
+        self.assertIsNotNone(item.data_ref, "This item must have a file")
+        fileAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
+        newFileName = "copy_of_" + os.path.basename(item.data_ref.url)
+        newFileAbsPath = os.path.join(os.path.dirname(fileAbsPath), newFileName)
+        try:
+            uow = self.repo.createUnitOfWork()
+            
+            cmd = cmds.RenameFileCommand(fileAbsPath, newFileName)
+            uow.executeCommand(cmd)
+        finally:
+            uow.close()
+
+        try:
+            uow = self.repo.createUnitOfWork()
+            itemAfter = self.getExistingItem(context.itemWithTagsAndFields.id)
+            self.assertEqual(os.path.relpath(newFileAbsPath, self.repo.base_path), itemAfter.data_ref.url)
+
+        finally:
+            uow.close()
+
