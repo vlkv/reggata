@@ -905,33 +905,11 @@ class MoveFileCommand(AbstractCommand):
         session.commit()
         
 
-class RenameFileCommand(AbstractCommand):
+class RenameFileCommand(MoveFileCommand):
     def __init__(self, fileAbsPath, newFilename):
-        super(RenameFileCommand, self).__init__()
-        self._fileAbsPath = fileAbsPath
-        self._newFilename = newFilename
-
-    def _execute(self, uow):
-        session = uow.session
-        repoBasePath = uow._repo_base_path
-
-        fileRelPath = os.path.relpath(self._fileAbsPath, repoBasePath)
-
-        dataRef = session.query(db.DataRef).filter(
-            db.DataRef.url_raw==hlp.to_db_format(fileRelPath)).first()
-        if dataRef is not None:
-            dataRef.url = os.path.join(os.path.dirname(fileRelPath), self._newFilename)
-
-        newFileAbsPath = os.path.join(os.path.dirname(self._fileAbsPath), self._newFilename)
-        if os.path.exists(newFileAbsPath):
-            raise err.FileAlreadyExistsError(
-                "File '{}' already exists, please choose a different name."
-                .format(newFileAbsPath))
-
-        shutil.move(self._fileAbsPath, newFileAbsPath)
-
-        session.commit()
-
+        dstFileAbsPath = os.path.join(os.path.dirname(fileAbsPath), newFilename)
+        super(RenameFileCommand, self).__init__(fileAbsPath, dstFileAbsPath)
+        
 
 class RenameDirectoryCommand(AbstractCommand):
     '''
