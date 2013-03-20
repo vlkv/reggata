@@ -16,6 +16,7 @@ import reggata.data.db_schema as db
 from reggata.user_config import UserConfig
 from reggata.data import operations
 from reggata.helpers import to_db_format
+import helpers
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -874,6 +875,12 @@ class MoveFileCommand(AbstractCommand):
         session = uow.session
         repoBasePath = uow._repo_base_path
         
+        if not helpers.is_internal(self._srcFileAbsPath, repoBasePath):
+            raise err.WrongValueError("File '{}' is outside of the repository".format(self._srcFileAbsPath))
+        
+        if not helpers.is_internal(self._dstFileAbsPath, repoBasePath):
+            raise err.WrongValueError("File '{}' is outside of the repository".format(self._dstFileAbsPath))
+        
         if os.path.exists(self._dstFileAbsPath):
             raise err.FileAlreadyExistsError(
                 "Cannot move file: destination file '{}' already exists."
@@ -891,7 +898,7 @@ class MoveFileCommand(AbstractCommand):
         srcDataRef = session.query(db.DataRef).filter(
             db.DataRef.url_raw==hlp.to_db_format(srcFileRelPath)).first()
         if srcDataRef is not None:
-            srcDataRef.url = self._dstFileAbsPath
+            srcDataRef.url = os.path.relpath(self._dstFileAbsPath, repoBasePath)
 
         shutil.move(self._srcFileAbsPath, self._dstFileAbsPath)
         
