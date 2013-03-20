@@ -46,6 +46,8 @@ class GetExpungedItemCommand(AbstractCommand):
         self._session.expunge(item)
         return item
 
+
+# TODO: Write a test for this command
 class DeleteHangingTagsCommand(AbstractCommand):
     '''
         Deletes from database all hanging Tag objects. A hanging Tag is a Tag that
@@ -66,6 +68,8 @@ class DeleteHangingTagsCommand(AbstractCommand):
             self._session.commit()
         return count
 
+
+# TODO: Write a test for this command
 class DeleteHangingFieldsCommand(AbstractCommand):
     '''
         Deletes from database all hanging Field objects. A hanging Field is a Field that
@@ -110,6 +114,7 @@ class SaveThumbnailCommand(AbstractCommand):
         self._session.expunge(data_ref)
 
 
+# TODO: Write a test for this command
 class GetUntaggedItems(AbstractCommand):
     '''
         Gets from database all alive elements without tags.
@@ -199,7 +204,7 @@ class GetUntaggedItems(AbstractCommand):
 
 
 
-
+# TODO: Write tests for this command
 class QueryItemsByParseTree(AbstractCommand):
     '''
         Searches for items, according to given syntax parse tree (of query language).
@@ -318,6 +323,7 @@ class FileInfo(object):
         return self.type == FileInfo.DIR
 
 
+# TODO: Write a test for this command
 class GetFileInfoCommand(AbstractCommand):
     def __init__(self, relPath):
         self.__relPath = relPath
@@ -351,7 +357,7 @@ class GetFileInfoCommand(AbstractCommand):
 
 
 
-
+# TODO: Write a test for this command
 class LoginUserCommand(AbstractCommand):
     '''
         Logins a user to a repository database.
@@ -379,6 +385,7 @@ class LoginUserCommand(AbstractCommand):
         return user
 
 
+# TODO: Write a test for this command
 class ChangeUserPasswordCommand(AbstractCommand):
     def __init__(self, userLogin, newPasswordHash):
         self.__userLogin = userLogin
@@ -393,6 +400,7 @@ class ChangeUserPasswordCommand(AbstractCommand):
         uow.session.commit()
 
 
+# TODO: Write a test for this command
 class SaveNewUserCommand(AbstractCommand):
     def __init__(self, user):
         self.__user = user
@@ -409,6 +417,7 @@ class SaveNewUserCommand(AbstractCommand):
         self._session.expunge(user)
 
 
+# TODO: Write a test for this command
 class GetNamesOfAllTagsAndFields(AbstractCommand):
     def _execute(self, uow):
         self._session = uow.session
@@ -427,6 +436,7 @@ class GetNamesOfAllTagsAndFields(AbstractCommand):
             return []
 
 
+# TODO: Write a test for this command
 class GetRelatedTagsCommand(AbstractCommand):
     '''
         Returns a list of related tags for a list of given (selected) tags tag_names.
