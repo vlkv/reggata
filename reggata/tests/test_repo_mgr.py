@@ -555,6 +555,36 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
 class OtherCommandsTest(AbstractTestCaseWithRepo):
 
+    def test_moveFileCommand(self):
+        item = self.getExistingItem(context.itemWithTagsAndFields.id)
+        self.assertIsNotNone(item.data_ref, "This item must have a file")
+        
+        fileAbsPath = os.path.join(self.repo.base_path, item.data_ref.url)
+        self.assertTrue(os.path.exists(fileAbsPath))
+        
+        newFileRelPath = os.path.join("some", "new", "dir", os.path.basename(fileAbsPath))
+        newFileAbsPath = os.path.join(self.repo.base_path, newFileRelPath)
+        self.assertFalse(os.path.exists(newFileAbsPath))
+        
+        try:
+            uow = self.repo.createUnitOfWork()
+            cmd = cmds.MoveFileCommand(fileAbsPath, newFileAbsPath)
+            uow.executeCommand(cmd)
+        finally:
+            uow.close()
+
+        self.assertFalse(os.path.exists(fileAbsPath))
+        self.assertTrue(os.path.exists(newFileAbsPath))
+
+        try:
+            uow = self.repo.createUnitOfWork()
+            itemAfter = self.getExistingItem(context.itemWithTagsAndFields.id)
+            self.assertEqual(itemAfter.data_ref.url, newFileRelPath)
+
+        finally:
+            uow.close()
+            
+
     def test_renameFileCommand(self):
         item = self.getExistingItem(context.itemWithTagsAndFields.id)
         self.assertIsNotNone(item.data_ref, "This item must have a file")
