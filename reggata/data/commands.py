@@ -881,6 +881,9 @@ class MoveFileCommand(AbstractCommand):
         if not hlp.is_internal(self._dstFileAbsPath, repoBasePath):
             raise err.WrongValueError("File '{}' is outside of the repository".format(self._dstFileAbsPath))
         
+        if not os.path.exists(self._srcFileAbsPath):
+            raise err.NotExistError("File '{}' doesn't exist".format(self._srcFileAbsPath))
+        
         if os.path.exists(self._dstFileAbsPath):
             raise err.FileAlreadyExistsError(
                 "Cannot move file: destination file '{}' already exists."
