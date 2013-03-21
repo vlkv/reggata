@@ -16,7 +16,7 @@ import reggata.data.db_schema as db
 from reggata.user_config import UserConfig
 from reggata.data import operations
 from reggata.helpers import to_db_format
-import helpers
+
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -875,10 +875,10 @@ class MoveFileCommand(AbstractCommand):
         session = uow.session
         repoBasePath = uow._repo_base_path
         
-        if not helpers.is_internal(self._srcFileAbsPath, repoBasePath):
+        if not hlp.is_internal(self._srcFileAbsPath, repoBasePath):
             raise err.WrongValueError("File '{}' is outside of the repository".format(self._srcFileAbsPath))
         
-        if not helpers.is_internal(self._dstFileAbsPath, repoBasePath):
+        if not hlp.is_internal(self._dstFileAbsPath, repoBasePath):
             raise err.WrongValueError("File '{}' is outside of the repository".format(self._dstFileAbsPath))
         
         if os.path.exists(self._dstFileAbsPath):
