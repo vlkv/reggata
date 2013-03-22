@@ -84,19 +84,7 @@ class MoveFilesActionHandler(AbstractActionHandler):
         super(MoveFilesActionHandler, self).__init__(tool)
         self._dialogs = dialogs
 
-    def __getListOfAllAffectedFiles(self, selFiles):
-        paths = []
-        for selFile in selFiles:
-            if os.path.isdir(selFile):
-                for root, _subdirs, files,  in os.walk(selFile):
-                    for file in files:
-                        fileAbsPath = os.path.join(root, file)
-                        paths.append(fileAbsPath)
-            elif os.path.isfile(selFile):
-                paths.append(selFile)
-            else:
-                pass
-        return paths
+    
 
     def handle(self):
         logger.info("MoveFilesActionHandler.handle invoked")
@@ -105,7 +93,11 @@ class MoveFilesActionHandler(AbstractActionHandler):
             self._tool.checkActiveUserIsNotNone()
 
             selFilesAndDirs = self._tool.gui.selectedFiles()
+            selFilesAndDirs = MoveFilesActionHandler.__filterSelectedFilesDirs(selFilesAndDirs)
             selFileAbsPaths = self.__getListOfAllAffectedFiles(selFilesAndDirs)
+            
+            if len(selFileAbsPaths) == 0:
+                return
             
             dstDir = self._dialogs.getExistingDirectory(self._tool.gui, self.tr("Select destination directory"))
             if not dstDir:
@@ -121,7 +113,7 @@ class MoveFilesActionHandler(AbstractActionHandler):
                 dstAbsFile = os.path.join(dstDir, relFile)
                 dstFileAbsPaths.append((absFile, dstAbsFile))
             
-            thread = MoveFilesThread(self._tool.gui, self._tool.repo, dstFileAbsPaths)
+            thread = MoveFilesThread(self._tool.gui, self._tool.repo, dstFileAbsPaths, selFilesAndDirs)
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
         
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
@@ -130,6 +122,33 @@ class MoveFilesActionHandler(AbstractActionHandler):
             
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
+
+    @staticmethod
+    def __filterSelectedFilesDirs(selFiles):
+        result = []
+        for selFile in selFiles:
+            if selFile == ".":
+                continue
+            elif selFile == "..":
+                continue
+            else:
+                result.append(selFile)
+        return result
+                
+
+    def __getListOfAllAffectedFiles(self, selFiles):
+        paths = []
+        for selFile in selFiles:
+            if os.path.isdir(selFile):
+                for root, _subdirs, files,  in os.walk(selFile):
+                    for file in files:
+                        fileAbsPath = os.path.join(root, file)
+                        paths.append(fileAbsPath)
+            elif os.path.isfile(selFile):
+                paths.append(selFile)
+            else:
+                pass
+        return paths
 
 
 class RenameFileActionHandler(AbstractActionHandler):

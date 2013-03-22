@@ -528,12 +528,23 @@ class UpdateGroupOfItemsThread(AbstractWorkerThread):
 
 
 class MoveFilesThread(AbstractWorkerThread):
-    def __init__(self, parent, repo, srcDstFileAbsPaths):
+    def __init__(self, parent, repo, srcDstFileAbsPaths, selFilesAndDirs):
         super(MoveFilesThread, self).__init__(parent)
         self._repo = repo
         self._srcDstFileAbsPaths = srcDstFileAbsPaths
+        self._selFilesAndDirs = selFilesAndDirs
         self.errors = 0
         self.detailed_message = None
+
+    def __removeIfEmpty(self, dirAbsPath):
+        filesDirs = os.listdir(dirAbsPath)
+        if len(filesDirs) == 0:
+            os.rmdir(dirAbsPath)
+        else:
+            for fileOrDir in filesDirs:
+                if os.path.isdir(fileOrDir):
+                    self.__removeIfEmpty(self, fileOrDir)
+            
 
     def doWork(self):
         self.errors = 0
@@ -551,6 +562,11 @@ class MoveFilesThread(AbstractWorkerThread):
 
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self._srcDstFileAbsPaths)))
+            
+            # Now we should delete empty dirs (if there are any)
+            for selFile in self._selFilesAndDirs:
+                if os.path.isdir(selFile):
+                    self.__removeIfEmpty(selFile)
         finally:
             uow.close()
 
