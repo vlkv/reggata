@@ -903,7 +903,7 @@ class MoveFileCommand(AbstractCommand):
         if srcDataRef is not None:
             srcDataRef.url = os.path.relpath(self._dstFileAbsPath, repoBasePath)
 
-        os.makedirs(self._dstFileAbsPath, exist_ok=True)
+        os.makedirs(os.path.dirname(self._dstFileAbsPath), exist_ok=True)
         shutil.move(self._srcFileAbsPath, self._dstFileAbsPath)
         
         session.commit()

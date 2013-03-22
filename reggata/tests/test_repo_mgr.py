@@ -636,7 +636,7 @@ class OtherCommandsTest(AbstractTestCaseWithRepo):
         self.assertTrue(len(dataRefsAfter2) > 0, "There must be files in new directory")
         for dataRef in dataRefsAfter2:
             self.assertTrue(dataRef.url.startswith(newDirRelPath))
-            newFileAbsPath = os.path.join(self.repoBasePath, dataRef.url)
+            newFileAbsPath = os.path.join(self.repo.base_path, dataRef.url)
             self.assertTrue(os.path.exists(newFileAbsPath))
             self.assertTrue(os.path.isfile(newFileAbsPath))
         
