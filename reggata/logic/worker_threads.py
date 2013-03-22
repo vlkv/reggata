@@ -527,6 +527,34 @@ class UpdateGroupOfItemsThread(AbstractWorkerThread):
             uow.close()
 
 
+class MoveFilesThread(AbstractWorkerThread):
+    def __init__(self, parent, repo, srcDstFileAbsPaths):
+        super(MoveFilesThread, self).__init__(parent)
+        self._repo = repo
+        self._srcDstFileAbsPaths = srcDstFileAbsPaths
+        self.errors = 0
+        self.detailed_message = None
+
+    def doWork(self):
+        self.errors = 0
+        self.detailed_message = ""
+        uow = self._repo.createUnitOfWork()
+        try:
+            i = 0
+            for (srcFile, dstFile) in self._srcDstFileAbsPaths:
+                try:
+                    cmd = cmds.MoveFileCommand(srcFile, dstFile)
+                    uow.executeCommand(cmd)
+                except Exception as ex:
+                    self.errors += 1
+                    self.detailed_message += str(ex) + os.linesep
+
+                i = i + 1
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self._srcDstFileAbsPaths)))
+        finally:
+            uow.close()
+
+
 
 class BackgrThread(AbstractWorkerThread):
 

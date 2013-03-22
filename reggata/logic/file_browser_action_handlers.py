@@ -6,9 +6,11 @@ import os
 import logging
 import reggata.errors as err
 import reggata.consts as consts
+import reggata.helpers as hlp
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.logic.common_action_handlers import AddItemAlgorithms
+from reggata.logic.worker_threads import MoveFilesThread
 from reggata.helpers import show_exc_info, is_none_or_empty
 import reggata.data.commands as cmds
 
@@ -82,19 +84,46 @@ class MoveFilesActionHandler(AbstractActionHandler):
         super(MoveFilesActionHandler, self).__init__(tool)
         self._dialogs = dialogs
 
+    def __getListOfAllAffectedFiles(self, selFiles):
+        paths = []
+        for selFile in selFiles:
+            if os.path.isdir(selFile):
+                for root, _subdirs, files,  in os.walk(selFile):
+                    for file in files:
+                        fileAbsPath = os.path.join(root, file)
+                        paths.append(fileAbsPath)
+            elif os.path.isfile(selFile):
+                paths.append(selFile)
+            else:
+                pass
+        return paths
+
     def handle(self):
         logger.info("MoveFilesActionHandler.handle invoked")
         try:
             self._tool.checkActiveRepoIsNotNone()
             self._tool.checkActiveUserIsNotNone()
 
-            selFiles = self._tool.gui.selectedFiles()
+            selFilesAndDirs = self._tool.gui.selectedFiles()
+            selFileAbsPaths = self.__getListOfAllAffectedFiles(selFilesAndDirs)
             
-            # TODO implement
-            # Ask user to select a destination directory within repository.
-            # selFiles is a list of files and dirs
-            # Create a thread that would move files and dirs one by one showing WaitDialog to user
-
+            dstDir = self._dialogs.getExistingDirectory(self._tool.gui, self.tr("Select destination directory"))
+            if not dstDir:
+                return
+            
+            if not hlp.is_internal(dstDir, self._tool.repo.base_path):
+                raise err.WrongValueError(self.tr("Selected directory should be within the current repo"))
+            
+            dstFileAbsPaths = []
+            currDir = self._tool.currDir
+            for absFile in selFileAbsPaths:
+                relFile = os.path.relpath(absFile, currDir)
+                dstAbsFile = os.path.join(dstDir, relFile)
+                dstFileAbsPaths.append((absFile, dstAbsFile))
+            
+            thread = MoveFilesThread(self._tool.gui, self._tool.repo, dstFileAbsPaths)
+            self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
+        
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
                                     consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)

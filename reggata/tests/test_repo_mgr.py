@@ -575,6 +575,7 @@ class OtherCommandsTest(AbstractTestCaseWithRepo):
 
         self.assertFalse(os.path.exists(fileAbsPath))
         self.assertTrue(os.path.exists(newFileAbsPath))
+        self.assertTrue(os.path.isfile(newFileAbsPath))
 
         try:
             uow = self.repo.createUnitOfWork()
@@ -603,6 +604,8 @@ class OtherCommandsTest(AbstractTestCaseWithRepo):
             uow = self.repo.createUnitOfWork()
             itemAfter = self.getExistingItem(context.itemWithTagsAndFields.id)
             self.assertEqual(os.path.relpath(newFileAbsPath, self.repo.base_path), itemAfter.data_ref.url)
+            self.assertTrue(os.path.exists(newFileAbsPath))
+            self.assertTrue(os.path.isfile(newFileAbsPath))
 
         finally:
             uow.close()
@@ -633,6 +636,9 @@ class OtherCommandsTest(AbstractTestCaseWithRepo):
         self.assertTrue(len(dataRefsAfter2) > 0, "There must be files in new directory")
         for dataRef in dataRefsAfter2:
             self.assertTrue(dataRef.url.startswith(newDirRelPath))
+            newFileAbsPath = os.path.join(self.repoBasePath, dataRef.url)
+            self.assertTrue(os.path.exists(newFileAbsPath))
+            self.assertTrue(os.path.isfile(newFileAbsPath))
         
 
         
