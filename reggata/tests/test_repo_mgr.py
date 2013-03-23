@@ -1,11 +1,13 @@
 from reggata.tests.abstract_test_cases import AbstractTestCaseWithRepoAndSingleUOW, \
     AbstractTestCaseWithRepo
+import reggata
 import reggata.tests.tests_context as context
 import reggata.data.db_schema as db
 import reggata.data.commands as cmds
 import reggata.errors as err
 import reggata.helpers as hlp
 import os
+
 
 
 class GetItemTest(AbstractTestCaseWithRepoAndSingleUOW):
@@ -553,7 +555,46 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
 
 
-class OtherCommandsTest(AbstractTestCaseWithRepo):
+class FileCommandsTest(AbstractTestCaseWithRepo):
+
+    def test_deleteUntrackedFileCommand(self):
+        fileRelPath = context.untrackedFileRelPath
+        fileAbsPath = os.path.join(self.repo.base_path, fileRelPath)
+        self.assertTrue(os.path.exists(fileAbsPath))
+        self.assertTrue(os.path.isfile(fileAbsPath))
+        
+        try:
+            uow = self.repo.createUnitOfWork()
+            cmd = cmds.DeleteFileCommand(fileAbsPath)
+            uow.executeCommand(cmd)
+        finally:
+            uow.close()
+        
+        self.assertFalse(os.path.exists(fileAbsPath))
+        
+        
+    # TODO: Implement a similar test but with many items referencing to the same dataRef
+    def test_deleteStoredFileCommand(self):
+        fileRelPath = context.itemWithFile.relFilePath
+        fileAbsPath = os.path.join(self.repo.base_path, fileRelPath)
+        self.assertTrue(os.path.exists(fileAbsPath))
+        self.assertTrue(os.path.isfile(fileAbsPath))
+        
+        try:
+            uow = self.repo.createUnitOfWork()
+            cmd = cmds.DeleteFileCommand(fileAbsPath)
+            uow.executeCommand(cmd)
+        finally:
+            uow.close()
+        
+        self.assertFalse(os.path.exists(fileAbsPath))
+        getItem = lambda : self.getExistingItem(context.itemWithFile.id)
+        self.assertRaises(reggata.errors.NotFoundError, getItem)
+        
+        getDataRef = lambda : self.getDataRef(fileRelPath)
+        self.assertIsNone(getDataRef())
+        
+        
 
     def test_moveFileCommand(self):
         item = self.getExistingItem(context.itemWithTagsAndFields.id)

@@ -865,6 +865,35 @@ class UpdateExistingItemCommand(AbstractCommand):
                                                     nameValuePairsToAdd, user_login)
 
 
+
+class DeleteFileCommand(AbstractCommand):
+    def __init__(self, fileAbsPath):
+        super(DeleteFileCommand, self).__init__()
+        self._fileAbsPath = fileAbsPath
+
+    def _execute(self, uow):
+        session = uow.session
+        repoBasePath = uow._repo_base_path
+        
+        if not hlp.is_internal(self._fileAbsPath, repoBasePath):
+            raise err.WrongValueError("File '{}' is outside of the repository".format(self._fileAbsPath))
+
+        if not os.path.exists(self._fileAbsPath):
+            raise err.NotExistError("File '{}' doesn't exist".format(self._fileAbsPath))
+
+        fileRelPath = os.path.relpath(self._fileAbsPath, repoBasePath)
+        dataRef = session.query(db.DataRef).filter(
+            db.DataRef.url_raw==hlp.to_db_format(fileRelPath)).first()
+        if dataRef is not None:
+            for item in dataRef.items:
+                session.delete(item)
+            session.delete(dataRef)
+                
+        os.remove(self._fileAbsPath)        
+        session.commit()
+
+
+
 class MoveFileCommand(AbstractCommand):
     def __init__(self, srcFileAbsPath, dstFileAbsPath):
         super(MoveFileCommand, self).__init__()
@@ -976,7 +1005,7 @@ class CheckItemIntegrityCommand(AbstractCommand):
 
     def __checkFileDataRef(self, session, errorSet):
         fileAbsPath = os.path.join(self.__repoBasePath, self.__item.data_ref.url)
-        if not os.path.exists(fileAbsPath):
+        if not os.path.exists(fileAbsPath) or not os.path.isfile(fileAbsPath):
             errorSet.add(db.Item.ERROR_FILE_NOT_FOUND)
         else:
             size = os.path.getsize(fileAbsPath)

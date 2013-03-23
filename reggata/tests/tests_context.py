@@ -14,6 +14,7 @@ class ItemReliableFacts(object):
 
 nonExistingItem = ItemReliableFacts()
 nonExistingItem.id = 1000000000
+untrackedFileRelPath = os.path.join("this", "is", "untracked", "file.txt")
 
 itemId_1 = ItemReliableFacts()
 itemId_1.id = 1
