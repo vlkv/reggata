@@ -562,12 +562,14 @@ class DeleteFilesThread(AbstractWorkerThread):
 
     def __removeIfEmpty(self, dirAbsPath):
         filesDirs = os.listdir(dirAbsPath)
-        if len(filesDirs) == 0:
+        for fileOrDir in filesDirs:
+            absPath = os.path.join(dirAbsPath, fileOrDir)
+            if os.path.isdir(absPath):
+                self.__removeIfEmpty(absPath)
+                
+        filesDirsAfter = os.listdir(dirAbsPath)
+        if len(filesDirsAfter) == 0:
             os.rmdir(dirAbsPath)
-        else:
-            for fileOrDir in filesDirs:
-                if os.path.isdir(fileOrDir):
-                    self.__removeIfEmpty(self, fileOrDir)
             
 
 
@@ -607,12 +609,14 @@ class MoveFilesThread(AbstractWorkerThread):
 
     def __removeIfEmpty(self, dirAbsPath):
         filesDirs = os.listdir(dirAbsPath)
-        if len(filesDirs) == 0:
+        for fileOrDir in filesDirs:
+            absPath = os.path.join(dirAbsPath, fileOrDir)
+            if os.path.isdir(absPath):
+                self.__removeIfEmpty(absPath)
+                
+        filesDirsAfter = os.listdir(dirAbsPath)
+        if len(filesDirsAfter) == 0:
             os.rmdir(dirAbsPath)
-        else:
-            for fileOrDir in filesDirs:
-                if os.path.isdir(fileOrDir):
-                    self.__removeIfEmpty(self, fileOrDir)
             
 
 

@@ -97,9 +97,6 @@ class DeleteFilesActionHandler(AbstractActionHandler):
             selFilesAndDirs = DeleteFilesActionHandler.__filterSelectedFilesDirs(selFilesAndDirs)
             selFileAbsPaths = self.__getListOfAllAffectedFiles(selFilesAndDirs)
             
-            if len(selFileAbsPaths) == 0:
-                return
-            
             thread = DeleteFilesThread(self._tool.gui, self._tool.repo, selFileAbsPaths, selFilesAndDirs)
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
         
