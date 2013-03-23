@@ -557,7 +557,7 @@ class UpdateItemTest(AbstractTestCaseWithRepo):
 
 class FileCommandsTest(AbstractTestCaseWithRepo):
 
-    def test_deleteUntrackedFileCommand(self):
+    def test_deleteUntrackedFile(self):
         fileRelPath = context.untrackedFileRelPath
         fileAbsPath = os.path.join(self.repo.base_path, fileRelPath)
         self.assertTrue(os.path.exists(fileAbsPath))
@@ -573,12 +573,14 @@ class FileCommandsTest(AbstractTestCaseWithRepo):
         self.assertFalse(os.path.exists(fileAbsPath))
         
         
-    # TODO: Implement a similar test but with many items referencing to the same dataRef
-    def test_deleteStoredFileCommand(self):
+    def test_deleteStoredFile(self):
         fileRelPath = context.itemWithFile.relFilePath
         fileAbsPath = os.path.join(self.repo.base_path, fileRelPath)
         self.assertTrue(os.path.exists(fileAbsPath))
         self.assertTrue(os.path.isfile(fileAbsPath))
+        
+        item = self.getExistingItem(context.itemWithFile.id)
+        self.assertIsNotNone(item)
         
         try:
             uow = self.repo.createUnitOfWork()
@@ -593,6 +595,39 @@ class FileCommandsTest(AbstractTestCaseWithRepo):
         
         getDataRef = lambda : self.getDataRef(fileRelPath)
         self.assertIsNone(getDataRef())
+        
+        
+    def test_deleteStoredSharedFile(self):
+        fileRelPath = context.itemNo1WithSharedFile.relFilePath
+        fileAbsPath = os.path.join(self.repo.base_path, fileRelPath)
+        self.assertTrue(os.path.exists(fileAbsPath))
+        self.assertTrue(os.path.isfile(fileAbsPath))
+        
+        item1 = self.getExistingItem(context.itemNo1WithSharedFile.id)
+        self.assertIsNotNone(item1)
+        
+        item2 = self.getExistingItem(context.itemNo2WithSharedFile.id)
+        self.assertIsNotNone(item2)
+        
+        self.assertEqual(item1.data_ref.id, item2.data_ref.id)
+        
+        try:
+            uow = self.repo.createUnitOfWork()
+            cmd = cmds.DeleteFileCommand(fileAbsPath)
+            uow.executeCommand(cmd)
+        finally:
+            uow.close()
+        
+        self.assertFalse(os.path.exists(fileAbsPath))
+        getItem = lambda : self.getExistingItem(context.itemNo1WithSharedFile.id)
+        self.assertRaises(reggata.errors.NotFoundError, getItem)
+        
+        getItem = lambda : self.getExistingItem(context.itemNo2WithSharedFile.id)
+        self.assertRaises(reggata.errors.NotFoundError, getItem)
+        
+        getDataRef = lambda : self.getDataRef(fileRelPath)
+        self.assertIsNone(getDataRef())
+    
         
         
 
