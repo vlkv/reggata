@@ -889,7 +889,7 @@ class DeleteFileCommand(AbstractCommand):
                 session.delete(item)
             session.delete(dataRef)
                 
-        os.remove(self._fileAbsPath)        
+        os.remove(self._fileAbsPath)
         session.commit()
 
 

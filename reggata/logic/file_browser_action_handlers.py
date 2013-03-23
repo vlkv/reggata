@@ -10,7 +10,7 @@ import reggata.helpers as hlp
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.logic.common_action_handlers import AddItemAlgorithms
-from reggata.logic.worker_threads import MoveFilesThread
+from reggata.logic.worker_threads import MoveFilesThread, DeleteFilesThread
 from reggata.helpers import show_exc_info, is_none_or_empty
 import reggata.data.commands as cmds
 
@@ -27,6 +27,7 @@ class AddFilesToRepoActionHandler(AbstractActionHandler):
         self.lastSavedItemIds = []
 
     def handle(self):
+        logger.info("AddFilesToRepoActionHandler.handle invoked")
         try:
             self._tool.checkActiveRepoIsNotNone()
             self._tool.checkActiveUserIsNotNone()
@@ -56,6 +57,7 @@ class OpenFileActionHandler(AbstractActionHandler):
         self._extAppMgr = extAppMgr
 
     def handle(self):
+        logger.info("OpenFileActionHandler.handle invoked")
         try:
             selFiles = self._tool.gui.selectedFiles()
             if len(selFiles) != 1:
@@ -79,12 +81,67 @@ class OpenFileActionHandler(AbstractActionHandler):
                 self.tr("Done."), consts.STATUSBAR_TIMEOUT)
 
 
+
+class DeleteFilesActionHandler(AbstractActionHandler):
+    def __init__(self, tool, dialogs):
+        super(DeleteFilesActionHandler, self).__init__(tool)
+        self._dialogs = dialogs
+
+    def handle(self):
+        logger.info("DeleteFilesActionHandler.handle invoked")
+        try:
+            self._tool.checkActiveRepoIsNotNone()
+            self._tool.checkActiveUserIsNotNone()
+
+            selFilesAndDirs = self._tool.gui.selectedFiles()
+            selFilesAndDirs = DeleteFilesActionHandler.__filterSelectedFilesDirs(selFilesAndDirs)
+            selFileAbsPaths = self.__getListOfAllAffectedFiles(selFilesAndDirs)
+            
+            if len(selFileAbsPaths) == 0:
+                return
+            
+            thread = DeleteFilesThread(self._tool.gui, self._tool.repo, selFileAbsPaths, selFilesAndDirs)
+            self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
+        
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
+                                    consts.STATUSBAR_TIMEOUT)
+            self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
+            
+        except Exception as ex:
+            show_exc_info(self._tool.gui, ex)
+
+    @staticmethod
+    def __filterSelectedFilesDirs(selFiles):
+        result = []
+        for selFile in selFiles:
+            if selFile == ".":
+                continue
+            elif selFile == "..":
+                continue
+            else:
+                result.append(selFile)
+        return result
+
+    def __getListOfAllAffectedFiles(self, selFiles):
+        paths = []
+        for selFile in selFiles:
+            if os.path.isdir(selFile):
+                for root, _subdirs, files,  in os.walk(selFile):
+                    for file in files:
+                        fileAbsPath = os.path.join(root, file)
+                        paths.append(fileAbsPath)
+            elif os.path.isfile(selFile):
+                paths.append(selFile)
+            else:
+                pass
+        return paths
+
+
+
 class MoveFilesActionHandler(AbstractActionHandler):
     def __init__(self, tool, dialogs):
         super(MoveFilesActionHandler, self).__init__(tool)
         self._dialogs = dialogs
-
-    
 
     def handle(self):
         logger.info("MoveFilesActionHandler.handle invoked")
@@ -134,7 +191,6 @@ class MoveFilesActionHandler(AbstractActionHandler):
             else:
                 result.append(selFile)
         return result
-                
 
     def __getListOfAllAffectedFiles(self, selFiles):
         paths = []
@@ -149,6 +205,7 @@ class MoveFilesActionHandler(AbstractActionHandler):
             else:
                 pass
         return paths
+
 
 
 class RenameFileActionHandler(AbstractActionHandler):

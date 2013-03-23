@@ -527,14 +527,38 @@ class UpdateGroupOfItemsThread(AbstractWorkerThread):
             uow.close()
 
 
-class MoveFilesThread(AbstractWorkerThread):
-    def __init__(self, parent, repo, srcDstFileAbsPaths, selFilesAndDirs):
-        super(MoveFilesThread, self).__init__(parent)
+class DeleteFilesThread(AbstractWorkerThread):
+    def __init__(self, parent, repo, fileAbsPaths, selFilesAndDirs):
+        super(DeleteFilesThread, self).__init__(parent)
         self._repo = repo
-        self._srcDstFileAbsPaths = srcDstFileAbsPaths
+        self._fileAbsPaths = fileAbsPaths
         self._selFilesAndDirs = selFilesAndDirs
         self.errors = 0
         self.detailed_message = None
+
+    def doWork(self):
+        self.errors = 0
+        self.detailed_message = ""
+        uow = self._repo.createUnitOfWork()
+        try:
+            i = 0
+            for fileAbsPath in self._fileAbsPaths:
+                try:
+                    cmd = cmds.DeleteFileCommand(fileAbsPath)
+                    uow.executeCommand(cmd)
+                except Exception as ex:
+                    self.errors += 1
+                    self.detailed_message += str(ex) + os.linesep
+
+                i = i + 1
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self._fileAbsPaths)))
+            
+            # Now we should delete empty dirs (if there are any)
+            for selFile in self._selFilesAndDirs:
+                if os.path.isdir(selFile):
+                    self.__removeIfEmpty(selFile)
+        finally:
+            uow.close()
 
     def __removeIfEmpty(self, dirAbsPath):
         filesDirs = os.listdir(dirAbsPath)
@@ -545,6 +569,17 @@ class MoveFilesThread(AbstractWorkerThread):
                 if os.path.isdir(fileOrDir):
                     self.__removeIfEmpty(self, fileOrDir)
             
+
+
+
+class MoveFilesThread(AbstractWorkerThread):
+    def __init__(self, parent, repo, srcDstFileAbsPaths, selFilesAndDirs):
+        super(MoveFilesThread, self).__init__(parent)
+        self._repo = repo
+        self._srcDstFileAbsPaths = srcDstFileAbsPaths
+        self._selFilesAndDirs = selFilesAndDirs
+        self.errors = 0
+        self.detailed_message = None
 
     def doWork(self):
         self.errors = 0
@@ -569,6 +604,16 @@ class MoveFilesThread(AbstractWorkerThread):
                     self.__removeIfEmpty(selFile)
         finally:
             uow.close()
+
+    def __removeIfEmpty(self, dirAbsPath):
+        filesDirs = os.listdir(dirAbsPath)
+        if len(filesDirs) == 0:
+            os.rmdir(dirAbsPath)
+        else:
+            for fileOrDir in filesDirs:
+                if os.path.isdir(fileOrDir):
+                    self.__removeIfEmpty(self, fileOrDir)
+            
 
 
 
