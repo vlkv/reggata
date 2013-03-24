@@ -43,13 +43,13 @@ $ reggata
 === Installing from source
 
 If you are going to run Reggata from source, you have to manually install all it's dependencies. They are:
-  # Python (>= 3.2) [[http://www.python.org/]].
-  # Qt (>= 4.6) [[http://qt.nokia.com/]].
+  # Python (>= 3.1.2) [[http://www.python.org/]].
+  # Qt (>= 4.9.3) [[http://qt.nokia.com/]].
   # SIP (>= 4.11) [[http://www.riverbankcomputing.co.uk/software/sip/download]].
-  # PyQt4 (>= 4.8) [[http://www.riverbankcomputing.co.uk/software/pyqt/download]].
+  # PyQt4 (>= 4.9.3) [[http://www.riverbankcomputing.co.uk/software/pyqt/download]].
   # SQLAlchemy (>= 0.7) [[http://www.sqlalchemy.org/]].
-  # SQLite3 (>= 3.5) [[http://www.sqlite.org/]].
-  # Ply (>= 3.3) [[http://www.dabeaz.com/ply/]].
+  # SQLite3 (>= 3.7) [[http://www.sqlite.org/]].
+  # Ply (>= 3.4) [[http://www.dabeaz.com/ply/]].
 
 Notes for Windows users:
   # You don't have to install SQLite3 as a separate package because it
