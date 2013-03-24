@@ -42,7 +42,7 @@ $ reggata
 
 === Installing from source
 
-If you going to run Reggata from source, you have to manually install all it's dependencies. They are:
+If you are going to run Reggata from source, you have to manually install all it's dependencies. They are:
   # Python (>= 3.2) [[http://www.python.org/]].
   # Qt (>= 4.6) [[http://qt.nokia.com/]].
   # SIP (>= 4.11) [[http://www.riverbankcomputing.co.uk/software/sip/download]].
