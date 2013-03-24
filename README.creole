@@ -17,27 +17,35 @@ Reggata screenshots are here: [[http://sourceforge.net/project/screenshots.php?g
 
 == Installation instructions
 
-Reggata is tested under GNU/Linux and Windows.
+You can run Reggata under Windows and GNU/Linux. Source and binary packages can be downloaded
+from here [[https://sourceforge.net/projects/reggata/files/]].
 
-=== Binary packages
+=== Windows
 
-Reggata binary packages for Windows and GNU/Linux are available at 
-[[https://sourceforge.net/projects/reggata/files/]].
+For Windows there are a binary packages reggata-<version>_win.zip. Download the package, unpack it and
+execute reggata.exe.
 
-Just download the zip/tar archive, unpack it and execute file "reggata" or "reggata.exe".
+=== Debian and Ubuntu
+
+Download python3-reggata_<version>_all.deb package and install it with dpkg:
+$ sudo dpkg -i python3-reggata_<version>_all.deb
+
+All Reggata dependencies are there in Debian Wheezy.
+
+After that you should be able to run Reggata just executing in shell
+
+$ reggata
 
 === Installing from source
 
-To run reggata from source code you need to manually install:
-  # Python (>= 3.1.1) [[http://www.python.org/]].
+If you going to run Reggata from source, you have to manually install all it's dependencies. They are:
+  # Python (>= 3.2) [[http://www.python.org/]].
   # Qt (>= 4.6) [[http://qt.nokia.com/]].
-  # SIP (>= 4.11.2) [[http://www.riverbankcomputing.co.uk/software/sip/download]].
-  # PyQt4 (>= 4.8.1) [[http://www.riverbankcomputing.co.uk/software/pyqt/download]].
-  # SQLAlchemy (>= 0.7.4) [[http://www.sqlalchemy.org/]].
-  # SQLite3 (>= 3.5.9) [[http://www.sqlite.org/]].
+  # SIP (>= 4.11) [[http://www.riverbankcomputing.co.uk/software/sip/download]].
+  # PyQt4 (>= 4.8) [[http://www.riverbankcomputing.co.uk/software/pyqt/download]].
+  # SQLAlchemy (>= 0.7) [[http://www.sqlalchemy.org/]].
+  # SQLite3 (>= 3.5) [[http://www.sqlite.org/]].
   # Ply (>= 3.3) [[http://www.dabeaz.com/ply/]].
-
-Download Reggata source tree, unpack it and execute script "reggata" (or "reggata.bat" on Windows).
 
 Notes for Windows users:
   # You don't have to install SQLite3 as a separate package because it
@@ -46,13 +54,19 @@ is included in standard Python distribution for Windows.
 official site ([[http://www.riverbankcomputing.co.uk/software/pyqt/download]]).
 This installer contains Qt4, SIP and PyQt4.
 
+Download reggata-<version>.tar.gz archive, unpack it and execute
+
+$ sudo python3 setup.py install
+
+After that you should be able to run Reggata just executing in shell
+
+$ reggata
 
 
 == About the author
 
 Reggata is created by Vitaly Volkov (nicknames: vlkv, vitvlkv). 
 Contact email: vitvlkv@gmail.com
-
 
 
 == Licence
