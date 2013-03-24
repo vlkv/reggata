@@ -20,21 +20,25 @@ Reggata screenshots are here: [[http://sourceforge.net/project/screenshots.php?g
 You can run Reggata under Windows and GNU/Linux. Source and binary packages can be downloaded
 from here [[https://sourceforge.net/projects/reggata/files/]].
 
+
 === Windows
 
 For Windows there are a binary packages reggata-<version>_win.zip. Download the package, unpack it and
 execute reggata.exe.
 
+
 === Debian and Ubuntu
 
 Download python3-reggata_<version>_all.deb package and install it with dpkg:
+{{{
 $ sudo dpkg -i python3-reggata_<version>_all.deb
-
-All Reggata dependencies are there in Debian Wheezy.
-
+}}}
+All Reggata dependencies are there in Debian Wheezy. Don't know about Ubuntu... but it should work also.
 After that you should be able to run Reggata just executing in shell
-
+{{{
 $ reggata
+}}}
+
 
 === Installing from source
 
@@ -55,12 +59,13 @@ official site ([[http://www.riverbankcomputing.co.uk/software/pyqt/download]]).
 This installer contains Qt4, SIP and PyQt4.
 
 Download reggata-<version>.tar.gz archive, unpack it and execute
-
+{{{
 $ sudo python3 setup.py install
-
+}}}
 After that you should be able to run Reggata just executing in shell
-
+{{{
 $ reggata
+}}}
 
 
 == About the author
