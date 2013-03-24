@@ -44,6 +44,11 @@ class FileBrowser(AbstractTool):
         self._thread = None
         self._enabled = False
         self._extAppMgr = ExtAppMgr()
+        
+        self._guiUpdater.subscribe(
+            self._extAppMgr, self._extAppMgr.updateState,
+            [HandlerSignals.REGGATA_CONF_CHANGED])
+        
         logger.debug("File Browser __init__ finished.")
 
 

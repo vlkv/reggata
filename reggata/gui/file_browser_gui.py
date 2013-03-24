@@ -11,6 +11,7 @@ from reggata.ui.ui_filebrowsergui import Ui_FileBrowserGui
 from reggata.helpers import HTMLDelegate
 import reggata.helpers as helpers
 from reggata.user_config import UserConfig
+import os
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -65,9 +66,13 @@ class FileBrowserGui(ToolGui):
     def __onTableCellActivated(self, index):
         try:
             filename = self.ui.filesTableView.model().data(index, FileBrowserTableModel.ROLE_FILENAME)
-            self.__fileBrowserTool.changeRelDir(filename)
-            self.__handleCurrentlySelectedRow(isGoingUp=(filename == ".."),
-                                              newRow=index.row())
+            absFilename = os.path.join(self.__fileBrowserTool.currDir, filename)
+            if os.path.isdir(absFilename):
+                self.__fileBrowserTool.changeRelDir(filename)
+                self.__handleCurrentlySelectedRow(isGoingUp=(filename == ".."),
+                                                  newRow=index.row())
+            else:
+                self.actions['openFile'].trigger()
         except Exception as ex:
             logger.debug("Cannot change current directory: " + str(ex))
 
