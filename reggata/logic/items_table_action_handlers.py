@@ -399,6 +399,17 @@ class ExportItemsActionHandler(AbstractActionHandler):
             if not exportFilename:
                 raise errors.MsgException(self.tr("You haven't chosen a file. Operation canceled."))
 
+            if not exportFilename.endswith(".raf"):
+                exportFilename += ".raf"
+                
+            if os.path.exists(exportFilename):
+                mbRes = self._dialogs.execMessageBox(self._tool.gui, 
+                                             text=self.tr("File {} already exists. Do you want to overwrite it?")
+                                             .format(exportFilename), 
+                                             buttons=[QtGui.QMessageBox.Yes | QtGui.QMessageBox.No])
+                if mbRes != QtGui.QMessageBox.Yes:
+                    return
+
             thread = threads.ExportItemsThread(self, self._tool.repo, itemIds, exportFilename)
 
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)

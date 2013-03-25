@@ -71,7 +71,9 @@ class UserDialogsFacade(AbstractDialogsFacade):
         return dirPath
 
     def getSaveFileName(self, gui, textMessageForUser, fileFilter=""):
-        filename = QFileDialog.getSaveFileName(parent=gui, caption=textMessageForUser, filter=fileFilter)
+        filename = QFileDialog.getSaveFileName(parent=gui, caption=textMessageForUser, 
+                                               filter=fileFilter,
+                                               options=QFileDialog.DontConfirmOverwrite)
         return filename
 
     def execMessageBox(self, parent, text, title="Reggata", buttons=[QMessageBox.Ok], detailedText=None):
