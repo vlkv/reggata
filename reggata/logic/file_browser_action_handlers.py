@@ -100,6 +100,10 @@ class DeleteFilesActionHandler(AbstractActionHandler):
             thread = DeleteFilesThread(self._tool.gui, self._tool.repo, selFileAbsPaths, selFilesAndDirs)
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
         
+            if thread.errors > 0:
+                self._dialogs.execMessageBox(self._tool.gui, 
+                                             text="There were {} errors.".format(thread.errors), 
+                                             detailedText=thread.detailed_message)
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
                                     consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
@@ -170,12 +174,18 @@ class MoveFilesActionHandler(AbstractActionHandler):
             thread = MoveFilesThread(self._tool.gui, self._tool.repo, dstFileAbsPaths, selFilesAndDirs)
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
         
+            if thread.errors > 0:
+                self._dialogs.execMessageBox(self._tool.gui, 
+                                             text="There were {} errors.".format(thread.errors), 
+                                             detailedText=thread.detailed_message)
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
-                                    consts.STATUSBAR_TIMEOUT)
+                                consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
             
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
+            
+        
 
     @staticmethod
     def __filterSelectedFilesDirs(selFiles):
