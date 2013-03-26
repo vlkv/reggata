@@ -1,5 +1,23 @@
+reggata (1.0.0b4-1) UNRELEASED; urgency=low
+
+  * #110 BUG: File Browser: Move File doesn't work when trying to move single 
+  file
+  * #108 BUG: Export Items doesn't automatically add .raf extension to the 
+  create archive file
+  * #83 Update installation instructions in README.creole
+  * #79 NEW FEATURE: Open files with preferred external applications in File 
+    Browser
+  * #80 NEW FEATURE: Delete files in File Browser
+  * #90 NEW FEATURE: Implement "Move File/Dir(s)" action in FileBrowser
+  * #107 BUG: File Browser: Add One Item - when file added is already inside
+  repo - dialog suggests to add it to the repo root
+  * #103 BUG: Exit action doesn't work
+
+ -- Vitaly Volkov <vitvlkv@gmail.com>  Tue, 26 Mar 2013 20:59:41 +0400
+
 reggata (1.0.0b3-1) UNRELEASED; urgency=low
 
-  * Initial release. (Closes: #nnnn)
+  * Initial release.
+  * #104 INSTALL: Create a distribution package for Debian (*.deb)
 
  -- Vitaly Volkov <vitvlkv@gmail.com>  Sun, 10 Mar 2013 11:00:49 +0400
