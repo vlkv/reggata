@@ -164,7 +164,7 @@ class AddItemAlgorithms(object):
                         continue
                     for file in files:
                         item = db.Item(user_login=tool.user.login)
-                        item.title, _ = os.path.splitext(file)
+                        item.title, _ = os.path.splitext(os.path.basename(file))
                         srcAbsPath = os.path.join(root, file)
                         item.data_ref = db.DataRef(objType=db.DataRef.FILE, url=srcAbsPath) #DataRef.url can be changed in ItemsDialog
                         item.data_ref.srcAbsPath = srcAbsPath
