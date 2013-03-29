@@ -3,6 +3,7 @@ from reggata.data.commands import QueryItemsByParseTree
 from reggata.parsers.query_parser import parser
 
 
+# NOTE: This list contains tuples (query, expectedItemIds)
 testsData = [
     ("Txt AND Lyrics", [14, 15]),
     ("Txt And Lyrics", [14, 15]),
