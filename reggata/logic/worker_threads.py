@@ -475,6 +475,7 @@ class CreateGroupOfItemsThread(AbstractWorkerThread):
         self.lastSavedItemIds = []
 
     def doWork(self):
+        logger.info("CreateGroupOfItemsThread is going to process {} items".format(len(self.items)))
         self.skippedCount = 0
         self.createdCount = 0
         uow = self.repo.createUnitOfWork()

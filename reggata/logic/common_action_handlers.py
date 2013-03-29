@@ -40,14 +40,14 @@ class AddItemAlgorithms(object):
             itemsCreatedCount += 1
             lastSavedItemIds.append(savedItemId)
 
-        elif len(listOfPaths) == 1 :
+        elif len(listOfPaths) == 1:
             file = listOfPaths[0]
             if os.path.isdir(file):
                 # User wants to create Items for all files in selected directory
-                (itemsCreatedCount, filesSkippedCount, savedItemIds) = \
+                created, skipped, savedItemIds = \
                     AddItemAlgorithms.addManyItemsRecursively(tool, dialogs, [file])
-                itemsCreatedCount += itemsCreatedCount
-                filesSkippedCount += filesSkippedCount
+                itemsCreatedCount += created
+                filesSkippedCount += skipped
                 lastSavedItemIds.extend(savedItemIds)
             else:
                 # User wants to add single Item with file
@@ -56,10 +56,10 @@ class AddItemAlgorithms(object):
                 lastSavedItemIds.append(savedItemId)
         else:
             # User wants to create Items for a whole list of files and dirs
-            (itemsCreatedCount, filesSkippedCount, savedItemIds) = \
+            created, skipped, savedItemIds = \
                 AddItemAlgorithms.addManyItemsRecursively(tool, dialogs, listOfPaths)
-            itemsCreatedCount += itemsCreatedCount
-            filesSkippedCount += filesSkippedCount
+            itemsCreatedCount += created
+            filesSkippedCount += skipped
             lastSavedItemIds.extend(savedItemIds)
         return (itemsCreatedCount, filesSkippedCount, lastSavedItemIds)
 
