@@ -205,7 +205,6 @@ class GetUntaggedItems(AbstractCommand):
 
 
 
-# TODO: Write tests for this command
 class QueryItemsByParseTree(AbstractCommand):
     '''
         Searches for items, according to given syntax parse tree (of query language).
