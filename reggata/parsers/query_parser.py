@@ -65,6 +65,7 @@ def p_simple_query(p):
                     | tags_conjunction extra_clause
                     | fields_conjunction
                     | fields_conjunction extra_clause
+                    | all_items
     '''
     if len(p) == 2:
         p[0] = p[1]
@@ -191,6 +192,12 @@ def p_field_value(p):
     '''field_value : STRING
     '''
     p[0] = p[1]
+
+
+def p_all_items(p):
+    '''all_items : ALL
+    '''
+    p[0] = tree.AllItems()
 
 
 # Error rule for syntax errors

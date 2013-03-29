@@ -9,9 +9,8 @@ import ply.lex as lex
 import re
 from PyQt4.QtCore import QCoreApplication
 from reggata.errors import LexError
-import reggata.consts as consts
 
-
+ALL_OPERATOR = QCoreApplication.translate("parsers", 'all', None, QCoreApplication.UnicodeUTF8)
 AND_OPERATOR = QCoreApplication.translate("parsers", 'and', None, QCoreApplication.UnicodeUTF8)
 OR_OPERATOR = QCoreApplication.translate("parsers", 'or', None, QCoreApplication.UnicodeUTF8)
 NOT_OPERATOR = QCoreApplication.translate("parsers", 'not', None, QCoreApplication.UnicodeUTF8)
@@ -21,8 +20,13 @@ TITLE_KEYWORD = QCoreApplication.translate("parsers", 'title', None, QCoreApplic
 
 # In reserved dict key is a reserved keyword, value is a token type.
 reserved = dict()
-for keyword, tokenType in [(AND_OPERATOR, 'AND'), (OR_OPERATOR, 'OR'), (NOT_OPERATOR, 'NOT'),
-              (USER_KEYWORD, 'USER'), (PATH_KEYWORD, 'PATH'), (TITLE_KEYWORD, 'TITLE')]:
+for keyword, tokenType in [(ALL_OPERATOR, 'ALL'),
+                           (AND_OPERATOR, 'AND'),
+                           (OR_OPERATOR, 'OR'),
+                           (NOT_OPERATOR, 'NOT'),
+                           (USER_KEYWORD, 'USER'),
+                           (PATH_KEYWORD, 'PATH'),
+                           (TITLE_KEYWORD, 'TITLE')]:
     reserved[keyword.capitalize()] = tokenType
     reserved[keyword.upper()] = tokenType
     reserved[keyword.lower()] = tokenType
@@ -56,7 +60,7 @@ def t_STRING(t):
     # The first part: "(\\["\\]|[^"\\])*" String is a sequence of symbols in a double quotes,
     # that consists of escaped " and \ symbols (i.e. \" and \\) and doesn't consists of " and \ symbols.
     # The second part: ([^\s():=><~"\\])+ String is a non-zero-length unquoted sequence of symbols
-    # adn doesn't consisted of whitespaces, braces, colons, and symbols > < = ~ and \
+    # and doesn't consisted of whitespaces, braces, colons, and symbols > < = ~ and \
 
     # String should not match with any of keywords
     t.type = reserved.get(t.value, 'STRING')

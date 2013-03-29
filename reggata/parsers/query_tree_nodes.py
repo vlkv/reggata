@@ -274,6 +274,26 @@ class Tag(QueryExpression):
         return self.name
 
 
+class AllItems(SimpleQuery):
+    '''
+        A query that selects all alive items from repository.
+    '''
+    def __init__(self):
+        super(AllItems, self).__init__()
+
+    def interpret(self):
+        s = '''
+        --AllItems.interpret()
+        select distinct
+            i.*,
+            ''' + db_schema.DataRef._sql_from() + '''
+        from items i
+        left join items_tags it on i.id = it.item_id
+        left join tags t on t.id = it.tag_id
+        left join data_refs on data_refs.id = i.data_ref_id
+            where 1'''
+        return s
+
 
 class TagsConjunction(SimpleQuery):
     '''
