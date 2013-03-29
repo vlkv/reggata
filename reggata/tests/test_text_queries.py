@@ -9,6 +9,13 @@ testsData = [
     ("Txt and Lyrics", [14, 15]),
     ("Txt aND Lyrics", []), # 'aND' is interpreted as a name of a tag
     ("Txt Lyrics", [14, 15]), # AND operator is optional 
+    ("Tabs AND Error AND RHCP", [9]),
+    
+    ("Lyrics AND NOT RHCP", [4, 10]),
+    
+    ("Rating > 2", [5, 13, 14, 15]),
+    ("(Txt AND Lyrics) AND (Rating > 0)", [14, 15]),
+    ("(Txt AND Lyrics) AND (Rating > 3)", [14]),
 ]
 
 
