@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'userdialog.ui'
 #
-# Created: Thu Aug 23 22:04:03 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Sat Mar 30 14:07:22 2013
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -76,3 +76,4 @@ class Ui_UserDialog(object):
         self.comboBox_group.setItemText(1, QtGui.QApplication.translate("UserDialog", "ADMIN", None, QtGui.QApplication.UnicodeUTF8))
         self.label_password_repeat.setText(QtGui.QApplication.translate("UserDialog", "Repeat password:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_notice.setText(QtGui.QApplication.translate("UserDialog", "Note: default user login is \"user\" with empty password.", None, QtGui.QApplication.UnicodeUTF8))
+

@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'aboutdialog.ui'
 #
-# Created: Fri Jul 20 20:32:30 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Sat Mar 30 14:07:20 2013
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -38,3 +38,4 @@ class Ui_AboutDialog(object):
 
     def retranslateUi(self, AboutDialog):
         AboutDialog.setWindowTitle(QtGui.QApplication.translate("AboutDialog", "About Reggata", None, QtGui.QApplication.UnicodeUTF8))
+

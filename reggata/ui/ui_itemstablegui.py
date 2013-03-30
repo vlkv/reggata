@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'itemstablegui.ui'
 #
-# Created: Wed Dec 19 19:06:12 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Sat Mar 30 14:07:21 2013
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -70,3 +70,4 @@ class Ui_ItemsTableGui(object):
         self.label_2.setText(QtGui.QApplication.translate("ItemsTableGui", "Limit:", None, QtGui.QApplication.UnicodeUTF8))
         self.spinBox_limit.setToolTip(QtGui.QApplication.translate("ItemsTableGui", "Maximum number of rows per page to display (0 - no limit).", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("ItemsTableGui", "Page:", None, QtGui.QApplication.UnicodeUTF8))
+

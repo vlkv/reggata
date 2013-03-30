@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'externalappsdialog.ui'
 #
-# Created: Tue Oct 02 20:24:14 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Sat Mar 30 14:07:21 2013
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -99,8 +99,8 @@ class Ui_ExternalAppsDialog(object):
         self.gridLayout.addWidget(self.lineEditFileExtensions, 3, 2, 1, 2)
         self.groupBox = QtGui.QGroupBox(ExternalAppsDialog)
         font = QtGui.QFont()
-        font.setWeight(75)
         font.setBold(True)
+        font.setWeight(75)
         self.groupBox.setFont(font)
         self.groupBox.setFlat(True)
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
@@ -109,8 +109,8 @@ class Ui_ExternalAppsDialog(object):
         self.gridLayout.addItem(spacerItem1, 1, 0, 1, 1)
         self.groupBox_2 = QtGui.QGroupBox(ExternalAppsDialog)
         font = QtGui.QFont()
-        font.setWeight(75)
         font.setBold(True)
+        font.setWeight(75)
         self.groupBox_2.setFont(font)
         self.groupBox_2.setFlat(True)
         self.groupBox_2.setObjectName(_fromUtf8("groupBox_2"))
@@ -165,3 +165,4 @@ class Ui_ExternalAppsDialog(object):
         self.groupBox_2.setTitle(QtGui.QApplication.translate("ExternalAppsDialog", "External File Browser", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Executable:", None, QtGui.QApplication.UnicodeUTF8))
         self.buttonSelectFileBrowser.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
+

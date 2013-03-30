@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'imageviewer.ui'
 #
-# Created: Tue Sep  4 22:07:08 2012
-#      by: PyQt4 UI code generator 4.9.4
+# Created: Sat Mar 30 14:07:21 2013
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -22,7 +22,7 @@ class Ui_ImageViewer(object):
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         ImageViewer.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(ImageViewer)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 562, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 562, 26))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         ImageViewer.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(ImageViewer)

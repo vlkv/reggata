@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'changeuserpassword.ui'
 #
-# Created: Fri Jul 20 20:32:31 2012
-#      by: PyQt4 UI code generator 4.8.1
+# Created: Sat Mar 30 14:07:20 2013
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -69,3 +69,4 @@ class Ui_ChangeUserPasswordDialog(object):
         self.label.setText(QtGui.QApplication.translate("ChangeUserPasswordDialog", "Current password:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_password.setText(QtGui.QApplication.translate("ChangeUserPasswordDialog", "New password:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_password_repeat.setText(QtGui.QApplication.translate("ChangeUserPasswordDialog", "Repeat new password:", None, QtGui.QApplication.UnicodeUTF8))
+

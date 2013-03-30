@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\itemsdialog.ui'
+# Form implementation generated from reading ui file 'itemsdialog.ui'
 #
-# Created: Sun Jan  6 22:18:24 2013
-#      by: PyQt4 UI code generator 4.9
+# Created: Sat Mar 30 14:07:21 2013
+#      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -111,3 +111,4 @@ class Ui_ItemsDialog(object):
         self.label_10.setText(QtGui.QApplication.translate("ItemsDialog", "Tags to add:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_fields_rm.setText(QtGui.QApplication.translate("ItemsDialog", "Field names to remove:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_tags_rm.setText(QtGui.QApplication.translate("ItemsDialog", "Tags to remove:", None, QtGui.QApplication.UnicodeUTF8))
+
