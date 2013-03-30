@@ -179,6 +179,7 @@ class TagCloudTextEdit(QtGui.QTextEdit):
     def reset(self):
         self.tags.clear()
         self.not_tags.clear()
+        self.keywordAll = False
         self.refresh()
 
 
