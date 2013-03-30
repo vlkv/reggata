@@ -152,13 +152,18 @@ class ItemsTableGui(ToolGui):
         self.__table_model.resetRowRange(topRow, bottomRow)
 
 
+    def selectedKeywordAll(self):
+        self.ui.lineEdit_query.setText("ALL")
+        self.query_exec()
+
+
     def selected_tags_changed(self, tags, not_tags):
         text = ""
         for tag in tags:
             text = text + tag + " "
         for tag in not_tags:
             text = text + query_tokens.NOT_OPERATOR + " " + tag + " "
-        text = self.ui.lineEdit_query.setText(text)
+        self.ui.lineEdit_query.setText(text)
         self.query_exec()
 
 

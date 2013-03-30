@@ -45,6 +45,12 @@ class TagCloudGui(ToolGui):
         self.connect(self.__tagCloudTextEdit,
                      QtCore.SIGNAL("selectedTagsChanged"),
                      self._emitSelectedTagsChanged)
+        
+        self.connect(self.__tagCloudTextEdit,
+                     QtCore.SIGNAL("selectedKeywordAll"),
+                     self._emitSelectedKeywordAll)
+        
+        
 
         layout = QtGui.QVBoxLayout()
         layout.addWidget(self.__tagCloudTextEdit)
@@ -61,21 +67,24 @@ class TagCloudGui(ToolGui):
 
     def _emitSelectedTagsChanged(self, tags, notTags):
         self.emit(QtCore.SIGNAL("selectedTagsChanged"), tags, notTags)
+        
+    def _emitSelectedKeywordAll(self):
+        self.emit(QtCore.SIGNAL("selectedKeywordAll"))
 
     def refresh(self):
         self.__tagCloudTextEdit.refresh()
 
 
-class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
+class TagCloudTextEdit(QtGui.QTextEdit):
     '''
         TagCloudTextEdit is a widget for displaying and interacting with a Cloud of Tags.
     '''
-
     def __init__(self, parent=None, repo=None):
         super(TagCloudTextEdit, self).__init__(parent)
 
         #Current word in tag cloud under the mouse cursor
         self.word = None
+        self.keywordAll = False
 
         #This is a list of tuples (tag_name, count_of_items_with_this_tag)
         self.tag_count = None
@@ -122,35 +131,39 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
 
     def refresh(self):
         #TODO Implement filtering by user login
-
         if self.repo is None:
             self.setText("")
-        else:
-            uow = self.repo.createUnitOfWork()
-            try:
-                cmd = GetRelatedTagsCommand(list(self.tags), limit=self.limit)
-                tags = uow.executeCommand(cmd)
+            return
+        
+        uow = self.repo.createUnitOfWork()
+        try:
+            cmd = GetRelatedTagsCommand(list(self.tags), limit=self.limit)
+            tags = uow.executeCommand(cmd)
 
-                self.tag_count = tags
+            self.tag_count = tags
 
-                tags_sorted = sorted(tags, key=lambda tag : tag.c, reverse=True)
-                sizes = dict()
-                size_max = 6
-                i = 0
-                while i < size_max and i < len(tags_sorted):
-                    sizes[tags_sorted[i].c] = size_max - i
-                    i += 1
+            tags_sorted = sorted(tags, key=lambda tag : tag.c, reverse=True)
+            sizes = dict()
+            size_max = 6
+            i = 0
+            while i < size_max and i < len(tags_sorted):
+                sizes[tags_sorted[i].c] = size_max - i
+                i += 1
 
-                text = ""
-                for tag in tags:
-                    font_size = sizes.get(tag.c, 0)
+            text = ""
+            for tag in tags:
+                font_size = sizes.get(tag.c, 0)
 
-                    # We should NOT escape tag names here
-                    text = text + ' <font style="BACKGROUND-COLOR: {0}" size="+{1}" color="{2}">'.format(self.bg_color, font_size, self.text_color) + tag.name + '</font>'
+                # We should NOT escape tag names here
+                text = text + ' <font style="BACKGROUND-COLOR: {0}" size="+{1}" color="{2}">'.format(self.bg_color, font_size, self.text_color) + tag.name + '</font>'
+                
+            # 'ALL' is a special keyword that selects all the items from the repo
+            text = "ALL" + text
 
-                self.setText(text)
-            finally:
-                uow.close()
+            self.setText(text)
+        finally:
+            uow.close()
+
 
     def reset(self):
         self.tags.clear()
@@ -171,11 +184,15 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
             cursor1.mergeCharFormat(fmt)
             self.word = None
         elif self.word is not None and self.tag_count is not None and e.type() == QtCore.QEvent.ToolTip:
-            #Show number of items for tag name under the mouse cursor
-            for tag_name, tag_count in self.tag_count:
-                if tag_name == self.word:
-                    QtGui.QToolTip.showText(e.globalPos(), str(tag_count))
-                    break
+            
+            if self.word == "ALL" and self.keywordAll:
+                QtGui.QToolTip.showText(e.globalPos(), self.tr("Select all items"))
+            else:
+                #Show number of items for tag name under the mouse cursor
+                for tag_name, tag_count in self.tag_count:
+                    if tag_name == self.word:
+                        QtGui.QToolTip.showText(e.globalPos(), str(tag_count))
+                        break
         return super(TagCloudTextEdit, self).event(e)
 
 
@@ -186,6 +203,12 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
         cursor = self.cursorForPosition(e.pos())
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
+        
+        #print("pos={}".format(cursor.position()))
+        if word == "ALL" and cursor.position() <= 3:
+            self.keywordAll = True
+        else:
+            self.keywordAll = False
 
         #If current word has changed (or cleared) --- set default formatting to the previous word
         if word != self.word or is_none_or_empty(word):
@@ -213,11 +236,13 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
 
 
     def mouseDoubleClickEvent(self, e):
-        '''
-            Adds a tag to the query (from mouse double click).
-        '''
+        if self.keywordAll:
+            self.emit(QtCore.SIGNAL("selectedKeywordAll"))
+            self.reset()
+            # TODO: Maybe it would be better to leave tag cloud empty (because we've selected ALL the Items)
+            return
+        
         if not is_none_or_empty(self.word):
-            
             word = self.word
             if parsers.query_tokens.needs_quote(word):
                 word = parsers.util.quote(word)
@@ -228,7 +253,7 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
                 self.tags.add(word)
             self.emit(QtCore.SIGNAL("selectedTagsChanged"), self.tags, self.not_tags)
             self.refresh()
-
+            return
 
 
     def contextMenuEvent(self, e):
