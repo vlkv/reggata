@@ -135,6 +135,10 @@ class TagCloudTextEdit(QtGui.QTextEdit):
             self.setText("")
             return
         
+        if self.keywordAll:
+            self.setText("")
+            return
+        
         uow = self.repo.createUnitOfWork()
         try:
             cmd = GetRelatedTagsCommand(list(self.tags), limit=self.limit)
@@ -155,14 +159,21 @@ class TagCloudTextEdit(QtGui.QTextEdit):
                 font_size = sizes.get(tag.c, 0)
 
                 # We should NOT escape tag names here
-                text = text + ' <font style="BACKGROUND-COLOR: {0}" size="+{1}" color="{2}">'.format(self.bg_color, font_size, self.text_color) + tag.name + '</font>'
+                text = text + " " + TagCloudTextEdit.formatTag(self.bg_color, font_size, 
+                                                               self.text_color, tag.name)
                 
             # 'ALL' is a special keyword that selects all the items from the repo
-            text = "ALL" + text
+            text = TagCloudTextEdit.formatTag(self.bg_color, 0, self.text_color, "ALL") + text
 
             self.setText(text)
         finally:
             uow.close()
+
+
+    @staticmethod
+    def formatTag(bgColor, fontSize, textColor, tagName):
+        return '<font style="BACKGROUND-COLOR: {0}" size="+{1}" color="{2}">'\
+            .format(bgColor, fontSize, textColor) + tagName + '</font>'
 
 
     def reset(self):
@@ -238,8 +249,7 @@ class TagCloudTextEdit(QtGui.QTextEdit):
     def mouseDoubleClickEvent(self, e):
         if self.keywordAll:
             self.emit(QtCore.SIGNAL("selectedKeywordAll"))
-            self.reset()
-            # TODO: Maybe it would be better to leave tag cloud empty (because we've selected ALL the Items)
+            self.refresh()
             return
         
         if not is_none_or_empty(self.word):
