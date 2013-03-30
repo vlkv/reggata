@@ -42,6 +42,13 @@ class FileBrowserGui(ToolGui):
     def resetTableModel(self, mutex):
         self.__tableModel = FileBrowserTableModel(self, self.__fileBrowserTool, mutex)
         self.ui.filesTableView.setModel(self.__tableModel)
+        if self.__fileBrowserTool.repo is not None:
+            relCurrDir = os.path.relpath(self.__fileBrowserTool.currDir, self.__fileBrowserTool.repo.base_path)
+            self.ui.currDirLineEdit.setText(relCurrDir)
+            self.ui.currDirLineEdit.setToolTip(self.__fileBrowserTool.currDir)
+        else:
+            self.ui.currDirLineEdit.setText("")
+            self.ui.currDirLineEdit.setToolTip("")
 
 
     def __initContextMenu(self):
