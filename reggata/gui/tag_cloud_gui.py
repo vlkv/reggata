@@ -104,9 +104,6 @@ class TagCloudTextEdit(QtGui.QTextEdit):
         except:
             self._limit = 0
 
-        self.selection_start = 0
-        self.selection_end = 0
-
         palette = QtGui.QApplication.palette()
         self.bg_color = UserConfig().get("tag_cloud.tag_background_color", QtGui.QColor(230, 230, 230).name())
         self.text_color = UserConfig().get("tag_cloud.tag_text_color", palette.text().color().name())
@@ -189,8 +186,7 @@ class TagCloudTextEdit(QtGui.QTextEdit):
         elif e.type() == QtCore.QEvent.Leave:
             #Colour previous word into default color
             cursor1 = self.textCursor()
-            cursor1.setPosition(self.selection_start)
-            cursor1.setPosition(self.selection_end, QtGui.QTextCursor.KeepAnchor)
+            cursor1.select(QtGui.QTextCursor.Document)
             fmt = QtGui.QTextCharFormat()
             fmt.setForeground(QtGui.QBrush(QtGui.QColor(self.text_color)))
             cursor1.mergeCharFormat(fmt)
@@ -222,20 +218,17 @@ class TagCloudTextEdit(QtGui.QTextEdit):
         else:
             self.keywordAll = False
 
-        #If current word has changed (or cleared) --- set default formatting to the previous word
+        # If current word has changed or cleared --- set default formatting
         if word != self.word or is_none_or_empty(word):
             cursor1 = self.textCursor()
-            cursor1.setPosition(self.selection_start)
-            cursor1.setPosition(self.selection_end, QtGui.QTextCursor.KeepAnchor)
+            cursor1.select(QtGui.QTextCursor.Document)
             fmt = QtGui.QTextCharFormat()
             fmt.setForeground(QtGui.QBrush(QtGui.QColor(self.text_color)))
             cursor1.mergeCharFormat(fmt)
             self.word = None
 
+        # If current word has changed --- highlight it
         if word != self.word:
-            self.selection_start = cursor.selectionStart()
-            self.selection_end = cursor.selectionEnd()
-
             fmt = QtGui.QTextCharFormat()
             fmt.setForeground(QtGui.QBrush(QtGui.QColor(self.hl_text_color)))
             cursor.mergeCharFormat(fmt)
