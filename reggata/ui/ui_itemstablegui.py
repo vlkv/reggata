@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'itemstablegui.ui'
 #
-# Created: Sat Mar 30 14:07:21 2013
+# Created: Sat Mar 30 15:26:53 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_ItemsTableGui(object):
     def setupUi(self, ItemsTableGui):
         ItemsTableGui.setObjectName(_fromUtf8("ItemsTableGui"))
-        ItemsTableGui.resize(499, 300)
+        ItemsTableGui.resize(528, 300)
         ItemsTableGui.setAcceptDrops(True)
         self.verticalLayout = QtGui.QVBoxLayout(ItemsTableGui)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
@@ -55,6 +55,7 @@ class Ui_ItemsTableGui(object):
         self.tableView_items = QtGui.QTableView(ItemsTableGui)
         self.tableView_items.setDragDropMode(QtGui.QAbstractItemView.NoDragDrop)
         self.tableView_items.setDefaultDropAction(QtCore.Qt.IgnoreAction)
+        self.tableView_items.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.tableView_items.setObjectName(_fromUtf8("tableView_items"))
         self.tableView_items.verticalHeader().setVisible(False)
         self.verticalLayout.addWidget(self.tableView_items)

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>499</width>
+    <width>528</width>
     <height>300</height>
    </rect>
   </property>
@@ -89,6 +89,9 @@
      </property>
      <property name="defaultDropAction">
       <enum>Qt::IgnoreAction</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
      </property>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>

@@ -3,7 +3,7 @@ Created on 19.12.2012
 @author: vlkv
 '''
 import logging
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 from reggata.gui.tool_gui import ToolGui
 import reggata.consts as consts
@@ -82,6 +82,22 @@ class FileBrowserGui(ToolGui):
                 self.actions['openFile'].trigger()
         except Exception as ex:
             logger.debug("Cannot change current directory: " + str(ex))
+        
+
+    def event(self, e):
+        #print(e.__class__.__name__ + " " + str(e.type()))
+        if isinstance(e, QtGui.QKeyEvent):
+            if e.key() == Qt.Key_Home:
+                self.ui.filesTableView.selectRow(0)
+                e.accept()
+                return True
+                
+            elif e.key() == Qt.Key_End:
+                rowCount = self.ui.filesTableView.model().rowCount()
+                self.ui.filesTableView.selectRow(rowCount - 1)
+                e.accept()
+                return True
+        return super(FileBrowserGui, self).event(e)
 
 
     def __handleCurrentlySelectedRow(self, isGoingUp, newRow):

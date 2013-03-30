@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'filebrowsergui.ui'
 #
-# Created: Sat Mar 30 14:07:21 2013
+# Created: Sat Mar 30 15:26:52 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,6 +26,7 @@ class Ui_FileBrowserGui(object):
         self.currDirLineEdit.setObjectName(_fromUtf8("currDirLineEdit"))
         self.verticalLayout.addWidget(self.currDirLineEdit)
         self.filesTableView = QtGui.QTableView(FileBrowserGui)
+        self.filesTableView.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.filesTableView.setObjectName(_fromUtf8("filesTableView"))
         self.filesTableView.verticalHeader().setVisible(False)
         self.verticalLayout.addWidget(self.filesTableView)
