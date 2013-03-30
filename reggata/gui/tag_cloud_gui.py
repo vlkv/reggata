@@ -217,10 +217,15 @@ class TagCloudTextEdit(QtGui.QTextEdit, AbstractToolGui):
             Adds a tag to the query (from mouse double click).
         '''
         if not is_none_or_empty(self.word):
+            
+            word = self.word
+            if parsers.query_tokens.needs_quote(word):
+                word = parsers.util.quote(word)
+            
             if e.modifiers() == Qt.ControlModifier:
-                self.not_tags.add(self.word)
+                self.not_tags.add(word)
             else:
-                self.tags.add(self.word)
+                self.tags.add(word)
             self.emit(QtCore.SIGNAL("selectedTagsChanged"), self.tags, self.not_tags)
             self.refresh()
 
