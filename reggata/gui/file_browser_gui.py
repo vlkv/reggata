@@ -12,7 +12,7 @@ from reggata.helpers import HTMLDelegate
 import reggata.helpers as helpers
 from reggata.user_config import UserConfig
 import os
-from data.commands import FileInfo
+from reggata.data.commands import FileInfo
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
