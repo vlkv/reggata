@@ -437,6 +437,23 @@ class GetNamesOfAllTagsAndFields(AbstractCommand):
 
 
 # TODO: Write a test for this command
+class GetItemIdsWithFilesFrom(AbstractCommand):
+    def __init__(self, dirRelPath):
+        self._dirRelPath = dirRelPath
+        
+    def _execute(self, uow):
+        items = []
+        try:
+            items = uow._session.query(db.Item) \
+                .join(db.Item.data_ref) \
+                .filter(db.DataRef.url_raw.like(hlp.to_db_format(self._dirRelPath) + "/%")) \
+                .all()
+        finally:
+            uow.close()
+        return [item.id for item in items]
+
+
+# TODO: Write a test for this command
 class GetRelatedTagsCommand(AbstractCommand):
     '''
         Returns a list of related tags for a list of given (selected) tags tag_names.

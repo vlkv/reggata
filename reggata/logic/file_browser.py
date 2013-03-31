@@ -12,8 +12,7 @@ from reggata.gui.file_browser_gui import FileBrowserGui
 import reggata.consts as consts
 from reggata.errors import NoneError, NotExistError, CurrentRepoIsNoneError, CurrentUserIsNoneError
 import reggata.helpers as helpers
-from reggata.data.commands import FileInfo, GetFileInfoCommand
-from reggata.data.db_schema import DataRef, Item
+from reggata.data.commands import FileInfo, GetFileInfoCommand, GetItemIdsWithFilesFrom
 from reggata.logic.action_handlers import ActionHandlerStorage
 from reggata.logic.common_action_handlers import EditItemsActionHandler
 from reggata.logic.handler_signals import HandlerSignals
@@ -164,15 +163,13 @@ class FileBrowser(AbstractTool):
     def itemIdsForDir(self, dirAbsPath):
         assert self._repo is not None
         dirRelPath = os.path.relpath(dirAbsPath, self._repo.base_path)
-        
-        # TODO: We shouln't use uow._session directly here... create a Command for this
+        itemIds = []
         try:
             uow = self._repo.createUnitOfWork()
-            items = uow._session.query(Item).join(Item.data_ref).filter(
-                DataRef.url_raw.like(helpers.to_db_format(dirRelPath) + "/%")).all()
+            cmd = GetItemIdsWithFilesFrom(dirRelPath)
+            itemIds = uow.executeCommand(cmd)
         finally:
             uow.close()
-        itemIds = [item.id for item in items]
         return itemIds
     
     
