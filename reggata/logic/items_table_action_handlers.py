@@ -574,11 +574,9 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
 
             self.connect(thread, QtCore.SIGNAL("progress"),
                          lambda percents, topRow, bottomRow: refresh(percents, topRow, bottomRow))
-            self.connect(thread, QtCore.SIGNAL("finished"),
-                         lambda error_count: self._emitHandlerSignal(
-                                HandlerSignals.STATUS_BAR_MESSAGE,
-                                self.tr("Integrity check is done. {0} Items with errors.")
-                                    .format(error_count)))
+            self.connect(thread, QtCore.SIGNAL("finished_with_1_arg"),
+                         lambda errorCount: self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                                self.tr("Integrity check is done. {} Items with errors.".format(errorCount))))
             thread.start()
 
         except Exception as ex:

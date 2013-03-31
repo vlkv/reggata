@@ -308,23 +308,23 @@ class ItemIntegrityCheckerThread(AbstractWorkerThread):
         self.timeoutMicroSec = 500000
 
     def doWork(self):
-        error_count = 0
+        errorCount = 0
         uow = self.repo.createUnitOfWork()
         try:
             startTime = datetime.datetime.now()
             startIndex = 0
             for i in range(len(self.items)):
                 item = self.items[i]
-                error_set = uow.executeCommand(cmds.CheckItemIntegrityCommand(item, self.repo._base_path))
+                errorSet = uow.executeCommand(cmds.CheckItemIntegrityCommand(item, self.repo._base_path))
 
                 try:
                     self.lock.lockForWrite()
-                    item.error = error_set
+                    item.error = errorSet
                 finally:
                     self.lock.unlock()
 
-                if len(error_set) > 0:
-                    error_count += 1
+                if len(errorSet) > 0:
+                    errorCount += 1
 
                 currTime = datetime.datetime.now()
                 isLastIteration = (i == len(self.items) - 1)
@@ -342,6 +342,7 @@ class ItemIntegrityCheckerThread(AbstractWorkerThread):
                     startIndex = i
         finally:
             uow.close()
+        self.emit(QtCore.SIGNAL("finished_with_1_arg"), errorCount)
 
 
 # TODO: ThumbnailBuilderThread should be refactored... code should be more readable
