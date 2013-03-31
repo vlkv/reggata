@@ -13,6 +13,7 @@ import reggata.consts as consts
 from reggata.errors import NoneError, NotExistError, CurrentRepoIsNoneError, CurrentUserIsNoneError
 import reggata.helpers as helpers
 from reggata.data.commands import FileInfo, GetFileInfoCommand
+from reggata.data.db_schema import DataRef, Item
 from reggata.logic.action_handlers import ActionHandlerStorage
 from reggata.logic.common_action_handlers import EditItemsActionHandler
 from reggata.logic.handler_signals import HandlerSignals
@@ -160,6 +161,22 @@ class FileBrowser(AbstractTool):
         return self._repo.base_path
 
 
+    def itemIdsForDir(self, dirAbsPath):
+        assert self._repo is not None
+        dirRelPath = os.path.relpath(dirAbsPath, self._repo.base_path)
+        
+        # TODO: We shouln't use uow._session directly here... create a Command for this
+        try:
+            uow = self._repo.createUnitOfWork()
+            items = uow._session.query(Item).join(Item.data_ref).filter(
+                DataRef.url_raw.like(helpers.to_db_format(dirRelPath) + "/%")).all()
+        finally:
+            uow.close()
+        itemIds = [item.id for item in items]
+        return itemIds
+    
+    
+
     def listDir(self):
         if self._currDir is None:
             return []
@@ -167,12 +184,14 @@ class FileBrowser(AbstractTool):
             self._rebuildListCache()
         return self._listCache
 
+
     def filesCount(self):
         if self._currDir is None:
             return 0
         if self._listCache is None:
             self._rebuildListCache()
         return len(self._listCache)
+
 
     def _rebuildListCache(self):
         if not self._enabled:

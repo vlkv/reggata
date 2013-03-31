@@ -12,6 +12,7 @@ from reggata.helpers import HTMLDelegate
 import reggata.helpers as helpers
 from reggata.user_config import UserConfig
 import os
+from data.commands import FileInfo
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
 
@@ -154,8 +155,12 @@ class FileBrowserGui(ToolGui):
         itemIds = []
         for row in fileTableRows:
             finfo = self.__fileBrowserTool.listDir()[row]
-            for itemId in finfo.itemIds:
-                itemIds.append(itemId)
+            if finfo.type == FileInfo.FILE:
+                for itemId in finfo.itemIds:
+                    itemIds.append(itemId)
+            elif finfo.type == FileInfo.DIR:
+                assert os.path.isabs(finfo.path)
+                itemIds = itemIds + self.__fileBrowserTool.itemIdsForDir(finfo.path)
         return itemIds
 
 
