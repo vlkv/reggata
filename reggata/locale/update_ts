@@ -1,3 +1,5 @@
 #!/bin/bash
 
-pylupdate4 -verbose ./reggata.pro
+pylupdate4 -verbose ../../reggata.pro
+mv ../../reggata_ru.ts reggata_ru.ts
+
