@@ -313,27 +313,27 @@
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="147"/>
         <source>Preferred External Applications</source>
-        <translation type="unfinished"></translation>
+        <translation>Предпочитаемые внешние приложения</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="148"/>
         <source>Category of files:</source>
-        <translation type="unfinished"></translation>
+        <translation>Категория файлов:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="149"/>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>Создать</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="150"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="166"/>
         <source>Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Исполняемый файл:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="152"/>
@@ -346,77 +346,77 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Replacement fields could be:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;%f - will be replaced with file name;&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;%d - will be replaced with containing directory of the file.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="167"/>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="162"/>
         <source>File extensions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Расширения файлов:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="163"/>
         <source>File extentions, separated with spaces, e.g. &quot;.txt .doc .csv&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Расширения файлов, разделенные пробелами, напр. &quot;.txt .doc .csv&quot;</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="164"/>
         <source>External Applications For Different Types Of Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Внешние приложения для различных типов файлов</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_externalappsdialog.py" line="165"/>
         <source>External File Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Внешний файловый менеджер</translation>
     </message>
     <message>
         <location filename="reggata/gui/external_apps_dialog.py" line="123"/>
         <source>Application command should not be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Команда запуска приложения не должна быть пустой.</translation>
     </message>
     <message>
         <location filename="reggata/gui/external_apps_dialog.py" line="137"/>
         <source>File Browser command should not be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Команда запуска файлового менеджера не должна быть пустой.</translation>
     </message>
     <message>
         <location filename="reggata/gui/external_apps_dialog.py" line="148"/>
         <source>Select application executable file</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите исполняемый файл приложения</translation>
     </message>
     <message>
         <location filename="reggata/gui/external_apps_dialog.py" line="159"/>
         <source>Select file browser executable file</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите исполняемый файл файлового менеджера</translation>
     </message>
     <message>
         <location filename="reggata/gui/external_apps_dialog.py" line="173"/>
         <source>Input Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Диалог ввода</translation>
     </message>
     <message>
         <location filename="reggata/gui/external_apps_dialog.py" line="173"/>
         <source>Enter the name for new category of files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Введите имя для новой категории файлов.</translation>
     </message>
     <message>
         <location filename="reggata/gui/external_apps_dialog.py" line="180"/>
         <source>Category name should not be empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя категории не должно быть пустым</translation>
     </message>
     <message>
         <location filename="reggata/gui/external_apps_dialog.py" line="183"/>
         <source>Category with given name already exists. Choose different name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Категория с данным именем уже существует. Выберите другое имя.</translation>
     </message>
     <message>
         <location filename="reggata/gui/external_apps_dialog.py" line="210"/>
         <source>Do you really want to delete category &apos;{}&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы действительно хотите удалить категорию &apos;{}&apos;?</translation>
     </message>
 </context>
 <context>
@@ -424,7 +424,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/file_browser.py" line="59"/>
         <source>File Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Браузер файлов</translation>
     </message>
 </context>
 <context>
@@ -432,37 +432,37 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/ui/ui_filebrowsergui.py" line="38"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Форма</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="125"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="126"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="127"/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="128"/>
         <source>Move</source>
-        <translation type="unfinished"></translation>
+        <translation>Переместить</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="129"/>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>Переименовать</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="130"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить</translation>
     </message>
 </context>
 <context>
@@ -470,32 +470,32 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="244"/>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя файла</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="246"/>
         <source>Tags</source>
-        <translation type="unfinished"></translation>
+        <translation>Теги</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="248"/>
         <source>Users</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователи</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="250"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Статус</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="252"/>
         <source>Items&apos; ids</source>
-        <translation type="unfinished"></translation>
+        <translation>Id элементов</translation>
     </message>
     <message>
         <location filename="reggata/gui/file_browser_gui.py" line="254"/>
         <source>Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Рейтинг</translation>
     </message>
 </context>
 <context>
@@ -503,17 +503,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="511"/>
         <source>Integrity fix {0}%</source>
-        <translation type="unfinished"></translation>
+        <translation>Исправление целостности {0}%</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="522"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished">Нет выбранных элементов.</translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="535"/>
         <source>Integrity fixing is done.</source>
-        <translation type="unfinished"></translation>
+        <translation>Исправление целостности выполнено.</translation>
     </message>
 </context>
 <context>
@@ -521,67 +521,67 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/ui/ui_imageviewer.py" line="77"/>
         <source>ImageViewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Просмотрщик изображений</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_imageviewer.py" line="78"/>
         <source>Previous</source>
-        <translation type="unfinished"></translation>
+        <translation>Предыдущее</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_imageviewer.py" line="79"/>
         <source>Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Следующее</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_imageviewer.py" line="80"/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Увеличить</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_imageviewer.py" line="81"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Уменьшить</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_imageviewer.py" line="82"/>
         <source>Fit Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Подогнать под размер окна</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_imageviewer.py" line="84"/>
         <source>Edit Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить элемент</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_imageviewer.py" line="85"/>
         <source>Ctrl+E</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="reggata/gui/image_viewer.py" line="292"/>
         <source>No file</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет файла</translation>
     </message>
     <message>
         <location filename="reggata/gui/image_viewer.py" line="299"/>
         <source>Cannot edit items, repository is not given.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нельзя изменить элементы, репозиторий не задан.</translation>
     </message>
     <message>
         <location filename="reggata/gui/image_viewer.py" line="303"/>
         <source>Cannot edit items, user is not given.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нельзя изменить элементы, пользователь не задан.</translation>
     </message>
     <message>
         <location filename="reggata/gui/image_viewer.py" line="329"/>
         <source>Operation cancelled.</source>
-        <translation type="unfinished">Операция отменена.</translation>
+        <translation>Операция отменена.</translation>
     </message>
     <message>
         <location filename="reggata/gui/image_viewer.py" line="336"/>
         <source>Operation completed.</source>
-        <translation type="unfinished">Операция выполнена.</translation>
+        <translation>Операция выполнена.</translation>
     </message>
 </context>
 <context>
@@ -589,22 +589,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="272"/>
         <source>Open Reggata Archive File</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть файл архива Reggata</translation>
     </message>
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="272"/>
         <source>Reggata Archive File (*.raf)</source>
-        <translation type="unfinished">Архив Reggata (*.raf)</translation>
+        <translation>Архив Reggata (*.raf)</translation>
     </message>
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="277"/>
         <source>You haven&apos;t chosen a file. Operation canceled.</source>
-        <translation type="unfinished">Вы не выбрали файл. Операция отменена.</translation>
+        <translation>Вы не выбрали файл. Операция отменена.</translation>
     </message>
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="287"/>
         <source>Operation completed.</source>
-        <translation type="unfinished">Операция выполнена.</translation>
+        <translation>Операция выполнена.</translation>
     </message>
 </context>
 <context>
@@ -612,118 +612,118 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="149"/>
         <source>Repository item</source>
-        <translation type="unfinished"></translation>
+        <translation>Элемент хранилища</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="150"/>
         <source>Title:</source>
-        <translation type="unfinished"></translation>
+        <translation>Заголовок:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="151"/>
         <source>Id:</source>
-        <translation type="unfinished"></translation>
+        <translation>Id:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="154"/>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="153"/>
         <source>User:</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователь:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="155"/>
         <source>Rating:</source>
-        <translation type="unfinished"></translation>
+        <translation>Рейтинг:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="156"/>
         <source>Notes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Примечания:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="157"/>
         <source>Fields:</source>
-        <translation type="unfinished"></translation>
+        <translation>Поля:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="158"/>
         <source>Tags:</source>
-        <translation type="unfinished"></translation>
+        <translation>Теги:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="159"/>
         <source>Data Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Ссылка на файл</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="160"/>
         <source>Absolute path to referenced File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Абсолютный путь к файлу</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="161"/>
         <source>&lt;html&gt;&lt;font color=&quot;red&quot;&gt;srcAbsPathErrorLabel&lt;/font&gt;&lt;/html&gt;
 </source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="163"/>
         <source>Location of referenced File in the Repository:</source>
-        <translation type="unfinished"></translation>
+        <translation>Расположение файла в репозитории:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="164"/>
         <source>Add Data Reference to this Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить файл к элементу</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="165"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="166"/>
         <source>Remove Data Reference from this Item. File will not be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить связь файла с элементом. Файл не будет удален.</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="167"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="168"/>
         <source>Move referenced File to another location in the same repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Переместить файл в другую директорию в том же хранилище.</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_itemdialog.py" line="169"/>
         <source>Move File</source>
-        <translation type="unfinished"></translation>
+        <translation>Переместить файл</translation>
     </message>
     <message>
         <location filename="reggata/gui/item_dialog.py" line="48"/>
         <source>Argument item should be an instance of Item class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Аргумент item должен быть экземпляром класса Item</translation>
     </message>
     <message>
         <location filename="reggata/gui/item_dialog.py" line="81"/>
         <source>Error: File not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: файл не найден</translation>
     </message>
     <message>
         <location filename="reggata/gui/item_dialog.py" line="112"/>
         <source>Unknown reserved field name &apos;{}&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестное зарезервированное имя поля &apos;{}&apos;</translation>
     </message>
     <message>
         <location filename="reggata/gui/item_dialog.py" line="154"/>
         <source>Field name &apos;{}&apos; is reserved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя поля &apos;{}&apos; зарезервировано.</translation>
     </message>
     <message>
         <location filename="reggata/gui/item_dialog.py" line="191"/>
