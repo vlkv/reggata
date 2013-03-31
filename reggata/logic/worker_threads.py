@@ -506,24 +506,33 @@ class UpdateGroupOfItemsThread(AbstractWorkerThread):
 
     def __init__(self, parent, repo, items):
         super(UpdateGroupOfItemsThread, self).__init__(parent)
-        self.repo = repo
-        self.items = items
+        self._repo = repo
+        self._items = items
+        self.skippedCount = 0
+        self.updatedCount = 0
 
     def doWork(self):
-        uow = self.repo.createUnitOfWork()
+        uow = self._repo.createUnitOfWork()
         try:
             i = 0
-            for item in self.items:
-                srcAbsPath = os.path.join(self.repo.base_path, item.data_ref.url) \
-                    if item.data_ref is not None \
-                    else None
-                dstRelPath = item.data_ref.dstRelPath if item.data_ref \
-                    is not None \
-                    else None
-                cmd = cmds.UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, item.user_login)
-                uow.executeCommand(cmd)
+            for item in self._items:
+                try:
+                    srcAbsPath = os.path.join(self._repo.base_path, item.data_ref.url) \
+                        if item.data_ref is not None \
+                        else None
+                    dstRelPath = item.data_ref.dstRelPath if item.data_ref \
+                        is not None \
+                        else None
+                    cmd = cmds.UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, item.user_login)
+                    uow.executeCommand(cmd)
+                    self.updatedCount += 1
+                except Exception as ex:
+                    logger.info("Update Item: skipping update of item.id={} because of exception={}"
+                                .format(item.id, str(ex)))
+                    self.skippedCount += 1
+                    
                 i = i + 1
-                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self.items)))
+                self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self._items)))
         finally:
             uow.close()
 

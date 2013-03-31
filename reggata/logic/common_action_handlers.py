@@ -202,20 +202,21 @@ class EditItemsActionHandler(AbstractActionHandler):
                 raise err.MsgException(self.tr("There are no selected items."))
 
             if len(itemIds) > 1:
-                self.__editManyItems(itemIds)
+                updated, skipped = self.__editManyItems(itemIds)
             else:
-                self.__editSingleItem(itemIds.pop())
+                updated, skipped = self.__editSingleItem(itemIds.pop())
+
+            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
+                self.tr("Editing done. Updated={}, skipped={} items.".format(updated, skipped)))
+            self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
 
         except Exception as ex:
             hlp.show_exc_info(self._tool.gui, ex)
-
-        else:
-            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                                    self.tr("Editing done."), consts.STATUSBAR_TIMEOUT)
-            self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
+            
 
 
     def __editSingleItem(self, itemId):
+        updated, skipped = 0, 0
         uow = self._tool.repo.createUnitOfWork()
         try:
             item = uow.executeCommand(cmds.GetExpungedItemCommand(itemId))
@@ -228,10 +229,15 @@ class EditItemsActionHandler(AbstractActionHandler):
             dstRelPath = item.data_ref.dstRelPath if item.data_ref is not None else None
             cmd = cmds.UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, self._tool.user.login)
             uow.executeCommand(cmd)
+            updated += 1
+        except:
+            skipped += 1
         finally:
             uow.close()
+        return updated, skipped
 
     def __editManyItems(self, itemIds):
+        updated, skipped = 0, 0
         uow = self._tool.repo.createUnitOfWork()
         try:
             items = []
@@ -244,6 +250,8 @@ class EditItemsActionHandler(AbstractActionHandler):
 
             thread = UpdateGroupOfItemsThread(self._tool.gui, self._tool.repo, items)
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
-
+            updated = thread.updatedCount
+            skipped = thread.skippedCount
         finally:
             uow.close()
+        return updated, skipped
