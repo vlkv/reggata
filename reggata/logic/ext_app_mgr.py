@@ -153,7 +153,9 @@ class ExtAppMgr(QtCore.QObject):
     def openContainingDirWithExtAppManager(self, abs_path):
         if self.__state.extFileMgrCommandPattern is None:
             msg = QCoreApplication.translate("ext_app_mgr",
-                        "No external file manager command is set. Please edit your {} file.",
+                        "No external file manager command is set. "
+                        "Please, go to 'Main Menu -> Repository -> Manage External Applications' "
+                        "and configure it",
                         None, QCoreApplication.UnicodeUTF8)
             raise MsgException(msg.format(consts.USER_CONFIG_FILE))
 

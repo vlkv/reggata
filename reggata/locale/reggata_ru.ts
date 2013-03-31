@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0">
+<!DOCTYPE TS>
+<TS version="2.0" language="ru_RU" sourcelanguage="en_US">
 <context>
     <name>AboutDialog</name>
     <message>
         <location filename="reggata/ui/ui_aboutdialog.py" line="40"/>
         <source>About Reggata</source>
-        <translation type="unfinished"></translation>
+        <translation>О программе Reggata</translation>
     </message>
 </context>
 <context>
@@ -13,7 +14,7 @@
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="228"/>
         <source>Current repository saved in favorites list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Текущий репозиторий сохранен в списке избранных.</translation>
     </message>
 </context>
 <context>
@@ -21,12 +22,12 @@
     <message>
         <location filename="reggata/logic/file_browser_action_handlers.py" line="37"/>
         <source>There are no selected files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных файлов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/file_browser_action_handlers.py" line="49"/>
         <source>Operation completed. Added {}, skipped {} files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция выполнена. Добавлено {}, пропущено {} файлов.</translation>
     </message>
 </context>
 <context>
@@ -34,12 +35,12 @@
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="33"/>
         <source>Select files you want to add to the repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите файлы для добавления в репозиторий</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="49"/>
         <source>Operation completed. Added {}, skipped {} files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция выполнена. Добавлено {}, пропущено {} файлов.</translation>
     </message>
 </context>
 <context>
@@ -47,17 +48,17 @@
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="99"/>
         <source>Select files to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите файлы для добавления</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="101"/>
         <source>No files chosen. Operation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных файлов. Операция отменена.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="113"/>
         <source>Operation completed. Added {}, skipped {} files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция выполнена. Добавлено {}, пропущено {} файлов.</translation>
     </message>
 </context>
 <context>
@@ -65,17 +66,17 @@
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="135"/>
         <source>Select single existing directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите одну существующую директорию</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="138"/>
         <source>Directory is not chosen. Operation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Директория не выбрана. Операция отменена.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="150"/>
         <source>Operation completed. Added {}, skipped {} files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция выполнена. Добавлено {}, пропущено {} файлов.</translation>
     </message>
 </context>
 <context>
@@ -83,12 +84,12 @@
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="69"/>
         <source>Select a file to link with new Item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите файл, чтобы связать его с новым элементом.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="75"/>
         <source>Item added to repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Элемент добавлен в репозиторий.</translation>
     </message>
 </context>
 <context>
@@ -96,7 +97,7 @@
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="113"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция выполнена.</translation>
     </message>
 </context>
 <context>
@@ -104,27 +105,27 @@
     <message>
         <location filename="reggata/ui/ui_changeuserpassword.py" line="67"/>
         <source>Change user password</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить пароль пользователя</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_changeuserpassword.py" line="68"/>
         <source>Login:</source>
-        <translation type="unfinished"></translation>
+        <translation>Логин:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_changeuserpassword.py" line="69"/>
         <source>Current password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Текущий пароль:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_changeuserpassword.py" line="70"/>
         <source>New password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Новый пароль:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_changeuserpassword.py" line="71"/>
         <source>Repeat new password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Повторите новый пароль:</translation>
     </message>
 </context>
 <context>
@@ -132,17 +133,17 @@
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="553"/>
         <source>Integrity check {0}%</source>
-        <translation type="unfinished"></translation>
+        <translation>Проверка целостности {0}%</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="564"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="577"/>
         <source>Integrity check is done. {} Items with errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Проверка целостности выполнена. {} элементов с ошибками.</translation>
     </message>
 </context>
 <context>
@@ -150,7 +151,7 @@
     <message>
         <location filename="reggata/gui/common_widgets.py" line="298"/>
         <source>Completer does&apos;n connected to repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Completer не подключен к репозиторию.</translation>
     </message>
 </context>
 <context>
@@ -158,12 +159,12 @@
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="124"/>
         <source>Choose a base path for new repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите корневую директорию для нового репозитория</translation>
     </message>
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="128"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы не выбрали существующую директорию. Операция отменена.</translation>
     </message>
 </context>
 <context>
@@ -171,7 +172,7 @@
     <message>
         <location filename="reggata/logic/file_browser_action_handlers.py" line="107"/>
         <source>Done.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выполнено.</translation>
     </message>
 </context>
 <context>
@@ -179,27 +180,27 @@
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="219"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="221"/>
         <source>Do you really want to delete {} selected file(s)?</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы действительно хотите удалить {} выбранных файлов?</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="233"/>
         <source>There were {0} errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Количество ошибок: {}.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="238"/>
         <source>Operation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция отменена.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="246"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция выполнена.</translation>
     </message>
 </context>
 <context>
@@ -207,12 +208,12 @@
     <message>
         <location filename="reggata/logic/common_action_handlers.py" line="202"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/common_action_handlers.py" line="209"/>
         <source>Editing done. Updated={}, skipped={} items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактирование выполнено. Обновлено {}, пропущено {} элементов.</translation>
     </message>
 </context>
 <context>
@@ -220,32 +221,32 @@
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="393"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="395"/>
         <source>Save data as..</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить данные как..</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="395"/>
         <source>Reggata Archive File (*.raf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Архив Reggata (*.raf)</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="400"/>
         <source>You haven&apos;t chosen a file. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы не выбрали файл. Операция отменена.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="406"/>
         <source>File {} already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл {} уже существует. Переписать его?</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="424"/>
         <source>Operation completed. Exported {}, skipped {} items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция выполнена. Экспортировано {}, пропущено {} элементов.</translation>
     </message>
 </context>
 <context>
@@ -253,22 +254,22 @@
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="479"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="481"/>
         <source>Save results in a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить результаты в файл.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="484"/>
         <source>Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция отменена.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="499"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция выполнена.</translation>
     </message>
 </context>
 <context>
@@ -276,22 +277,22 @@
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="444"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="446"/>
         <source>Choose a directory path to export files into.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите директорию чтобы экпортировать в нее файлы.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="450"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы не выбрали существующую директорию. Операция отменена.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="463"/>
         <source>Operation completed. Exported {}, skipped {} files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Операция выполнена. Экспортировано {}, пропущено {} элементов.</translation>
     </message>
 </context>
 <context>
@@ -299,12 +300,12 @@
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="325"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="343"/>
         <source>Done.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выполнено.</translation>
     </message>
 </context>
 <context>
@@ -507,7 +508,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="522"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="535"/>
@@ -575,12 +576,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/gui/image_viewer.py" line="329"/>
         <source>Operation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Операция отменена.</translation>
     </message>
     <message>
         <location filename="reggata/gui/image_viewer.py" line="336"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Операция выполнена.</translation>
     </message>
 </context>
 <context>
@@ -593,17 +594,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="272"/>
         <source>Reggata Archive File (*.raf)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Архив Reggata (*.raf)</translation>
     </message>
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="277"/>
         <source>You haven&apos;t chosen a file. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вы не выбрали файл. Операция отменена.</translation>
     </message>
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="287"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Операция выполнена.</translation>
     </message>
 </context>
 <context>
@@ -1202,7 +1203,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/ui/ui_mainwindow.py" line="157"/>
         <source>About Reggata</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">О программе Reggata</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_mainwindow.py" line="158"/>
@@ -1325,7 +1326,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="320"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Операция выполнена.</translation>
     </message>
 </context>
 <context>
@@ -1343,7 +1344,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/file_browser_action_handlers.py" line="181"/>
         <source>Done.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выполнено.</translation>
     </message>
 </context>
 <context>
@@ -1374,7 +1375,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/file_browser_action_handlers.py" line="80"/>
         <source>Done.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выполнено.</translation>
     </message>
 </context>
 <context>
@@ -1392,7 +1393,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="273"/>
         <source>Done.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выполнено.</translation>
     </message>
 </context>
 <context>
@@ -1413,12 +1414,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="288"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="306"/>
         <source>Done.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выполнено.</translation>
     </message>
 </context>
 <context>
@@ -1431,7 +1432,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="181"/>
         <source>You haven&apos;t chosen existent directory. Operation canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вы не выбрали существующую директорию. Операция отменена.</translation>
     </message>
 </context>
 <context>
@@ -1444,7 +1445,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="176"/>
         <source>There are no selected items.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Нет выбранных элементов.</translation>
     </message>
     <message>
         <location filename="reggata/logic/items_table_action_handlers.py" line="196"/>
@@ -1490,7 +1491,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/file_browser_action_handlers.py" line="254"/>
         <source>Done.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выполнено.</translation>
     </message>
 </context>
 <context>
@@ -1498,7 +1499,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/main_window_action_handlers.py" line="340"/>
         <source>Operation completed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Операция выполнена.</translation>
     </message>
 </context>
 <context>
@@ -1557,7 +1558,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/ui/ui_userdialog.py" line="72"/>
         <source>Login:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Логин:</translation>
     </message>
     <message>
         <location filename="reggata/ui/ui_userdialog.py" line="73"/>
@@ -1628,17 +1629,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="reggata/logic/ext_app_mgr.py" line="87"/>
         <source>File extension {} cannot be in more than one file_type group.</source>
-        <translation type="unfinished"></translation>
+        <translation>Расширение файла {} не может присутствовать более чем в одной группе. </translation>
     </message>
     <message>
         <location filename="reggata/logic/ext_app_mgr.py" line="140"/>
         <source>External application for {0} file extension is not set. Please, go to &apos;Main Menu -&gt; Repository -&gt; Manage External Applications&apos; and configure it</source>
-        <translation type="unfinished"></translation>
+        <translation>Внешнее приложение для расширения {0} не задано. Пожалуйста, откройте &apos;Главное Меню -&gt; Хранилище -&gt; Внешние приложения&apos; и сконфигурируте его</translation>
     </message>
     <message>
         <location filename="reggata/logic/ext_app_mgr.py" line="155"/>
-        <source>No external file manager command is set. Please edit your {} file.</source>
-        <translation type="unfinished"></translation>
+        <source>No external file manager command is set. Please, go to &apos;Main Menu -&gt; Repository -&gt; Manage External Applications&apos; and configure it</source>
+        <translation>Не задано команды для вызова внешнего файлового менеджера. Пожалуйста, откройте &apos;Главное Меню -&gt; Хранилище -&gt; Внешние приложения&apos; и сконфигурируте ее</translation>
     </message>
 </context>
 <context>
