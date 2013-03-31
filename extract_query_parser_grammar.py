@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
 '''
-Created on 24.10.2010
-
-Module extracts grammar from query_parser.py and saves it in a separate file.
+    Module extracts grammar from query_parser.py and saves it in a separate file.
 '''
 
 import reggata.parsers.query_parser as qp
