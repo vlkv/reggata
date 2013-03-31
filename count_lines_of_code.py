@@ -1,4 +1,5 @@
-# Prints recursive count of lines of python source code from <current dir>/src
+#!/usr/bin/python3
+# Prints recursive count of lines of python source code from <current dir>/reggata
 
 import os
 startPath = os.path.join(os.getcwd(), "reggata")
