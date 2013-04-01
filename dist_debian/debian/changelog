@@ -1,9 +1,11 @@
-reggata (1.0.0) UNRELEASED; urgency=low
+reggata (1.0.0-1) UNRELEASED; urgency=low
 
   * #94 Update Russian translation for release 1.0
   * #100 BUG: "Edit many items" fails to move files in some cases
-  * #106 BUG: File Browser: Edit Items fails when selecting one (or more) directory
-  * #96 IMPROVE: File Browser should support Home/End, PageUp/PageDown keyboard keys
+  * #106 BUG: File Browser: Edit Items fails when selecting one (or more) 
+  directory
+  * #96 IMPROVE: File Browser should support Home/End, PageUp/PageDown keyboard
+  keys
   * #97 IMPROVE: File Browser should display current dir path
   * #78 Make it possible to watch all items
 
