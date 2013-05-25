@@ -1,6 +1,7 @@
 import webapp2
 
 from google.appengine.ext import ndb
+from datetime import datetime
 
 
 class Counter(ndb.Model):
@@ -29,7 +30,19 @@ class MainPage(webapp2.RequestHandler):
 		counter.put()
 
 
+class Registrator(webapp2.RequestHandler):
+
+	def get(self):
+		self.response.headers['Content-Type'] = 'text/plain'
+
+		instanceId = str(datetime.now())
+		self.response.write("Request: \n" + str(self.request))
+		self.response.write("InstanceId: " + instanceId + "\n")
+
+
+
 
 application = webapp2.WSGIApplication([
 	('/', MainPage),
+	('/register', Registrator),
 ], debug=True)
