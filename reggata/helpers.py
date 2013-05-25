@@ -129,6 +129,10 @@ def is_none_or_empty(s):
         return True if s == "" else False
 
 
+def stringToBool(s):
+    return bool(s in ["True", "true", "TRUE", "1", "Yes", "yes", "YES"])
+
+
 #TODO: Rename into isInternalPath() or isSubDirectoryOf() or isSubPathOf()
 def is_internal(url, base_path):
     '''

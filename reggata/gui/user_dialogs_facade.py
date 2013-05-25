@@ -2,7 +2,7 @@
 Created on 27.08.2012
 @author: vvolkov
 '''
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QMessageBox, QInputDialog, QFileDialog
 from reggata.gui.user_dialog import UserDialog
 from reggata.gui.change_user_password_dialog import ChangeUserPasswordDialog
@@ -71,7 +71,7 @@ class UserDialogsFacade(AbstractDialogsFacade):
         return dirPath
 
     def getSaveFileName(self, gui, textMessageForUser, fileFilter=""):
-        filename = QFileDialog.getSaveFileName(parent=gui, caption=textMessageForUser, 
+        filename = QFileDialog.getSaveFileName(parent=gui, caption=textMessageForUser,
                                                filter=fileFilter,
                                                options=QFileDialog.DontConfirmOverwrite)
         return filename
@@ -99,3 +99,12 @@ class UserDialogsFacade(AbstractDialogsFacade):
         text, isOk = QInputDialog.getText(
             gui, dialogTitle, textMessageForUser, text=defaultText)
         return (text, isOk)
+
+
+    def execGetYesNoAnswerDialog(self, gui, title, question):
+        return QtGui.QMessageBox.question(gui, title, question, QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+
+
+
+
+

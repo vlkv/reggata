@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Copyright 2010 Vitaly Volkov
 
@@ -25,13 +24,16 @@ import os.path
 import sys
 import codecs
 import logging.config
-import PyQt4.QtCore as QtCore
+from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QApplication
+from PyQt4.QtCore import QCoreApplication
 import reggata.consts as consts
+import reggata.helpers as hlp
 from reggata.user_config import UserConfig
 import reggata.reggata_dir_locator
 import reggata.logging_default_conf as logging_default_conf
 from reggata.gui.main_window import MainWindow
+from gui.user_dialogs_facade import UserDialogsFacade
 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
@@ -64,16 +66,48 @@ def configureTranslations(app):
 
         reggataDir = reggata.reggata_dir_locator.modulePath()
         logger.debug("reggataDir is " + reggataDir)
-        
+
         isQmLoaded = qtr.load(qm_filename, os.path.join(reggataDir, "reggata", "locale"))
         if not isQmLoaded:
             isQmLoaded = qtr.load(qm_filename, os.path.join(reggataDir, "locale"))
-            
 
         if isQmLoaded:
             QtCore.QCoreApplication.installTranslator(qtr)
         else:
             logger.warning("Cannot find translation file {}.".format(qm_filename))
+
+
+def isReggataInstanceRegistered():
+    instanceId = UserConfig().get("reggata_instance_id")
+    return False if hlp.is_none_or_empty(instanceId) else True
+
+
+def isUserGaveTheAnswerAboutSendStatistics():
+    sendStatistics = UserConfig().get("send_statistics")
+    return False if hlp.is_none_or_empty(sendStatistics) else True
+
+
+def isSendStatisticsAllowed():
+    sendStatistics = UserConfig().get("send_statistics")
+    return hlp.stringToBool(sendStatistics)
+
+
+def askUserAboutSendStatistics(mainWindow):
+    title = "Reggata"
+    question = QCoreApplication.translate("main", "Do you want to help make Reggata better by automatically sending usage statistics?", None, QCoreApplication.UnicodeUTF8)
+    res = UserDialogsFacade().execGetYesNoAnswerDialog(mainWindow, title, question)
+    sendStatistics = None
+    if res == QtGui.QMessageBox.Yes:
+        sendStatistics = True
+    elif res == QtGui.QMessageBox.No:
+        sendStatistics = False
+    if sendStatistics is not None:
+        UserConfig().store("send_statistics", sendStatistics)
+
+
+def registerReggataInstance():
+    # TODO: implement
+    pass
 
 
 
@@ -91,8 +125,16 @@ def main():
 
     configureTranslations(app)
 
-    form = MainWindow()
-    form.show()
+    mw = MainWindow()
+    mw.show()
+
+    if not isReggataInstanceRegistered() and not isUserGaveTheAnswerAboutSendStatistics():
+        askUserAboutSendStatistics(mw)
+
+    if isSendStatisticsAllowed() and not isReggataInstanceRegistered():
+        registerReggataInstance()
+
+
     app.exec_()
     logger.info("========= Reggata finished =========")
 

@@ -9,7 +9,7 @@ from reggata.errors import CannotOpenRepoError
 import reggata.consts as consts
 from reggata.user_config import UserConfig
 from reggata.data.db_schema import Base, HistoryRec
-
+from reggata.helpers import stringToBool
 
 class RepoMgr(object):
     '''
@@ -26,8 +26,7 @@ class RepoMgr(object):
                 raise Exception("Directory {} is not a repository base path."
                                 .format(self.base_path))
 
-            engine_echo = bool(UserConfig().get("sqlalchemy.engine_echo") in
-                               ["True", "true", "TRUE", "1", "Yes", "yes", "YES"])
+            engine_echo = stringToBool(UserConfig().get("sqlalchemy.engine_echo"))
 
             self.__engine = sqa.create_engine(\
                 "sqlite:///" + self.base_path + os.sep + consts.METADATA_DIR + os.sep + \
