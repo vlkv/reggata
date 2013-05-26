@@ -27,8 +27,8 @@ STATUSBAR_TIMEOUT = 5000
 DEFAULT_USER_LOGIN = "user"
 DEFAULT_USER_PASSWORD = ""
 
-#STATISTICS_SERVER = "http://reggata-stats.appspot.com"
-STATISTICS_SERVER = "http://localhost:8080"
+STATISTICS_SERVER = "http://reggata-stats.appspot.com"
+#STATISTICS_SERVER = "http://localhost:8080"
 
 
 MAX_FILE_SIZE_FOR_FULL_HASHING = 100*1024*1024

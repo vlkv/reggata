@@ -10,6 +10,7 @@ from reggata.helpers import show_exc_info, format_exc_info
 import reggata.consts as consts
 import reggata.errors as errors
 import reggata.data.db_schema as db
+import reggata.statistics as stats
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.logic.common_action_handlers import AddItemAlgorithms
 from reggata.logic.handler_signals import HandlerSignals
@@ -41,69 +42,7 @@ class AddItemsActionHandler(AbstractActionHandler):
 
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
 
-        except errors.CancelOperationError:
-            return
-        except Exception as ex:
-            show_exc_info(self._tool.gui, ex)
-        finally:
-            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed. Added {}, skipped {} files.")
-                    .format(self._itemsCreatedCount, self._filesSkippedCount))
-
-
-
-# TODO: remove this handler, it is replaced by AddItemsActionHandler
-class AddSingleItemActionHandler(AbstractActionHandler):
-    def __init__(self, tool, dialogs):
-        super(AddSingleItemActionHandler, self).__init__(tool)
-        self.__dialogs = dialogs
-        self.lastSavedItemId = None
-
-    def handle(self):
-        try:
-            self._tool.checkActiveRepoIsNotNone()
-            self._tool.checkActiveUserIsNotNone()
-
-            #User can push Cancel button and do not select a file now
-            #In such a case, Item will be added without file reference
-            file = self.__dialogs.getOpenFileName(
-                self._tool.gui, self.tr("Select a file to link with new Item."))
-
-            self.lastSavedItemId = \
-                AddItemAlgorithms.addSingleItem(self._tool, self.__dialogs, file)
-
-            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Item added to repository."), consts.STATUSBAR_TIMEOUT)
-            self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
-
-        except errors.CancelOperationError:
-            return
-        except Exception as ex:
-            show_exc_info(self._tool.gui, ex)
-
-
-# TODO: remove this handler, it is replaced by AddItemsActionHandler
-class AddManyItemsActionHandler(AbstractActionHandler):
-    def __init__(self, tool, dialogs):
-        super(AddManyItemsActionHandler, self).__init__(tool)
-        self._dialogs = dialogs
-        self._itemsCreatedCount = 0
-        self._filesSkippedCount = 0
-        self.lastSavedItemIds = []
-
-    def handle(self):
-        try:
-            self._tool.checkActiveRepoIsNotNone()
-            self._tool.checkActiveUserIsNotNone()
-
-            files = self._dialogs.getOpenFileNames(self._tool.gui, self.tr("Select files to add"))
-            if len(files) == 0:
-                raise errors.MsgException(self.tr("No files chosen. Operation cancelled."))
-
-            (self._itemsCreatedCount, self._filesSkippedCount, self.lastSavedItemIds) = \
-                AddItemAlgorithms.addManyItems(self._tool, self._dialogs, files)
-
-            self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
+            stats.sendEvent("items_table.add_items")
 
         except errors.CancelOperationError:
             return
@@ -113,44 +52,6 @@ class AddManyItemsActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation completed. Added {}, skipped {} files.")
                     .format(self._itemsCreatedCount, self._filesSkippedCount))
-
-
-# TODO: remove this handler, it is replaced by AddItemsActionHandler
-class AddManyItemsRecursivelyActionHandler(AbstractActionHandler):
-    def __init__(self, tool, dialogs):
-        super(AddManyItemsRecursivelyActionHandler, self).__init__(tool)
-        self._dialogs = dialogs
-        self._itemsCreatedCount = 0
-        self._filesSkippedCount = 0
-        self.lastSavedItemIds = []
-
-    def handle(self):
-        '''
-            Add many items recursively from given directory to the repo.
-        '''
-        try:
-            self._tool.checkActiveRepoIsNotNone()
-            self._tool.checkActiveUserIsNotNone()
-
-            dirPath = self._dialogs.getExistingDirectory(
-                self._tool.gui, self.tr("Select single existing directory"))
-            if not dirPath:
-                raise errors.MsgException(self.tr("Directory is not chosen. Operation cancelled."))
-
-            (self._itemsCreatedCount, self._filesSkippedCount, self.lastSavedItemIds) = \
-                AddItemAlgorithms.addManyItemsRecursively(self._tool, self._dialogs, [dirPath])
-
-            self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
-
-        except errors.CancelOperationError:
-            return
-        except Exception as ex:
-            show_exc_info(self._tool.gui, ex)
-        finally:
-            self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
-                self.tr("Operation completed. Added {}, skipped {} files.")
-                    .format(self._itemsCreatedCount, self._filesSkippedCount))
-
 
 
 
@@ -201,6 +102,8 @@ class RebuildItemThumbnailActionHandler(AbstractActionHandler):
             finally:
                 uow.close()
 
+            stats.sendEvent("items_table.rebuild_item_thumbnail")
+
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
 
@@ -234,6 +137,8 @@ class DeleteItemActionHandler(AbstractActionHandler):
                     text=self.tr("There were {0} errors.").format(thread.errors),
                     detailedText=thread.detailed_message)
 
+            stats.sendEvent("items_table.delete_item")
+
         except errors.CancelOperationError:
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation cancelled."), consts.STATUSBAR_TIMEOUT)
@@ -265,6 +170,8 @@ class OpenItemActionHandler(AbstractActionHandler):
                 raise errors.MsgException(self.tr("This action can be applied only to the items linked with files."))
 
             self._extAppMgr.openFileWithExtApp(os.path.join(self._tool.repo.base_path, dataRef.url))
+
+            stats.sendEvent("items_table.open_item")
 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -306,6 +213,8 @@ class OpenItemWithInternalImageViewerActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Done."), consts.STATUSBAR_TIMEOUT)
 
+            stats.sendEvent("items_table.open_item_with_internal_image_viewer")
+
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
 
@@ -343,6 +252,8 @@ class ExportItemsToM3uAndOpenItActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Done."), consts.STATUSBAR_TIMEOUT)
 
+            stats.sendEvent("items_table.export_items_to_m3u_and_open_it")
+
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
 
@@ -367,6 +278,8 @@ class OpenItemWithExternalFileManagerActionHandler(AbstractActionHandler):
 
             self._extAppMgr.openContainingDirWithExtAppManager(
                 os.path.join(self._tool.repo.base_path, dataRef.url))
+
+            stats.sendEvent("items_table.open_item_with_ext_file_manager")
 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -401,11 +314,11 @@ class ExportItemsActionHandler(AbstractActionHandler):
 
             if not exportFilename.endswith(".raf"):
                 exportFilename += ".raf"
-                
+
             if os.path.exists(exportFilename):
-                mbRes = self._dialogs.execMessageBox(self._tool.gui, 
+                mbRes = self._dialogs.execMessageBox(self._tool.gui,
                                              text=self.tr("File {} already exists. Do you want to overwrite it?")
-                                             .format(exportFilename), 
+                                             .format(exportFilename),
                                              buttons=[QtGui.QMessageBox.Yes | QtGui.QMessageBox.No])
                 if mbRes != QtGui.QMessageBox.Yes:
                     return
@@ -416,6 +329,8 @@ class ExportItemsActionHandler(AbstractActionHandler):
 
             self._exported = thread.exportedCount
             self._skipped = thread.skippedCount
+
+            stats.sendEvent("items_table.export_items")
 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -456,6 +371,8 @@ class ExportItemsFilesActionHandler(AbstractActionHandler):
             self._filesExported = thread.filesExportedCount
             self._filesSkipped = thread.filesSkippedCount
 
+            stats.sendEvent("items_table.export_items_files")
+
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
 
@@ -491,6 +408,8 @@ class ExportItemsFilePathsActionHandler(AbstractActionHandler):
                     textline = self._tool.repo.base_path + \
                         os.sep + self._tool.gui.itemAtRow(row).data_ref.url + os.linesep
                     exportFile.write(textline)
+
+            stats.sendEvent("items_table.export_items_file_paths")
 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -540,6 +459,8 @@ class FixItemIntegrityErrorActionHandler(AbstractActionHandler):
                                                         details=format_exc_info(*exc_info)))
             thread.start()
 
+            stats.sendEvent("items_table.fix_item_integrity_error")
+
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
 
@@ -578,6 +499,8 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
                          lambda errorCount: self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                                 self.tr("Integrity check is done. {} Items with errors.".format(errorCount))))
             thread.start()
+
+            stats.sendEvent("items_table.check_item_integrity_error")
 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)

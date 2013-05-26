@@ -11,6 +11,7 @@ from reggata.gui.items_dialog import ItemsDialog
 import reggata.data.db_schema as db
 import reggata.helpers as hlp
 import reggata.errors as err
+import reggata.statistics as stats
 import logging
 import os
 
@@ -208,6 +209,8 @@ class EditItemsActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Editing done. Updated={}, skipped={} items.".format(updated, skipped)))
             self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
+
+            stats.sendEvent("common.edit_items")
 
         except Exception as ex:
             hlp.show_exc_info(self._tool.gui, ex)

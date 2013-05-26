@@ -7,6 +7,7 @@ import PyQt4.QtGui as QtGui
 import reggata
 import reggata.helpers as helpers
 import reggata.consts as consts
+import reggata.statistics as stats
 from reggata.helpers import show_exc_info
 from reggata.consts import STATUSBAR_TIMEOUT
 from reggata.errors import MsgException, LoginError
@@ -45,6 +46,8 @@ class CreateUserActionHandler(AbstractActionHandler):
             finally:
                 uow.close()
 
+            stats.sendEvent("main_window.create_user")
+
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
 
@@ -66,6 +69,8 @@ class LoginUserActionHandler(AbstractActionHandler):
 
             self._model.loginUser(user.login, user.password)
 
+            stats.sendEvent("main_window.login_user")
+
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
 
@@ -77,6 +82,7 @@ class LogoutUserActionHandler(AbstractActionHandler):
     def handle(self):
         try:
             self._model.user = None
+            stats.sendEvent("main_window.logout_user")
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
 
@@ -107,6 +113,8 @@ class ChangeUserPasswordActionHandler(AbstractActionHandler):
 
             user.password = newPasswordHash
 
+            stats.sendEvent("main_window.change_user_password")
+
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
         else:
@@ -133,6 +141,8 @@ class CreateRepoActionHandler(AbstractActionHandler):
             basePath = os.path.normpath(basePath)
             self._model.repo = RepoMgr.createNewRepo(basePath)
             self._model.user = self.__createDefaultUser()
+
+            stats.sendEvent("main_window.create_repo")
 
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
@@ -163,6 +173,8 @@ class CloseRepoActionHandler(AbstractActionHandler):
             self._model.repo = None
             self._model.user = None
 
+            stats.sendEvent("main_window.close_repo")
+
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
 
@@ -186,6 +198,8 @@ class OpenRepoActionHandler(AbstractActionHandler):
             self._model.repo = RepoMgr(basePath)
             self._model.user = None
             self._model.loginRecentUser()
+
+            stats.sendEvent("main_window.open_repo")
 
         except LoginError:
             self.__letUserLoginByHimself()
@@ -229,6 +243,8 @@ class AddCurrentRepoToFavoritesActionHandler(AbstractActionHandler):
                 self.tr("Current repository saved in favorites list."), STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED)
 
+            stats.sendEvent("main_window.add_repo_to_favorites")
+
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
 
@@ -251,6 +267,8 @@ class RemoveCurrentRepoFromFavoritesActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Current repository removed from favorites list."), STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.LIST_OF_FAVORITE_REPOS_CHANGED)
+
+            stats.sendEvent("main_window.remove_repo_from_favorites")
 
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
@@ -287,6 +305,8 @@ class ImportItemsActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
+            stats.sendEvent("main_window.import_items")
+
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
 
@@ -299,6 +319,7 @@ class ExitReggataActionHandler(AbstractActionHandler):
     def handle(self):
         try:
             self._tool.gui.close()
+            stats.sendEvent("main_window.exit_reggata")
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
 
@@ -320,6 +341,8 @@ class ManageExternalAppsActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation completed."), STATUSBAR_TIMEOUT)
 
+            stats.sendEvent("main_window.manage_external_apps")
+
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
 
@@ -334,6 +357,7 @@ class ShowAboutDialogActionHandler(AbstractActionHandler):
         try:
             ad = AboutDialog(self._model.gui)
             ad.exec_()
+            stats.sendEvent("main_window.show_about_dialog")
         except Exception as ex:
             show_exc_info(self._model.gui, ex)
         else:
@@ -402,6 +426,8 @@ class OpenFavoriteRepoActionHandler(AbstractActionHandler):
                 self._model.user = None
                 self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                     self.tr("Repository opened. Login failed."), STATUSBAR_TIMEOUT)
+
+            stats.sendEvent("main_window.open_favorite_repo")
 
         except Exception as ex:
             show_exc_info(self._model.gui, ex)

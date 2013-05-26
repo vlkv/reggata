@@ -7,6 +7,7 @@ import logging
 import reggata.errors as err
 import reggata.consts as consts
 import reggata.helpers as hlp
+import reggata.statistics as stats
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.logic.common_action_handlers import AddItemAlgorithms
@@ -41,6 +42,8 @@ class AddFilesToRepoActionHandler(AbstractActionHandler):
 
             self._emitHandlerSignal(HandlerSignals.ITEM_CREATED)
 
+            stats.sendEvent("file_browser.add_files")
+
         except err.CancelOperationError:
             return
         except Exception as ex:
@@ -72,6 +75,8 @@ class OpenFileActionHandler(AbstractActionHandler):
                 self._extAppMgr.openFileWithExtApp(selFile)
             else:
                 raise err.MsgException(self.tr("This is not a file and not a directory, cannot open it."))
+
+            stats.sendEvent("file_browser.open_file")
 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -107,6 +112,8 @@ class DeleteFilesActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
                                     consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
+
+            stats.sendEvent("file_browser.delete_files")
 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
@@ -182,6 +189,8 @@ class MoveFilesActionHandler(AbstractActionHandler):
                                 consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
 
+            stats.sendEvent("file_browser.move_files")
+
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
 
@@ -254,6 +263,8 @@ class RenameFileActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
                                     consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
+
+            stats.sendEvent("file_browser.rename_file")
 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
