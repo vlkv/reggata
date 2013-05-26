@@ -37,7 +37,7 @@ from gui.user_dialogs_facade import UserDialogsFacade
 import time
 
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 def configureLogging():

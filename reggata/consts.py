@@ -8,8 +8,6 @@ import os
 
 DEBUG = False
 
-ROOT_LOGGER = "reggata"
-
 METADATA_DIR = ".reggata"
 DB_FILE = "database.sqlite3"
 USER_CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".config", "reggata")

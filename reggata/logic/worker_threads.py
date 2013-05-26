@@ -21,7 +21,7 @@ from reggata import memento
 import shutil
 from reggata.user_config import UserConfig
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class AbstractWorkerThread(QtCore.QThread):
@@ -531,7 +531,7 @@ class UpdateGroupOfItemsThread(AbstractWorkerThread):
                     logger.info("Update Item: skipping update of item.id={} because of exception={}"
                                 .format(item.id, str(ex)))
                     self.skippedCount += 1
-                    
+
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self._items)))
         finally:
@@ -563,7 +563,7 @@ class DeleteFilesThread(AbstractWorkerThread):
 
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self._fileAbsPaths)))
-            
+
             # Now we should delete empty dirs (if there are any)
             for selFile in self._selFilesAndDirs:
                 if os.path.isdir(selFile):
@@ -577,11 +577,11 @@ class DeleteFilesThread(AbstractWorkerThread):
             absPath = os.path.join(dirAbsPath, fileOrDir)
             if os.path.isdir(absPath):
                 self.__removeIfEmpty(absPath)
-                
+
         filesDirsAfter = os.listdir(dirAbsPath)
         if len(filesDirsAfter) == 0:
             os.rmdir(dirAbsPath)
-            
+
 
 
 
@@ -610,7 +610,7 @@ class MoveFilesThread(AbstractWorkerThread):
 
                 i = i + 1
                 self.emit(QtCore.SIGNAL("progress"), int(100.0*float(i)/len(self._srcDstFileAbsPaths)))
-            
+
             # Now we should delete empty dirs (if there are any)
             for selFile in self._selFilesAndDirs:
                 if os.path.isdir(selFile):
@@ -624,11 +624,11 @@ class MoveFilesThread(AbstractWorkerThread):
             absPath = os.path.join(dirAbsPath, fileOrDir)
             if os.path.isdir(absPath):
                 self.__removeIfEmpty(absPath)
-                
+
         filesDirsAfter = os.listdir(dirAbsPath)
         if len(filesDirsAfter) == 0:
             os.rmdir(dirAbsPath)
-            
+
 
 
 

@@ -3,11 +3,10 @@ Created on 01.09.2012
 @author: vlkv
 '''
 import logging
-import reggata.consts as consts
 from reggata.user_config import UserConfig
 import reggata.helpers as helpers
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class FavoriteReposStorage(object):

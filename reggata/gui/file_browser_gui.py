@@ -14,7 +14,7 @@ from reggata.user_config import UserConfig
 import os
 from reggata.data.commands import FileInfo
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class FileBrowserGui(ToolGui):
@@ -83,7 +83,7 @@ class FileBrowserGui(ToolGui):
                 self.actions['openFile'].trigger()
         except Exception as ex:
             logger.debug("Cannot change current directory: " + str(ex))
-        
+
 
     def event(self, e):
         #print(e.__class__.__name__ + " " + str(e.type()))
@@ -92,7 +92,7 @@ class FileBrowserGui(ToolGui):
                 self.ui.filesTableView.selectRow(0)
                 e.accept()
                 return True
-                
+
             elif e.key() == Qt.Key_End:
                 rowCount = self.ui.filesTableView.model().rowCount()
                 self.ui.filesTableView.selectRow(rowCount - 1)

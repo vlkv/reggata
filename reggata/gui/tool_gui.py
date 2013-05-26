@@ -5,9 +5,8 @@ Created on 09.09.2012
 import logging
 from PyQt4 import QtGui
 from reggata.logic.abstract_tool_gui import AbstractToolGui
-import reggata.consts as consts
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class ToolGui(QtGui.QWidget, AbstractToolGui):
@@ -16,7 +15,7 @@ class ToolGui(QtGui.QWidget, AbstractToolGui):
     '''
 
     def __init__(self, parent):
-        logging.debug("ToolGui __init__")
+        logger.debug("ToolGui __init__")
         super(ToolGui, self).__init__(parent)
 
         self._actions = dict()

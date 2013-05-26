@@ -19,7 +19,7 @@ import reggata.consts as consts
 from reggata.gui.my_message_box import MyMessageBox
 
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 #def tr(text):
