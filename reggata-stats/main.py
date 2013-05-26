@@ -1,7 +1,7 @@
 import webapp2
-
 from google.appengine.ext import ndb
 from datetime import datetime
+from uuid import uuid4
 
 
 class Counter(ndb.Model):
@@ -9,9 +9,12 @@ class Counter(ndb.Model):
 	value = ndb.IntegerProperty(indexed=False)
 	dateTimeCreated = ndb.DateTimeProperty(auto_now_add=True)
 
+class InstanceId(ndb.Model):
+	uuid = ndb.StringProperty()
+	dateTimeCreated = ndb.DateTimeProperty(auto_now_add=True)
+
 
 class MainPage(webapp2.RequestHandler):
-
 	def get(self):
 		self.response.headers['Content-Type'] = 'text/plain'
 		self.response.write("Request: \n" + str(self.request))
@@ -31,13 +34,23 @@ class MainPage(webapp2.RequestHandler):
 
 
 class Registrator(webapp2.RequestHandler):
-
 	def get(self):
-		self.response.headers['Content-Type'] = 'text/plain'
+		iid = InstanceId()
+		iid.uuid = str(uuid4())
+		iid.put()
 
-		instanceId = str(datetime.now())
-		self.response.write("Request: \n" + str(self.request))
-		self.response.write("InstanceId: " + instanceId + "\n")
+		self.response.headers['Content-Type'] = 'text/plain'
+		self.response.write(iid.uuid)
+
+		#self.response.write("instance_id: " + str(self.request.get("instance_id", None)))
+		#q = InstanceId.query(InstanceId.uuid == uuid)
+		#ids = q.fetch()
+		#if len(ids) > 0:
+		#	self.response.write(" Already registered")
+		#else:
+		#	self.response.write(" Not registered")
+
+
 
 
 

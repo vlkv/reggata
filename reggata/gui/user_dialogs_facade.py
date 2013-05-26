@@ -102,7 +102,7 @@ class UserDialogsFacade(AbstractDialogsFacade):
 
 
     def execGetYesNoAnswerDialog(self, gui, title, question):
-        return QtGui.QMessageBox.question(gui, title, question, QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+        return QtGui.QMessageBox.question(gui, title, question, QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.Yes)
 
 
 

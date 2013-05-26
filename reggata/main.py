@@ -34,6 +34,8 @@ import reggata.reggata_dir_locator
 import reggata.logging_default_conf as logging_default_conf
 from reggata.gui.main_window import MainWindow
 from gui.user_dialogs_facade import UserDialogsFacade
+import urllib
+import re
 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
@@ -106,8 +108,19 @@ def askUserAboutSendStatistics(mainWindow):
 
 
 def registerReggataInstance():
-    # TODO: implement
-    pass
+    try:
+        timeoutSec = 5
+        with urllib.request.urlopen("http://reggata-stats.appspot.com/register", None, timeoutSec) as f:
+            response = f.read()
+        instanceId = response.decode("utf-8")
+        mobj = re.match(r"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}", instanceId)
+        if mobj is None:
+            raise Exception("Server returned bad instance id, it doesn't look like UUID: " + instanceId)
+        UserConfig().store("reggata_instance_id", mobj.group(0))
+
+    except Exception as ex:
+        logger.warning("Could not register Reggata instance, reason: " + str(ex))
+
 
 
 
