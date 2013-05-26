@@ -28,14 +28,12 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QApplication
 from PyQt4.QtCore import QCoreApplication
 import reggata.consts as consts
-import reggata.helpers as hlp
+import reggata.statistics as stats
 from reggata.user_config import UserConfig
 import reggata.reggata_dir_locator
 import reggata.logging_default_conf as logging_default_conf
 from reggata.gui.main_window import MainWindow
 from gui.user_dialogs_facade import UserDialogsFacade
-import urllib
-import re
 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
@@ -79,19 +77,6 @@ def configureTranslations(app):
             logger.warning("Cannot find translation file {}.".format(qm_filename))
 
 
-def isReggataInstanceRegistered():
-    instanceId = UserConfig().get("reggata_instance_id")
-    return False if hlp.is_none_or_empty(instanceId) else True
-
-
-def isUserGaveTheAnswerAboutSendStatistics():
-    sendStatistics = UserConfig().get("send_statistics")
-    return False if hlp.is_none_or_empty(sendStatistics) else True
-
-
-def isSendStatisticsAllowed():
-    sendStatistics = UserConfig().get("send_statistics")
-    return hlp.stringToBool(sendStatistics)
 
 
 def askUserAboutSendStatistics(mainWindow):
@@ -104,22 +89,7 @@ def askUserAboutSendStatistics(mainWindow):
     elif res == QtGui.QMessageBox.No:
         sendStatistics = False
     if sendStatistics is not None:
-        UserConfig().store("send_statistics", sendStatistics)
-
-
-def registerReggataInstance():
-    try:
-        timeoutSec = 5
-        with urllib.request.urlopen("http://reggata-stats.appspot.com/register", None, timeoutSec) as f:
-            response = f.read()
-        instanceId = response.decode("utf-8")
-        mobj = re.match(r"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}", instanceId)
-        if mobj is None:
-            raise Exception("Server returned bad instance id, it doesn't look like UUID: " + instanceId)
-        UserConfig().store("reggata_instance_id", mobj.group(0))
-
-    except Exception as ex:
-        logger.warning("Could not register Reggata instance, reason: " + str(ex))
+        stats.setSendStatistics(sendStatistics)
 
 
 
@@ -141,12 +111,13 @@ def main():
     mw = MainWindow()
     mw.show()
 
-    if not isReggataInstanceRegistered() and not isUserGaveTheAnswerAboutSendStatistics():
+    if not stats.isReggataInstanceRegistered() and not stats.isUserGaveTheAnswerAboutSendStatistics():
         askUserAboutSendStatistics(mw)
 
-    if isSendStatisticsAllowed() and not isReggataInstanceRegistered():
-        registerReggataInstance()
+    if stats.isSendStatisticsAllowed() and not stats.isReggataInstanceRegistered():
+        stats.registerReggataInstance()
 
+    stats.sendEvent("reggata_started")
 
     app.exec_()
     logger.info("========= Reggata finished =========")

@@ -4,14 +4,16 @@ from datetime import datetime
 from uuid import uuid4
 
 
-class Counter(ndb.Model):
-	name = ndb.StringProperty(indexed=False)
-	value = ndb.IntegerProperty(indexed=False)
-	dateTimeCreated = ndb.DateTimeProperty(auto_now_add=True)
+class Event(ndb.Model):
+	appInstanceId = ndb.StringProperty(indexed=True)
+	name = ndb.StringProperty(indexed=True)
+	dateCreated = ndb.DateTimeProperty(auto_now_add=True)
 
-class InstanceId(ndb.Model):
-	uuid = ndb.StringProperty()
-	dateTimeCreated = ndb.DateTimeProperty(auto_now_add=True)
+
+class AppInstance(ndb.Model):
+	id = ndb.StringProperty(indexed=True)
+	dateCreated = ndb.DateTimeProperty(auto_now_add=True)
+
 
 
 class MainPage(webapp2.RequestHandler):
@@ -19,43 +21,44 @@ class MainPage(webapp2.RequestHandler):
 		self.response.headers['Content-Type'] = 'text/plain'
 		self.response.write("Request: \n" + str(self.request))
 
-		query = Counter.query()
-		counters = query.fetch()
 
-		counter = None
-		if len(counters) > 0:
-			counter = counters[0]
-		else:
-			counter = Counter()
-			counter.name = "startup"
-			counter.value = 0
-		counter.value = counter.value + 1
-		counter.put()
-
-
-class Registrator(webapp2.RequestHandler):
+class RegisterApp(webapp2.RequestHandler):
 	def get(self):
-		iid = InstanceId()
-		iid.uuid = str(uuid4())
-		iid.put()
+		ai = AppInstance()
+		ai.id = str(uuid4())
+		ai.put()
+		self.response.headers['Content-Type'] = 'text/plain'
+		self.response.write(ai.id)
+
+
+class PutEvent(webapp2.RequestHandler):
+	def get(self):
+		appInstanceId = self.request.get("app_instance_id", None)
+		name = self.request.get("name", None)
 
 		self.response.headers['Content-Type'] = 'text/plain'
-		self.response.write(iid.uuid)
+		if appInstanceId is None:
+			self.response.write("app_instance_id argument is missing")
+			return
+		if name is None:
+			self.response.write("name argument is missing")
+			return
+		appInstances = AppInstance.query(AppInstance.id == appInstanceId).fetch()
+		if len(appInstances) == 0:
+			self.response.write("app_instance_id is not found in database. Application instance is not registered")
+			return
+		appInstanceId = appInstances[0].id
 
-		#self.response.write("instance_id: " + str(self.request.get("instance_id", None)))
-		#q = InstanceId.query(InstanceId.uuid == uuid)
-		#ids = q.fetch()
-		#if len(ids) > 0:
-		#	self.response.write(" Already registered")
-		#else:
-		#	self.response.write(" Not registered")
-
-
-
+		e = Event()
+		e.appInstanceId = appInstanceId
+		e.name = name
+		e.put()
+		self.response.write("ok")
 
 
 
 application = webapp2.WSGIApplication([
 	('/', MainPage),
-	('/register', Registrator),
+	('/register_app', RegisterApp),
+	('/put_event', PutEvent),
 ], debug=True)
