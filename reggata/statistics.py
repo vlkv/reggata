@@ -9,6 +9,7 @@ from reggata.user_config import UserConfig
 from reggata import consts
 import logging
 import re
+import reggata
 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
@@ -26,7 +27,8 @@ def isReggataInstanceRegistered():
 def registerReggataInstance():
     try:
         timeoutSec = 5
-        with urllib.request.urlopen(consts.STATISTICS_SERVER + "/register_app", None, timeoutSec) as f:
+        with urllib.request.urlopen(consts.STATISTICS_SERVER + "/register_app?app_version={}"
+                                    .format(reggata.__version__), None, timeoutSec) as f:
             response = f.read()
         instanceId = response.decode("utf-8")
         mobj = re.match(r"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}", instanceId)
@@ -55,9 +57,8 @@ def isSendStatisticsAllowed():
 def _sendEvent(instanceId, name):
     print("_sendEvent started")
     timeoutSec = 5
-    with urllib.request.urlopen(consts.STATISTICS_SERVER + "/put_event?app_instance_id={}&name={}"
-                           .format(instanceId, name),
-                           None, timeoutSec) as f:
+    with urllib.request.urlopen(consts.STATISTICS_SERVER + "/put_event?app_instance_id={}&name={}&app_version={}"
+                           .format(instanceId, name, reggata.__version__), None, timeoutSec) as f:
         response = f.read()
         # TODO: remove this print call
         print(str(response))

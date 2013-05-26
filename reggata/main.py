@@ -34,6 +34,7 @@ import reggata.reggata_dir_locator
 import reggata.logging_default_conf as logging_default_conf
 from reggata.gui.main_window import MainWindow
 from gui.user_dialogs_facade import UserDialogsFacade
+import time
 
 
 logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
@@ -116,6 +117,7 @@ def main():
 
     if stats.isSendStatisticsAllowed() and not stats.isReggataInstanceRegistered():
         stats.registerReggataInstance()
+        time.sleep(1)
 
     stats.sendEvent("reggata_started")
 
