@@ -14,7 +14,7 @@ from reggata.logic.worker_threads import MoveFilesThread, DeleteFilesThread
 from reggata.helpers import show_exc_info, is_none_or_empty
 import reggata.data.commands as cmds
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 
@@ -96,18 +96,18 @@ class DeleteFilesActionHandler(AbstractActionHandler):
             selFilesAndDirs = self._tool.gui.selectedFiles()
             selFilesAndDirs = DeleteFilesActionHandler.__filterSelectedFilesDirs(selFilesAndDirs)
             selFileAbsPaths = self.__getListOfAllAffectedFiles(selFilesAndDirs)
-            
+
             thread = DeleteFilesThread(self._tool.gui, self._tool.repo, selFileAbsPaths, selFilesAndDirs)
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
-        
+
             if thread.errors > 0:
-                self._dialogs.execMessageBox(self._tool.gui, 
-                                             text="There were {} errors.".format(thread.errors), 
+                self._dialogs.execMessageBox(self._tool.gui,
+                                             text="There were {} errors.".format(thread.errors),
                                              detailedText=thread.detailed_message)
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
                                     consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
-            
+
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
 
@@ -153,39 +153,39 @@ class MoveFilesActionHandler(AbstractActionHandler):
             selFilesAndDirs = self._tool.gui.selectedFiles()
             selFilesAndDirs = MoveFilesActionHandler.__filterSelectedFilesDirs(selFilesAndDirs)
             selFileAbsPaths = self.__getListOfAllAffectedFiles(selFilesAndDirs)
-            
+
             if len(selFileAbsPaths) == 0:
                 return
-            
+
             dstDir = self._dialogs.getExistingDirectory(self._tool.gui, self.tr("Select destination directory"))
             if not dstDir:
                 return
-            
+
             if not hlp.is_internal(dstDir, self._tool.repo.base_path):
                 raise err.WrongValueError(self.tr("Selected directory should be within the current repo"))
-            
+
             dstFileAbsPaths = []
             currDir = self._tool.currDir
             for absFile in selFileAbsPaths:
                 relFile = os.path.relpath(absFile, currDir)
                 dstAbsFile = os.path.join(dstDir, relFile)
                 dstFileAbsPaths.append((absFile, dstAbsFile))
-            
+
             thread = MoveFilesThread(self._tool.gui, self._tool.repo, dstFileAbsPaths, selFilesAndDirs)
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
-        
+
             if thread.errors > 0:
-                self._dialogs.execMessageBox(self._tool.gui, 
-                                             text="There were {} errors.".format(thread.errors), 
+                self._dialogs.execMessageBox(self._tool.gui,
+                                             text="There were {} errors.".format(thread.errors),
                                              detailedText=thread.detailed_message)
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE, self.tr("Done."),
                                 consts.STATUSBAR_TIMEOUT)
             self._emitHandlerSignal(HandlerSignals.ITEM_CHANGED)
-            
+
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
-            
-        
+
+
 
     @staticmethod
     def __filterSelectedFilesDirs(selFiles):

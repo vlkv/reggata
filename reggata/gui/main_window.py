@@ -18,7 +18,7 @@ from reggata.gui.user_dialogs_facade import UserDialogsFacade
 from reggata.ui.ui_mainwindow import Ui_MainWindow
 from reggata.user_config import UserConfig
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class MainWindow(QtGui.QMainWindow, AbstractGui):

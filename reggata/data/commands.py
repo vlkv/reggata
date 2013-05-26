@@ -18,7 +18,7 @@ from reggata.data import operations
 from reggata.helpers import to_db_format
 
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class AbstractCommand:
@@ -440,7 +440,7 @@ class GetNamesOfAllTagsAndFields(AbstractCommand):
 class GetItemIdsWithFilesFrom(AbstractCommand):
     def __init__(self, dirRelPath):
         self._dirRelPath = dirRelPath
-        
+
     def _execute(self, uow):
         items = []
         try:
@@ -890,7 +890,7 @@ class DeleteFileCommand(AbstractCommand):
     def _execute(self, uow):
         session = uow.session
         repoBasePath = uow._repo_base_path
-        
+
         if not hlp.is_internal(self._fileAbsPath, repoBasePath):
             raise err.WrongValueError("File '{}' is outside of the repository".format(self._fileAbsPath))
 
@@ -904,7 +904,7 @@ class DeleteFileCommand(AbstractCommand):
             for item in dataRef.items:
                 session.delete(item)
             session.delete(dataRef)
-                
+
         os.remove(self._fileAbsPath)
         session.commit()
 
@@ -919,21 +919,21 @@ class MoveFileCommand(AbstractCommand):
     def _execute(self, uow):
         session = uow.session
         repoBasePath = uow._repo_base_path
-        
+
         if not hlp.is_internal(self._srcFileAbsPath, repoBasePath):
             raise err.WrongValueError("File '{}' is outside of the repository".format(self._srcFileAbsPath))
-        
+
         if not hlp.is_internal(self._dstFileAbsPath, repoBasePath):
             raise err.WrongValueError("File '{}' is outside of the repository".format(self._dstFileAbsPath))
-        
+
         if not os.path.exists(self._srcFileAbsPath):
             raise err.NotExistError("File '{}' doesn't exist".format(self._srcFileAbsPath))
-        
+
         if os.path.exists(self._dstFileAbsPath):
             raise err.FileAlreadyExistsError(
                 "Cannot move file: destination file '{}' already exists."
                 .format(self._dstFileAbsPath))
-        
+
         dstFileRelPath = os.path.relpath(self._dstFileAbsPath, repoBasePath)
         dstDataRef = session.query(db.DataRef).filter(
             db.DataRef.url_raw==hlp.to_db_format(dstFileRelPath)).first()
@@ -941,7 +941,7 @@ class MoveFileCommand(AbstractCommand):
             raise err.DataRefAlreadyExistsError(
                 "Cannot move file: there is a hanging DataRef object, that references to file '{}'"
                 .format(dstFileRelPath))
-        
+
         srcFileRelPath = os.path.relpath(self._srcFileAbsPath, repoBasePath)
         srcDataRef = session.query(db.DataRef).filter(
             db.DataRef.url_raw==hlp.to_db_format(srcFileRelPath)).first()
@@ -951,15 +951,15 @@ class MoveFileCommand(AbstractCommand):
         if not os.path.exists(os.path.dirname(self._dstFileAbsPath)):
             os.makedirs(os.path.dirname(self._dstFileAbsPath), exist_ok=True)
         shutil.move(self._srcFileAbsPath, self._dstFileAbsPath)
-        
+
         session.commit()
-        
+
 
 class RenameFileCommand(MoveFileCommand):
     def __init__(self, fileAbsPath, newFilename):
         dstFileAbsPath = os.path.join(os.path.dirname(fileAbsPath), newFilename)
         super(RenameFileCommand, self).__init__(fileAbsPath, dstFileAbsPath)
-        
+
 
 class RenameDirectoryCommand(AbstractCommand):
     '''

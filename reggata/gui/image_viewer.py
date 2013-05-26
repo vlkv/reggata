@@ -14,7 +14,7 @@ from reggata.gui.user_dialogs_facade import UserDialogsFacade
 from reggata.gui.item_dialog import ItemDialog
 from reggata.logic.handler_signals import HandlerSignals
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class Canvas(QtGui.QWidget):

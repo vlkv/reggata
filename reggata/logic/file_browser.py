@@ -9,7 +9,6 @@ import traceback
 from datetime import datetime
 from reggata.logic.abstract_tool import AbstractTool
 from reggata.gui.file_browser_gui import FileBrowserGui
-import reggata.consts as consts
 from reggata.errors import NoneError, NotExistError, CurrentRepoIsNoneError, CurrentUserIsNoneError
 import reggata.helpers as helpers
 from reggata.data.commands import FileInfo, GetFileInfoCommand, GetItemIdsWithFilesFrom
@@ -22,7 +21,7 @@ from reggata.logic.file_browser_action_handlers import AddFilesToRepoActionHandl
     DeleteFilesActionHandler
 from reggata.logic.ext_app_mgr import ExtAppMgr
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class FileBrowser(AbstractTool):
@@ -44,11 +43,11 @@ class FileBrowser(AbstractTool):
         self._thread = None
         self._enabled = False
         self._extAppMgr = ExtAppMgr()
-        
+
         self._guiUpdater.subscribe(
             self._extAppMgr, self._extAppMgr.updateState,
             [HandlerSignals.REGGATA_CONF_CHANGED])
-        
+
         logger.debug("File Browser __init__ finished.")
 
 
@@ -91,7 +90,7 @@ class FileBrowser(AbstractTool):
         self._actionHandlers.register(
             self._gui.actions['renameFile'],
             RenameFileActionHandler(self, self._dialogsFacade))
-        
+
         self._actionHandlers.register(
             self._gui.actions['deleteFiles'],
             DeleteFilesActionHandler(self, self._dialogsFacade))
@@ -171,8 +170,8 @@ class FileBrowser(AbstractTool):
         finally:
             uow.close()
         return itemIds
-    
-    
+
+
 
     def listDir(self):
         if self._currDir is None:

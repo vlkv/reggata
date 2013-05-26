@@ -15,7 +15,7 @@ from reggata.errors import MsgException
 import reggata.consts as consts
 from reggata.user_config import UserConfig
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class FileExtentionMultiplyRegisteredError(Exception):

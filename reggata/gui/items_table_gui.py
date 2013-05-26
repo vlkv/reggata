@@ -20,7 +20,7 @@ from reggata.gui.tool_gui import ToolGui
 import os
 import traceback
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class ItemsTableGui(ToolGui):

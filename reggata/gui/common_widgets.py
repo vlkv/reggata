@@ -13,7 +13,7 @@ from reggata.helpers import is_none_or_empty
 import reggata.consts as consts
 from reggata.data.commands import GetNamesOfAllTagsAndFields
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 class FileDialog(QtGui.QFileDialog):

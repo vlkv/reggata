@@ -3,7 +3,6 @@ Created on 23.12.2012
 @author: vlkv
 '''
 from reggata.logic.handler_signals import HandlerSignals
-import reggata.consts as consts
 import reggata.data.commands as cmds
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.gui.item_dialog import ItemDialog
@@ -15,7 +14,7 @@ import reggata.errors as err
 import logging
 import os
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 
@@ -212,7 +211,7 @@ class EditItemsActionHandler(AbstractActionHandler):
 
         except Exception as ex:
             hlp.show_exc_info(self._tool.gui, ex)
-            
+
 
 
     def __editSingleItem(self, itemId):

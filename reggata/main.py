@@ -34,7 +34,7 @@ import reggata.logging_default_conf as logging_default_conf
 from reggata.gui.main_window import MainWindow
 
 
-logger = logging.getLogger(consts.ROOT_LOGGER + "." + __name__)
+logger = logging.getLogger(__name__)
 
 
 def configureLogging():
@@ -64,11 +64,11 @@ def configureTranslations(app):
 
         reggataDir = reggata.reggata_dir_locator.modulePath()
         logger.debug("reggataDir is " + reggataDir)
-        
+
         isQmLoaded = qtr.load(qm_filename, os.path.join(reggataDir, "reggata", "locale"))
         if not isQmLoaded:
             isQmLoaded = qtr.load(qm_filename, os.path.join(reggataDir, "locale"))
-            
+
 
         if isQmLoaded:
             QtCore.QCoreApplication.installTranslator(qtr)
