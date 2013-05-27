@@ -2,17 +2,20 @@
 Created on 23.12.2012
 @author: vlkv
 '''
-from reggata.logic.handler_signals import HandlerSignals
-import reggata.data.commands as cmds
-from reggata.logic.action_handlers import AbstractActionHandler
-from reggata.gui.item_dialog import ItemDialog
-from reggata.logic.worker_threads import UpdateGroupOfItemsThread, BackgrThread, CreateGroupOfItemsThread
-from reggata.gui.items_dialog import ItemsDialog
+import logging
+import os
 import reggata.data.db_schema as db
 import reggata.helpers as hlp
 import reggata.errors as err
-import logging
-import os
+import reggata.data.commands as cmds
+from reggata.logic.handler_signals import HandlerSignals
+from reggata.logic.action_handlers import AbstractActionHandler
+from reggata.gui.item_dialog import ItemDialog
+from reggata.logic.worker_threads import UpdateGroupOfItemsThread
+from reggata.logic.worker_threads import BackgrThread
+from reggata.logic.worker_threads import CreateGroupOfItemsThread
+from reggata.gui.items_dialog import ItemsDialog
+
 
 logger = logging.getLogger(__name__)
 

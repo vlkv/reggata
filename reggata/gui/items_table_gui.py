@@ -3,22 +3,26 @@ Created on 21.01.2012
 @author: vlkv
 '''
 import logging
+import os
+import traceback
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
-from reggata.ui.ui_itemstablegui import Ui_ItemsTableGui
-from reggata.user_config import UserConfig
-from reggata.parsers import query_parser, query_tokens
-import reggata.data.db_schema as db
-from reggata.gui.common_widgets import TextEdit
 import reggata.helpers as helpers
 import reggata.consts as consts
 import reggata.errors as errors
 import reggata.data.commands as cmds
+import reggata.statistics as stats
+import reggata.data.db_schema as db
+from reggata.gui.common_widgets import TextEdit
 from reggata.logic.worker_threads import ThumbnailBuilderThread
 from reggata.gui.tool_gui import ToolGui
-import os
-import traceback
+from reggata.ui.ui_itemstablegui import Ui_ItemsTableGui
+from reggata.user_config import UserConfig
+from reggata.parsers import query_parser, query_tokens
+
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +99,9 @@ class ItemsTableGui(ToolGui):
 
             self.resize_rows_to_contents()
 
+            stats.sendEvent("items_table.query_exec")
+
+
         except Exception as ex:
             logger.warning(str(ex))
             helpers.show_exc_info(self, ex)
@@ -105,6 +112,7 @@ class ItemsTableGui(ToolGui):
             self.__table_model.query("")
         self.query_text_reset()
         self.emit(QtCore.SIGNAL("queryTextResetted"))
+        stats.sendEvent("items_table.query_reset")
 
 
     def query_text(self):
@@ -566,7 +574,6 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
                     self.lock.unlock()
 
 
-        #Данная роль используется для отображения миниатюр графических файлов
         elif role == QtCore.Qt.UserRole:
             if column == self.IMAGE_THUMB and item.data_ref is not None:
                 if item.data_ref.is_image():

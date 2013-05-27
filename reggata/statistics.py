@@ -10,6 +10,7 @@ from reggata import consts
 import logging
 import re
 import reggata
+import sys
 
 
 logger = logging.getLogger(__name__)
@@ -27,8 +28,10 @@ def isReggataInstanceRegistered():
 def registerReggataInstance():
     try:
         timeoutSec = 5
-        with urllib.request.urlopen(consts.STATISTICS_SERVER + "/register_app?app_version={}"
-                                    .format(reggata.__version__), None, timeoutSec) as f:
+        with urllib.request.urlopen(consts.STATISTICS_SERVER +
+                                    "/register_app?app_version={}&sys_platform={}"
+                                    .format(reggata.__version__, sys.platform),
+                                    None, timeoutSec) as f:
             response = f.read()
         instanceId = response.decode("utf-8")
         mobj = re.match(r"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}", instanceId)
@@ -58,8 +61,8 @@ def _sendEvent(instanceId, name):
     try:
         timeoutSec = 5
         with urllib.request.urlopen(consts.STATISTICS_SERVER +
-                                    "/put_event?app_instance_id={}&name={}&app_version={}"
-                                    .format(instanceId, name, reggata.__version__),
+                                    "/put_event?app_instance_id={}&name={}&app_version={}&sys_platform={}"
+                                    .format(instanceId, name, reggata.__version__, sys.platform),
                                     None, timeoutSec) as f:
             response = f.read()
             logger.debug("Statistics sent, server returned: " + str(response))

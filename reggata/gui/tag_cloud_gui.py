@@ -6,8 +6,9 @@ Created on 13.11.2010
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 from PyQt4.QtCore import Qt
-from reggata.helpers import show_exc_info, is_none_or_empty
 import reggata.parsers as parsers
+import reggata.statistics as stats
+from reggata.helpers import show_exc_info, is_none_or_empty
 from reggata.errors import MsgException
 from reggata.user_config import UserConfig
 from reggata.data.commands import GetRelatedTagsCommand
@@ -45,12 +46,12 @@ class TagCloudGui(ToolGui):
         self.connect(self.__tagCloudTextEdit,
                      QtCore.SIGNAL("selectedTagsChanged"),
                      self._emitSelectedTagsChanged)
-        
+
         self.connect(self.__tagCloudTextEdit,
                      QtCore.SIGNAL("selectedKeywordAll"),
                      self._emitSelectedKeywordAll)
-        
-        
+
+
 
         layout = QtGui.QVBoxLayout()
         layout.addWidget(self.__tagCloudTextEdit)
@@ -67,7 +68,7 @@ class TagCloudGui(ToolGui):
 
     def _emitSelectedTagsChanged(self, tags, notTags):
         self.emit(QtCore.SIGNAL("selectedTagsChanged"), tags, notTags)
-        
+
     def _emitSelectedKeywordAll(self):
         self.emit(QtCore.SIGNAL("selectedKeywordAll"))
 
@@ -131,11 +132,11 @@ class TagCloudTextEdit(QtGui.QTextEdit):
         if self.repo is None:
             self.setText("")
             return
-        
+
         if self.keywordAll:
             self.setText("")
             return
-        
+
         uow = self.repo.createUnitOfWork()
         try:
             cmd = GetRelatedTagsCommand(list(self.tags), limit=self.limit)
@@ -156,9 +157,9 @@ class TagCloudTextEdit(QtGui.QTextEdit):
                 font_size = sizes.get(tag.c, 0)
 
                 # We should NOT escape tag names here
-                text = text + " " + TagCloudTextEdit.formatTag(self.bg_color, font_size, 
+                text = text + " " + TagCloudTextEdit.formatTag(self.bg_color, font_size,
                                                                self.text_color, tag.name)
-                
+
             # 'ALL' is a special keyword that selects all the items from the repo
             text = TagCloudTextEdit.formatTag(self.bg_color, 0, self.text_color, "ALL") + text
 
@@ -192,7 +193,7 @@ class TagCloudTextEdit(QtGui.QTextEdit):
             cursor1.mergeCharFormat(fmt)
             self.word = None
         elif self.word is not None and self.tag_count is not None and e.type() == QtCore.QEvent.ToolTip:
-            
+
             if self.word == "ALL" and self.keywordAll:
                 QtGui.QToolTip.showText(e.globalPos(), self.tr("Select all items"))
             else:
@@ -211,7 +212,7 @@ class TagCloudTextEdit(QtGui.QTextEdit):
         cursor = self.cursorForPosition(e.pos())
         cursor.select(QtGui.QTextCursor.WordUnderCursor)
         word = cursor.selectedText()
-        
+
         #print("pos={}".format(cursor.position()))
         if word == "ALL" and cursor.position() <= 3:
             self.keywordAll = True
@@ -244,19 +245,21 @@ class TagCloudTextEdit(QtGui.QTextEdit):
         if self.keywordAll:
             self.emit(QtCore.SIGNAL("selectedKeywordAll"))
             self.refresh()
+            stats.sendEvent("tag_cloud.all_clicked")
             return
-        
+
         if not is_none_or_empty(self.word):
             word = self.word
             if parsers.query_tokens.needs_quote(word):
                 word = parsers.util.quote(word)
-            
+
             if e.modifiers() == Qt.ControlModifier:
                 self.not_tags.add(word)
             else:
                 self.tags.add(word)
             self.emit(QtCore.SIGNAL("selectedTagsChanged"), self.tags, self.not_tags)
             self.refresh()
+            stats.sendEvent("tag_cloud.tag_clicked")
             return
 
 
@@ -288,6 +291,7 @@ class TagCloudTextEdit(QtGui.QTextEdit):
             self.tags.add(sel_text)
             self.emit(QtCore.SIGNAL("selectedTagsChanged"), self.tags, self.not_tags)
             self.refresh()
+            stats.sendEvent("tag_cloud.ctx_menu.and_tag")
         except Exception as ex:
             show_exc_info(self, ex)
 
@@ -306,6 +310,7 @@ class TagCloudTextEdit(QtGui.QTextEdit):
             self.not_tags.add(sel_text)
             self.emit(QtCore.SIGNAL("selectedTagsChanged"), self.tags, self.not_tags)
             self.refresh()
+            stats.sendEvent("tag_cloud.ctx_menu.and_not_tag")
         except Exception as ex:
             show_exc_info(self, ex)
 
@@ -316,3 +321,4 @@ class TagCloudTextEdit(QtGui.QTextEdit):
         if ok:
             self.limit = i
             UserConfig().store("tag_cloud.limit", i)
+        stats.sendEvent("tag_cloud.ctx_menu.set_limit")

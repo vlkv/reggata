@@ -7,16 +7,17 @@ from uuid import uuid4
 class Event(ndb.Model):
 	appInstanceId = ndb.StringProperty(indexed=True)
 	appVersion = ndb.StringProperty(indexed=True)
+	sysPlatform = ndb.StringProperty()
 	name = ndb.StringProperty(indexed=True)
 	dateCreated = ndb.DateTimeProperty(auto_now_add=True)
-	# TODO: add platform field: windows, linux, etc.
 
 
 class AppInstance(ndb.Model):
 	id = ndb.StringProperty(indexed=True)
 	appVersion = ndb.StringProperty(indexed=True)
+	sysPlatform = ndb.StringProperty()
+	comment = ndb.StringProperty(default="")
 	dateCreated = ndb.DateTimeProperty(auto_now_add=True)
-
 
 
 class MainPage(webapp2.RequestHandler):
@@ -31,9 +32,14 @@ class RegisterApp(webapp2.RequestHandler):
 		if appVersion is None:
 			self.response.write("app_version argument is missing")
 			return
+		sysPlatform = self.request.get("sys_platform", None)
+		if sysPlatform is None:
+			self.response.write("sys_platform argument is missing")
+			return
 		ai = AppInstance()
 		ai.id = str(uuid4())
 		ai.appVersion = appVersion
+		ai.sysPlatform = sysPlatform
 		ai.put()
 		self.response.headers['Content-Type'] = 'text/plain'
 		self.response.write(ai.id)
@@ -52,20 +58,18 @@ class PutEvent(webapp2.RequestHandler):
 		if appVersion is None:
 			self.response.write("app_version argument is missing")
 			return
+		sysPlatform = self.request.get("sys_platform", None)
+		if sysPlatform is None:
+			self.response.write("sys_platform argument is missing")
+			return
 		if name is None:
 			self.response.write("name argument is missing")
 			return
 
-		# Maybe register app instance on the fly?
-#		appInstances = AppInstance.query(AppInstance.id == appInstanceId).fetch()
-#		if len(appInstances) == 0:
-#			self.response.write("app_instance_id='" + appInstanceId + "' is not found in database. Application instance is not registered")
-#			return
-#		appInstanceId = appInstances[0].id
-
 		e = Event()
 		e.appInstanceId = appInstanceId
 		e.appVersion = appVersion
+		e.sysPlatform = sysPlatform
 		e.name = name
 		e.put()
 		self.response.write("ok")
