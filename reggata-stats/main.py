@@ -9,6 +9,7 @@ class Event(ndb.Model):
 	appVersion = ndb.StringProperty(indexed=True)
 	name = ndb.StringProperty(indexed=True)
 	dateCreated = ndb.DateTimeProperty(auto_now_add=True)
+	# TODO: add platform field: windows, linux, etc.
 
 
 class AppInstance(ndb.Model):
@@ -54,11 +55,13 @@ class PutEvent(webapp2.RequestHandler):
 		if name is None:
 			self.response.write("name argument is missing")
 			return
-		appInstances = AppInstance.query(AppInstance.id == appInstanceId).fetch()
-		if len(appInstances) == 0:
-			self.response.write("app_instance_id='" + appInstanceId + "' is not found in database. Application instance is not registered")
-			return
-		appInstanceId = appInstances[0].id
+
+		# Maybe register app instance on the fly?
+#		appInstances = AppInstance.query(AppInstance.id == appInstanceId).fetch()
+#		if len(appInstances) == 0:
+#			self.response.write("app_instance_id='" + appInstanceId + "' is not found in database. Application instance is not registered")
+#			return
+#		appInstanceId = appInstances[0].id
 
 		e = Event()
 		e.appInstanceId = appInstanceId

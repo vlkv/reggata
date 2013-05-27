@@ -10,7 +10,8 @@ import reggata.helpers as hlp
 import reggata.statistics as stats
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.logic.action_handlers import AbstractActionHandler
-from reggata.logic.common_action_handlers import AddItemAlgorithms
+from reggata.logic.common_action_handlers import AddItemAlgorithms,\
+    EditItemsActionHandler
 from reggata.logic.worker_threads import MoveFilesThread, DeleteFilesThread
 from reggata.helpers import show_exc_info, is_none_or_empty
 import reggata.data.commands as cmds
@@ -52,6 +53,15 @@ class AddFilesToRepoActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation completed. Added {}, skipped {} files.")
                     .format(self._itemsCreatedCount, self._filesSkippedCount))
+
+
+class EditItemsActionHandlerFileBrowser(EditItemsActionHandler):
+    def __init__(self, tool, dialogs):
+        super(EditItemsActionHandlerFileBrowser, self).__init__(tool, dialogs)
+
+    def handle(self):
+        super(EditItemsActionHandlerFileBrowser, self).handle()
+        stats.sendEvent("file_browser.edit_items")
 
 
 class OpenFileActionHandler(AbstractActionHandler):

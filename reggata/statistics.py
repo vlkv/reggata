@@ -55,14 +55,17 @@ def isSendStatisticsAllowed():
 
 
 def _sendEvent(instanceId, name):
-    print("_sendEvent started")
-    timeoutSec = 5
-    with urllib.request.urlopen(consts.STATISTICS_SERVER + "/put_event?app_instance_id={}&name={}&app_version={}"
-                           .format(instanceId, name, reggata.__version__), None, timeoutSec) as f:
-        response = f.read()
-        # TODO: remove this print call
-        print(str(response))
-    print("_sendEvent done")
+    try:
+        timeoutSec = 5
+        with urllib.request.urlopen(consts.STATISTICS_SERVER +
+                                    "/put_event?app_instance_id={}&name={}&app_version={}"
+                                    .format(instanceId, name, reggata.__version__),
+                                    None, timeoutSec) as f:
+            response = f.read()
+            logger.debug("Statistics sent, server returned: " + str(response))
+    except Exception as ex:
+        logger.warn("Failed to send statistics to the server, reason: " + str(ex))
+
 
 def sendEvent(name):
     if not isSendStatisticsAllowed():

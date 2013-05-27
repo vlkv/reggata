@@ -9,16 +9,23 @@ import traceback
 from datetime import datetime
 from reggata.logic.abstract_tool import AbstractTool
 from reggata.gui.file_browser_gui import FileBrowserGui
-from reggata.errors import NoneError, NotExistError, CurrentRepoIsNoneError, CurrentUserIsNoneError
+from reggata.errors import NoneError
+from reggata.errors import NotExistError
+from reggata.errors import CurrentRepoIsNoneError
+from reggata.errors import CurrentUserIsNoneError
 import reggata.helpers as helpers
-from reggata.data.commands import FileInfo, GetFileInfoCommand, GetItemIdsWithFilesFrom
+from reggata.data.commands import FileInfo
+from reggata.data.commands import GetFileInfoCommand
+from reggata.data.commands import GetItemIdsWithFilesFrom
 from reggata.logic.action_handlers import ActionHandlerStorage
-from reggata.logic.common_action_handlers import EditItemsActionHandler
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
-from reggata.logic.file_browser_action_handlers import AddFilesToRepoActionHandler,\
-    OpenFileActionHandler, MoveFilesActionHandler, RenameFileActionHandler, \
-    DeleteFilesActionHandler
+from reggata.logic.file_browser_action_handlers import AddFilesToRepoActionHandler
+from reggata.logic.file_browser_action_handlers import OpenFileActionHandler
+from reggata.logic.file_browser_action_handlers import MoveFilesActionHandler
+from reggata.logic.file_browser_action_handlers import RenameFileActionHandler
+from reggata.logic.file_browser_action_handlers import DeleteFilesActionHandler
+from reggata.logic.file_browser_action_handlers import EditItemsActionHandlerFileBrowser
 from reggata.logic.ext_app_mgr import ExtAppMgr
 
 logger = logging.getLogger(__name__)
@@ -73,7 +80,7 @@ class FileBrowser(AbstractTool):
 
         self._actionHandlers.register(
             self._gui.actions['editItems'],
-            EditItemsActionHandler(self, self._dialogsFacade))
+            EditItemsActionHandlerFileBrowser(self, self._dialogsFacade))
 
         self._actionHandlers.register(
             self._gui.actions['addFiles'],

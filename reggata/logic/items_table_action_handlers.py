@@ -5,17 +5,19 @@ Created on 01.10.2012
 import os
 import time
 from PyQt4 import QtCore, QtGui
-from reggata.user_config import UserConfig
-from reggata.helpers import show_exc_info, format_exc_info
 import reggata.consts as consts
 import reggata.errors as errors
 import reggata.data.db_schema as db
 import reggata.statistics as stats
+import reggata.logic.worker_threads as threads
 from reggata.logic.action_handlers import AbstractActionHandler
 from reggata.logic.common_action_handlers import AddItemAlgorithms
+from reggata.logic.common_action_handlers import EditItemsActionHandler
 from reggata.logic.handler_signals import HandlerSignals
-import reggata.logic.worker_threads as threads
+from reggata.user_config import UserConfig
+from reggata.helpers import show_exc_info, format_exc_info
 from reggata.gui.image_viewer import ImageViewer
+
 
 
 class AddItemsActionHandler(AbstractActionHandler):
@@ -52,6 +54,15 @@ class AddItemsActionHandler(AbstractActionHandler):
             self._emitHandlerSignal(HandlerSignals.STATUS_BAR_MESSAGE,
                 self.tr("Operation completed. Added {}, skipped {} files.")
                     .format(self._itemsCreatedCount, self._filesSkippedCount))
+
+
+class EditItemsActionHandlerItemsTable(EditItemsActionHandler):
+    def __init__(self, tool, dialogs):
+        super(EditItemsActionHandlerItemsTable, self).__init__(tool, dialogs)
+
+    def handle(self):
+        super(EditItemsActionHandlerItemsTable, self).handle()
+        stats.sendEvent("items_table.edit_items")
 
 
 
