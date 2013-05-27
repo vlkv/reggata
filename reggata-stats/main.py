@@ -4,6 +4,14 @@ from datetime import datetime
 from uuid import uuid4
 
 
+class AppInstance(ndb.Model):
+	id = ndb.StringProperty(indexed=True)
+	appVersion = ndb.StringProperty(indexed=True)
+	sysPlatform = ndb.StringProperty()
+	comment = ndb.StringProperty(default="")
+	dateCreated = ndb.DateTimeProperty(auto_now_add=True)
+
+
 class Event(ndb.Model):
 	appInstanceId = ndb.StringProperty(indexed=True)
 	appVersion = ndb.StringProperty(indexed=True)
@@ -11,12 +19,12 @@ class Event(ndb.Model):
 	name = ndb.StringProperty(indexed=True)
 	dateCreated = ndb.DateTimeProperty(auto_now_add=True)
 
-
-class AppInstance(ndb.Model):
-	id = ndb.StringProperty(indexed=True)
+class IntValue(ndb.Model):
+	appInstanceId = ndb.StringProperty(indexed=True)
 	appVersion = ndb.StringProperty(indexed=True)
 	sysPlatform = ndb.StringProperty()
-	comment = ndb.StringProperty(default="")
+	name = ndb.StringProperty(indexed=True)
+	value = ndb.IntegerProperty()
 	dateCreated = ndb.DateTimeProperty(auto_now_add=True)
 
 
@@ -75,9 +83,50 @@ class PutEvent(webapp2.RequestHandler):
 		self.response.write("ok")
 
 
+class PutIntValue(webapp2.RequestHandler):
+	def get(self):
+		appInstanceId = self.request.get("app_instance_id", None)
+		appVersion = self.request.get("app_version", None)
+		name = self.request.get("name", None)
+		value = None
+		try:
+			value = int(self.request.get("value", None))
+		except Exception:
+			self.response.write("value argument must be an integer")
+			return
+
+		self.response.headers['Content-Type'] = 'text/plain'
+		if appInstanceId is None:
+			self.response.write("app_instance_id argument is missing")
+			return
+		if appVersion is None:
+			self.response.write("app_version argument is missing")
+			return
+		sysPlatform = self.request.get("sys_platform", None)
+		if sysPlatform is None:
+			self.response.write("sys_platform argument is missing")
+			return
+		if name is None:
+			self.response.write("name argument is missing")
+			return
+		if value is None:
+			self.response.write("value argument is missing")
+			return
+
+		iv = IntValue()
+		iv.appInstanceId = appInstanceId
+		iv.appVersion = appVersion
+		iv.sysPlatform = sysPlatform
+		iv.name = name
+		iv.value = value
+		iv.put()
+		self.response.write("ok")
+
+
 
 application = webapp2.WSGIApplication([
 	('/', MainPage),
 	('/register_app', RegisterApp),
 	('/put_event', PutEvent),
+	('/put_int_value', PutIntValue),
 ], debug=True)

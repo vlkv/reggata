@@ -79,3 +79,27 @@ def sendEvent(name):
     t = Thread(target=_sendEvent, args=(instanceId, name))
     t.start()
 
+
+def _sendIntValue(instanceId, name, intValue):
+    try:
+        timeoutSec = 5
+        with urllib.request.urlopen(consts.STATISTICS_SERVER +
+                                    "/put_int_value?app_instance_id={}&name={}&app_version={}&sys_platform={}&value={}"
+                                    .format(instanceId, name, reggata.__version__, sys.platform, intValue),
+                                    None, timeoutSec) as f:
+            response = f.read()
+            logger.debug("Statistics sent, server returned: " + str(response))
+    except Exception as ex:
+        logger.warn("Failed to send statistics to the server, reason: " + str(ex))
+
+
+def sendIntValue(name, intValue):
+    if not isSendStatisticsAllowed():
+        return
+    instanceId = reggataInstanceId()
+    if hlp.is_none_or_empty(instanceId):
+        return
+    t = Thread(target=_sendIntValue, args=(instanceId, name, intValue))
+    t.start()
+
+

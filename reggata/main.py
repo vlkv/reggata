@@ -35,6 +35,7 @@ import reggata.logging_default_conf as logging_default_conf
 from reggata.gui.main_window import MainWindow
 from gui.user_dialogs_facade import UserDialogsFacade
 import time
+from datetime import datetime
 
 
 logger = logging.getLogger(__name__)
@@ -96,6 +97,7 @@ def askUserAboutSendStatistics(mainWindow):
 
 
 def main():
+    startTime = datetime.now()
     configureConfigDir()
     configureTmpDir()
     configureLogging()
@@ -106,7 +108,6 @@ def main():
     logger.debug("current dir is " + os.path.abspath("."))
 
     app = QApplication(sys.argv)
-
     configureTranslations(app)
 
     mw = MainWindow()
@@ -124,6 +125,9 @@ def main():
     app.exec_()
     logger.info("========= Reggata finished =========")
 
+    endTime = datetime.now()
+    reggataRunningTimeSec = round((endTime - startTime).total_seconds())
+    stats.sendIntValue("reggata_running_time_sec", reggataRunningTimeSec)
 
 if __name__ == '__main__':
     main()
