@@ -170,7 +170,8 @@ class ExportItemsThread(AbstractWorkerThread):
         itemState = encoder.encode(item)
         itemStateFilename = "id=" + str(item.id) + "_title=" + item.title
 
-        tmpFileName = os.path.join(consts.DEFAULT_TMP_DIR, "item_state.json")
+        tmpDir = UserConfig().get("tmp_dir", consts.DEFAULT_TMP_DIR)
+        tmpFileName = os.path.join(tmpDir, "item_state.json")
         with open(tmpFileName, "w") as f:
             f.write(itemState)
         archive.add(tmpFileName, arcname=os.path.join(".reggata/items", itemStateFilename))

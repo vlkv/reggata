@@ -71,7 +71,7 @@ if sys.platform.startswith("win"):
         AUDIO_PLAYER = '''"c:\Program Files\K-Lite Codec Pack\Media Player Classic\mplayerc.exe"''',
         TEXT_EDITOR = '''"c:\WINDOWS\\notepad.exe"''',
         EXTERNAL_FILE_MANAGER = '''"c:\WINDOWS\explorer.exe"''',
-        TMP_DIR = '''"C:\Temp"''')
+        TMP_DIR = '''c:\Temp''')
 
 elif sys.platform.startswith("linux"):
     reggataDefaultConf += _confTemplate.format(

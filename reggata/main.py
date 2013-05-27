@@ -56,8 +56,9 @@ def configureConfigDir():
 
 
 def configureTmpDir():
-    if not os.path.exists(consts.DEFAULT_TMP_DIR):
-        os.makedirs(consts.DEFAULT_TMP_DIR)
+    tmpDir = UserConfig().get("tmp_dir", consts.DEFAULT_TMP_DIR)
+    if not os.path.exists(tmpDir):
+        os.makedirs(tmpDir)
 
 
 def configureTranslations(app):
