@@ -23,19 +23,19 @@ Created on 21.01.2012
 import os.path
 import sys
 import codecs
+import time
 import logging.config
+from datetime import datetime
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QApplication
 from PyQt4.QtCore import QCoreApplication
 import reggata.consts as consts
 import reggata.statistics as stats
-from reggata.user_config import UserConfig
 import reggata.reggata_dir_locator
 import reggata.logging_default_conf as logging_default_conf
 from reggata.gui.main_window import MainWindow
-from gui.user_dialogs_facade import UserDialogsFacade
-import time
-from datetime import datetime
+from reggata.gui.user_dialogs_facade import UserDialogsFacade
+from reggata.user_config import UserConfig
 
 
 logger = logging.getLogger(__name__)
