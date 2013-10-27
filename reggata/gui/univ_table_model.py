@@ -1,17 +1,21 @@
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
+from reggata import helpers
 
-def _raise(ex):
-    raise ex
+
+def _defaultFormatObj(row, obj, role):
+    raise NotImplementedError()
+
 
 class UnivTableColumn(object):
-    def __init__(self, title, formatObjFun=(lambda obj, role : _raise(NotImplementedError())), delegate=None):
+    def __init__(self, columnId, title, formatObjFun=_defaultFormatObj, delegate=QtGui.QStyledItemDelegate()):
+        self.id = columnId
         self.title = title
         self._formatObjFun = formatObjFun
         self.delegate = delegate
 
-    def formatObj(self, obj, role):
-        return self._formatObjFun(obj, role)
+    def formatObj(self, row, obj, role):
+        return self._formatObjFun(row, obj, role)
 
 
 
@@ -26,7 +30,22 @@ class UnivTableModel(QtCore.QAbstractTableModel):
         self._objs = []
 
     def addColumn(self, col):
+        assert not helpers.is_none_or_empty(col.id)
+        assert self.findColumnById(col.id) is None
         self._columns.append(col)
+
+    def findColumnIndexById(self, columnId):
+        for i in range(self.columnCount()):
+            if self._columns[i].id == columnId:
+                return i
+        return None
+
+    def findColumnById(self, columnId):
+        for i in range(self.columnCount()):
+            if self._columns[i].id == columnId:
+                return self._columns[i]
+        return None
+
 
     def column(self, columnIndex):
         return self._columns[columnIndex]
@@ -45,15 +64,13 @@ class UnivTableModel(QtCore.QAbstractTableModel):
         return len(self._columns)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if role != Qt.DisplayRole:
+            return None
         if orientation == Qt.Horizontal:
             columnIndex = section
             column = self._columns[columnIndex]
             return column.title
-        elif orientation == Qt.Vertical:
-            rowIndex = section
-            return rowIndex + 1
-        else:
-            return None
+        return None
 
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
@@ -66,7 +83,7 @@ class UnivTableModel(QtCore.QAbstractTableModel):
         visibleRow = index.row()
         obj = self._objs[visibleRow]
 
-        res = column.formatObj(obj, role)
+        res = column.formatObj(visibleRow, obj, role)
         return res
 
     #def flags(self, index):
@@ -86,6 +103,7 @@ class UnivTableModel(QtCore.QAbstractTableModel):
 class UnivTableView(QtGui.QTableView):
     def __init__(self, parent=None):
         super(UnivTableView, self).__init__(parent)
+        self.verticalHeader().hide()
 
     def setModel(self, model):
         for i in range(model.columnCount()):

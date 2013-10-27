@@ -4,6 +4,7 @@ Created on 21.01.2012
 @author: vlkv
 '''
 from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import Qt
 from reggata.data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
 import reggata.data.db_schema as db
 from reggata.logic.abstract_tool import AbstractTool
@@ -18,6 +19,7 @@ import reggata.errors as errors
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.gui.univ_table_model import UnivTableColumn
 import reggata.helpers as hlp
+import reggata.consts as consts
 
 
 class ItemsTable(AbstractTool):
@@ -168,21 +170,7 @@ class ItemsTable(AbstractTool):
     def setRepo(self, repo):
         self._repo = repo
         if repo is not None:
-#            itemsTableModel = ItemsTableModel(repo, self._itemsLock,
-#                                              self._user.login if self._user is not None else None)
-            itemsTableModel = ItemsTableModel(repo)
-
-            col = UnivTableColumn("Item's Id",
-                                  lambda item, role: str(item.id),
-                                  hlp.HTMLDelegate(self))
-            itemsTableModel.addColumn(col)
-
-            col = UnivTableColumn("Item's Title",
-                                  lambda item, role: item.title,
-                                  hlp.HTMLDelegate(self))
-            itemsTableModel.addColumn(col)
-
-            self._gui.itemsTableModel = itemsTableModel
+            self._gui.itemsTableModel = self._createItemsTableModel(repo)
 
             completer = Completer(repo=repo, parent=self._gui)
             self._gui.set_tag_completer(completer)
@@ -194,6 +182,55 @@ class ItemsTable(AbstractTool):
             self._gui.itemsTableModel = None
 
             self._gui.set_tag_completer(None)
+
+    def _createItemsTableModel(self, repo):
+#            result = ItemsTableModel(repo, self._itemsLock,
+#                                              self._user.login if self._user is not None else None)
+            result = ItemsTableModel(repo)
+
+            def formatRowNum(row, item, role):
+                if role == Qt.DisplayRole:
+                    return str(row + 1)
+                return None
+            result.addColumn(UnivTableColumn("row_num", "Row", formatRowNum))
+
+            def formatId(row, item, role):
+                if role == Qt.DisplayRole:
+                    return str(item.id)
+                return None
+            result.addColumn(col = UnivTableColumn("id", "Id", formatId))
+
+            def formatTitle(row, item, role):
+                if role == Qt.DisplayRole:
+                    return item.title
+                return None
+            result.addColumn(UnivTableColumn("title", "Title", formatTitle, hlp.HTMLDelegate(self)))
+
+            def formatTags(row, item, role):
+                if role == Qt.DisplayRole:
+                    return item.format_tags()
+                return None
+            result.addColumn(UnivTableColumn("tags", "Tags", formatTags, hlp.HTMLDelegate(self)))
+
+            def formatRating(row, item, role):
+                if role == Qt.DisplayRole:
+                    ratingStr = item.getFieldValue(consts.RATING_FIELD, self.user.login)
+                    try:
+                        rating = int(ratingStr)
+                    except:
+                        rating = 0
+                    return rating
+                return None
+            result.addColumn(UnivTableColumn("rating", "Rating", formatRating, hlp.RatingDelegate(self)))
+
+            #    ROW_NUMBER = 0
+            #    ID = 1
+            #    TITLE = 2
+            #    IMAGE_THUMB = 3
+            #    LIST_OF_TAGS = 4
+            #    STATE = 5 #State of the item (in the means of its integrity)
+            #    RATING = 6
+            return result
 
 
     def checkActiveRepoIsNotNone(self):
