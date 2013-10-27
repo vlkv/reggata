@@ -347,6 +347,15 @@ class ItemsTableGui(ToolGui):
 
 
 class ItemsTableModel(UnivTableModel):
+    ROW_NUM = "row_num"
+    ID = "id"
+    TITLE = "title"
+    IMAGE_THUMB = "image_thumb"
+    TAGS = "tags"
+    STATE = "state" #State of the item (in the means of its integrity)
+    RATING = "rating"
+
+
     def __init__(self, repo):
         super(ItemsTableModel, self).__init__()
         self.repo = repo
@@ -372,9 +381,14 @@ class ItemsTableModel(UnivTableModel):
             uow.close()
             self.setObjs(items)
 
+
     def isOpenItemActionAllowed(self, index):
-        # TODO ...
-        return False
+        c = self.column(index.column())
+        if c.id == ItemsTableModel.RATING:
+            return False
+        else:
+            return True
+
 
 
 

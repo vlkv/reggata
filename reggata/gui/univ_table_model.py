@@ -34,6 +34,9 @@ class UnivTableModel(QtCore.QAbstractTableModel):
         assert self.findColumnById(col.id) is None
         self._columns.append(col)
 
+    def column(self, columnIndex):
+        return self._columns[columnIndex]
+
     def findColumnIndexById(self, columnId):
         for i in range(self.columnCount()):
             if self.column(i).id == columnId:
@@ -52,8 +55,7 @@ class UnivTableModel(QtCore.QAbstractTableModel):
             res.append(self.column(i).id)
         return res
 
-    def column(self, columnIndex):
-        return self._columns[columnIndex]
+
 
     def setObjs(self, objs):
         self._objs = objs

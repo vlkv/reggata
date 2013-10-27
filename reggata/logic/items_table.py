@@ -18,8 +18,8 @@ from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
 import reggata.errors as errors
 from reggata.logic.handler_signals import HandlerSignals
 from reggata.gui.univ_table_model import UnivTableColumn
-import reggata.helpers as hlp
 import reggata.consts as consts
+from reggata import helpers
 
 
 class ItemsTable(AbstractTool):
@@ -191,26 +191,30 @@ class ItemsTable(AbstractTool):
             def formatRowNum(row, item, role):
                 if role == Qt.DisplayRole:
                     return str(row + 1)
+                if role == QtCore.Qt.TextAlignmentRole:
+                    return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
                 return None
-            result.addColumn(UnivTableColumn("row_num", "Row", formatRowNum))
+            result.addColumn(UnivTableColumn(ItemsTableModel.ROW_NUM, "Row", formatRowNum))
 
             def formatId(row, item, role):
                 if role == Qt.DisplayRole:
                     return str(item.id)
+                if role == QtCore.Qt.TextAlignmentRole:
+                    return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
                 return None
-            result.addColumn(col = UnivTableColumn("id", "Id", formatId))
+            result.addColumn(col = UnivTableColumn(ItemsTableModel.ID, "Id", formatId))
 
             def formatTitle(row, item, role):
                 if role == Qt.DisplayRole:
-                    return item.title
+                    return "<b>" + item.title + "</b>" + ("<br/><font>" + item.data_ref.url + "</font>" if item.data_ref else "")
                 return None
-            result.addColumn(UnivTableColumn("title", "Title", formatTitle, hlp.HTMLDelegate(self)))
+            result.addColumn(UnivTableColumn("title", "Title", formatTitle, helpers.HTMLDelegate(self)))
 
             def formatTags(row, item, role):
                 if role == Qt.DisplayRole:
                     return item.format_tags()
                 return None
-            result.addColumn(UnivTableColumn("tags", "Tags", formatTags, hlp.HTMLDelegate(self)))
+            result.addColumn(UnivTableColumn(ItemsTableModel.TAGS, "Tags", formatTags, helpers.HTMLDelegate(self)))
 
             def formatRating(row, item, role):
                 if role == Qt.DisplayRole:
@@ -221,15 +225,39 @@ class ItemsTable(AbstractTool):
                         rating = 0
                     return rating
                 return None
-            result.addColumn(UnivTableColumn("rating", "Rating", formatRating, hlp.RatingDelegate(self)))
+            result.addColumn(UnivTableColumn(ItemsTableModel.RATING, "Rating", formatRating, helpers.RatingDelegate(self)))
 
-            #    ROW_NUMBER = 0
-            #    ID = 1
-            #    TITLE = 2
+
+            def __formatErrorSetShort(error_set):
+                if error_set is None:
+                    return ""
+                if len(error_set) <= 0:
+                    return self.tr("OK")
+                elif len(error_set) > 0:
+                    return helpers.to_commalist(error_set, lambda x: __formatErrorShort(x))
+
+            def __formatErrorShort(itemErrorCode):
+                if itemErrorCode == db.Item.ERROR_FILE_NOT_FOUND:
+                    return self.tr("File not found")
+                elif itemErrorCode == db.Item.ERROR_FILE_HASH_MISMATCH:
+                    return self.tr("Hash mismatch")
+                else:
+                    assert False, "Unknown error code"
+
+            def formatState(row, item, role):
+                if role == Qt.DisplayRole:
+                    try:
+                        self._itemsLock.lockForRead()
+                        return __formatErrorSetShort(item.error)
+                    finally:
+                        self._itemsLock.unlock()
+                return None
+            result.addColumn(UnivTableColumn(ItemsTableModel.STATE, "State", formatState))
+
+            # TODO: add these columns:
             #    IMAGE_THUMB = 3
-            #    LIST_OF_TAGS = 4
             #    STATE = 5 #State of the item (in the means of its integrity)
-            #    RATING = 6
+
             return result
 
 
