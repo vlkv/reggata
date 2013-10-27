@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'itemstablegui.ui'
+# Form implementation generated from reading ui file '.\itemstablegui.ui'
 #
-# Created: Sat Mar 30 15:26:53 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Sun Oct 27 19:39:07 2013
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_ItemsTableGui(object):
     def setupUi(self, ItemsTableGui):
@@ -52,23 +61,19 @@ class Ui_ItemsTableGui(object):
         self.spinBox_page.setObjectName(_fromUtf8("spinBox_page"))
         self.horizontalLayout.addWidget(self.spinBox_page)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.tableView_items = QtGui.QTableView(ItemsTableGui)
-        self.tableView_items.setDragDropMode(QtGui.QAbstractItemView.NoDragDrop)
-        self.tableView_items.setDefaultDropAction(QtCore.Qt.IgnoreAction)
-        self.tableView_items.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.tableView_items.setObjectName(_fromUtf8("tableView_items"))
-        self.tableView_items.verticalHeader().setVisible(False)
-        self.verticalLayout.addWidget(self.tableView_items)
+        self.tableViewContainer = QtGui.QVBoxLayout()
+        self.tableViewContainer.setObjectName(_fromUtf8("tableViewContainer"))
+        self.verticalLayout.addLayout(self.tableViewContainer)
 
         self.retranslateUi(ItemsTableGui)
         QtCore.QMetaObject.connectSlotsByName(ItemsTableGui)
 
     def retranslateUi(self, ItemsTableGui):
-        ItemsTableGui.setWindowTitle(QtGui.QApplication.translate("ItemsTableGui", "Form", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("ItemsTableGui", "Query:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_query_exec.setText(QtGui.QApplication.translate("ItemsTableGui", "Execute", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_query_reset.setText(QtGui.QApplication.translate("ItemsTableGui", "Reset", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("ItemsTableGui", "Limit:", None, QtGui.QApplication.UnicodeUTF8))
-        self.spinBox_limit.setToolTip(QtGui.QApplication.translate("ItemsTableGui", "Maximum number of rows per page to display (0 - no limit).", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("ItemsTableGui", "Page:", None, QtGui.QApplication.UnicodeUTF8))
+        ItemsTableGui.setWindowTitle(_translate("ItemsTableGui", "Form", None))
+        self.label.setText(_translate("ItemsTableGui", "Query:", None))
+        self.pushButton_query_exec.setText(_translate("ItemsTableGui", "Execute", None))
+        self.pushButton_query_reset.setText(_translate("ItemsTableGui", "Reset", None))
+        self.label_2.setText(_translate("ItemsTableGui", "Limit:", None))
+        self.spinBox_limit.setToolTip(_translate("ItemsTableGui", "Maximum number of rows per page to display (0 - no limit).", None))
+        self.label_3.setText(_translate("ItemsTableGui", "Page:", None))
 

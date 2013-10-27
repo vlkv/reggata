@@ -10,13 +10,14 @@ from reggata.logic.abstract_tool import AbstractTool
 from reggata.logic.tag_cloud import TagCloud
 import reggata.logic.action_handlers as handlers
 import reggata.logic.items_table_action_handlers as it_handlers
-import reggata.logic.common_action_handlers as com_handlers
 from reggata.logic.ext_app_mgr import ExtAppMgr
 from reggata.gui.common_widgets import Completer
 from reggata.gui.items_table_gui import ItemsTableGui, ItemsTableModel
 from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
 import reggata.errors as errors
 from reggata.logic.handler_signals import HandlerSignals
+from reggata.gui.univ_table_model import UnivTableColumn
+import reggata.helpers as hlp
 
 
 class ItemsTable(AbstractTool):
@@ -167,8 +168,20 @@ class ItemsTable(AbstractTool):
     def setRepo(self, repo):
         self._repo = repo
         if repo is not None:
-            itemsTableModel = ItemsTableModel(repo, self._itemsLock,
-                                              self._user.login if self._user is not None else None)
+#            itemsTableModel = ItemsTableModel(repo, self._itemsLock,
+#                                              self._user.login if self._user is not None else None)
+            itemsTableModel = ItemsTableModel(repo)
+
+            col = UnivTableColumn("Item's Id",
+                                  lambda item, role: str(item.id),
+                                  hlp.HTMLDelegate(self))
+            itemsTableModel.addColumn(col)
+
+            col = UnivTableColumn("Item's Title",
+                                  lambda item, role: item.title,
+                                  hlp.HTMLDelegate(self))
+            itemsTableModel.addColumn(col)
+
             self._gui.itemsTableModel = itemsTableModel
 
             completer = Completer(repo=repo, parent=self._gui)

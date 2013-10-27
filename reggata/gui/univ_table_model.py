@@ -1,12 +1,14 @@
-from PyQt4 import QtCore, Qt
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import Qt
 
 def _raise(ex):
     raise ex
 
 class UnivTableColumn(object):
-    def __init__(self, title, formatObjFun=(lambda obj, role : _raise(NotImplementedError())) ):
+    def __init__(self, title, formatObjFun=(lambda obj, role : _raise(NotImplementedError())), delegate=None):
         self.title = title
         self._formatObjFun = formatObjFun
+        self.delegate = delegate
 
     def formatObj(self, obj, role):
         return self._formatObjFun(obj, role)
@@ -26,8 +28,15 @@ class UnivTableModel(QtCore.QAbstractTableModel):
     def addColumn(self, col):
         self._columns.append(col)
 
-    def populateObjs(self):
-        raise NotImplementedError("Reimplement in a child class. Fun must return list of objects to be displayed in the table")
+    def column(self, columnIndex):
+        return self._columns[columnIndex]
+
+    def setObjs(self, objs):
+        self._objs = objs
+        self.reset()
+
+    def objAtRow(self, rowIndex):
+        return self._objs[rowIndex]
 
     def rowCount(self, index=QtCore.QModelIndex()):
         return len(self._objs)
@@ -73,4 +82,17 @@ class UnivTableModel(QtCore.QAbstractTableModel):
         topL = self.createIndex(topRow, 0)
         bottomR = self.createIndex(bottomRow, len(self._columns)-1)
         self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
+
+class UnivTableView(QtGui.QTableView):
+    def __init__(self, parent=None):
+        super(UnivTableView, self).__init__(parent)
+
+    def setModel(self, model):
+        for i in range(model.columnCount()):
+            c = model.column(i)
+            if (c.delegate is None):
+                continue
+            self.setItemDelegateForColumn(i, c.delegate)
+
+        super(UnivTableView, self).setModel(model)
 
