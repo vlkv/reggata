@@ -59,11 +59,6 @@ class ItemsTableGui(ToolGui):
         self.connect(self.ui.spinBox_page, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
         self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
 
-        #Tuning table cell rendering
-#        self._itemsTableView.setItemDelegateForColumn(ItemsTableModel.TITLE, helpers.HTMLDelegate(self))
-#        self._itemsTableView.setItemDelegateForColumn(ItemsTableModel.IMAGE_THUMB, helpers.ImageThumbDelegate(self))
-#        self._itemsTableView.setItemDelegateForColumn(ItemsTableModel.RATING, helpers.RatingDelegate(self))
-
         #Turn on table sorting
         self._itemsTableView.setSortingEnabled(True)
 
@@ -191,41 +186,24 @@ class ItemsTableGui(ToolGui):
         self._itemsTableView.resizeRowsToContents()
 
 
-    def restore_columns_width(self):
-#        self._itemsTableView.setColumnWidth(ItemsTableModel.ROW_NUMBER, int(UserConfig().get("items_table.ROW_NUMBER.width", 30)))
-#        self._itemsTableView.setColumnWidth(ItemsTableModel.ID, int(UserConfig().get("items_table.ID.width", 55)))
-#        self._itemsTableView.setColumnWidth(ItemsTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 430)))
-#        self._itemsTableView.setColumnWidth(ItemsTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-#        self._itemsTableView.setColumnWidth(ItemsTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 220)))
-#        self._itemsTableView.setColumnWidth(ItemsTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 100)))
-#        self._itemsTableView.setColumnWidth(ItemsTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 100)))
-        pass
+    def restoreColumnsWidth(self):
+        if self.__table_model is None:
+            return
+        columnIds = self.__table_model.registeredColumnIds()
+        for columnId in columnIds:
+            columnIndex = self.__table_model.findColumnIndexById(columnId)
+            if columnIndex is None:
+                continue
+            self._itemsTableView.setColumnWidth(
+                columnIndex, int(UserConfig().get("items_table." + columnId + ".width", 100)))
 
-    def save_columns_width(self):
-#        widthRowNumber = self._itemsTableView.columnWidth(ItemsTableModel.ROW_NUMBER)
-#        if widthRowNumber > 0:
-#            UserConfig().store("items_table.ROW_NUMBER.width", str(widthRowNumber))
-#
-#        width_id = self._itemsTableView.columnWidth(ItemsTableModel.ID)
-#        if width_id > 0:
-#            UserConfig().store("items_table.ID.width", str(width_id))
-#
-#        width_title = self._itemsTableView.columnWidth(ItemsTableModel.TITLE)
-#        if width_title > 0:
-#            UserConfig().store("items_table.TITLE.width", str(width_title))
-#
-#        width_list_of_tags = self._itemsTableView.columnWidth(ItemsTableModel.LIST_OF_TAGS)
-#        if width_list_of_tags > 0:
-#            UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
-#
-#        width_state = self._itemsTableView.columnWidth(ItemsTableModel.STATE)
-#        if width_state > 0:
-#            UserConfig().store("items_table.STATE.width", str(width_state))
-#
-#        width_rating = self._itemsTableView.columnWidth(ItemsTableModel.RATING)
-#        if width_rating > 0:
-#            UserConfig().store("items_table.RATING.width", str(width_rating))
-        pass
+    def saveColumnsWidth(self):
+        for i in range(self.__table_model.columnCount()):
+            c = self.__table_model.column(i)
+            width = self._itemsTableView.columnWidth(i)
+            if width > 0:
+                UserConfig().store("items_table." + c.id + ".width", str(width))
+
 
     def buildActions(self):
         if len(self.actions) > 0:

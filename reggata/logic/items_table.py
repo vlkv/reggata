@@ -175,9 +175,9 @@ class ItemsTable(AbstractTool):
             completer = Completer(repo=repo, parent=self._gui)
             self._gui.set_tag_completer(completer)
 
-            self._gui.restore_columns_width()
+            self._gui.restoreColumnsWidth()
         else:
-            self._gui.save_columns_width()
+            self._gui.saveColumnsWidth()
 
             self._gui.itemsTableModel = None
 
@@ -255,11 +255,11 @@ class ItemsTable(AbstractTool):
 
 
     def storeCurrentState(self):
-        self._gui.save_columns_width()
+        self._gui.saveColumnsWidth()
 
 
     def restoreRecentState(self):
-        self._gui.restore_columns_width()
+        self._gui.restoreColumnsWidth()
 
 
     def relatedToolIds(self):

@@ -36,16 +36,21 @@ class UnivTableModel(QtCore.QAbstractTableModel):
 
     def findColumnIndexById(self, columnId):
         for i in range(self.columnCount()):
-            if self._columns[i].id == columnId:
+            if self.column(i).id == columnId:
                 return i
         return None
 
     def findColumnById(self, columnId):
         for i in range(self.columnCount()):
-            if self._columns[i].id == columnId:
-                return self._columns[i]
+            if self.column(i).id == columnId:
+                return self.column(i)
         return None
 
+    def registeredColumnIds(self):
+        res = []
+        for i in range(self.columnCount()):
+            res.append(self.column(i).id)
+        return res
 
     def column(self, columnIndex):
         return self._columns[columnIndex]
