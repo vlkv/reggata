@@ -35,8 +35,8 @@ class ItemsTableGui(ToolGui):
         self.ui = Ui_ItemsTableGui()
         self.ui.setupUi(self)
 
-        self.ui.tableView_items = UnivTableView(self)
-        self.ui.tableViewContainer.addWidget(self.ui.tableView_items)
+        self._itemsTableView = UnivTableView(self)
+        self.ui.tableViewContainer.addWidget(self._itemsTableView)
 
         self.__itemsTableTool = itemsTableTool
 
@@ -47,7 +47,7 @@ class ItemsTableGui(ToolGui):
         self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
         self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
         self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
-        self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(const QModelIndex&)"), self.__onTableDoubleClicked)
+        self.connect(self._itemsTableView, QtCore.SIGNAL("doubleClicked(const QModelIndex&)"), self.__onTableDoubleClicked)
 
         #TODO limit page function sometimes works not correct!!! It sometimes shows less items, than specified in limit spinbox!
         #Initialization of limit and page spinboxes
@@ -60,12 +60,12 @@ class ItemsTableGui(ToolGui):
         self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
 
         #Tuning table cell rendering
-#        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.TITLE, helpers.HTMLDelegate(self))
-#        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.IMAGE_THUMB, helpers.ImageThumbDelegate(self))
-#        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.RATING, helpers.RatingDelegate(self))
+#        self._itemsTableView.setItemDelegateForColumn(ItemsTableModel.TITLE, helpers.HTMLDelegate(self))
+#        self._itemsTableView.setItemDelegateForColumn(ItemsTableModel.IMAGE_THUMB, helpers.ImageThumbDelegate(self))
+#        self._itemsTableView.setItemDelegateForColumn(ItemsTableModel.RATING, helpers.RatingDelegate(self))
 
         #Turn on table sorting
-        self.ui.tableView_items.setSortingEnabled(True)
+        self._itemsTableView.setSortingEnabled(True)
 
         self.__table_model = None
 
@@ -78,9 +78,9 @@ class ItemsTableGui(ToolGui):
 
     def __setTableModel(self, model):
         self.__table_model = model
-        self.ui.tableView_items.setModel(model)
+        self._itemsTableView.setModel(model)
         if model is not None:
-            self.connect(model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
+            self.connect(model, QtCore.SIGNAL("modelReset()"), self._itemsTableView.resizeRowsToContents)
             self.connect(model, QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), self._resize_row_to_contents)
 
     itemsTableModel = property(fget=__getTableModel, fset=__setTableModel)
@@ -137,14 +137,14 @@ class ItemsTableGui(ToolGui):
     def selectedRows(self):
         #We use set, because selectedIndexes() may return duplicates
         rows = set()
-        for index in self.ui.tableView_items.selectionModel().selectedIndexes():
+        for index in self._itemsTableView.selectionModel().selectedIndexes():
             rows.add(index.row())
         return rows
 
     def selectedItemIds(self):
         #We use set, because selectedIndexes() may return duplicates
         item_ids = set()
-        for index in self.ui.tableView_items.selectionModel().selectedIndexes():
+        for index in self._itemsTableView.selectionModel().selectedIndexes():
             item_ids.add(self.__table_model.objAtRow(index.row()).id)
         return item_ids
 
@@ -181,48 +181,48 @@ class ItemsTableGui(ToolGui):
 
     def _resize_row_to_contents(self, top_left, bottom_right):
         if top_left.row() == bottom_right.row():
-            self.ui.tableView_items.resizeRowToContents(top_left.row())
+            self._itemsTableView.resizeRowToContents(top_left.row())
 
         elif top_left.row() < bottom_right.row():
             for row in range(top_left.row(), bottom_right.row()):
-                self.ui.tableView_items.resizeRowToContents(row)
+                self._itemsTableView.resizeRowToContents(row)
 
     def resize_rows_to_contents(self):
-        self.ui.tableView_items.resizeRowsToContents()
+        self._itemsTableView.resizeRowsToContents()
 
 
     def restore_columns_width(self):
-#        self.ui.tableView_items.setColumnWidth(ItemsTableModel.ROW_NUMBER, int(UserConfig().get("items_table.ROW_NUMBER.width", 30)))
-#        self.ui.tableView_items.setColumnWidth(ItemsTableModel.ID, int(UserConfig().get("items_table.ID.width", 55)))
-#        self.ui.tableView_items.setColumnWidth(ItemsTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 430)))
-#        self.ui.tableView_items.setColumnWidth(ItemsTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-#        self.ui.tableView_items.setColumnWidth(ItemsTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 220)))
-#        self.ui.tableView_items.setColumnWidth(ItemsTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 100)))
-#        self.ui.tableView_items.setColumnWidth(ItemsTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 100)))
+#        self._itemsTableView.setColumnWidth(ItemsTableModel.ROW_NUMBER, int(UserConfig().get("items_table.ROW_NUMBER.width", 30)))
+#        self._itemsTableView.setColumnWidth(ItemsTableModel.ID, int(UserConfig().get("items_table.ID.width", 55)))
+#        self._itemsTableView.setColumnWidth(ItemsTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 430)))
+#        self._itemsTableView.setColumnWidth(ItemsTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
+#        self._itemsTableView.setColumnWidth(ItemsTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 220)))
+#        self._itemsTableView.setColumnWidth(ItemsTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 100)))
+#        self._itemsTableView.setColumnWidth(ItemsTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 100)))
         pass
 
     def save_columns_width(self):
-#        widthRowNumber = self.ui.tableView_items.columnWidth(ItemsTableModel.ROW_NUMBER)
+#        widthRowNumber = self._itemsTableView.columnWidth(ItemsTableModel.ROW_NUMBER)
 #        if widthRowNumber > 0:
 #            UserConfig().store("items_table.ROW_NUMBER.width", str(widthRowNumber))
 #
-#        width_id = self.ui.tableView_items.columnWidth(ItemsTableModel.ID)
+#        width_id = self._itemsTableView.columnWidth(ItemsTableModel.ID)
 #        if width_id > 0:
 #            UserConfig().store("items_table.ID.width", str(width_id))
 #
-#        width_title = self.ui.tableView_items.columnWidth(ItemsTableModel.TITLE)
+#        width_title = self._itemsTableView.columnWidth(ItemsTableModel.TITLE)
 #        if width_title > 0:
 #            UserConfig().store("items_table.TITLE.width", str(width_title))
 #
-#        width_list_of_tags = self.ui.tableView_items.columnWidth(ItemsTableModel.LIST_OF_TAGS)
+#        width_list_of_tags = self._itemsTableView.columnWidth(ItemsTableModel.LIST_OF_TAGS)
 #        if width_list_of_tags > 0:
 #            UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
 #
-#        width_state = self.ui.tableView_items.columnWidth(ItemsTableModel.STATE)
+#        width_state = self._itemsTableView.columnWidth(ItemsTableModel.STATE)
 #        if width_state > 0:
 #            UserConfig().store("items_table.STATE.width", str(width_state))
 #
-#        width_rating = self.ui.tableView_items.columnWidth(ItemsTableModel.RATING)
+#        width_rating = self._itemsTableView.columnWidth(ItemsTableModel.RATING)
 #        if width_rating > 0:
 #            UserConfig().store("items_table.RATING.width", str(width_rating))
         pass
@@ -329,11 +329,11 @@ class ItemsTableGui(ToolGui):
 
     def __addContextMenu(self):
         assert self.__context_menu is not None, "Context menu is not built"
-        self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
+        self._itemsTableView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.connect(self._itemsTableView, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
 
     def showContextMenu(self, pos):
-        self.__context_menu.exec_(self.ui.tableView_items.mapToGlobal(pos))
+        self.__context_menu.exec_(self._itemsTableView.mapToGlobal(pos))
 
 
 
