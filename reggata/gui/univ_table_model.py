@@ -68,6 +68,12 @@ class UnivTableModel(QtCore.QAbstractTableModel):
             res.append(self._allColumns[i].id)
         return res
 
+    def visibleColumnIds(self):
+        res = []
+        for i in range(self.columnCount()):
+            res.append(self.column(i).id)
+        return res
+
     def isColumnIdRegistered(self, columnId):
         for i in range(len(self._allColumns)):
             if self._allColumns[i].id == columnId:
@@ -93,6 +99,13 @@ class UnivTableModel(QtCore.QAbstractTableModel):
     def isColumnVisible(self, columnId):
         columnIndex = self.columnVisibleIndexById(columnId)
         return columnIndex is not None
+
+    def setColumnIndex(self, columnId, newIndex):
+        c = self.columnById(columnId)
+        currentIndex = self.columnVisibleIndexById(columnId)
+        if currentIndex is not None:
+            del self._visibleColumns[currentIndex]
+        self._visibleColumns.insert(newIndex, c)
 
     def setObjs(self, objs):
         self._objs = objs

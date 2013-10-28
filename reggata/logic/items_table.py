@@ -346,8 +346,8 @@ class ItemsTable(AbstractTool):
 
 
     def restoreRecentState(self):
-        self._gui.restoreColumnsWidth()
         self._gui.restoreColumnsVisibility()
+        self._gui.restoreColumnsWidth()
 
 
     def relatedToolIds(self):
