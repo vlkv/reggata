@@ -36,16 +36,16 @@ class UnivTableModel(QtCore.QAbstractTableModel):
     '''
     def __init__(self):
         super(UnivTableModel, self).__init__()
-        self._columns = []
+        self._visibleColumns = []
         self._objs = []
 
     def addColumn(self, col):
         assert not helpers.is_none_or_empty(col.id)
         assert self.findColumnById(col.id) is None
-        self._columns.append(col)
+        self._visibleColumns.append(col)
 
     def column(self, columnIndex):
-        return self._columns[columnIndex]
+        return self._visibleColumns[columnIndex]
 
     def findColumnIndexById(self, columnId):
         for i in range(self.columnCount()):
@@ -76,14 +76,14 @@ class UnivTableModel(QtCore.QAbstractTableModel):
         return len(self._objs)
 
     def columnCount(self, index=QtCore.QModelIndex()):
-        return len(self._columns)
+        return len(self._visibleColumns)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
             columnIndex = section
-            column = self._columns[columnIndex]
+            column = self._visibleColumns[columnIndex]
             return column.title
         return None
 
@@ -127,7 +127,7 @@ class UnivTableModel(QtCore.QAbstractTableModel):
 
     def resetRowRange(self, topRow, bottomRow):
         topL = self.createIndex(topRow, 0)
-        bottomR = self.createIndex(bottomRow, len(self._columns)-1)
+        bottomR = self.createIndex(bottomRow, len(self._visibleColumns)-1)
         self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
 
 class UnivTableView(QtGui.QTableView):
