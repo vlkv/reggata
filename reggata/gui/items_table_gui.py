@@ -59,7 +59,6 @@ class ItemsTableGui(ToolGui):
         self.connect(self.ui.spinBox_page, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
         self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
 
-        #Turn on table sorting
         self._itemsTableView.setSortingEnabled(True)
 
         self.__table_model = None
@@ -367,8 +366,43 @@ class ItemsTableModel(UnivTableModel):
 
         self._lock = lock
 
+        self.queryText = ""
+        self.limit = 0
+        self.page = 1
+        self.orderByColumnId = None
+        self.orderDir = None
 
-    def query(self, query_text, limit=0, page=1):
+
+    def sort(self, columnIndex, order=Qt.AscendingOrder):
+        column = self.column(columnIndex)
+        if column.id not in [self.ID, self.TITLE, self.RATING]:
+            return
+
+        self.orderByColumnId = column.id
+        self.orderDir = order
+
+        self.query(self.queryText, self.limit, self.page)
+
+
+    def query(self, queryText, limit=0, page=1):
+
+        self.queryText = queryText
+        self.limit = limit
+        self.page = page
+
+        directory = "ASC" if self.orderDir == Qt.AscendingOrder else "DESC"
+
+        orderBy = []
+        if self.orderByColumnId is not None:
+            if self.orderByColumnId == self.ID:
+                orderBy.append(("id", directory))
+            elif self.orderByColumnId == self.TITLE:
+                orderBy.append(("title", directory))
+            #This is not exactly sorting by pure rating, but by fields and their values...
+            elif self.orderByColumnId == self.RATING:
+                orderBy.append(("items_fields_field_id", "DESC"))
+                orderBy.append(("items_fields_field_value", directory))
+
 
         def resetRow(row):
             self.resetSingleRow(row)
@@ -381,12 +415,11 @@ class ItemsTableModel(UnivTableModel):
                 self._thread.interrupt = True
                 self._thread.wait(5*1000)
 
-            orderBy = []
-            if query_text is None or query_text.strip()=="":
+            if queryText is None or queryText.strip()=="":
                 items = uow.executeCommand(cmds.GetUntaggedItems(limit, page, orderBy))
             else:
-                query_tree = query_parser.parse(query_text)
-                cmd = cmds.QueryItemsByParseTree(query_tree, limit, page, orderBy)
+                queryTree = query_parser.parse(queryText)
+                cmd = cmds.QueryItemsByParseTree(queryTree, limit, page, orderBy)
                 items = uow.executeCommand(cmd)
 
             self._thread = ThumbnailBuilderThread(self, self._repo, items, self._lock)
