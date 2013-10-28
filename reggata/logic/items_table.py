@@ -179,9 +179,9 @@ class ItemsTable(AbstractTool):
             completer = Completer(repo=repo, parent=self._gui)
             self._gui.set_tag_completer(completer)
 
-            self._gui.restoreColumnsWidth()
+            self.restoreRecentState()
         else:
-            self._gui.saveColumnsWidth()
+            self.storeCurrentState()
 
             self._gui.itemsTableModel = None
 
@@ -199,7 +199,7 @@ class ItemsTable(AbstractTool):
                 if role == Qt.ToolTipRole:
                     return self.tr("Table row number")
                 return None
-            result.addColumn(UnivTableColumn(ItemsTableModel.ROW_NUM, self.tr("Row"), formatRowNum))
+            result.registerColumn(UnivTableColumn(ItemsTableModel.ROW_NUM, self.tr("Row"), formatRowNum))
 
             def formatId(row, item, role):
                 if role == Qt.DisplayRole:
@@ -207,7 +207,7 @@ class ItemsTable(AbstractTool):
                 if role == QtCore.Qt.TextAlignmentRole:
                     return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
                 return None
-            result.addColumn(col = UnivTableColumn(ItemsTableModel.ID, self.tr("Id"), formatId))
+            result.registerColumn(col = UnivTableColumn(ItemsTableModel.ID, self.tr("Id"), formatId))
 
             def formatTitle(row, item, role):
                 if role == Qt.DisplayRole:
@@ -223,7 +223,7 @@ class ItemsTable(AbstractTool):
                         s += os.linesep + self.tr("Date created: {}").format(item.data_ref.date_created)
                         return s
                 return None
-            result.addColumn(UnivTableColumn("title", self.tr("Title"), formatTitle, helpers.HTMLDelegate(self)))
+            result.registerColumn(UnivTableColumn("title", self.tr("Title"), formatTitle, helpers.HTMLDelegate(self)))
 
             def formatThumbnail(row, item, role):
                 if role != QtCore.Qt.UserRole:
@@ -241,7 +241,7 @@ class ItemsTable(AbstractTool):
                     finally:
                         self._itemsLock.unlock()
                     return pixmap
-            result.addColumn(UnivTableColumn(ItemsTableModel.IMAGE_THUMB, self.tr("Thumbnail"),
+            result.registerColumn(UnivTableColumn(ItemsTableModel.IMAGE_THUMB, self.tr("Thumbnail"),
                                              formatThumbnail,
                                              delegate=helpers.ImageThumbDelegate(self)))
 
@@ -251,7 +251,7 @@ class ItemsTable(AbstractTool):
                 if role == Qt.ToolTipRole:
                     return item.format_field_vals()
                 return None
-            result.addColumn(UnivTableColumn(ItemsTableModel.TAGS, self.tr("Tags"), formatTags,
+            result.registerColumn(UnivTableColumn(ItemsTableModel.TAGS, self.tr("Tags"), formatTags,
                                              helpers.HTMLDelegate(self)))
 
             def __formatErrorSetShort(error_set):
@@ -278,8 +278,7 @@ class ItemsTable(AbstractTool):
                     finally:
                         self._itemsLock.unlock()
                 return None
-            result.addColumn(UnivTableColumn(ItemsTableModel.STATE, self.tr("State"), formatState))
-
+            result.registerColumn(UnivTableColumn(ItemsTableModel.STATE, self.tr("State"), formatState))
 
 
             def formatRating(row, item, role):
@@ -311,7 +310,7 @@ class ItemsTable(AbstractTool):
                     return False
                 finally:
                     uow.close()
-            result.addColumn(UnivTableColumn(ItemsTableModel.RATING, self.tr("Rating"),
+            result.registerColumn(UnivTableColumn(ItemsTableModel.RATING, self.tr("Rating"),
                                              formatObjFun=formatRating,
                                              delegate=helpers.RatingDelegate(self),
                                              setDataFun=setRating))
@@ -343,10 +342,12 @@ class ItemsTable(AbstractTool):
 
     def storeCurrentState(self):
         self._gui.saveColumnsWidth()
+        self._gui.saveColumnsVisibility()
 
 
     def restoreRecentState(self):
         self._gui.restoreColumnsWidth()
+        self._gui.restoreColumnsVisibility()
 
 
     def relatedToolIds(self):

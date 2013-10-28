@@ -190,11 +190,19 @@ class ItemsTableGui(ToolGui):
             return
         columnIds = self.__table_model.registeredColumnIds()
         for columnId in columnIds:
-            columnIndex = self.__table_model.findColumnIndexById(columnId)
+            columnIndex = self.__table_model.columnVisibleIndexById(columnId)
             if columnIndex is None:
                 continue
             self._itemsTableView.setColumnWidth(
                 columnIndex, int(UserConfig().get("items_table." + columnId + ".width", 100)))
+
+    def restoreColumnsVisibility(self):
+        if self.__table_model is None:
+            return
+        columnIds = self.__table_model.registeredColumnIds()
+        for columnId in columnIds:
+            isVisible = helpers.stringToBool(UserConfig().get("items_table." + columnId + ".visible", True))
+            self.__table_model.setColumnVisible(columnId, isVisible)
 
     def saveColumnsWidth(self):
         if self.__table_model is None:
@@ -204,6 +212,14 @@ class ItemsTableGui(ToolGui):
             width = self._itemsTableView.columnWidth(i)
             if width > 0:
                 UserConfig().store("items_table." + c.id + ".width", str(width))
+
+    def saveColumnsVisibility(self):
+        if self.__table_model is None:
+            return
+        columnIds = self.__table_model.registeredColumnIds()
+        for columnId in columnIds:
+            isVisible = self.__table_model.isColumnVisible(columnId)
+            UserConfig().store("items_table." + columnId + ".visible", isVisible)
 
 
     def buildActions(self):

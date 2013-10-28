@@ -36,45 +36,76 @@ class UnivTableModel(QtCore.QAbstractTableModel):
     '''
     def __init__(self):
         super(UnivTableModel, self).__init__()
+        self._allColumns = [] # All registered columns
         self._visibleColumns = []
         self._objs = []
 
-    def addColumn(self, col):
+    def registerColumn(self, col, isVisible=True):
         assert not helpers.is_none_or_empty(col.id)
-        assert self.findColumnById(col.id) is None
-        self._visibleColumns.append(col)
+        assert not self.isColumnIdRegistered(col.id)
+        self._allColumns.append(col)
+        if isVisible:
+            self._visibleColumns.append(col)
 
-    def column(self, columnIndex):
-        return self._visibleColumns[columnIndex]
+    def column(self, columnVisibleIndex):
+        return self._visibleColumns[columnVisibleIndex]
 
-    def findColumnIndexById(self, columnId):
+    def columnVisibleIndexById(self, columnId):
         for i in range(self.columnCount()):
             if self.column(i).id == columnId:
                 return i
         return None
 
-    def findColumnById(self, columnId):
-        for i in range(self.columnCount()):
-            if self.column(i).id == columnId:
-                return self.column(i)
+    def columnById(self, columnId):
+        for i in range(len(self._allColumns)):
+            if self._allColumns[i].id == columnId:
+                return self._allColumns[i]
         return None
 
     def registeredColumnIds(self):
         res = []
-        for i in range(self.columnCount()):
-            res.append(self.column(i).id)
+        for i in range(len(self._allColumns)):
+            res.append(self._allColumns[i].id)
         return res
+
+    def isColumnIdRegistered(self, columnId):
+        for i in range(len(self._allColumns)):
+            if self._allColumns[i].id == columnId:
+                return True
+        return False
+
+    # Returns True if visibility of the column has changed, False otherwise
+    def setColumnVisible(self, columnId, isVisible):
+        isVisibleNow = self.isColumnVisible(columnId)
+        if isVisibleNow == isVisible:
+            return False
+        column = self.columnById(columnId)
+        if not isVisibleNow and isVisible:
+            self._visibleColumns.append(column)
+            self.reset()
+            return True
+        if isVisibleNow and not isVisible:
+            columnIndex = self.columnVisibleIndexById(columnId)
+            del self._visibleColumns[columnIndex]
+            self.reset()
+            return True
+
+    def isColumnVisible(self, columnId):
+        columnIndex = self.columnVisibleIndexById(columnId)
+        return columnIndex is not None
 
     def setObjs(self, objs):
         self._objs = objs
         self.reset()
 
+    # rowIndex is a visible index of a row in a table
     def objAtRow(self, rowIndex):
         return self._objs[rowIndex]
 
     def rowCount(self, index=QtCore.QModelIndex()):
         return len(self._objs)
 
+    # Returns count of visible columns
     def columnCount(self, index=QtCore.QModelIndex()):
         return len(self._visibleColumns)
 
