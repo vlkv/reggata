@@ -22,6 +22,7 @@ from reggata.gui.univ_table_model import UnivTableColumn
 import reggata.consts as consts
 from reggata import helpers
 import os
+import traceback
 
 
 
@@ -173,7 +174,7 @@ class ItemsTable(AbstractTool):
     def setRepo(self, repo):
         self._repo = repo
         if repo is not None:
-            self._gui.itemsTableModel = self._createItemsTableModel(repo)
+            self._gui.itemsTableModel = self._createItemsTableModel(repo, self._itemsLock)
 
             completer = Completer(repo=repo, parent=self._gui)
             self._gui.set_tag_completer(completer)
@@ -186,8 +187,8 @@ class ItemsTable(AbstractTool):
 
             self._gui.set_tag_completer(None)
 
-    def _createItemsTableModel(self, repo):
-            result = ItemsTableModel(repo)
+    def _createItemsTableModel(self, repo, itemsLock):
+            result = ItemsTableModel(repo, itemsLock)
 
             def formatRowNum(row, item, role):
                 if role == Qt.DisplayRole:
@@ -215,7 +216,8 @@ class ItemsTable(AbstractTool):
                 if role == Qt.DisplayRole:
                     return item.format_tags()
                 return None
-            result.addColumn(UnivTableColumn(ItemsTableModel.TAGS, "Tags", formatTags, helpers.HTMLDelegate(self)))
+            result.addColumn(UnivTableColumn(ItemsTableModel.TAGS, "Tags", formatTags,
+                                             helpers.HTMLDelegate(self)))
 
             def formatRating(row, item, role):
                 if role == Qt.DisplayRole:
@@ -226,11 +228,10 @@ class ItemsTable(AbstractTool):
                         rating = 0
                     return rating
                 return None
-            def setRating(index, value, role):
+            def setRating(item, row, value, role):
                 if role != Qt.EditRole:
                     return False
-                tableModel = result
-                item = tableModel.objAtRow(index.row())
+
                 oldValue = item.getFieldValue(consts.RATING_FIELD, self.user.login)
                 if oldValue == value:
                     return False
@@ -278,9 +279,25 @@ class ItemsTable(AbstractTool):
                 return None
             result.addColumn(UnivTableColumn(ItemsTableModel.STATE, "State", formatState))
 
-            # TODO: add these columns:
-            #    IMAGE_THUMB = 3
-
+            def formatThumbnail(row, item, role):
+                if role != QtCore.Qt.UserRole:
+                    return None
+                if item.data_ref is None:
+                    return None
+                if item.data_ref.is_image():
+                    pixmap = QtGui.QPixmap()
+                    try:
+                        self._itemsLock.lockForRead()
+                        if len(item.data_ref.thumbnails) > 0:
+                            pixmap.loadFromData(item.data_ref.thumbnails[0].data)
+                    except Exception:
+                        traceback.format_exc()
+                    finally:
+                        self._itemsLock.unlock()
+                    return pixmap
+            result.addColumn(UnivTableColumn(ItemsTableModel.IMAGE_THUMB, "Thumbnail",
+                                             formatThumbnail,
+                                             delegate=helpers.ImageThumbDelegate(self)))
             return result
 
 

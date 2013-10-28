@@ -19,10 +19,10 @@ class UnivTableColumn(object):
     def formatObj(self, row, obj, role):
         return self._formatObjFun(row, obj, role)
 
-    def setData(self, index, value, role):
+    def setData(self, obj, row, value, role):
         if self._setDataFun is None:
             return False
-        return self._setDataFun(index, value, role)
+        return self._setDataFun(obj, row, value, role)
 
     def isEditable(self):
         return self._setDataFun is not None
@@ -93,10 +93,10 @@ class UnivTableModel(QtCore.QAbstractTableModel):
             return None
 
         visibleCol = index.column()
-        column = self._columns[visibleCol]
+        column = self.column(visibleCol)
 
         visibleRow = index.row()
-        obj = self._objs[visibleRow]
+        obj = self.objAtRow(visibleRow)
 
         res = column.formatObj(visibleRow, obj, role)
         return res
@@ -110,8 +110,13 @@ class UnivTableModel(QtCore.QAbstractTableModel):
             return res
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
-        c = self.column(index.column())
-        res = c.setData(index, value, role)
+        visibleCol = index.column()
+        column = self.column(visibleCol)
+
+        visibleRow = index.row()
+        obj = self.objAtRow(visibleRow)
+
+        res = column.setData(obj, visibleRow, value, role)
         if res:
             self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
         return res

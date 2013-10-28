@@ -358,23 +358,40 @@ class ItemsTableModel(UnivTableModel):
     RATING = "rating"
 
 
-    def __init__(self, repo):
+    def __init__(self, repo, lock):
         super(ItemsTableModel, self).__init__()
-        self.repo = repo
+        self._repo = repo
+
+        #This is a thread for building image thumbnails in the background
+        self._thread = None
+
+        self._lock = lock
 
 
     def query(self, query_text, limit=0, page=1):
-        uow = self.repo.createUnitOfWork()
+
+        def resetRow(row):
+            self.resetSingleRow(row)
+            QtCore.QCoreApplication.processEvents()
+
+        uow = self._repo.createUnitOfWork()
         items = []
         try:
-            order_by = []
-            if query_text is None or query_text.strip()=="":
-                items = uow.executeCommand(cmds.GetUntaggedItems(limit, page, order_by))
+            if self._thread is not None and self._thread.isRunning():
+                self._thread.interrupt = True
+                self._thread.wait(5*1000)
 
+            orderBy = []
+            if query_text is None or query_text.strip()=="":
+                items = uow.executeCommand(cmds.GetUntaggedItems(limit, page, orderBy))
             else:
                 query_tree = query_parser.parse(query_text)
-                cmd = cmds.QueryItemsByParseTree(query_tree, limit, page, order_by)
+                cmd = cmds.QueryItemsByParseTree(query_tree, limit, page, orderBy)
                 items = uow.executeCommand(cmd)
+
+            self._thread = ThumbnailBuilderThread(self, self._repo, items, self._lock)
+            self.connect(self._thread, QtCore.SIGNAL("progress"), lambda percents, row: resetRow(row))
+            self._thread.start()
 
         except (errors.YaccError, errors.LexError) as ex:
             raise errors.MsgException(self.tr("Error in the query. Detail info: {}").format(str(ex)))
@@ -382,7 +399,6 @@ class ItemsTableModel(UnivTableModel):
         finally:
             uow.close()
             self.setObjs(items)
-
 
     def isOpenItemActionAllowed(self, index):
         c = self.column(index.column())
