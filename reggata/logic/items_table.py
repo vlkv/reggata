@@ -7,6 +7,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 from reggata.data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
 import reggata.data.db_schema as db
+import reggata.data.commands as cmds
 from reggata.logic.abstract_tool import AbstractTool
 from reggata.logic.tag_cloud import TagCloud
 import reggata.logic.action_handlers as handlers
@@ -20,6 +21,8 @@ from reggata.logic.handler_signals import HandlerSignals
 from reggata.gui.univ_table_model import UnivTableColumn
 import reggata.consts as consts
 from reggata import helpers
+import os
+
 
 
 class ItemsTable(AbstractTool):
@@ -184,8 +187,6 @@ class ItemsTable(AbstractTool):
             self._gui.set_tag_completer(None)
 
     def _createItemsTableModel(self, repo):
-#            result = ItemsTableModel(repo, self._itemsLock,
-#                                              self._user.login if self._user is not None else None)
             result = ItemsTableModel(repo)
 
             def formatRowNum(row, item, role):
@@ -225,8 +226,31 @@ class ItemsTable(AbstractTool):
                         rating = 0
                     return rating
                 return None
-            result.addColumn(UnivTableColumn(ItemsTableModel.RATING, "Rating", formatRating, helpers.RatingDelegate(self)))
-
+            def setRating(index, value, role):
+                if role != Qt.EditRole:
+                    return False
+                tableModel = result
+                item = tableModel.objAtRow(index.row())
+                oldValue = item.getFieldValue(consts.RATING_FIELD, self.user.login)
+                if oldValue == value:
+                    return False
+                item.setFieldValue(consts.RATING_FIELD, value, self.user.login)
+                uow = self._repo.createUnitOfWork()
+                try:
+                    srcAbsPath = os.path.join(self._repo.base_path, item.data_ref.url) if item.data_ref is not None else None
+                    dstRelPath = item.data_ref.url if item.data_ref is not None else None
+                    cmd = cmds.UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, self.user.login)
+                    uow.executeCommand(cmd)
+                    return True
+                except:
+                    item.setFieldValue(consts.RATING_FIELD, oldValue, self.user.login)
+                    return False
+                finally:
+                    uow.close()
+            result.addColumn(UnivTableColumn(ItemsTableModel.RATING, "Rating",
+                                             formatObjFun=formatRating,
+                                             delegate=helpers.RatingDelegate(self),
+                                             setDataFun=setRating))
 
             def __formatErrorSetShort(error_set):
                 if error_set is None:
@@ -256,7 +280,6 @@ class ItemsTable(AbstractTool):
 
             # TODO: add these columns:
             #    IMAGE_THUMB = 3
-            #    STATE = 5 #State of the item (in the means of its integrity)
 
             return result
 

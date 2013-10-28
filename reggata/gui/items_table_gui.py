@@ -198,6 +198,8 @@ class ItemsTableGui(ToolGui):
                 columnIndex, int(UserConfig().get("items_table." + columnId + ".width", 100)))
 
     def saveColumnsWidth(self):
+        if self.__table_model is None:
+            return
         for i in range(self.__table_model.columnCount()):
             c = self.__table_model.column(i)
             width = self._itemsTableView.columnWidth(i)
@@ -388,9 +390,6 @@ class ItemsTableModel(UnivTableModel):
             return False
         else:
             return True
-
-
-
 
 
 # TODO Replace this class with a UnivTableModel ancestor

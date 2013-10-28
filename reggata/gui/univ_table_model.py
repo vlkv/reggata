@@ -8,14 +8,24 @@ def _defaultFormatObj(row, obj, role):
 
 
 class UnivTableColumn(object):
-    def __init__(self, columnId, title, formatObjFun=_defaultFormatObj, delegate=QtGui.QStyledItemDelegate()):
+    def __init__(self, columnId, title, formatObjFun=_defaultFormatObj,
+                 delegate=QtGui.QStyledItemDelegate(), setDataFun=None):
         self.id = columnId
         self.title = title
         self._formatObjFun = formatObjFun
         self.delegate = delegate
+        self._setDataFun = setDataFun
 
     def formatObj(self, row, obj, role):
         return self._formatObjFun(row, obj, role)
+
+    def setData(self, index, value, role):
+        if self._setDataFun is None:
+            return False
+        return self._setDataFun(index, value, role)
+
+    def isEditable(self):
+        return self._setDataFun is not None
 
 
 
@@ -55,8 +65,6 @@ class UnivTableModel(QtCore.QAbstractTableModel):
             res.append(self.column(i).id)
         return res
 
-
-
     def setObjs(self, objs):
         self._objs = objs
         self.reset()
@@ -93,10 +101,20 @@ class UnivTableModel(QtCore.QAbstractTableModel):
         res = column.formatObj(visibleRow, obj, role)
         return res
 
-    #def flags(self, index):
+    def flags(self, index):
+        res = super(UnivTableModel, self).flags(index)
+        c = self.column(index.column())
+        if c.isEditable():
+            return Qt.ItemFlags(res | QtCore.Qt.ItemIsEditable)
+        else:
+            return res
 
-
-    #def setData(self, index, value, role=QtCore.Qt.EditRole):
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
+        c = self.column(index.column())
+        res = c.setData(index, value, role)
+        if res:
+            self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
+        return res
 
 
     def resetSingleRow(self, row):
