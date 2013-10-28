@@ -190,13 +190,16 @@ class ItemsTable(AbstractTool):
     def _createItemsTableModel(self, repo, itemsLock):
             result = ItemsTableModel(repo, itemsLock)
 
+
             def formatRowNum(row, item, role):
                 if role == Qt.DisplayRole:
                     return str(row + 1)
                 if role == QtCore.Qt.TextAlignmentRole:
                     return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+                if role == Qt.ToolTipRole:
+                    return self.tr("Table row number")
                 return None
-            result.addColumn(UnivTableColumn(ItemsTableModel.ROW_NUM, "Row", formatRowNum))
+            result.addColumn(UnivTableColumn(ItemsTableModel.ROW_NUM, self.tr("Row"), formatRowNum))
 
             def formatId(row, item, role):
                 if role == Qt.DisplayRole:
@@ -204,20 +207,80 @@ class ItemsTable(AbstractTool):
                 if role == QtCore.Qt.TextAlignmentRole:
                     return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
                 return None
-            result.addColumn(col = UnivTableColumn(ItemsTableModel.ID, "Id", formatId))
+            result.addColumn(col = UnivTableColumn(ItemsTableModel.ID, self.tr("Id"), formatId))
 
             def formatTitle(row, item, role):
                 if role == Qt.DisplayRole:
                     return "<b>" + item.title + "</b>" + ("<br/><font>" + item.data_ref.url + "</font>" if item.data_ref else "")
+                if role == Qt.ToolTipRole:
+                    if item.data_ref is not None:
+                        s  =  str(item.data_ref.type) + ": " + item.data_ref.url
+                        if  item.data_ref.type == db.DataRef.FILE:
+                            s += os.linesep + self.tr("Checksum (hash): {}").format(item.data_ref.hash)
+                            s += os.linesep + self.tr("File size: {} bytes").format(item.data_ref.size)
+                            s += os.linesep + self.tr("Date hashed: {}").format(item.data_ref.date_hashed)
+                        s += os.linesep + self.tr("Created by: {}").format(item.data_ref.user_login)
+                        s += os.linesep + self.tr("Date created: {}").format(item.data_ref.date_created)
+                        return s
                 return None
-            result.addColumn(UnivTableColumn("title", "Title", formatTitle, helpers.HTMLDelegate(self)))
+            result.addColumn(UnivTableColumn("title", self.tr("Title"), formatTitle, helpers.HTMLDelegate(self)))
+
+            def formatThumbnail(row, item, role):
+                if role != QtCore.Qt.UserRole:
+                    return None
+                if item.data_ref is None:
+                    return None
+                if item.data_ref.is_image():
+                    pixmap = QtGui.QPixmap()
+                    try:
+                        self._itemsLock.lockForRead()
+                        if len(item.data_ref.thumbnails) > 0:
+                            pixmap.loadFromData(item.data_ref.thumbnails[0].data)
+                    except Exception:
+                        traceback.format_exc()
+                    finally:
+                        self._itemsLock.unlock()
+                    return pixmap
+            result.addColumn(UnivTableColumn(ItemsTableModel.IMAGE_THUMB, self.tr("Thumbnail"),
+                                             formatThumbnail,
+                                             delegate=helpers.ImageThumbDelegate(self)))
 
             def formatTags(row, item, role):
                 if role == Qt.DisplayRole:
                     return item.format_tags()
+                if role == Qt.ToolTipRole:
+                    return item.format_field_vals()
                 return None
-            result.addColumn(UnivTableColumn(ItemsTableModel.TAGS, "Tags", formatTags,
+            result.addColumn(UnivTableColumn(ItemsTableModel.TAGS, self.tr("Tags"), formatTags,
                                              helpers.HTMLDelegate(self)))
+
+            def __formatErrorSetShort(error_set):
+                if error_set is None:
+                    return ""
+                if len(error_set) <= 0:
+                    return self.tr("OK")
+                elif len(error_set) > 0:
+                    return helpers.to_commalist(error_set, lambda x: __formatErrorShort(x))
+
+            def __formatErrorShort(itemErrorCode):
+                if itemErrorCode == db.Item.ERROR_FILE_NOT_FOUND:
+                    return self.tr("File not found")
+                elif itemErrorCode == db.Item.ERROR_FILE_HASH_MISMATCH:
+                    return self.tr("Hash mismatch")
+                else:
+                    assert False, "Unknown error code"
+
+            def formatState(row, item, role):
+                if role == Qt.DisplayRole:
+                    try:
+                        self._itemsLock.lockForRead()
+                        return __formatErrorSetShort(item.error)
+                    finally:
+                        self._itemsLock.unlock()
+                return None
+            result.addColumn(UnivTableColumn(ItemsTableModel.STATE, self.tr("State"), formatState))
+
+
 
             def formatRating(row, item, role):
                 if role == Qt.DisplayRole:
@@ -248,56 +311,12 @@ class ItemsTable(AbstractTool):
                     return False
                 finally:
                     uow.close()
-            result.addColumn(UnivTableColumn(ItemsTableModel.RATING, "Rating",
+            result.addColumn(UnivTableColumn(ItemsTableModel.RATING, self.tr("Rating"),
                                              formatObjFun=formatRating,
                                              delegate=helpers.RatingDelegate(self),
                                              setDataFun=setRating))
 
-            def __formatErrorSetShort(error_set):
-                if error_set is None:
-                    return ""
-                if len(error_set) <= 0:
-                    return self.tr("OK")
-                elif len(error_set) > 0:
-                    return helpers.to_commalist(error_set, lambda x: __formatErrorShort(x))
 
-            def __formatErrorShort(itemErrorCode):
-                if itemErrorCode == db.Item.ERROR_FILE_NOT_FOUND:
-                    return self.tr("File not found")
-                elif itemErrorCode == db.Item.ERROR_FILE_HASH_MISMATCH:
-                    return self.tr("Hash mismatch")
-                else:
-                    assert False, "Unknown error code"
-
-            def formatState(row, item, role):
-                if role == Qt.DisplayRole:
-                    try:
-                        self._itemsLock.lockForRead()
-                        return __formatErrorSetShort(item.error)
-                    finally:
-                        self._itemsLock.unlock()
-                return None
-            result.addColumn(UnivTableColumn(ItemsTableModel.STATE, "State", formatState))
-
-            def formatThumbnail(row, item, role):
-                if role != QtCore.Qt.UserRole:
-                    return None
-                if item.data_ref is None:
-                    return None
-                if item.data_ref.is_image():
-                    pixmap = QtGui.QPixmap()
-                    try:
-                        self._itemsLock.lockForRead()
-                        if len(item.data_ref.thumbnails) > 0:
-                            pixmap.loadFromData(item.data_ref.thumbnails[0].data)
-                    except Exception:
-                        traceback.format_exc()
-                    finally:
-                        self._itemsLock.unlock()
-                    return pixmap
-            result.addColumn(UnivTableColumn(ItemsTableModel.IMAGE_THUMB, "Thumbnail",
-                                             formatThumbnail,
-                                             delegate=helpers.ImageThumbDelegate(self)))
             return result
 
 
