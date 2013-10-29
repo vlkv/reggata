@@ -181,55 +181,17 @@ class FileBrowserGui(ToolGui):
             result.add(finfo.path)
         return list(result)
 
-    # TODO move this function to UnivTableView class
     def restoreColumnsWidth(self):
-        if self.__tableModel is None:
-            return
-        columnIds = self.__tableModel.registeredColumnIds()
-        for columnId in columnIds:
-            columnIndex = self.__tableModel.columnVisibleIndexById(columnId)
-            if columnIndex is None:
-                continue
-            self.ui.filesTableView.setColumnWidth(
-                columnIndex, int(UserConfig().get("file_browser." + columnId + ".width", 100)))
+        self.ui.filesTableView.restoreColumnsWidth("file_browser")
 
-    # TODO move this function to UnivTableView class
     def restoreColumnsVisibility(self):
-        if self.__tableModel is None:
-            return
-        visibleColumns = eval(UserConfig().get("file_browser.visible_columns", "None")) # None - would mean all columns are visible
-        columnIds = self.__tableModel.registeredColumnIds()
-        for columnId in columnIds:
-            if visibleColumns is None:
-                self.__tableModel.setColumnVisible(columnId, True)
-            else:
-                self.__tableModel.setColumnVisible(columnId, columnId in visibleColumns)
+        self.ui.filesTableView.restoreColumnsVisibility("file_browser")
 
-        visibleColumns = self.__tableModel.visibleColumnIds()
-        i = 0
-        for columnId in visibleColumns:
-            self.__tableModel.setColumnIndex(columnId, i)
-            i += 1
-
-    # TODO move this function to UnivTableView class
     def saveColumnsWidth(self):
-        if self.__tableModel is None:
-            return
-        for i in range(self.__tableModel.columnCount()):
-            c = self.__tableModel.column(i)
-            width = self.ui.filesTableView.columnWidth(i)
-            if width > 0:
-                UserConfig().store("file_browser." + c.id + ".width", str(width))
+        self.ui.filesTableView.saveColumnsWidth("file_browser")
 
-    # TODO move this function to UnivTableView class
     def saveColumnsVisibility(self):
-        if self.__tableModel is None:
-            return
-        visibleColumnIds = []
-        for i in range(self.__tableModel.columnCount()):
-            c = self.__tableModel.column(i)
-            visibleColumnIds.append(c.id)
-        UserConfig().store("file_browser.visible_columns", visibleColumnIds)
+        self.ui.filesTableView.saveColumnsVisibility("file_browser")
 
 
 class FileBrowserTableModel(UnivTableModel):

@@ -1,6 +1,7 @@
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt
 from reggata import helpers
+from reggata.user_config import UserConfig
 
 
 def _defaultFormatObj(row, obj, role):
@@ -178,6 +179,7 @@ class UnivTableView(QtGui.QTableView):
     def __init__(self, parent=None):
         super(UnivTableView, self).__init__(parent)
         self.verticalHeader().hide()
+        self._model = None
 
     def setModel(self, model):
         for i in range(model.columnCount()):
@@ -186,5 +188,54 @@ class UnivTableView(QtGui.QTableView):
                 continue
             self.setItemDelegateForColumn(i, c.delegate)
 
+        self._model = model
+
         super(UnivTableView, self).setModel(model)
+
+    def restoreColumnsWidth(self, keyPrefix):
+        if self._model is None:
+            return
+        columnIds = self._model.registeredColumnIds()
+        for columnId in columnIds:
+            columnIndex = self._model.columnVisibleIndexById(columnId)
+            if columnIndex is None:
+                continue
+            self.setColumnWidth(
+                columnIndex, int(UserConfig().get(keyPrefix + "." + columnId + ".width", 100)))
+
+    def restoreColumnsVisibility(self, keyPrefix):
+        if self._model is None:
+            return
+        visibleColumns = eval(UserConfig().get(keyPrefix + ".visible_columns", "None")) # None - would mean all columns are visible
+        columnIds = self._model.registeredColumnIds()
+        for columnId in columnIds:
+            if visibleColumns is None:
+                self._model.setColumnVisible(columnId, True)
+            else:
+                self._model.setColumnVisible(columnId, columnId in visibleColumns)
+
+        visibleColumns = self._model.visibleColumnIds()
+        i = 0
+        for columnId in visibleColumns:
+            self._model.setColumnIndex(columnId, i)
+            i += 1
+
+    def saveColumnsWidth(self, keyPrefix):
+        if self._model is None:
+            return
+        for i in range(self._model.columnCount()):
+            c = self._model.column(i)
+            width = self.columnWidth(i)
+            if width > 0:
+                UserConfig().store(keyPrefix + "." + c.id + ".width", str(width))
+
+    def saveColumnsVisibility(self, keyPrefix):
+        if self._model is None:
+            return
+        visibleColumnIds = []
+        for i in range(self._model.columnCount()):
+            c = self._model.column(i)
+            visibleColumnIds.append(c.id)
+        UserConfig().store(keyPrefix + ".visible_columns", visibleColumnIds)
+
 

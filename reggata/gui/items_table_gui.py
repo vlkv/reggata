@@ -187,51 +187,16 @@ class ItemsTableGui(ToolGui):
 
 
     def restoreColumnsWidth(self):
-        if self.__table_model is None:
-            return
-        columnIds = self.__table_model.registeredColumnIds()
-        for columnId in columnIds:
-            columnIndex = self.__table_model.columnVisibleIndexById(columnId)
-            if columnIndex is None:
-                continue
-            self._itemsTableView.setColumnWidth(
-                columnIndex, int(UserConfig().get("items_table." + columnId + ".width", 100)))
+        self._itemsTableView.restoreColumnsWidth("items_table")
 
     def restoreColumnsVisibility(self):
-        if self.__table_model is None:
-            return
-        visibleColumns = eval(UserConfig().get("items_table.visible_columns", "None")) # None - would mean all columns are visible
-        columnIds = self.__table_model.registeredColumnIds()
-        for columnId in columnIds:
-            if visibleColumns is None:
-                self.__table_model.setColumnVisible(columnId, True)
-            else:
-                self.__table_model.setColumnVisible(columnId, columnId in visibleColumns)
-
-        visibleColumns = self.__table_model.visibleColumnIds()
-        i = 0
-        for columnId in visibleColumns:
-            self.__table_model.setColumnIndex(columnId, i)
-            i += 1
-
+        self._itemsTableView.restoreColumnsVisibility("items_table")
 
     def saveColumnsWidth(self):
-        if self.__table_model is None:
-            return
-        for i in range(self.__table_model.columnCount()):
-            c = self.__table_model.column(i)
-            width = self._itemsTableView.columnWidth(i)
-            if width > 0:
-                UserConfig().store("items_table." + c.id + ".width", str(width))
+        self._itemsTableView.saveColumnsWidth("items_table")
 
     def saveColumnsVisibility(self):
-        if self.__table_model is None:
-            return
-        visibleColumnIds = []
-        for i in range(self.__table_model.columnCount()):
-            c = self.__table_model.column(i)
-            visibleColumnIds.append(c.id)
-        UserConfig().store("items_table.visible_columns", visibleColumnIds)
+        self._itemsTableView.saveColumnsVisibility("items_table")
 
 
     def buildActions(self):
