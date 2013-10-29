@@ -273,13 +273,14 @@ class FileBrowser(AbstractTool):
         self._mutex = QtCore.QMutex()
         self._gui.resetTableModel(self._mutex)
 
-
     def storeCurrentState(self):
-        self._gui.saveColumnsWidths()
+        self._gui.saveColumnsWidth()
+        self._gui.saveColumnsVisibility()
 
 
     def restoreRecentState(self):
-        self._gui.restoreColumnsWidths()
+        self._gui.restoreColumnsVisibility()
+        self._gui.restoreColumnsWidth()
 
 
 

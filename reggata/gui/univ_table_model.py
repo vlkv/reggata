@@ -34,8 +34,8 @@ class UnivTableModel(QtCore.QAbstractTableModel):
         UnivTableModel - is a Universal Table Model, able to display list of any
     objects and also allowing to fine tune which object's fields to display and how.
     '''
-    def __init__(self):
-        super(UnivTableModel, self).__init__()
+    def __init__(self, parent=None):
+        super(UnivTableModel, self).__init__(parent)
         self._allColumns = [] # All registered columns
         self._visibleColumns = []
         self._objs = []
