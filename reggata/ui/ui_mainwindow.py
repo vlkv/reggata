@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainwindow.ui'
+# Form implementation generated from reading ui file '.\mainwindow.ui'
 #
-# Created: Sat Mar 30 14:07:22 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Tue Oct 29 20:36:10 2013
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -134,44 +143,44 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Reggata", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuRepo.setTitle(QtGui.QApplication.translate("MainWindow", "&Repository", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuFavoriteRepos.setTitle(QtGui.QApplication.translate("MainWindow", "Favorite repositories...", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuUser.setTitle(QtGui.QApplication.translate("MainWindow", "&User", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "&Tools", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_repo_create.setText(QtGui.QApplication.translate("MainWindow", "&New", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_repo_open.setText(QtGui.QApplication.translate("MainWindow", "&Open", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_repo_close.setText(QtGui.QApplication.translate("MainWindow", "&Close", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_add.setText(QtGui.QApplication.translate("MainWindow", "Add &one", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_user_create.setText(QtGui.QApplication.translate("MainWindow", "&Create", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_user_login.setText(QtGui.QApplication.translate("MainWindow", "&Login", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_user_logout.setText(QtGui.QApplication.translate("MainWindow", "Log&out", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_edit.setText(QtGui.QApplication.translate("MainWindow", "&Edit", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_add_many.setText(QtGui.QApplication.translate("MainWindow", "Add &many", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_user_change_pass.setText(QtGui.QApplication.translate("MainWindow", "Change &password", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_view.setText(QtGui.QApplication.translate("MainWindow", "&View with external app", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_add_many_rec.setText(QtGui.QApplication.translate("MainWindow", "Add many &recursively", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_delete.setText(QtGui.QApplication.translate("MainWindow", "&Delete", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_view_m3u.setText(QtGui.QApplication.translate("MainWindow", "Create m3u playlist and open it", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_help_about.setText(QtGui.QApplication.translate("MainWindow", "About Reggata", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_view_image_viewer.setText(QtGui.QApplication.translate("MainWindow", "View images with built-in viewer", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_check_integrity.setText(QtGui.QApplication.translate("MainWindow", "Check &integrity", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_fix_history_rec_error.setText(QtGui.QApplication.translate("MainWindow", "Fix history rec error", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_fix_hash_error.setText(QtGui.QApplication.translate("MainWindow", "Try find file", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_update_file_hash.setText(QtGui.QApplication.translate("MainWindow", "Update hash", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_fix_file_not_found_try_find.setText(QtGui.QApplication.translate("MainWindow", "Try find file", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_fix_file_not_found_delete.setText(QtGui.QApplication.translate("MainWindow", "Delete item\'s reference to file", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_rebuild_thumbnail.setText(QtGui.QApplication.translate("MainWindow", "Rebuild &thumbnail", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_item_to_external_filemanager.setText(QtGui.QApplication.translate("MainWindow", "Open external file manager", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_export_selected_items.setText(QtGui.QApplication.translate("MainWindow", "Export items files only", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_export_items_file_paths.setText(QtGui.QApplication.translate("MainWindow", "Export file paths as txt file", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionExportItems.setText(QtGui.QApplication.translate("MainWindow", "Export items (files with metadata)", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionExportItems.setToolTip(QtGui.QApplication.translate("MainWindow", "Export items with files and metadata", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionImportItems.setText(QtGui.QApplication.translate("MainWindow", "Import items", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionAdd_current_repository.setText(QtGui.QApplication.translate("MainWindow", "Add current repository", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionRemove_current_repository.setText(QtGui.QApplication.translate("MainWindow", "Remove current repository", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionExitReggata.setText(QtGui.QApplication.translate("MainWindow", "Exit", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionManageExtApps.setText(QtGui.QApplication.translate("MainWindow", "Manage External Applications", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Reggata", None))
+        self.menuRepo.setTitle(_translate("MainWindow", "&Repository", None))
+        self.menuFavoriteRepos.setTitle(_translate("MainWindow", "Favorite repositories...", None))
+        self.menuUser.setTitle(_translate("MainWindow", "&User", None))
+        self.menuTools.setTitle(_translate("MainWindow", "&Tools", None))
+        self.menuHelp.setTitle(_translate("MainWindow", "Help", None))
+        self.action_repo_create.setText(_translate("MainWindow", "&New", None))
+        self.action_repo_open.setText(_translate("MainWindow", "&Open", None))
+        self.action_repo_close.setText(_translate("MainWindow", "&Close", None))
+        self.action_item_add.setText(_translate("MainWindow", "Add &one", None))
+        self.action_user_create.setText(_translate("MainWindow", "&Create", None))
+        self.action_user_login.setText(_translate("MainWindow", "&Login", None))
+        self.action_user_logout.setText(_translate("MainWindow", "Log&out", None))
+        self.action_item_edit.setText(_translate("MainWindow", "&Edit", None))
+        self.action_item_add_many.setText(_translate("MainWindow", "Add &many", None))
+        self.action_user_change_pass.setText(_translate("MainWindow", "Change &password", None))
+        self.action_item_view.setText(_translate("MainWindow", "&View with external app", None))
+        self.action_item_add_many_rec.setText(_translate("MainWindow", "Add many &recursively", None))
+        self.action_item_delete.setText(_translate("MainWindow", "&Delete", None))
+        self.action_item_view_m3u.setText(_translate("MainWindow", "Create m3u playlist and open it", None))
+        self.action_help_about.setText(_translate("MainWindow", "About Reggata", None))
+        self.action_item_view_image_viewer.setText(_translate("MainWindow", "View images with built-in viewer", None))
+        self.action_item_check_integrity.setText(_translate("MainWindow", "Check &integrity", None))
+        self.action_item_fix_history_rec_error.setText(_translate("MainWindow", "Fix history rec error", None))
+        self.action_item_fix_hash_error.setText(_translate("MainWindow", "Try find file", None))
+        self.action_item_update_file_hash.setText(_translate("MainWindow", "Update hash", None))
+        self.action_fix_file_not_found_try_find.setText(_translate("MainWindow", "Try find file", None))
+        self.action_fix_file_not_found_delete.setText(_translate("MainWindow", "Delete item\'s reference to file", None))
+        self.action_item_rebuild_thumbnail.setText(_translate("MainWindow", "Rebuild &thumbnail", None))
+        self.action_item_to_external_filemanager.setText(_translate("MainWindow", "Open external file manager", None))
+        self.action_export_selected_items.setText(_translate("MainWindow", "Export items files only", None))
+        self.action_export_items_file_paths.setText(_translate("MainWindow", "Export file paths as txt file", None))
+        self.actionExportItems.setText(_translate("MainWindow", "Export items (files with metadata)", None))
+        self.actionExportItems.setToolTip(_translate("MainWindow", "Export items with files and metadata", None))
+        self.actionImportItems.setText(_translate("MainWindow", "Import items", None))
+        self.actionAdd_current_repository.setText(_translate("MainWindow", "Add current repository", None))
+        self.actionRemove_current_repository.setText(_translate("MainWindow", "Remove current repository", None))
+        self.actionExitReggata.setText(_translate("MainWindow", "Exit", None))
+        self.actionManageExtApps.setText(_translate("MainWindow", "Manage External Applications", None))
 
 from . import resources_rc

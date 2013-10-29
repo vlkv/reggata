@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\itemstablegui.ui'
 #
-# Created: Sun Oct 27 19:39:07 2013
+# Created: Tue Oct 29 20:36:09 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'itemdialog.ui'
+# Form implementation generated from reading ui file '.\itemdialog.ui'
 #
-# Created: Sat Mar 30 14:07:21 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Tue Oct 29 20:36:09 2013
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_ItemDialog(object):
     def setupUi(self, ItemDialog):
@@ -146,25 +155,25 @@ class Ui_ItemDialog(object):
         QtCore.QMetaObject.connectSlotsByName(ItemDialog)
 
     def retranslateUi(self, ItemDialog):
-        ItemDialog.setWindowTitle(QtGui.QApplication.translate("ItemDialog", "Repository item", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("ItemDialog", "Title:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("ItemDialog", "Id:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_id.setText(QtGui.QApplication.translate("ItemDialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("ItemDialog", "User:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEdit_user_login.setText(QtGui.QApplication.translate("ItemDialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_9.setText(QtGui.QApplication.translate("ItemDialog", "Rating:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("ItemDialog", "Notes:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_7.setText(QtGui.QApplication.translate("ItemDialog", "Fields:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("ItemDialog", "Tags:", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox.setTitle(QtGui.QApplication.translate("ItemDialog", "Data Reference", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("ItemDialog", "Absolute path to referenced File:", None, QtGui.QApplication.UnicodeUTF8))
-        self.srcAbsPathErrorLabel.setText(QtGui.QApplication.translate("ItemDialog", "<html><font color=\"red\">srcAbsPathErrorLabel</font></html>\n"
-"", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setText(QtGui.QApplication.translate("ItemDialog", "Location of referenced File in the Repository:", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonAddDataRef.setToolTip(QtGui.QApplication.translate("ItemDialog", "Add Data Reference to this Item", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonAddDataRef.setText(QtGui.QApplication.translate("ItemDialog", "Add", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonRemoveDataRef.setToolTip(QtGui.QApplication.translate("ItemDialog", "Remove Data Reference from this Item. File will not be deleted.", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonRemoveDataRef.setText(QtGui.QApplication.translate("ItemDialog", "Remove", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonMoveFile.setToolTip(QtGui.QApplication.translate("ItemDialog", "Move referenced File to another location in the same repository.", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButtonMoveFile.setText(QtGui.QApplication.translate("ItemDialog", "Move File", None, QtGui.QApplication.UnicodeUTF8))
+        ItemDialog.setWindowTitle(_translate("ItemDialog", "Repository item", None))
+        self.label_2.setText(_translate("ItemDialog", "Title:", None))
+        self.label.setText(_translate("ItemDialog", "Id:", None))
+        self.lineEdit_id.setText(_translate("ItemDialog", "TextLabel", None))
+        self.label_5.setText(_translate("ItemDialog", "User:", None))
+        self.lineEdit_user_login.setText(_translate("ItemDialog", "TextLabel", None))
+        self.label_9.setText(_translate("ItemDialog", "Rating:", None))
+        self.label_3.setText(_translate("ItemDialog", "Notes:", None))
+        self.label_7.setText(_translate("ItemDialog", "Fields:", None))
+        self.label_6.setText(_translate("ItemDialog", "Tags:", None))
+        self.groupBox.setTitle(_translate("ItemDialog", "Data Reference", None))
+        self.label_4.setText(_translate("ItemDialog", "Absolute path to referenced File:", None))
+        self.srcAbsPathErrorLabel.setText(_translate("ItemDialog", "<html><font color=\"red\">srcAbsPathErrorLabel</font></html>\n"
+"", None))
+        self.label_8.setText(_translate("ItemDialog", "Location of referenced File in the Repository:", None))
+        self.pushButtonAddDataRef.setToolTip(_translate("ItemDialog", "Add Data Reference to this Item", None))
+        self.pushButtonAddDataRef.setText(_translate("ItemDialog", "Add", None))
+        self.pushButtonRemoveDataRef.setToolTip(_translate("ItemDialog", "Remove Data Reference from this Item. File will not be deleted.", None))
+        self.pushButtonRemoveDataRef.setText(_translate("ItemDialog", "Remove", None))
+        self.pushButtonMoveFile.setToolTip(_translate("ItemDialog", "Move referenced File to another location in the same repository.", None))
+        self.pushButtonMoveFile.setText(_translate("ItemDialog", "Move File", None))
 

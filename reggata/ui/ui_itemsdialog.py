@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'itemsdialog.ui'
+# Form implementation generated from reading ui file '.\itemsdialog.ui'
 #
-# Created: Sat Mar 30 14:07:21 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Tue Oct 29 20:36:09 2013
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_ItemsDialog(object):
     def setupUi(self, ItemsDialog):
@@ -99,16 +108,16 @@ class Ui_ItemsDialog(object):
         QtCore.QMetaObject.connectSlotsByName(ItemsDialog)
 
     def retranslateUi(self, ItemsDialog):
-        ItemsDialog.setWindowTitle(QtGui.QApplication.translate("ItemsDialog", "ItemsDialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("ItemsDialog", "Number of items: ", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_num_of_items.setText(QtGui.QApplication.translate("ItemsDialog", "0", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setText(QtGui.QApplication.translate("ItemsDialog", "Location in repository:", None, QtGui.QApplication.UnicodeUTF8))
-        self.locationDirRelPath.setToolTip(QtGui.QApplication.translate("ItemsDialog", "Path where to put the files in the repository.", None, QtGui.QApplication.UnicodeUTF8))
-        self.buttonSelectLocationDirRelPath.setText(QtGui.QApplication.translate("ItemsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_fields.setText(QtGui.QApplication.translate("ItemsDialog", "Fields:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_tags.setText(QtGui.QApplication.translate("ItemsDialog", "Tags:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_9.setText(QtGui.QApplication.translate("ItemsDialog", "Fields to add:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_10.setText(QtGui.QApplication.translate("ItemsDialog", "Tags to add:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_fields_rm.setText(QtGui.QApplication.translate("ItemsDialog", "Field names to remove:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_tags_rm.setText(QtGui.QApplication.translate("ItemsDialog", "Tags to remove:", None, QtGui.QApplication.UnicodeUTF8))
+        ItemsDialog.setWindowTitle(_translate("ItemsDialog", "ItemsDialog", None))
+        self.label.setText(_translate("ItemsDialog", "Number of items: ", None))
+        self.label_num_of_items.setText(_translate("ItemsDialog", "0", None))
+        self.label_8.setText(_translate("ItemsDialog", "Location in repository:", None))
+        self.locationDirRelPath.setToolTip(_translate("ItemsDialog", "Path where to put the files in the repository.", None))
+        self.buttonSelectLocationDirRelPath.setText(_translate("ItemsDialog", "Select", None))
+        self.label_fields.setText(_translate("ItemsDialog", "Fields:", None))
+        self.label_tags.setText(_translate("ItemsDialog", "Tags:", None))
+        self.label_9.setText(_translate("ItemsDialog", "Fields to add:", None))
+        self.label_10.setText(_translate("ItemsDialog", "Tags to add:", None))
+        self.label_fields_rm.setText(_translate("ItemsDialog", "Field names to remove:", None))
+        self.label_tags_rm.setText(_translate("ItemsDialog", "Tags to remove:", None))
 

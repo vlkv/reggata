@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'userdialog.ui'
+# Form implementation generated from reading ui file '.\userdialog.ui'
 #
-# Created: Sat Mar 30 14:07:22 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Tue Oct 29 20:36:10 2013
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_UserDialog(object):
     def setupUi(self, UserDialog):
@@ -68,12 +77,12 @@ class Ui_UserDialog(object):
         QtCore.QMetaObject.connectSlotsByName(UserDialog)
 
     def retranslateUi(self, UserDialog):
-        UserDialog.setWindowTitle(QtGui.QApplication.translate("UserDialog", "Repository user", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_login.setText(QtGui.QApplication.translate("UserDialog", "Login:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_password.setText(QtGui.QApplication.translate("UserDialog", "Password:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_group.setText(QtGui.QApplication.translate("UserDialog", "Group:", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_group.setItemText(0, QtGui.QApplication.translate("UserDialog", "USER", None, QtGui.QApplication.UnicodeUTF8))
-        self.comboBox_group.setItemText(1, QtGui.QApplication.translate("UserDialog", "ADMIN", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_password_repeat.setText(QtGui.QApplication.translate("UserDialog", "Repeat password:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_notice.setText(QtGui.QApplication.translate("UserDialog", "Note: default user login is \"user\" with empty password.", None, QtGui.QApplication.UnicodeUTF8))
+        UserDialog.setWindowTitle(_translate("UserDialog", "Repository user", None))
+        self.label_login.setText(_translate("UserDialog", "Login:", None))
+        self.label_password.setText(_translate("UserDialog", "Password:", None))
+        self.label_group.setText(_translate("UserDialog", "Group:", None))
+        self.comboBox_group.setItemText(0, _translate("UserDialog", "USER", None))
+        self.comboBox_group.setItemText(1, _translate("UserDialog", "ADMIN", None))
+        self.label_password_repeat.setText(_translate("UserDialog", "Repeat password:", None))
+        self.label_notice.setText(_translate("UserDialog", "Note: default user login is \"user\" with empty password.", None))
 

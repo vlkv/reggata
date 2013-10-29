@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'changeuserpassword.ui'
+# Form implementation generated from reading ui file '.\changeuserpassword.ui'
 #
-# Created: Sat Mar 30 14:07:20 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Tue Oct 29 20:36:08 2013
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_ChangeUserPasswordDialog(object):
     def setupUi(self, ChangeUserPasswordDialog):
@@ -64,9 +73,9 @@ class Ui_ChangeUserPasswordDialog(object):
         QtCore.QMetaObject.connectSlotsByName(ChangeUserPasswordDialog)
 
     def retranslateUi(self, ChangeUserPasswordDialog):
-        ChangeUserPasswordDialog.setWindowTitle(QtGui.QApplication.translate("ChangeUserPasswordDialog", "Change user password", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_login.setText(QtGui.QApplication.translate("ChangeUserPasswordDialog", "Login:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("ChangeUserPasswordDialog", "Current password:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_password.setText(QtGui.QApplication.translate("ChangeUserPasswordDialog", "New password:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_password_repeat.setText(QtGui.QApplication.translate("ChangeUserPasswordDialog", "Repeat new password:", None, QtGui.QApplication.UnicodeUTF8))
+        ChangeUserPasswordDialog.setWindowTitle(_translate("ChangeUserPasswordDialog", "Change user password", None))
+        self.label_login.setText(_translate("ChangeUserPasswordDialog", "Login:", None))
+        self.label.setText(_translate("ChangeUserPasswordDialog", "Current password:", None))
+        self.label_password.setText(_translate("ChangeUserPasswordDialog", "New password:", None))
+        self.label_password_repeat.setText(_translate("ChangeUserPasswordDialog", "Repeat new password:", None))
 
