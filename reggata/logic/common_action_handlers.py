@@ -225,7 +225,7 @@ class EditItemsActionHandler(AbstractActionHandler):
 
             if not self._dialogs.execItemDialog(
                 item=item, gui=self._tool.gui, repo=self._tool.repo, dialogMode=ItemDialog.EDIT_MODE):
-                return
+                return updated, skipped
 
             srcAbsPath = item.data_ref.srcAbsPath if item.data_ref is not None else None
             dstRelPath = item.data_ref.dstRelPath if item.data_ref is not None else None
@@ -248,7 +248,7 @@ class EditItemsActionHandler(AbstractActionHandler):
 
             if not self._dialogs.execItemsDialog(
                 items, self._tool.gui, self._tool.repo, ItemsDialog.EDIT_MODE, sameDstPath=False):
-                return
+                return updated, skipped
 
             thread = UpdateGroupOfItemsThread(self._tool.gui, self._tool.repo, items)
             self._dialogs.startThreadWithWaitDialog(thread, self._tool.gui, indeterminate=False)
