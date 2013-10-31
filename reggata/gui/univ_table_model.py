@@ -181,7 +181,10 @@ class UnivTableView(QtGui.QTableView):
         self.verticalHeader().hide()
         self._model = None
 
-    def setModel(self, model):
+    def setModel(self, origModel):
+        model = origModel
+        if isinstance(origModel, QtGui.QSortFilterProxyModel):
+            model = origModel.sourceModel()
         for i in range(model.columnCount()):
             c = model.column(i)
             if (c.delegate is None):
@@ -190,7 +193,7 @@ class UnivTableView(QtGui.QTableView):
 
         self._model = model
 
-        super(UnivTableView, self).setModel(model)
+        super(UnivTableView, self).setModel(origModel)
 
     def restoreColumnsWidth(self, keyPrefix):
         if self._model is None:

@@ -28,6 +28,7 @@ class FileBrowserGui(ToolGui):
 
         self.__fileBrowserTool = fileBrowserTool
         self.__tableModel = None
+        self.__proxyModel = None
 
         self.ui.filesTableView = UnivTableView(self)
         self.ui.tableViewContainer.addWidget(self.ui.filesTableView)
@@ -47,7 +48,14 @@ class FileBrowserGui(ToolGui):
     def resetTableModel(self, mutex):
         self.__tableModel = FileBrowserTableModel(self, self.__fileBrowserTool, mutex)
         self.__tableModel.setObjs(self.__fileBrowserTool.listDir())
-        self.ui.filesTableView.setModel(self.__tableModel)
+
+        self.__proxyModel = FileBrowserSortProxyModel(self)
+        self.__proxyModel.setSourceModel(self.__tableModel)
+        self.__proxyModel.setDynamicSortFilter(True)
+
+        self.ui.filesTableView.setModel(self.__proxyModel)
+        self.ui.filesTableView.setSortingEnabled(True)
+
         if self.__fileBrowserTool.repo is not None:
             relCurrDir = os.path.relpath(self.__fileBrowserTool.currDir, self.__fileBrowserTool.repo.base_path)
             self.ui.currDirLineEdit.setText(relCurrDir)
@@ -78,7 +86,8 @@ class FileBrowserGui(ToolGui):
 
     def __onTableCellActivated(self, index):
         try:
-            filename = self.__tableModel.objAtRow(index.row()).fileBaseName
+            sourceIndex = self.__proxyModel.mapToSource(index)
+            filename = self.__tableModel.objAtRow(sourceIndex.row()).fileBaseName
             absFilename = os.path.join(self.__fileBrowserTool.currDir, filename)
             if os.path.isdir(absFilename):
                 self.__fileBrowserTool.changeRelDir(filename)
@@ -115,12 +124,9 @@ class FileBrowserGui(ToolGui):
             self.ui.filesTableView.selectRow(0)
             self.__prevSelRows.append(newRow)
 
-
-    def resetTableRow(self, row):
-        self.__tableModel.resetSingleRow(row)
-
-    def resetTableRows(self, topRow, bottomRow):
-        self.__tableModel.resetRowRange(topRow, bottomRow)
+    # NOTE: topSourceModelRow, bottomSourceModelRow are NOT visible rows
+    def resetTableRows(self, topSourceModelRow, bottomSourceModelRow):
+        self.__tableModel.resetRowRange(topSourceModelRow, bottomSourceModelRow)
 
     def buildActions(self):
         if len(self.actions) > 0:
@@ -155,7 +161,8 @@ class FileBrowserGui(ToolGui):
         #We use set, because selectedIndexes() may return duplicates
         fileTableRows = set()
         for index in self.ui.filesTableView.selectionModel().selectedIndexes():
-            fileTableRows.add(index.row())
+            sourceIndex = self.__proxyModel.mapToSource(index)
+            fileTableRows.add(sourceIndex.row())
 
         itemIds = []
         for row in fileTableRows:
@@ -176,7 +183,8 @@ class FileBrowserGui(ToolGui):
         #We use set, because selectedIndexes() may return duplicates
         result = set()
         for index in self.ui.filesTableView.selectionModel().selectedIndexes():
-            row = index.row()
+            sourceIndex = self.__proxyModel.mapToSource(index)
+            row = sourceIndex.row()
             finfo = self.__fileBrowserTool.listDir()[row]
             result.add(finfo.path)
         return list(result)
@@ -251,3 +259,19 @@ class FileBrowserTableModel(UnivTableModel):
                 if self._mutex is not None:
                     self._mutex.unlock()
 
+
+class FileBrowserSortProxyModel(QtGui.QSortFilterProxyModel):
+    def __init__(self, parent=None):
+        super(FileBrowserSortProxyModel, self).__init__(parent)
+
+    def lessThan(self, leftIndex, rightIndex):
+        leftData = self.sourceModel().objAtRow(leftIndex.row())
+        rightData = self.sourceModel().objAtRow(rightIndex.row())
+
+        if leftData.type == FileInfo.DIR and rightData.type != FileInfo.DIR:
+            return True
+
+        if leftData.type != FileInfo.DIR and rightData.type == FileInfo.DIR:
+            return False
+
+        return super(FileBrowserSortProxyModel, self).lessThan(leftIndex, rightIndex)
