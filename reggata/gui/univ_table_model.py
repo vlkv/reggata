@@ -187,9 +187,10 @@ class UnivTableView(QtGui.QTableView):
             model = origModel.sourceModel()
         for i in range(model.columnCount()):
             c = model.column(i)
-            if (c.delegate is None):
-                continue
-            self.setItemDelegateForColumn(i, c.delegate)
+            if c.delegate is not None:
+                self.setItemDelegateForColumn(i, c.delegate)
+            else:
+                self.setItemDelegateForColumn(i, QtGui.QStyledItemDelegate(self))
 
         self._model = model
 
@@ -220,6 +221,11 @@ class UnivTableView(QtGui.QTableView):
         i = 0
         for columnId in visibleColumns:
             self._model.setColumnIndex(columnId, i)
+            c = self._model.columnById(columnId)
+            if c.delegate is not None:
+                self.setItemDelegateForColumn(i, c.delegate)
+            else:
+                self.setItemDelegateForColumn(i, QtGui.QStyledItemDelegate(self))
             i += 1
 
     def saveColumnsWidth(self, keyPrefix):

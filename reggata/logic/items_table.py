@@ -170,9 +170,9 @@ class ItemsTable(AbstractTool):
         return [([HandlerSignals.ITEM_CHANGED,
                   HandlerSignals.ITEM_CREATED,
                   HandlerSignals.ITEM_DELETED], self._gui.update),
-
                 ([HandlerSignals.RESET_SINGLE_ROW], self._gui.resetSingleRow),
-                ([HandlerSignals.RESET_ROW_RANGE], self._gui.resetRowRange)]
+                ([HandlerSignals.RESET_ROW_RANGE], self._gui.resetRowRange),
+                ([HandlerSignals.REGGATA_CONF_CHANGED], self.restoreRecentState)]
 
     @property
     def repo(self):

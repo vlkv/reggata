@@ -55,6 +55,7 @@ class FileBrowserGui(ToolGui):
 
         self.ui.filesTableView.setModel(self.__proxyModel)
         self.ui.filesTableView.setSortingEnabled(True)
+        self.ui.filesTableView.resizeRowsToContents()
 
         if self.__fileBrowserTool.repo is not None:
             relCurrDir = os.path.relpath(self.__fileBrowserTool.currDir, self.__fileBrowserTool.repo.base_path)
@@ -127,6 +128,13 @@ class FileBrowserGui(ToolGui):
     # NOTE: topSourceModelRow, bottomSourceModelRow are NOT visible rows
     def resetTableRows(self, topSourceModelRow, bottomSourceModelRow):
         self.__tableModel.resetRowRange(topSourceModelRow, bottomSourceModelRow)
+
+        rowsToResize = []
+        for srcRow in range(topSourceModelRow, bottomSourceModelRow+1):
+            proxyIndex = self.__proxyModel.mapFromSource(self.__tableModel.createIndex(srcRow, 0))
+            rowsToResize.append(proxyIndex.row())
+        for row in rowsToResize:
+            self.ui.filesTableView.resizeRowToContents(row)
 
     def buildActions(self):
         if len(self.actions) > 0:
@@ -268,10 +276,18 @@ class FileBrowserSortProxyModel(QtGui.QSortFilterProxyModel):
         leftData = self.sourceModel().objAtRow(leftIndex.row())
         rightData = self.sourceModel().objAtRow(rightIndex.row())
 
-        if leftData.type == FileInfo.DIR and rightData.type != FileInfo.DIR:
-            return True
+        if leftData.type == FileInfo.DIR and leftData.path == "..":
+            return False;
 
-        if leftData.type != FileInfo.DIR and rightData.type == FileInfo.DIR:
+        if rightData.type == FileInfo.DIR and rightData.path == "..":
+            return False;
+
+        if leftData.type == FileInfo.DIR and rightData.type != FileInfo.DIR:
             return False
 
+        if leftData.type != FileInfo.DIR and rightData.type == FileInfo.DIR:
+            return True
+
         return super(FileBrowserSortProxyModel, self).lessThan(leftIndex, rightIndex)
+
+

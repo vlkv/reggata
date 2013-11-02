@@ -310,9 +310,8 @@ class FileInfoSearcherThread(QtCore.QThread):
                     topRow = i
                     dtStart = datetime.now()
                 if (datetime.now() - dtStart).microseconds > self.signalTimeoutMicroSec:
-                    bottomRow = i
                     shouldSendProgress = True
-
+                bottomRow = i
 
                 finfo = self.finfos[i]
                 if self.interrupt:

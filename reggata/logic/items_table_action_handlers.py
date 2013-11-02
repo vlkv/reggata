@@ -525,4 +525,4 @@ class OpenItemsTableSettingsDialog(AbstractActionHandler):
         settingsGui = self._tool.createSettingsGui(self._tool.gui)
         if not settingsGui.exec_():
             return
-        self._tool.restoreRecentState()
+        self._emitHandlerSignal(HandlerSignals.REGGATA_CONF_CHANGED)
