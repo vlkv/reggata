@@ -515,3 +515,14 @@ class CheckItemIntegrityActionHandler(AbstractActionHandler):
 
         except Exception as ex:
             show_exc_info(self._tool.gui, ex)
+
+
+class OpenItemsTableSettingsDialog(AbstractActionHandler):
+    def __init__(self, tool):
+        super(OpenItemsTableSettingsDialog, self).__init__(tool)
+
+    def handle(self):
+        settingsGui = self._tool.createSettingsGui(self._tool.gui)
+        if not settingsGui.exec_():
+            return
+        self._tool.restoreRecentState()

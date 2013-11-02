@@ -23,6 +23,7 @@ import reggata.consts as consts
 from reggata import helpers
 import os
 import traceback
+from reggata.gui.univ_table_settings import UnivTableSettigsDialog
 
 
 
@@ -76,6 +77,9 @@ class ItemsTable(AbstractTool):
         return self._gui
     gui = property(fget=__getGui)
 
+    def createSettingsGui(self, guiParent):
+        res = UnivTableSettigsDialog(self._gui.itemsTableModel, "items_table", guiParent)
+        return res
 
     def _getItemsLock(self):
         return self._itemsLock
@@ -157,6 +161,10 @@ class ItemsTable(AbstractTool):
             self._gui.actions['fixHashMismatchUpdateHash'],
             it_handlers.FixItemIntegrityErrorActionHandler(self, strategy))
 
+        self._actionHandlers.register(
+            self._gui.actions['itemsTableSettings'],
+            it_handlers.OpenItemsTableSettingsDialog(self))
+
 
     def handlerSignals(self):
         return [([HandlerSignals.ITEM_CHANGED,
@@ -175,16 +183,12 @@ class ItemsTable(AbstractTool):
         self._repo = repo
         if repo is not None:
             self._gui.itemsTableModel = ItemsTableModel(repo, self._itemsLock, self.user.login if self.user is not None else None)
-
             completer = Completer(repo=repo, parent=self._gui)
             self._gui.set_tag_completer(completer)
-
             self.restoreRecentState()
         else:
             self.storeCurrentState()
-
             self._gui.itemsTableModel = None
-
             self._gui.set_tag_completer(None)
 
 

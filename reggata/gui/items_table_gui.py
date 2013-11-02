@@ -151,7 +151,6 @@ class ItemsTableGui(ToolGui):
     def rowCount(self):
         return self.__table_model.rowCount()
 
-
     def resetSingleRow(self, row):
         self.__table_model.resetRowRange(row, row)
 
@@ -226,6 +225,8 @@ class ItemsTableGui(ToolGui):
         self.actions['fixHashMismatchTryFind'] = self._createAction(self.tr("Try find file"))
         self.actions['fixHashMismatchUpdateHash'] = self._createAction(self.tr("Update file hash"))
 
+        self.actions['itemsTableSettings'] = self._createAction(self.tr("Settings"))
+
 
     def buildMainMenu(self):
         assert len(self.actions) > 0, "Actions should be already built"
@@ -260,6 +261,8 @@ class ItemsTableGui(ToolGui):
         subMenuFixHashMismatchError = self._createAndAddSubMenu(self.tr("Fix File Hash Mismatch Error"), self, menu)
         subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchTryFind'])
         subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchUpdateHash'])
+        menu.addSeparator()
+        menu.addAction(self.actions['itemsTableSettings'])
 
 
     def __buildContextMenu(self):

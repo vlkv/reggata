@@ -210,14 +210,13 @@ class UnivTableView(QtGui.QTableView):
         if self._model is None:
             return
         visibleColumns = eval(UserConfig().get(keyPrefix + ".visible_columns", "None")) # None - would mean all columns are visible
+        if visibleColumns is None:
+            visibleColumns = self._model.registeredColumnIds()
+
         columnIds = self._model.registeredColumnIds()
         for columnId in columnIds:
-            if visibleColumns is None:
-                self._model.setColumnVisible(columnId, True)
-            else:
-                self._model.setColumnVisible(columnId, columnId in visibleColumns)
+            self._model.setColumnVisible(columnId, columnId in visibleColumns)
 
-        visibleColumns = self._model.visibleColumnIds()
         i = 0
         for columnId in visibleColumns:
             self._model.setColumnIndex(columnId, i)
