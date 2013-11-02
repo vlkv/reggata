@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\univtablesettingsdialog.ui'
 #
-# Created: Fri Nov  1 22:36:55 2013
+# Created: Sat Nov  2 17:00:12 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -36,6 +36,7 @@ class Ui_UnivTableSettingsDialog(object):
         self.verticalLayout_4 = QtGui.QVBoxLayout(self.groupBox)
         self.verticalLayout_4.setObjectName(_fromUtf8("verticalLayout_4"))
         self.listWidgetHiddenColumns = QtGui.QListWidget(self.groupBox)
+        self.listWidgetHiddenColumns.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.listWidgetHiddenColumns.setObjectName(_fromUtf8("listWidgetHiddenColumns"))
         self.verticalLayout_4.addWidget(self.listWidgetHiddenColumns)
         self.horizontalLayout.addWidget(self.groupBox)
@@ -57,6 +58,7 @@ class Ui_UnivTableSettingsDialog(object):
         self.horizontalLayout_2 = QtGui.QHBoxLayout(self.groupBox_2)
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         self.listWidgetVisibleColumns = QtGui.QListWidget(self.groupBox_2)
+        self.listWidgetVisibleColumns.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.listWidgetVisibleColumns.setObjectName(_fromUtf8("listWidgetVisibleColumns"))
         self.horizontalLayout_2.addWidget(self.listWidgetVisibleColumns)
         self.verticalLayout_2 = QtGui.QVBoxLayout()

@@ -52,23 +52,44 @@ class UnivTableSettigsDialog(QtGui.QDialog):
         indexes = self.ui.listWidgetHiddenColumns.selectedIndexes()
         if len(indexes) == 0:
             return
+
+        colsToProcess = []
         for index in indexes:
             columnId, title = self._hiddenIds[index.row()]
-            del self._hiddenIds[index.row()]
+            colsToProcess.append((columnId, title))
+
+        for (columnId, title) in colsToProcess:
             self._visibleIds.append((columnId, title))
+            i = self._findIndexByColumnId(columnId, self._hiddenIds)
+            del self._hiddenIds[i]
         self._readData()
+
+
 
 
     def _makeColumnHidden(self):
         indexes = self.ui.listWidgetVisibleColumns.selectedIndexes()
         if len(indexes) == 0:
             return
+
+        colsToProcess = []
         for index in indexes:
             columnId, title = self._visibleIds[index.row()]
-            del self._visibleIds[index.row()]
+            colsToProcess.append((columnId, title))
+
+        for (columnId, title) in colsToProcess:
             self._hiddenIds.append((columnId, title))
+            i = self._findIndexByColumnId(columnId, self._visibleIds)
+            del self._visibleIds[i]
         self._readData()
 
+
+    def _findIndexByColumnId(self, columnId, collection):
+        for i in range(len(collection)):
+            cId, _cTitle = collection[i]
+            if cId == columnId:
+                return i
+        return None
 
 
     def _moveColumnUp(self):
