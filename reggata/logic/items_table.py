@@ -23,7 +23,7 @@ import reggata.consts as consts
 from reggata import helpers
 import os
 import traceback
-from reggata.gui.univ_table_settings import UnivTableSettigsDialog
+from reggata.gui.univ_table_settings_dialog import UnivTableSettigsDialog
 
 
 

@@ -11,12 +11,17 @@ class UnivTableSettigsDialog(QtGui.QDialog):
 
         self._keyPrefix = settingsKeyPrefix
 
-        self._visibleIds = self._tableModel.visibleColumnIds()
+        self._visibleIds = []
+        for columnId in self._tableModel.visibleColumnIds():
+            c = self._tableModel.columnById(columnId)
+            self._visibleIds.append((columnId, c.title))
+
         self._hiddenIds = []
         for columnId in self._tableModel.registeredColumnIds():
-            if columnId in self._visibleIds:
+            if self._tableModel.isColumnVisible(columnId):
                 continue
-            self._hiddenIds.append(columnId)
+            c = self._tableModel.columnById(columnId)
+            self._hiddenIds.append((columnId, c.title))
 
         self.ui = Ui_UnivTableSettingsDialog()
         self.ui.setupUi(self)
@@ -33,73 +38,73 @@ class UnivTableSettigsDialog(QtGui.QDialog):
 
     def _readData(self):
         self.ui.listWidgetHiddenColumns.clear()
-        for columnId in self._hiddenIds:
-            item = QtGui.QListWidgetItem(columnId)
+        for (columnId, title) in self._hiddenIds:
+            item = QtGui.QListWidgetItem(title)
             self.ui.listWidgetHiddenColumns.addItem(item)
 
         self.ui.listWidgetVisibleColumns.clear()
-        for columnId in self._visibleIds:
-            item = QtGui.QListWidgetItem(columnId)
+        for (columnId, title) in self._visibleIds:
+            item = QtGui.QListWidgetItem(title)
             self.ui.listWidgetVisibleColumns.addItem(item)
 
 
     def _makeColumnVisible(self):
-        selItems = self.ui.listWidgetHiddenColumns.selectedItems()
-        if len(selItems) == 0:
+        indexes = self.ui.listWidgetHiddenColumns.selectedIndexes()
+        if len(indexes) == 0:
             return
-        for item in selItems:
-            columnId = item.text()
-            self._hiddenIds.remove(columnId)
-            self._visibleIds.append(columnId)
+        for index in indexes:
+            columnId, title = self._hiddenIds[index.row()]
+            del self._hiddenIds[index.row()]
+            self._visibleIds.append((columnId, title))
         self._readData()
 
 
     def _makeColumnHidden(self):
-        selItems = self.ui.listWidgetVisibleColumns.selectedItems()
-        if len(selItems) == 0:
+        indexes = self.ui.listWidgetVisibleColumns.selectedIndexes()
+        if len(indexes) == 0:
             return
-        for item in selItems:
-            columnId = item.text()
-            self._visibleIds.remove(columnId)
-            self._hiddenIds.append(columnId)
+        for index in indexes:
+            columnId, title = self._visibleIds[index.row()]
+            del self._visibleIds[index.row()]
+            self._hiddenIds.append((columnId, title))
         self._readData()
 
 
 
     def _moveColumnUp(self):
-        selIndexes = self.ui.listWidgetVisibleColumns.selectedIndexes()
-        if len(selIndexes) != 1:
+        indexes = self.ui.listWidgetVisibleColumns.selectedIndexes()
+        if len(indexes) != 1:
             return
-        selIndex = selIndexes[0].row()
-        if selIndex == 0:
+        index = indexes[0].row()
+        if index == 0:
             return
-        columnId = self._visibleIds[selIndex]
-        del self._visibleIds[selIndex]
-        self._visibleIds.insert(selIndex-1, columnId)
+        columnId, title = self._visibleIds[index]
+        del self._visibleIds[index]
+        self._visibleIds.insert(index-1, (columnId, title))
         self._readData()
-        self.ui.listWidgetVisibleColumns.setCurrentRow(selIndex-1)
+        self.ui.listWidgetVisibleColumns.setCurrentRow(index-1)
 
 
 
     def _moveColumnDown(self):
-        selIndexes = self.ui.listWidgetVisibleColumns.selectedIndexes()
-        if len(selIndexes) != 1:
+        indexes = self.ui.listWidgetVisibleColumns.selectedIndexes()
+        if len(indexes) != 1:
             return
-        selIndex = selIndexes[0].row()
-        if selIndex == len(self._visibleIds) - 1:
+        index = indexes[0].row()
+        if index == len(self._visibleIds) - 1:
             return
-        columnId = self._visibleIds[selIndex]
-        del self._visibleIds[selIndex]
-        self._visibleIds.insert(selIndex+1, columnId)
+        columnId, title = self._visibleIds[index]
+        del self._visibleIds[index]
+        self._visibleIds.insert(index+1, (columnId, title))
         self._readData()
-        self.ui.listWidgetVisibleColumns.setCurrentRow(selIndex+1)
+        self.ui.listWidgetVisibleColumns.setCurrentRow(index+1)
 
 
 
     def _buttonAccept(self):
         res = []
-        for i in range(len(self._visibleIds)):
-            res.append(self._visibleIds[i])
+        for columnId, title in self._visibleIds:
+            res.append(columnId)
         UserConfig().store(self._keyPrefix + ".visible_columns", res)
         self.accept()
 
