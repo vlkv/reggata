@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'imageviewer.ui'
+# Form implementation generated from reading ui file '.\imageviewer.ui'
 #
-# Created: Sat Mar 30 14:07:21 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Tue Oct 29 20:36:08 2013
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_ImageViewer(object):
     def setupUi(self, ImageViewer):
@@ -73,15 +82,15 @@ class Ui_ImageViewer(object):
         QtCore.QMetaObject.connectSlotsByName(ImageViewer)
 
     def retranslateUi(self, ImageViewer):
-        ImageViewer.setWindowTitle(QtGui.QApplication.translate("ImageViewer", "ImageViewer", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBar.setWindowTitle(QtGui.QApplication.translate("ImageViewer", "ImageViewer", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_prev.setText(QtGui.QApplication.translate("ImageViewer", "Previous", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_next.setText(QtGui.QApplication.translate("ImageViewer", "Next", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_zoom_in.setText(QtGui.QApplication.translate("ImageViewer", "Zoom In", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_zoom_out.setText(QtGui.QApplication.translate("ImageViewer", "Zoom Out", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_fit_window.setText(QtGui.QApplication.translate("ImageViewer", "Fit Window", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_edit_item.setText(QtGui.QApplication.translate("ImageViewer", "Edit Item", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_edit_item.setToolTip(QtGui.QApplication.translate("ImageViewer", "Edit Item", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_edit_item.setShortcut(QtGui.QApplication.translate("ImageViewer", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
+        ImageViewer.setWindowTitle(_translate("ImageViewer", "ImageViewer", None))
+        self.toolBar.setWindowTitle(_translate("ImageViewer", "ImageViewer", None))
+        self.action_prev.setText(_translate("ImageViewer", "Previous", None))
+        self.action_next.setText(_translate("ImageViewer", "Next", None))
+        self.action_zoom_in.setText(_translate("ImageViewer", "Zoom In", None))
+        self.action_zoom_out.setText(_translate("ImageViewer", "Zoom Out", None))
+        self.action_fit_window.setText(_translate("ImageViewer", "Fit Window", None))
+        self.action_edit_item.setText(_translate("ImageViewer", "Edit Item", None))
+        self.action_edit_item.setToolTip(_translate("ImageViewer", "Edit Item", None))
+        self.action_edit_item.setShortcut(_translate("ImageViewer", "Ctrl+E", None))
 
 from . import resources_rc

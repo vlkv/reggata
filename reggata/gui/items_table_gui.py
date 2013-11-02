@@ -20,6 +20,8 @@ from reggata.gui.tool_gui import ToolGui
 from reggata.ui.ui_itemstablegui import Ui_ItemsTableGui
 from reggata.user_config import UserConfig
 from reggata.parsers import query_parser, query_tokens
+from reggata.gui.univ_table_model import UnivTableModel, UnivTableView,\
+    UnivTableColumn
 
 
 
@@ -34,6 +36,9 @@ class ItemsTableGui(ToolGui):
         self.ui = Ui_ItemsTableGui()
         self.ui.setupUi(self)
 
+        self._itemsTableView = UnivTableView(self)
+        self.ui.tableViewContainer.addWidget(self._itemsTableView)
+
         self.__itemsTableTool = itemsTableTool
 
         #Widgets for text queries
@@ -43,7 +48,7 @@ class ItemsTableGui(ToolGui):
         self.connect(self.ui.pushButton_query_exec, QtCore.SIGNAL("clicked()"), self.query_exec)
         self.connect(self.ui.lineEdit_query, QtCore.SIGNAL("returnPressed()"), self.ui.pushButton_query_exec.click)
         self.connect(self.ui.pushButton_query_reset, QtCore.SIGNAL("clicked()"), self.query_reset)
-        self.connect(self.ui.tableView_items, QtCore.SIGNAL("doubleClicked(const QModelIndex&)"), self.__onTableDoubleClicked)
+        self.connect(self._itemsTableView, QtCore.SIGNAL("doubleClicked(const QModelIndex&)"), self.__onTableDoubleClicked)
 
         #TODO limit page function sometimes works not correct!!! It sometimes shows less items, than specified in limit spinbox!
         #Initialization of limit and page spinboxes
@@ -55,13 +60,7 @@ class ItemsTableGui(ToolGui):
         self.connect(self.ui.spinBox_page, QtCore.SIGNAL("valueChanged(int)"), self.query_exec)
         self.ui.spinBox_page.setEnabled(self.ui.spinBox_limit.value() > 0)
 
-        #Tuning table cell rendering
-        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.TITLE, helpers.HTMLDelegate(self))
-        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.IMAGE_THUMB, helpers.ImageThumbDelegate(self))
-        self.ui.tableView_items.setItemDelegateForColumn(ItemsTableModel.RATING, helpers.RatingDelegate(self))
-
-        #Turn on table sorting
-        self.ui.tableView_items.setSortingEnabled(True)
+        self._itemsTableView.setSortingEnabled(True)
 
         self.__table_model = None
 
@@ -74,9 +73,9 @@ class ItemsTableGui(ToolGui):
 
     def __setTableModel(self, model):
         self.__table_model = model
-        self.ui.tableView_items.setModel(model)
+        self._itemsTableView.setModel(model)
         if model is not None:
-            self.connect(model, QtCore.SIGNAL("modelReset()"), self.ui.tableView_items.resizeRowsToContents)
+            self.connect(model, QtCore.SIGNAL("modelReset()"), self._itemsTableView.resizeRowsToContents)
             self.connect(model, QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), self._resize_row_to_contents)
 
     itemsTableModel = property(fget=__getTableModel, fset=__setTableModel)
@@ -133,25 +132,24 @@ class ItemsTableGui(ToolGui):
     def selectedRows(self):
         #We use set, because selectedIndexes() may return duplicates
         rows = set()
-        for index in self.ui.tableView_items.selectionModel().selectedIndexes():
+        for index in self._itemsTableView.selectionModel().selectedIndexes():
             rows.add(index.row())
         return rows
 
     def selectedItemIds(self):
         #We use set, because selectedIndexes() may return duplicates
         item_ids = set()
-        for index in self.ui.tableView_items.selectionModel().selectedIndexes():
-            item_ids.add(self.__table_model.items[index.row()].id)
+        for index in self._itemsTableView.selectionModel().selectedIndexes():
+            item_ids.add(self.__table_model.objAtRow(index.row()).id)
         return item_ids
 
 
     def itemAtRow(self, row):
-        return self.__table_model.items[row]
+        return self.__table_model.objAtRow(row)
 
 
     def rowCount(self):
         return self.__table_model.rowCount()
-
 
     def resetSingleRow(self, row):
         self.__table_model.resetRowRange(row, row)
@@ -177,49 +175,28 @@ class ItemsTableGui(ToolGui):
 
     def _resize_row_to_contents(self, top_left, bottom_right):
         if top_left.row() == bottom_right.row():
-            self.ui.tableView_items.resizeRowToContents(top_left.row())
+            self._itemsTableView.resizeRowToContents(top_left.row())
 
         elif top_left.row() < bottom_right.row():
             for row in range(top_left.row(), bottom_right.row()):
-                self.ui.tableView_items.resizeRowToContents(row)
+                self._itemsTableView.resizeRowToContents(row)
 
     def resize_rows_to_contents(self):
-        self.ui.tableView_items.resizeRowsToContents()
+        self._itemsTableView.resizeRowsToContents()
 
 
-    def restore_columns_width(self):
-        self.ui.tableView_items.setColumnWidth(ItemsTableModel.ROW_NUMBER, int(UserConfig().get("items_table.ROW_NUMBER.width", 30)))
-        self.ui.tableView_items.setColumnWidth(ItemsTableModel.ID, int(UserConfig().get("items_table.ID.width", 55)))
-        self.ui.tableView_items.setColumnWidth(ItemsTableModel.TITLE, int(UserConfig().get("items_table.TITLE.width", 430)))
-        self.ui.tableView_items.setColumnWidth(ItemsTableModel.IMAGE_THUMB, int(UserConfig().get("thumbnail_size", consts.THUMBNAIL_DEFAULT_SIZE)))
-        self.ui.tableView_items.setColumnWidth(ItemsTableModel.LIST_OF_TAGS, int(UserConfig().get("items_table.LIST_OF_TAGS.width", 220)))
-        self.ui.tableView_items.setColumnWidth(ItemsTableModel.STATE, int(UserConfig().get("items_table.STATE.width", 100)))
-        self.ui.tableView_items.setColumnWidth(ItemsTableModel.RATING, int(UserConfig().get("items_table.RATING.width", 100)))
+    def restoreColumnsWidth(self):
+        self._itemsTableView.restoreColumnsWidth("items_table")
 
-    def save_columns_width(self):
-        widthRowNumber = self.ui.tableView_items.columnWidth(ItemsTableModel.ROW_NUMBER)
-        if widthRowNumber > 0:
-            UserConfig().store("items_table.ROW_NUMBER.width", str(widthRowNumber))
+    def restoreColumnsVisibility(self):
+        self._itemsTableView.restoreColumnsVisibility("items_table")
 
-        width_id = self.ui.tableView_items.columnWidth(ItemsTableModel.ID)
-        if width_id > 0:
-            UserConfig().store("items_table.ID.width", str(width_id))
+    def saveColumnsWidth(self):
+        self._itemsTableView.saveColumnsWidth("items_table")
 
-        width_title = self.ui.tableView_items.columnWidth(ItemsTableModel.TITLE)
-        if width_title > 0:
-            UserConfig().store("items_table.TITLE.width", str(width_title))
+    def saveColumnsVisibility(self):
+        self._itemsTableView.saveColumnsVisibility("items_table")
 
-        width_list_of_tags = self.ui.tableView_items.columnWidth(ItemsTableModel.LIST_OF_TAGS)
-        if width_list_of_tags > 0:
-            UserConfig().store("items_table.LIST_OF_TAGS.width", str(width_list_of_tags))
-
-        width_state = self.ui.tableView_items.columnWidth(ItemsTableModel.STATE)
-        if width_state > 0:
-            UserConfig().store("items_table.STATE.width", str(width_state))
-
-        width_rating = self.ui.tableView_items.columnWidth(ItemsTableModel.RATING)
-        if width_rating > 0:
-            UserConfig().store("items_table.RATING.width", str(width_rating))
 
     def buildActions(self):
         if len(self.actions) > 0:
@@ -247,6 +224,8 @@ class ItemsTableGui(ToolGui):
         self.actions['fixFileNotFoundRemoveDataRef'] = self._createAction(self.tr("Remove Item's reference to file"))
         self.actions['fixHashMismatchTryFind'] = self._createAction(self.tr("Try find file"))
         self.actions['fixHashMismatchUpdateHash'] = self._createAction(self.tr("Update file hash"))
+
+        self.actions['itemsTableSettings'] = self._createAction(self.tr("Settings"))
 
 
     def buildMainMenu(self):
@@ -282,6 +261,8 @@ class ItemsTableGui(ToolGui):
         subMenuFixHashMismatchError = self._createAndAddSubMenu(self.tr("Fix File Hash Mismatch Error"), self, menu)
         subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchTryFind'])
         subMenuFixHashMismatchError.addAction(self.actions['fixHashMismatchUpdateHash'])
+        menu.addSeparator()
+        menu.addAction(self.actions['itemsTableSettings'])
 
 
     def __buildContextMenu(self):
@@ -323,11 +304,11 @@ class ItemsTableGui(ToolGui):
 
     def __addContextMenu(self):
         assert self.__context_menu is not None, "Context menu is not built"
-        self.ui.tableView_items.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.connect(self.ui.tableView_items, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
+        self._itemsTableView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.connect(self._itemsTableView, QtCore.SIGNAL("customContextMenuRequested(const QPoint &)"), self.showContextMenu)
 
     def showContextMenu(self, pos):
-        self.__context_menu.exec_(self.ui.tableView_items.mapToGlobal(pos))
+        self.__context_menu.exec_(self._itemsTableView.mapToGlobal(pos))
 
 
 
@@ -362,197 +343,56 @@ class ItemsTableGui(ToolGui):
         action.trigger()
 
 
+class ItemsTableModel(UnivTableModel):
+    ROW_NUM = "row_num"
+    ID = "id"
+    TITLE = "title"
+    IMAGE_THUMB = "image_thumb"
+    TAGS = "tags"
+    STATE = "state" #State of the item (in the means of its integrity)
+    RATING = "rating"
 
-class ItemsTableModel(QtCore.QAbstractTableModel):
-    '''
-        This class is a model of a table (QTableView) with repository Items.
-    '''
-    ROW_NUMBER = 0
-    ID = 1
-    TITLE = 2
-    IMAGE_THUMB = 3
-    LIST_OF_TAGS = 4
-    STATE = 5 #State of the item (in the means of its integrity)
-    RATING = 6
 
-    def __init__(self, repo, items_lock, user_login):
+    def __init__(self, repo, lock, userLogin):
         super(ItemsTableModel, self).__init__()
-        self.repo = repo
-        self.items = []
-        self._user_login = user_login
-
+        self._repo = repo
+        self._lock = lock
+        self.userLogin = userLogin
 
         #This is a thread for building image thumbnails in the background
-        self.thread = None
+        self._thread = None
 
-        #This is a lock to synchronize threads, reading/writing to self.items collection
-        self.lock = items_lock
-
-        self.query_text = ""
+        self.queryText = ""
         self.limit = 0
         self.page = 1
-
-        self.order_by_column = None
-        self.order_dir = None
-
-
-    def resetSingleRow(self, row):
-        self.resetRowRange(row, row)
-
-    def resetRowRange(self, topRow, bottomRow):
-        topL = self.createIndex(topRow, self.ID)
-        bottomR = self.createIndex(bottomRow, self.RATING)
-        self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
+        self.orderByColumnId = None
+        self.orderDir = None
+        self.createColumns()
 
 
-    def _set_user_login(self, user_login):
-        self._user_login = user_login
-
-    def _get_user_login(self):
-        return self._user_login
-
-    user_login = property(_get_user_login, _set_user_login, doc="Current active user login.")
-
-
-    def sort(self, column, order=Qt.AscendingOrder):
-        if column not in [self.ID, self.TITLE, self.RATING]:
-            return
-
-        self.order_by_column = column
-        self.order_dir = order
-
-        self.query(self.query_text, self.limit, self.page)
-
-    def query(self, query_text, limit=0, page=1):
-        '''
-        This function retrieves items from the database.
-        '''
-        self.query_text = query_text
-        self.limit = limit
-        self.page = page
-
-        if self.order_dir == Qt.AscendingOrder:
-            directory = "ASC"
-        else:
-            directory = "DESC"
-
-        order_by = []
-        if self.order_by_column is not None:
-            column = self.order_by_column
-            if column == self.ID:
-                order_by.append(("id", directory))
-            elif column == self.TITLE:
-                order_by.append(("title", directory))
-            #This is not exactly sorting by pure rating, but by fields and their values...
-            elif column == self.RATING:
-                order_by.append(("items_fields_field_id", "DESC"))
-                order_by.append(("items_fields_field_value", directory))
-
-
-        def reset_row(row):
-            self.resetSingleRow(row)
-            QtCore.QCoreApplication.processEvents()
-
-        uow = self.repo.createUnitOfWork()
-        try:
-            if self.thread is not None and self.thread.isRunning():
-                self.thread.interrupt = True
-                self.thread.wait(5*1000)
-
-            if query_text is None or query_text.strip()=="":
-                self.items = uow.executeCommand(cmds.GetUntaggedItems(limit, page, order_by))
-            else:
-                query_tree = query_parser.parse(query_text)
-                cmd = cmds.QueryItemsByParseTree(query_tree, limit, page, order_by)
-                self.items = uow.executeCommand(cmd)
-
-            self.thread = ThumbnailBuilderThread(self, self.repo, self.items, self.lock)
-            self.connect(self.thread, QtCore.SIGNAL("progress"), lambda percents, row: reset_row(row))
-            self.thread.start()
-
-            self.reset()
-
-        except (errors.YaccError, errors.LexError) as ex:
-            raise errors.MsgException(self.tr("Error in the query. Detail info: {}").format(str(ex)))
-
-        finally:
-            uow.close()
-
-
-
-
-
-    def rowCount(self, index=QtCore.QModelIndex()):
-        return len(self.items)
-
-    def columnCount(self, index=QtCore.QModelIndex()):
-        return 7
-
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if orientation == Qt.Horizontal:
+    def createColumns(self):
+        def formatRowNum(row, item, role):
             if role == Qt.DisplayRole:
-                if section == self.ROW_NUMBER:
-                    return self.tr("")
-                elif section == self.ID:
-                    return self.tr("Id")
-                elif section == self.TITLE:
-                    return self.tr("Title")
-                elif section == self.IMAGE_THUMB:
-                    return self.tr("Thumbnail")
-                elif section == self.LIST_OF_TAGS:
-                    return self.tr("Tags")
-                elif section == self.STATE:
-                    return self.tr("State")
-                elif section == self.RATING:
-                    return self.tr("Rating")
-            else:
-                return None
-        elif orientation == Qt.Vertical and role == Qt.DisplayRole:
-            return section + 1
-        else:
+                return str(row + 1)
+            if role == QtCore.Qt.TextAlignmentRole:
+                return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+            if role == Qt.ToolTipRole:
+                return self.tr("Table row number")
             return None
+        self.registerColumn(UnivTableColumn(ItemsTableModel.ROW_NUM, self.tr("Row"), formatRowNum))
 
-
-    def data(self, index, role=QtCore.Qt.DisplayRole):
-        if not index.isValid() or not (0 <= index.row() < len(self.items)):
+        def formatId(row, item, role):
+            if role == Qt.DisplayRole:
+                return str(item.id)
+            if role == QtCore.Qt.TextAlignmentRole:
+                return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
             return None
+        self.registerColumn(col = UnivTableColumn(ItemsTableModel.ID, self.tr("Id"), formatId))
 
-        item = self.items[index.row()]
-        column = index.column()
-
-        if role == QtCore.Qt.DisplayRole:
-            if column == self.ROW_NUMBER:
-                return index.row() + 1
-
-            elif column == self.ID:
-                return item.id
-
-            elif column == self.TITLE:
+        def formatTitle(row, item, role):
+            if role == Qt.DisplayRole:
                 return "<b>" + item.title + "</b>" + ("<br/><font>" + item.data_ref.url + "</font>" if item.data_ref else "")
-
-            elif column == self.LIST_OF_TAGS:
-                return item.format_tags()
-
-            elif column == self.STATE:
-                try:
-                    self.lock.lockForRead()
-                    return self.__formatErrorSetShort(item.error)
-                finally:
-                    self.lock.unlock()
-            elif column == self.RATING:
-                #Should display only rating field owned by current active user
-                rating_str = item.getFieldValue(consts.RATING_FIELD, self.user_login)
-                try:
-                    rating = int(rating_str)
-                except:
-                    rating = 0
-                return rating
-
-        elif role == Qt.ToolTipRole:
-            if column == self.ROW_NUMBER:
-                return "Table row number"
-
-            elif column == self.TITLE:
+            if role == Qt.ToolTipRole:
                 if item.data_ref is not None:
                     s  =  str(item.data_ref.type) + ": " + item.data_ref.url
                     if  item.data_ref.type == db.DataRef.FILE:
@@ -562,125 +402,164 @@ class ItemsTableModel(QtCore.QAbstractTableModel):
                     s += os.linesep + self.tr("Created by: {}").format(item.data_ref.user_login)
                     s += os.linesep + self.tr("Date created: {}").format(item.data_ref.date_created)
                     return s
+            return None
+        self.registerColumn(UnivTableColumn("title", self.tr("Title"), formatTitle, helpers.HTMLDelegate(self)))
 
-            elif column == self.LIST_OF_TAGS:
-                return item.format_field_vals()
-
-            elif column == self.STATE:
+        def formatThumbnail(row, item, role):
+            if role != QtCore.Qt.UserRole:
+                return None
+            if item.data_ref is None:
+                return None
+            if item.data_ref.is_image():
+                pixmap = QtGui.QPixmap()
                 try:
-                    self.lock.lockForRead()
-                    return self.__formatErrorSet(item.error)
+                    self._lock.lockForRead()
+                    if len(item.data_ref.thumbnails) > 0:
+                        pixmap.loadFromData(item.data_ref.thumbnails[0].data)
+                except Exception:
+                    traceback.format_exc()
                 finally:
-                    self.lock.unlock()
+                    self._lock.unlock()
+                return pixmap
+        self.registerColumn(UnivTableColumn(ItemsTableModel.IMAGE_THUMB, self.tr("Thumbnail"),
+                                         formatThumbnail,
+                                         delegate=helpers.ImageThumbDelegate(self)))
+
+        def formatTags(row, item, role):
+            if role == Qt.DisplayRole:
+                return item.format_tags()
+            if role == Qt.ToolTipRole:
+                return item.format_field_vals()
+            return None
+        self.registerColumn(UnivTableColumn(ItemsTableModel.TAGS, self.tr("Tags"), formatTags,
+                                         helpers.HTMLDelegate(self)))
+
+        def __formatErrorSetShort(error_set):
+            if error_set is None:
+                return ""
+            if len(error_set) <= 0:
+                return self.tr("OK")
+            elif len(error_set) > 0:
+                return helpers.to_commalist(error_set, lambda x: __formatErrorShort(x))
+
+        def __formatErrorShort(itemErrorCode):
+            if itemErrorCode == db.Item.ERROR_FILE_NOT_FOUND:
+                return self.tr("File not found")
+            elif itemErrorCode == db.Item.ERROR_FILE_HASH_MISMATCH:
+                return self.tr("Hash mismatch")
+            else:
+                assert False, "Unknown error code"
+
+        def formatState(row, item, role):
+            if role == Qt.DisplayRole:
+                try:
+                    self._lock.lockForRead()
+                    return __formatErrorSetShort(item.error)
+                finally:
+                    self._lock.unlock()
+            return None
+        self.registerColumn(UnivTableColumn(ItemsTableModel.STATE, self.tr("State"), formatState))
 
 
-        elif role == QtCore.Qt.UserRole:
-            if column == self.IMAGE_THUMB and item.data_ref is not None:
-                if item.data_ref.is_image():
-                    pixmap = QtGui.QPixmap()
-                    try:
-                        self.lock.lockForRead()
-                        if len(item.data_ref.thumbnails) > 0:
-                            pixmap.loadFromData(item.data_ref.thumbnails[0].data)
-                    except Exception:
-                        traceback.format_exc()
-                    finally:
-                        self.lock.unlock()
-                    return pixmap
+        def formatRating(row, item, role):
+            if role == Qt.DisplayRole:
+                ratingStr = item.getFieldValue(consts.RATING_FIELD, self.userLogin)
+                try:
+                    rating = int(ratingStr)
+                except:
+                    rating = 0
+                return rating
+            return None
+        def setRating(item, row, value, role):
+            if role != Qt.EditRole:
+                return False
+
+            oldValue = item.getFieldValue(consts.RATING_FIELD, self.userLogin)
+            if oldValue == value:
+                return False
+            item.setFieldValue(consts.RATING_FIELD, value, self.userLogin)
+            uow = self._repo.createUnitOfWork()
+            try:
+                srcAbsPath = os.path.join(self._repo.base_path, item.data_ref.url) if item.data_ref is not None else None
+                dstRelPath = item.data_ref.url if item.data_ref is not None else None
+                cmd = cmds.UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, self.userLogin)
+                uow.executeCommand(cmd)
+                return True
+            except:
+                item.setFieldValue(consts.RATING_FIELD, oldValue, self.userLogin)
+                return False
+            finally:
+                uow.close()
+        self.registerColumn(UnivTableColumn(ItemsTableModel.RATING, self.tr("Rating"),
+                                         formatObjFun=formatRating,
+                                         delegate=helpers.RatingDelegate(self),
+                                         setDataFun=setRating))
 
 
-        elif role == QtCore.Qt.TextAlignmentRole:
-            if column == self.ROW_NUMBER:
-                return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
-            if column == self.ID:
-                return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+    def sort(self, columnIndex, order=Qt.AscendingOrder):
+        column = self.column(columnIndex)
+        if column.id not in [self.ID, self.TITLE, self.RATING]:
+            return
 
-            elif column == self.TITLE:
-                return int(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.orderByColumnId = column.id
+        self.orderDir = order
 
-        #Во всех остальных случаях возвращаем None
-        return None
+        self.query(self.queryText, self.limit, self.page)
 
+
+    def query(self, queryText, limit=0, page=1):
+
+        self.queryText = queryText
+        self.limit = limit
+        self.page = page
+
+        directory = "ASC" if self.orderDir == Qt.AscendingOrder else "DESC"
+
+        orderBy = []
+        if self.orderByColumnId is not None:
+            if self.orderByColumnId == self.ID:
+                orderBy.append(("id", directory))
+            elif self.orderByColumnId == self.TITLE:
+                orderBy.append(("title", directory))
+            #This is not exactly sorting by pure rating, but by fields and their values...
+            elif self.orderByColumnId == self.RATING:
+                orderBy.append(("items_fields_field_id", "DESC"))
+                orderBy.append(("items_fields_field_value", directory))
+
+
+        def resetRow(row):
+            self.resetSingleRow(row)
+            QtCore.QCoreApplication.processEvents()
+
+        uow = self._repo.createUnitOfWork()
+        items = []
+        try:
+            if self._thread is not None and self._thread.isRunning():
+                self._thread.interrupt = True
+                self._thread.wait(5*1000)
+
+            if queryText is None or queryText.strip()=="":
+                items = uow.executeCommand(cmds.GetUntaggedItems(limit, page, orderBy))
+            else:
+                queryTree = query_parser.parse(queryText)
+                cmd = cmds.QueryItemsByParseTree(queryTree, limit, page, orderBy)
+                items = uow.executeCommand(cmd)
+
+            self._thread = ThumbnailBuilderThread(self, self._repo, items, self._lock)
+            self.connect(self._thread, QtCore.SIGNAL("progress"), lambda percents, row: resetRow(row))
+            self._thread.start()
+
+        except (errors.YaccError, errors.LexError) as ex:
+            raise errors.MsgException(self.tr("Error in the query. Detail info: {}").format(str(ex)))
+
+        finally:
+            uow.close()
+            self.setObjs(items)
 
     def isOpenItemActionAllowed(self, index):
-        if index.column() == ItemsTableModel.RATING:
+        c = self.column(index.column())
+        if c.id == ItemsTableModel.RATING:
             return False
         else:
             return True
-
-
-    def __formatErrorSet(self, error_set):
-
-        if error_set is not None:
-            if len(error_set) == 0:
-                s = "No errors"
-            else:
-                s = ""
-                for error in error_set:
-                    if error == db.Item.ERROR_FILE_HASH_MISMATCH:
-                        s += "File contents has changed (hash mismatch)".format(db.Item.ERROR_FILE_HASH_MISMATCH) + os.linesep
-                    elif error == db.Item.ERROR_FILE_NOT_FOUND:
-                        s += "File not found (maybe it was deleted, moved or renamed?)".format(db.Item.ERROR_FILE_NOT_FOUND) + os.linesep
-                if s.endswith(os.linesep):
-                    s = s[:-1]
-        else:
-            s = "Item integrity isn't checked yet"
-
-        return s
-
-    def __formatErrorSetShort(self, error_set):
-        if error_set is None:
-            return ""
-        if len(error_set) <= 0:
-            return self.tr("OK")
-        elif len(error_set) > 0:
-            return helpers.to_commalist(error_set, lambda x: self.__formatErrorShort(x))
-
-    def __formatErrorShort(self, itemErrorCode):
-        if itemErrorCode == db.Item.ERROR_FILE_NOT_FOUND:
-            return self.tr("File not found")
-        elif itemErrorCode == db.Item.ERROR_FILE_HASH_MISMATCH:
-            return self.tr("Hash mismatch")
-        else:
-            assert False, "Unknown error code"
-
-
-
-    def flags(self, index):
-        default_flags = super(ItemsTableModel, self).flags(index)
-
-        if index.column() == self.RATING:
-            return Qt.ItemFlags(default_flags | QtCore.Qt.ItemIsEditable)
-        else:
-            return default_flags
-
-    def setData(self, index, value, role=QtCore.Qt.EditRole):
-
-        if role == Qt.EditRole and index.column() == self.RATING:
-            item = self.items[index.row()]
-
-            #Remember old rating value
-            old_value = item.getFieldValue(consts.RATING_FIELD, self.user_login)
-
-            if old_value == value:
-                return False
-
-            item.setFieldValue(consts.RATING_FIELD, value, self.user_login)
-
-            #Store new rating value into database
-            uow = self.repo.createUnitOfWork()
-            try:
-                srcAbsPath = os.path.join(self.repo.base_path, item.data_ref.url) if item.data_ref is not None else None
-                dstRelPath = item.data_ref.url if item.data_ref is not None else None
-                cmd = cmds.UpdateExistingItemCommand(item, srcAbsPath, dstRelPath, self.user_login)
-                uow.executeCommand(cmd)
-                self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), index, index)
-                return True
-            except:
-                #Restore old value
-                item.setFieldValue(consts.RATING_FIELD, old_value, self.user_login)
-            finally:
-                uow.close()
-
-        return False

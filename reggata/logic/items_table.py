@@ -4,19 +4,27 @@ Created on 21.01.2012
 @author: vlkv
 '''
 from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import Qt
 from reggata.data.integrity_fixer import FileHashMismatchFixer, FileNotFoundFixer
 import reggata.data.db_schema as db
+import reggata.data.commands as cmds
 from reggata.logic.abstract_tool import AbstractTool
 from reggata.logic.tag_cloud import TagCloud
 import reggata.logic.action_handlers as handlers
 import reggata.logic.items_table_action_handlers as it_handlers
-import reggata.logic.common_action_handlers as com_handlers
 from reggata.logic.ext_app_mgr import ExtAppMgr
 from reggata.gui.common_widgets import Completer
 from reggata.gui.items_table_gui import ItemsTableGui, ItemsTableModel
 from reggata.gui.drop_files_dialogs_facade import DropFilesDialogsFacade
 import reggata.errors as errors
 from reggata.logic.handler_signals import HandlerSignals
+from reggata.gui.univ_table_model import UnivTableColumn
+import reggata.consts as consts
+from reggata import helpers
+import os
+import traceback
+from reggata.gui.univ_table_settings_dialog import UnivTableSettigsDialog
+
 
 
 class ItemsTable(AbstractTool):
@@ -69,6 +77,9 @@ class ItemsTable(AbstractTool):
         return self._gui
     gui = property(fget=__getGui)
 
+    def createSettingsGui(self, guiParent):
+        res = UnivTableSettigsDialog(self._gui.itemsTableModel, "items_table", guiParent)
+        return res
 
     def _getItemsLock(self):
         return self._itemsLock
@@ -150,14 +161,18 @@ class ItemsTable(AbstractTool):
             self._gui.actions['fixHashMismatchUpdateHash'],
             it_handlers.FixItemIntegrityErrorActionHandler(self, strategy))
 
+        self._actionHandlers.register(
+            self._gui.actions['itemsTableSettings'],
+            it_handlers.OpenItemsTableSettingsDialog(self))
+
 
     def handlerSignals(self):
         return [([HandlerSignals.ITEM_CHANGED,
                   HandlerSignals.ITEM_CREATED,
                   HandlerSignals.ITEM_DELETED], self._gui.update),
-
                 ([HandlerSignals.RESET_SINGLE_ROW], self._gui.resetSingleRow),
-                ([HandlerSignals.RESET_ROW_RANGE], self._gui.resetRowRange)]
+                ([HandlerSignals.RESET_ROW_RANGE], self._gui.resetRowRange),
+                ([HandlerSignals.REGGATA_CONF_CHANGED], self.restoreRecentState)]
 
     @property
     def repo(self):
@@ -167,19 +182,13 @@ class ItemsTable(AbstractTool):
     def setRepo(self, repo):
         self._repo = repo
         if repo is not None:
-            itemsTableModel = ItemsTableModel(repo, self._itemsLock,
-                                              self._user.login if self._user is not None else None)
-            self._gui.itemsTableModel = itemsTableModel
-
+            self._gui.itemsTableModel = ItemsTableModel(repo, self._itemsLock, self.user.login if self.user is not None else None)
             completer = Completer(repo=repo, parent=self._gui)
             self._gui.set_tag_completer(completer)
-
-            self._gui.restore_columns_width()
+            self.restoreRecentState()
         else:
-            self._gui.save_columns_width()
-
+            self.storeCurrentState()
             self._gui.itemsTableModel = None
-
             self._gui.set_tag_completer(None)
 
 
@@ -196,7 +205,7 @@ class ItemsTable(AbstractTool):
         self._user = user
         userLogin = user.login if user is not None else None
         if self._gui.itemsTableModel is not None:
-            self._gui.itemsTableModel.user_login = userLogin
+            self._gui.itemsTableModel.userLogin = userLogin
 
 
     def checkActiveUserIsNotNone(self):
@@ -205,11 +214,13 @@ class ItemsTable(AbstractTool):
 
 
     def storeCurrentState(self):
-        self._gui.save_columns_width()
+        self._gui.saveColumnsWidth()
+        self._gui.saveColumnsVisibility()
 
 
     def restoreRecentState(self):
-        self._gui.restore_columns_width()
+        self._gui.restoreColumnsVisibility()
+        self._gui.restoreColumnsWidth()
 
 
     def relatedToolIds(self):

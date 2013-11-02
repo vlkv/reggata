@@ -3,8 +3,8 @@
 """
 
 __major__ = 1  # for major interface/format changes
-__minor__ = 0  # for minor interface/format changes
-__release__ = 1  # for tweaks, bug-fixes, or development
+__minor__ = 1  # for minor interface/format changes
+__release__ = 0  # for tweaks, bug-fixes, or development
 __version__ = "{}.{}.{}".format(__major__, __minor__, __release__)
 
 __author__ = "Vitaly Volkov"

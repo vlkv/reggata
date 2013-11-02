@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'externalappsdialog.ui'
+# Form implementation generated from reading ui file '.\externalappsdialog.ui'
 #
-# Created: Sat Mar 30 14:07:21 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Tue Oct 29 20:36:08 2013
+#      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_ExternalAppsDialog(object):
     def setupUi(self, ExternalAppsDialog):
@@ -144,12 +153,12 @@ class Ui_ExternalAppsDialog(object):
         QtCore.QMetaObject.connectSlotsByName(ExternalAppsDialog)
 
     def retranslateUi(self, ExternalAppsDialog):
-        ExternalAppsDialog.setWindowTitle(QtGui.QApplication.translate("ExternalAppsDialog", "Preferred External Applications", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Category of files:", None, QtGui.QApplication.UnicodeUTF8))
-        self.buttonNewCategory.setText(QtGui.QApplication.translate("ExternalAppsDialog", "New", None, QtGui.QApplication.UnicodeUTF8))
-        self.buttonDeleteCategory.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Delete", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Executable:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEditAppCmd.setToolTip(QtGui.QApplication.translate("ExternalAppsDialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        ExternalAppsDialog.setWindowTitle(_translate("ExternalAppsDialog", "Preferred External Applications", None))
+        self.label.setText(_translate("ExternalAppsDialog", "Category of files:", None))
+        self.buttonNewCategory.setText(_translate("ExternalAppsDialog", "New", None))
+        self.buttonDeleteCategory.setText(_translate("ExternalAppsDialog", "Delete", None))
+        self.label_2.setText(_translate("ExternalAppsDialog", "Executable:", None))
+        self.lineEditAppCmd.setToolTip(_translate("ExternalAppsDialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
@@ -157,12 +166,12 @@ class Ui_ExternalAppsDialog(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">    &lt;path to executable&gt; &lt;replacement fields&gt;</p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Replacement fields could be:</p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">%f - will be replaced with file name;</span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">%d - will be replaced with containing directory of the file.</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.buttonSelectApp.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("ExternalAppsDialog", "File extensions:", None, QtGui.QApplication.UnicodeUTF8))
-        self.lineEditFileExtensions.setToolTip(QtGui.QApplication.translate("ExternalAppsDialog", "File extentions, separated with spaces, e.g. \".txt .doc .csv\"", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox.setTitle(QtGui.QApplication.translate("ExternalAppsDialog", "External Applications For Different Types Of Files", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_2.setTitle(QtGui.QApplication.translate("ExternalAppsDialog", "External File Browser", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Executable:", None, QtGui.QApplication.UnicodeUTF8))
-        self.buttonSelectFileBrowser.setText(QtGui.QApplication.translate("ExternalAppsDialog", "Select", None, QtGui.QApplication.UnicodeUTF8))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">%d - will be replaced with containing directory of the file.</span></p></body></html>", None))
+        self.buttonSelectApp.setText(_translate("ExternalAppsDialog", "Select", None))
+        self.label_3.setText(_translate("ExternalAppsDialog", "File extensions:", None))
+        self.lineEditFileExtensions.setToolTip(_translate("ExternalAppsDialog", "File extentions, separated with spaces, e.g. \".txt .doc .csv\"", None))
+        self.groupBox.setTitle(_translate("ExternalAppsDialog", "External Applications For Different Types Of Files", None))
+        self.groupBox_2.setTitle(_translate("ExternalAppsDialog", "External File Browser", None))
+        self.label_4.setText(_translate("ExternalAppsDialog", "Executable:", None))
+        self.buttonSelectFileBrowser.setText(_translate("ExternalAppsDialog", "Select", None))
 

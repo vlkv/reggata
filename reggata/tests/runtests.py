@@ -3,7 +3,6 @@ import os
 from reggata.tests import test_memento, test_helpers, test_repo_mgr, test_worker_threads,\
     test_action_handlers, test_items_integrity
 from reggata import consts, logging_default_conf
-import codecs
 import logging
 
 class TestsDiscoverIsNotAvailableError(Exception):

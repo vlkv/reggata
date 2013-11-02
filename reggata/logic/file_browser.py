@@ -273,13 +273,14 @@ class FileBrowser(AbstractTool):
         self._mutex = QtCore.QMutex()
         self._gui.resetTableModel(self._mutex)
 
-
     def storeCurrentState(self):
-        self._gui.saveColumnsWidths()
+        self._gui.saveColumnsWidth()
+        self._gui.saveColumnsVisibility()
 
 
     def restoreRecentState(self):
-        self._gui.restoreColumnsWidths()
+        self._gui.restoreColumnsVisibility()
+        self._gui.restoreColumnsWidth()
 
 
 
@@ -309,9 +310,8 @@ class FileInfoSearcherThread(QtCore.QThread):
                     topRow = i
                     dtStart = datetime.now()
                 if (datetime.now() - dtStart).microseconds > self.signalTimeoutMicroSec:
-                    bottomRow = i
                     shouldSendProgress = True
-
+                bottomRow = i
 
                 finfo = self.finfos[i]
                 if self.interrupt:

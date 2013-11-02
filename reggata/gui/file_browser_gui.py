@@ -13,6 +13,8 @@ import reggata.helpers as helpers
 from reggata.user_config import UserConfig
 import os
 from reggata.data.commands import FileInfo
+from reggata.gui.univ_table_model import UnivTableModel, UnivTableColumn,\
+    UnivTableView
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +28,11 @@ class FileBrowserGui(ToolGui):
 
         self.__fileBrowserTool = fileBrowserTool
         self.__tableModel = None
+        self.__proxyModel = None
 
-        self.ui.filesTableView.setItemDelegate(HTMLDelegate(self))
+        self.ui.filesTableView = UnivTableView(self)
+        self.ui.tableViewContainer.addWidget(self.ui.filesTableView)
+
         self.connect(self.ui.filesTableView,
                      QtCore.SIGNAL("activated(const QModelIndex&)"),
                      self.__onTableCellActivated)
@@ -42,7 +47,16 @@ class FileBrowserGui(ToolGui):
 
     def resetTableModel(self, mutex):
         self.__tableModel = FileBrowserTableModel(self, self.__fileBrowserTool, mutex)
-        self.ui.filesTableView.setModel(self.__tableModel)
+        self.__tableModel.setObjs(self.__fileBrowserTool.listDir())
+
+        self.__proxyModel = FileBrowserSortProxyModel(self)
+        self.__proxyModel.setSourceModel(self.__tableModel)
+        self.__proxyModel.setDynamicSortFilter(True)
+
+        self.ui.filesTableView.setModel(self.__proxyModel)
+        self.ui.filesTableView.setSortingEnabled(True)
+        self.ui.filesTableView.resizeRowsToContents()
+
         if self.__fileBrowserTool.repo is not None:
             relCurrDir = os.path.relpath(self.__fileBrowserTool.currDir, self.__fileBrowserTool.repo.base_path)
             self.ui.currDirLineEdit.setText(relCurrDir)
@@ -73,7 +87,8 @@ class FileBrowserGui(ToolGui):
 
     def __onTableCellActivated(self, index):
         try:
-            filename = self.ui.filesTableView.model().data(index, FileBrowserTableModel.ROLE_FILENAME)
+            sourceIndex = self.__proxyModel.mapToSource(index)
+            filename = self.__tableModel.objAtRow(sourceIndex.row()).fileBaseName
             absFilename = os.path.join(self.__fileBrowserTool.currDir, filename)
             if os.path.isdir(absFilename):
                 self.__fileBrowserTool.changeRelDir(filename)
@@ -110,12 +125,16 @@ class FileBrowserGui(ToolGui):
             self.ui.filesTableView.selectRow(0)
             self.__prevSelRows.append(newRow)
 
+    # NOTE: topSourceModelRow, bottomSourceModelRow are NOT visible rows
+    def resetTableRows(self, topSourceModelRow, bottomSourceModelRow):
+        self.__tableModel.resetRowRange(topSourceModelRow, bottomSourceModelRow)
 
-    def resetTableRow(self, row):
-        self.__tableModel.resetTableRow(row)
-
-    def resetTableRows(self, topRow, bottomRow):
-        self.__tableModel.resetTableRows(topRow, bottomRow)
+        rowsToResize = []
+        for srcRow in range(topSourceModelRow, bottomSourceModelRow+1):
+            proxyIndex = self.__proxyModel.mapFromSource(self.__tableModel.createIndex(srcRow, 0))
+            rowsToResize.append(proxyIndex.row())
+        for row in rowsToResize:
+            self.ui.filesTableView.resizeRowToContents(row)
 
     def buildActions(self):
         if len(self.actions) > 0:
@@ -150,7 +169,8 @@ class FileBrowserGui(ToolGui):
         #We use set, because selectedIndexes() may return duplicates
         fileTableRows = set()
         for index in self.ui.filesTableView.selectionModel().selectedIndexes():
-            fileTableRows.add(index.row())
+            sourceIndex = self.__proxyModel.mapToSource(index)
+            fileTableRows.add(sourceIndex.row())
 
         itemIds = []
         for row in fileTableRows:
@@ -171,131 +191,103 @@ class FileBrowserGui(ToolGui):
         #We use set, because selectedIndexes() may return duplicates
         result = set()
         for index in self.ui.filesTableView.selectionModel().selectedIndexes():
-            row = index.row()
+            sourceIndex = self.__proxyModel.mapToSource(index)
+            row = sourceIndex.row()
             finfo = self.__fileBrowserTool.listDir()[row]
             result.add(finfo.path)
         return list(result)
 
+    def restoreColumnsWidth(self):
+        self.ui.filesTableView.restoreColumnsWidth("file_browser")
 
-    def restoreColumnsWidths(self):
-        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.FILENAME, int(UserConfig().get("file_browser.FILENAME.width", 450)))
-        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.TAGS, int(UserConfig().get("file_browser.TAGS.width", 300)))
-        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.USERS, int(UserConfig().get("file_browser.USERS.width", 100)))
-        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.STATUS, int(UserConfig().get("file_browser.STATUS.width", 100)))
-        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.ITEM_IDS, int(UserConfig().get("file_browser.ITEM_IDS.width", 100)))
-        self.ui.filesTableView.setColumnWidth(FileBrowserTableModel.RATING, int(UserConfig().get("file_browser.RATING.width", 200)))
+    def restoreColumnsVisibility(self):
+        self.ui.filesTableView.restoreColumnsVisibility("file_browser")
 
-    def saveColumnsWidths(self):
-        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.FILENAME)
-        if width > 0:
-            UserConfig().store("file_browser.FILENAME.width", str(width))
+    def saveColumnsWidth(self):
+        self.ui.filesTableView.saveColumnsWidth("file_browser")
 
-        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.TAGS)
-        if width > 0:
-            UserConfig().store("file_browser.TAGS.width", str(width))
-
-        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.USERS)
-        if width > 0:
-            UserConfig().store("file_browser.USERS.width", str(width))
-
-        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.STATUS)
-        if width > 0:
-            UserConfig().store("file_browser.STATUS.width", str(width))
-
-        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.ITEM_IDS)
-        if width > 0:
-            UserConfig().store("file_browser.ITEM_IDS.width", str(width))
-
-        width = self.ui.filesTableView.columnWidth(FileBrowserTableModel.RATING)
-        if width > 0:
-            UserConfig().store("file_browser.RATING.width", str(width))
+    def saveColumnsVisibility(self):
+        self.ui.filesTableView.saveColumnsVisibility("file_browser")
 
 
-
-class FileBrowserTableModel(QtCore.QAbstractTableModel):
+class FileBrowserTableModel(UnivTableModel):
     '''
         A table model for displaying files (not Items) of repository.
     '''
-    FILENAME = 0
-    TAGS = 1
-    USERS = 2
-    STATUS = 3
-    ITEM_IDS = 4
-    RATING = 5
+    FILENAME = "filename"
+    TAGS = "tags"
+    STATUS = "status"
+    ITEM_IDS = "item_ids"
 
-    ROLE_FILENAME = Qt.UserRole
 
     def __init__(self, parent, fileBrowserTool, mutex):
         super(FileBrowserTableModel, self).__init__(parent)
         self._fileBrowserTool = fileBrowserTool
         self._mutex = mutex
+        self.createColumns()
 
-
-    def rowCount(self, index=QtCore.QModelIndex()):
-        return self._fileBrowserTool.filesCount()
-
-    def columnCount(self, index=QtCore.QModelIndex()):
-        return 5
-
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if orientation == Qt.Horizontal:
+    def createColumns(self):
+        def formatFilename(row, finfo, role):
             if role == Qt.DisplayRole:
-                if section == self.FILENAME:
-                    return self.tr("Filename")
-                elif section == self.TAGS:
-                    return self.tr("Tags")
-                elif section == self.USERS:
-                    return self.tr("Users")
-                elif section == self.STATUS:
-                    return self.tr("Status")
-                elif section == self.ITEM_IDS:
-                    return self.tr("Items' ids")
-                elif section == self.RATING:
-                    return self.tr("Rating")
-            else:
-                return None
-        else:
+                return "<html><b>" + finfo.fileBaseName + "</b>" if finfo.isDir() else finfo.fileBaseName
+            if role == QtCore.Qt.TextAlignmentRole:
+                return int(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
             return None
+        self.registerColumn(UnivTableColumn(self.FILENAME, self.tr("Filename"), formatFilename,
+                                            delegate=helpers.HTMLDelegate(self)))
 
-
-    def resetTableRow(self, row):
-        self.resetTableRows(row, row)
-
-    def resetTableRows(self, topRow, bottomRow):
-        topL = self.createIndex(topRow, self.FILENAME)
-        bottomR = self.createIndex(bottomRow, self.RATING)
-        self.emit(QtCore.SIGNAL("dataChanged(const QModelIndex&, const QModelIndex&)"), topL, bottomR)
-
-
-    def data(self, index, role=QtCore.Qt.DisplayRole):
-        if not index.isValid() or not (0 <= index.row() < self.rowCount()):
+        def formatTags(row, finfo, role):
+            if role == Qt.DisplayRole:
+                return helpers.to_commalist(finfo.tags)
             return None
+        self.registerColumn(UnivTableColumn(self.TAGS, self.tr("Tags"), formatTags,
+                                            delegate=helpers.HTMLDelegate(self)))
 
-        column = index.column()
-        row = index.row()
-
-        try:
-            if self._mutex is not None:
-                self._mutex.lock()
-
-            finfo = self._fileBrowserTool.listDir()[row]
-
-            if role == QtCore.Qt.DisplayRole:
-                if column == self.FILENAME:
-                    return "<html><b>" + finfo.fileBaseName + "</b>" if finfo.isDir() else finfo.fileBaseName
-                elif column == self.TAGS:
-                    return helpers.to_commalist(finfo.tags)
-                elif column == self.ITEM_IDS:
-                    return helpers.to_commalist(finfo.itemIds)
-                elif column == self.STATUS:
-                    return finfo.status
-                else:
-                    return ""
-            if role == FileBrowserTableModel.ROLE_FILENAME:
-                return finfo.fileBaseName
-
+        def formatItemIds(row, finfo, role):
+            if role == Qt.DisplayRole:
+                return helpers.to_commalist(finfo.itemIds)
             return None
+        self.registerColumn(UnivTableColumn(self.ITEM_IDS, self.tr("Items' Ids"), formatItemIds,
+                                            delegate=helpers.HTMLDelegate(self)))
 
-        finally:
-            if self._mutex is not None:
-                self._mutex.unlock()
+        def formatStatus(row, finfo, role):
+            if role == Qt.DisplayRole:
+                return finfo.status
+            return None
+        self.registerColumn(UnivTableColumn(self.STATUS, self.tr("Status"), formatStatus,
+                                            delegate=helpers.HTMLDelegate(self)))
+
+
+        def data(self, index, role=QtCore.Qt.DisplayRole):
+            try:
+                if self._mutex is not None:
+                    self._mutex.lock()
+                return super(FileBrowserTableModel, self).data(index, role)
+            finally:
+                if self._mutex is not None:
+                    self._mutex.unlock()
+
+
+class FileBrowserSortProxyModel(QtGui.QSortFilterProxyModel):
+    def __init__(self, parent=None):
+        super(FileBrowserSortProxyModel, self).__init__(parent)
+
+    def lessThan(self, leftIndex, rightIndex):
+        leftData = self.sourceModel().objAtRow(leftIndex.row())
+        rightData = self.sourceModel().objAtRow(rightIndex.row())
+
+        if leftData.type == FileInfo.DIR and leftData.path == "..":
+            return False;
+
+        if rightData.type == FileInfo.DIR and rightData.path == "..":
+            return False;
+
+        if leftData.type == FileInfo.DIR and rightData.type != FileInfo.DIR:
+            return False
+
+        if leftData.type != FileInfo.DIR and rightData.type == FileInfo.DIR:
+            return True
+
+        return super(FileBrowserSortProxyModel, self).lessThan(leftIndex, rightIndex)
+
+

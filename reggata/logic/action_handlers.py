@@ -37,11 +37,10 @@ class ActionHandlerStorage():
 
 
 class AbstractActionHandler(QtCore.QObject):
-    def __init__(self, model=None):
+    def __init__(self, tool=None):
         super(AbstractActionHandler, self).__init__()
-        self._gui = model # TODO: remove self._gui as soon as possible from here
-        self._tool = model
-        self._model = model
+        self._tool = tool
+        self._model = tool
 
     def handle(self):
         raise NotImplementedError("This function should be overriden in subclass")
