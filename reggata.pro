@@ -3,6 +3,7 @@ FORMS += \
 	reggata/ui/externalappsdialog.ui \
 	reggata/ui/mainwindow.ui \
 	reggata/ui/filebrowsergui.ui \
+	reggata/ui/univtablesettingsdialog.ui \
 	reggata/ui/userdialog.ui \
 	reggata/ui/changeuserpassword.ui \
 	reggata/ui/itemdialog.ui \
@@ -12,6 +13,7 @@ FORMS += \
 
 SOURCES += \
 	reggata/consts.py \
+	reggata/statistics.py \
 	reggata/helpers.py \
 	reggata/user_config.py \
 	reggata/pyjavaproperties.py \
@@ -58,6 +60,7 @@ SOURCES += \
 	reggata/ui/ui_itemdialog.py \
 	reggata/ui/ui_aboutdialog.py \
 	reggata/ui/ui_itemsdialog.py \
+	reggata/ui/ui_univtablesettingsdialog.py \
 	reggata/gui/tag_cloud_gui.py \
 	reggata/gui/items_dialog.py \
 	reggata/gui/__init__.py \
@@ -65,9 +68,11 @@ SOURCES += \
 	reggata/gui/my_message_box.py \
 	reggata/gui/common_widgets.py \
 	reggata/gui/tool_gui.py \
+	reggata/gui/univ_table_settings_dialog.py \
 	reggata/gui/items_table_gui.py \
 	reggata/gui/file_browser_gui.py \
 	reggata/gui/user_dialog.py \
+	reggata/gui/univ_table_model.py \
 	reggata/gui/item_dialog.py \
 	reggata/gui/main_window.py \
 	reggata/gui/image_viewer.py \
