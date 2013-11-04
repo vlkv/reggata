@@ -1,3 +1,14 @@
+reggata (1.1.0-1) UNRELEASED; urgency=low
+
+  * #41 IMPROVE: Allow user to configure which columns to display in ItemsTable
+  * #52 Implement versioning in json format of exported Items
+  * #76 IMPROVE: Tools should hide their menu when they are not visible
+  * #113 BUG: Title is set to abs file path for items added by drag n drop to
+  Items Table
+
+ -- Vitaly Volkov <vitvlkv@gmail.com>  Mon, 04 Nov 2013 11:17:00 +0400
+
+
 reggata (1.0.1-1) UNRELEASED; urgency=low
 
   * #39 NEW FEATURE: Implement counters to gather statistics of reggata usage

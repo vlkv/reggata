@@ -130,6 +130,7 @@ reggata/ui/__pycache__/ui_userdialog.cpython-32.pyc
 reggata/ui/__pycache__/ui_externalappsdialog.cpython-32.pyc
 reggata/ui/__pycache__/ui_imageviewer.cpython-32.pyc
 reggata/ui/__pycache__/ui_itemdialog.cpython-32.pyc
+reggata/ui/__pycache__/ui_univtablesettingsdialog.cpython-32.pyc
 reggata/gui/__pycache__/change_user_password_dialog.cpython-32.pyc
 reggata/gui/__pycache__/external_apps_dialog.cpython-32.pyc
 reggata/gui/__pycache__/user_dialogs_facade.cpython-32.pyc
@@ -146,6 +147,8 @@ reggata/gui/__pycache__/file_browser_gui.cpython-32.pyc
 reggata/gui/__pycache__/item_dialog.cpython-32.pyc
 reggata/gui/__pycache__/tool_gui.cpython-32.pyc
 reggata/gui/__pycache__/tag_cloud_gui.cpython-32.pyc
+reggata/gui/__pycache__/univ_table_model.cpython-32.pyc
+reggata/gui/__pycache__/univ_table_settings_dialog.cpython-32.pyc
 reggata/data/__pycache__/repo_mgr.cpython-32.pyc
 reggata/data/__pycache__/integrity_fixer.cpython-32.pyc
 reggata/data/__pycache__/operations.cpython-32.pyc
