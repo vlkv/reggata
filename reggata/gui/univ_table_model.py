@@ -182,6 +182,9 @@ class UnivTableView(QtGui.QTableView):
         self._model = None
 
     def setModel(self, origModel):
+        if not origModel:
+            return
+
         model = origModel
         if isinstance(origModel, QtGui.QSortFilterProxyModel):
             model = origModel.sourceModel()
