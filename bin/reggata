@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # This is a Reggata launcher for source installations and *.deb packages
 
-from reggata.main import *
+from reggata.main import main
 
 if __name__ == "__main__":
     main()
