@@ -116,7 +116,7 @@ class MainWindow(QtGui.QMainWindow, AbstractGui):
         #TODO: move resoring of recent repo and user to the MainWindowModel
         try:
             #Try to open and login recent repository with recent user login
-            tmp = UserConfig()["recent_repo.base_path"]
+            tmp = UserConfig().get("recent_repo.base_path")
             self._model.repo = repo.RepoMgr(tmp)
             self._model.loginRecentUser()
         except errors.CannotOpenRepoError:
