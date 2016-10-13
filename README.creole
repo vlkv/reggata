@@ -10,6 +10,8 @@ suggestions are very appreciated. Feel free to email me (vitvlkv@gmail.com).
 
 If you found a bug or maybe want to request a new feature then report it here [[https://github.com/vlkv/reggata/issues]].
 
+This project is not supported anymore, because I'm developing another version of it https://github.com/vlkv/reggatad.
+
 === Screenshots
 
 Reggata screenshots are here: [[http://sourceforge.net/project/screenshots.php?group_id=388265]].
